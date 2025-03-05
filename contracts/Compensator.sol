@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title Compensator
- * @notice A contract that allows COMP token holders to delegate their tokens to a delegate
+ * @notice A contract that allows COMP token holders to delegate their voting power
  * and earn rewards. The delegate can deposit COMP to distribute rewards to delegators.
  * The contract enforces a 5% cap on the total COMP that can be delegated to a single delegate.
  */
