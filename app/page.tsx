@@ -1,4 +1,4 @@
-import Head from 'next/head';  // Import the Head component
+import Head from 'next/head';
 
 export default function Home() {
   return (
