@@ -1,9 +1,7 @@
 # Compensator
 
 ## Overview
-Compensator is a delegate marketplace designed to enhance governance participation and efficiency in the Compound DAO. By creating a secure and transparent platform for vote delegation and compensation, Compensator addresses two critical challenges in decentralized governance: low voter turnout and lack of incentivization. These issues often undermine the legitimacy and effectiveness of governance outcomes. 
-
-Compensator solves these challenges by enabling COMP holders to delegate vote power to in exchange for transparent rewards. Delegates, in turn, can attract more voting power by offering competitive compensation, fostering a vibrant and participatory governance ecosystem.
+Compensator is a delegate marketplace for the Compound DAO, designed to address low voter turnout and lack of incentivization in governance. It enables COMP holders to delegate voting power in exchange for transparent rewards, fostering greater participation in vote outcomes. Delegates attract voting power through competitive compensation, creating a vibrant and efficient governance ecosystem.
 
 ## Features
 
