@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Head from 'next/head';  // Import the Head component
 
 export default function Home() {
