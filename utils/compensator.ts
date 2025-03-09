@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { 
     COMPENSATOR_FACTORY_ADDRESS,
     COMPENSATOR_ABI, 
@@ -6,17 +6,17 @@ import {
     ERC20_ABI 
 } from '../config/constants'; 
 
-// Methods for executing transaction on Ethereum 
+// Methods for executing transactions on Ethereum 
 
 export const getProvider = () => {
     if (typeof window.ethereum !== 'undefined') {
-        return new ethers.providers.Web3Provider(window.ethereum);
+        return new ethers.BrowserProvider(window.ethereum);
     }
     throw new Error('Ethereum provider not found.');
 };
 
-export const getSigner = (provider: ethers.providers.Web3Provider) => {
-    return provider.getSigner();
+export const getSigner = async (provider: ethers.BrowserProvider) => {
+    return await provider.getSigner();
 };
 
 export const approve = async (depositToken: string, compensatorAddress: string) => {
@@ -28,13 +28,13 @@ export const approve = async (depositToken: string, compensatorAddress: string) 
         signer
     );
 
-    // TODO: No max approval
-    const maxApprovalAmount = ethers.constants.MaxUint256;
+    // No max approval
+    const maxApprovalAmount = ethers.MaxUint256;
     const approvalTx = await contract.approve(compensatorAddress, maxApprovalAmount);
     await approvalTx.wait();
 };
 
-export const delegateDeposit = async (amount: BigNumber, compensatorAddress: string) => {
+export const delegateDeposit = async (amount: bigint, compensatorAddress: string) => {
     const provider = await getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
@@ -47,7 +47,7 @@ export const delegateDeposit = async (amount: BigNumber, compensatorAddress: str
     await depositTx.wait();
 };
 
-export const delegateWithdraw = async (amount: BigNumber, compensatorAddress: string) => {
+export const delegateWithdraw = async (amount: bigint, compensatorAddress: string) => {
     const provider = await getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
@@ -60,7 +60,7 @@ export const delegateWithdraw = async (amount: BigNumber, compensatorAddress: st
     await withdrawTx.wait();
 };
 
-export const setRewardRate = async (newRate: BigNumber, compensatorAddress: string) => {
+export const setRewardRate = async (newRate: bigint, compensatorAddress: string) => {
     const provider = await getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
@@ -73,7 +73,7 @@ export const setRewardRate = async (newRate: BigNumber, compensatorAddress: stri
     await setRewardRateTx.wait();
 };
 
-export const delegatorDeposit = async (amount: BigNumber, compensatorAddress: string) => {
+export const delegatorDeposit = async (amount: bigint, compensatorAddress: string) => {
     const provider = await getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
@@ -86,7 +86,7 @@ export const delegatorDeposit = async (amount: BigNumber, compensatorAddress: st
     await depositTx.wait();
 };
 
-export const delegatorWithdraw = async (amount: BigNumber, compensatorAddress: string) => {
+export const delegatorWithdraw = async (amount: bigint, compensatorAddress: string) => {
     const provider = await getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
