@@ -24,7 +24,7 @@ export const approve = async (depositToken: string, compensatorAddress: string) 
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         depositToken,
-        ERC20_ABI,
+        ERC20_ABI, // Ensure ERC20_ABI is a valid ABI array
         signer
     );
 
@@ -39,7 +39,7 @@ export const delegateDeposit = async (amount: bigint, compensatorAddress: string
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         signer
     );
 
@@ -52,7 +52,7 @@ export const delegateWithdraw = async (amount: bigint, compensatorAddress: strin
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         signer
     );
 
@@ -65,7 +65,7 @@ export const setRewardRate = async (newRate: bigint, compensatorAddress: string)
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         signer
     );
 
@@ -78,7 +78,7 @@ export const delegatorDeposit = async (amount: bigint, compensatorAddress: strin
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         signer
     );
 
@@ -91,7 +91,7 @@ export const delegatorWithdraw = async (amount: bigint, compensatorAddress: stri
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         signer
     );
 
@@ -104,7 +104,7 @@ export const claimRewards = async (compensatorAddress: string) => {
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         signer
     );
 
@@ -116,7 +116,7 @@ export const getPendingRewards = async (delegator: string, compensatorAddress: s
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
@@ -129,7 +129,7 @@ export const createCompensator = async (delegate: string, delegateName: string) 
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         COMPENSATOR_FACTORY_ADDRESS,
-        COMPENSATOR_FACTORY_ABI,
+        COMPENSATOR_FACTORY_ABI, // Ensure COMPENSATOR_FACTORY_ABI is a valid ABI array
         signer
     );
 
@@ -141,7 +141,7 @@ export const getCompensatorAddress = async (delegate: string) => {
     const provider = getProvider();
     const contract = new ethers.Contract(
         COMPENSATOR_FACTORY_ADDRESS,
-        COMPENSATOR_FACTORY_ABI,
+        COMPENSATOR_FACTORY_ABI, // Ensure COMPENSATOR_FACTORY_ABI is a valid ABI array
         provider
     );
 
@@ -153,7 +153,7 @@ export const getCompensatorInfo = async (compensatorAddress: string) => {
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
@@ -165,7 +165,7 @@ export const getDelegatorInfo = async (delegator: string, compensatorAddress: st
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
@@ -177,7 +177,7 @@ export const getTotalSupply = async (compensatorAddress: string) => {
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
@@ -189,7 +189,7 @@ export const getTotalRewards = async (compensatorAddress: string) => {
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
@@ -201,7 +201,7 @@ export const getRewardRate = async (compensatorAddress: string) => {
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
@@ -213,7 +213,7 @@ export const getDelegatorBalance = async (delegator: string, compensatorAddress:
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
@@ -225,7 +225,7 @@ export const getDelegatorRewards = async (delegator: string, compensatorAddress:
     const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
-        COMPENSATOR_ABI,
+        COMPENSATOR_ABI, // Ensure COMPENSATOR_ABI is a valid ABI array
         provider
     );
 
