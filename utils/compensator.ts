@@ -9,7 +9,7 @@ import {
 // Methods for executing transactions on Ethereum 
 
 export const getProvider = () => {
-    if (typeof window.ethereum !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
         return new ethers.BrowserProvider(window.ethereum);
     }
     throw new Error('Ethereum provider not found.');
@@ -20,7 +20,7 @@ export const getSigner = async (provider: ethers.BrowserProvider) => {
 };
 
 export const approve = async (depositToken: string, compensatorAddress: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         depositToken,
@@ -35,7 +35,7 @@ export const approve = async (depositToken: string, compensatorAddress: string) 
 };
 
 export const delegateDeposit = async (amount: bigint, compensatorAddress: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
@@ -48,7 +48,7 @@ export const delegateDeposit = async (amount: bigint, compensatorAddress: string
 };
 
 export const delegateWithdraw = async (amount: bigint, compensatorAddress: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
@@ -61,7 +61,7 @@ export const delegateWithdraw = async (amount: bigint, compensatorAddress: strin
 };
 
 export const setRewardRate = async (newRate: bigint, compensatorAddress: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
@@ -74,7 +74,7 @@ export const setRewardRate = async (newRate: bigint, compensatorAddress: string)
 };
 
 export const delegatorDeposit = async (amount: bigint, compensatorAddress: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
@@ -87,7 +87,7 @@ export const delegatorDeposit = async (amount: bigint, compensatorAddress: strin
 };
 
 export const delegatorWithdraw = async (amount: bigint, compensatorAddress: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
@@ -100,7 +100,7 @@ export const delegatorWithdraw = async (amount: bigint, compensatorAddress: stri
 };
 
 export const claimRewards = async (compensatorAddress: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         compensatorAddress,
@@ -113,12 +113,11 @@ export const claimRewards = async (compensatorAddress: string) => {
 };
 
 export const getPendingRewards = async (delegator: string, compensatorAddress: string) => {
-    const provider = await getProvider();
-    const signer = await getSigner(provider);
+    const provider = getProvider();
     const contract = new ethers.Contract(
         compensatorAddress,
         COMPENSATOR_ABI,
-        signer
+        provider
     );
 
     const pendingRewards = await contract.getPendingRewards(delegator);
@@ -126,7 +125,7 @@ export const getPendingRewards = async (delegator: string, compensatorAddress: s
 };
 
 export const createCompensator = async (delegate: string, delegateName: string) => {
-    const provider = await getProvider();
+    const provider = getProvider();
     const signer = await getSigner(provider);
     const contract = new ethers.Contract(
         COMPENSATOR_FACTORY_ADDRESS,
@@ -136,4 +135,100 @@ export const createCompensator = async (delegate: string, delegateName: string) 
 
     const createCompensatorTx = await contract.createCompensator(delegate, delegateName);
     await createCompensatorTx.wait();
+};
+
+export const getCompensatorAddress = async (delegate: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        COMPENSATOR_FACTORY_ADDRESS,
+        COMPENSATOR_FACTORY_ABI,
+        provider
+    );
+
+    const compensatorAddress = await contract.getCompensatorAddress(delegate);
+    return compensatorAddress;
+};
+
+export const getCompensatorInfo = async (compensatorAddress: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        compensatorAddress,
+        COMPENSATOR_ABI,
+        provider
+    );
+
+    const info = await contract.getCompensatorInfo();
+    return info;
+};
+
+export const getDelegatorInfo = async (delegator: string, compensatorAddress: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        compensatorAddress,
+        COMPENSATOR_ABI,
+        provider
+    );
+
+    const info = await contract.getDelegatorInfo(delegator);
+    return info;
+};
+
+export const getTotalSupply = async (compensatorAddress: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        compensatorAddress,
+        COMPENSATOR_ABI,
+        provider
+    );
+
+    const totalSupply = await contract.totalSupply();
+    return totalSupply;
+};
+
+export const getTotalRewards = async (compensatorAddress: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        compensatorAddress,
+        COMPENSATOR_ABI,
+        provider
+    );
+
+    const totalRewards = await contract.totalRewards();
+    return totalRewards;
+};
+
+export const getRewardRate = async (compensatorAddress: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        compensatorAddress,
+        COMPENSATOR_ABI,
+        provider
+    );
+
+    const rewardRate = await contract.rewardRate();
+    return rewardRate;
+};
+
+export const getDelegatorBalance = async (delegator: string, compensatorAddress: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        compensatorAddress,
+        COMPENSATOR_ABI,
+        provider
+    );
+
+    const balance = await contract.getDelegatorBalance(delegator);
+    return balance;
+};
+
+export const getDelegatorRewards = async (delegator: string, compensatorAddress: string) => {
+    const provider = getProvider();
+    const contract = new ethers.Contract(
+        compensatorAddress,
+        COMPENSATOR_ABI,
+        provider
+    );
+
+    const rewards = await contract.getDelegatorRewards(delegator);
+    return rewards;
 };
