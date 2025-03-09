@@ -17,7 +17,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
   - Delegators who staked for the losing option get their stake back.
 
 ### 3. **Delegation Cap**
-- A **5% cap** is enforced on the total COMP that can be delegated to a single delegate.
+- A 5% cap is enforced on the total COMP that can be delegated to a single delegate.
 - This ensures no single delegate can accumulate excessive or malicious voting power.
 
 ## Protocol Specs
@@ -97,9 +97,9 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 ## Workflow
 
 ### For Delegates
-1. **Create a Compensator Contract**: Use the `CompensatorFactory` to create a `Compensator` contract.
-2. **Deposit COMP**: Supply COMP into the contract to fund rewards for delegators.
-3. **Set Reward Rate**: Define the reward rate (in COMP/second) to distribute rewards.
+1. **Create Compensator**: Use the `CompensatorFactory` to create a `Compensator` contract.
+2. **Supply COMP**: Supply COMP into the contract to fund rewards for delegators.
+3. **Set Rate**: Define the reward rate (in COMP/second) to distribute rewards.
 4. **Withdraw COMP**: Withdraw unused COMP, ensuring pending rewards are reserved.
 
 ### For Delegators
@@ -125,7 +125,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - **Gas Optimization**: Further optimize gas usage for reward calculations and delegator interactions.
 
 ## Thanks We Owe
-Many thanks to long-time Compound community member [Mike Ghen](https://github.com/mikeghen), who created this concept and won a hackathon grant for it from Compound 2 years ago. We also thank Compound contributors heading the grants program, which has allowed Compensator to be furthered and surfaced in the community. Lastly, we thank the Compound community as a whole for the opportunity to drive greater outcomes for Compound.
+Many thanks to long-time Compound community member [Mike Ghen](https://github.com/mikeghen), who created this concept and won a hackathon grant for it from Compound 2 years ago. We also thank Compound contributors heading the grants program, who've allowed Compensator to be furthered and surfaced in the community. Lastly, we thank the Compound community as a whole for the opportunity to drive greater outcomes for Compound.
 
 ## License
 This project is licensed under the GNU General Public License.
