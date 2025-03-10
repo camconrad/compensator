@@ -6,7 +6,7 @@ export const formatTokenAmount = (
   displayDecimals: number
 ): string => {
   // Format it as a number
-  let result = Number(ethers.utils.formatUnits(amount, tokenDecimals));
+  let result = Number(ethers.formatUnits(amount, tokenDecimals));
   // Floor it with rounding
   result = Math.floor(result * Math.pow(10, displayDecimals)) / Math.pow(10, displayDecimals);
   
