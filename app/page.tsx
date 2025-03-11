@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 export default function Home() {
   const [authorized, setAuthorized] = useState(false);
   const [passcode, setPasscode] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [theme, setTheme] = useState('light');
@@ -147,20 +148,30 @@ export default function Home() {
             </motion.div>
 
             <motion.div className="rounded-xl w-full" variants={itemVariants}>
-              <form onSubmit={handlePasscodeSubmit} className="flex flex-col gap-3 max-w-sm mx-auto w-full">
-                <motion.div variants={itemVariants}>
-                  <label htmlFor="passcode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 text-left mb-1">
-                    Passcode
-                  </label>
-                  <input
-                    id="passcode"
-                    type="password"
-                    value={passcode}
-                    onChange={(e) => setPasscode(e.target.value)}
-                    placeholder="Enter passcode"
-                    className="p-3 rounded-lg w-full transition-all bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                    autoFocus
-                  />
+              <form onSubmit={handlePasscodeSubmit} className="flex flex-col gap-3 max-w-[360px] mx-auto w-full">
+                <motion.div className="relative" variants={itemVariants}>
+                  <div className="relative h-12">
+                    <input
+                      id="passcode"
+                      type="password"
+                      value={passcode}
+                      onChange={(e) => setPasscode(e.target.value)}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={() => setIsFocused(false)}
+                      className="absolute inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                      autoFocus
+                    />
+                    <label 
+                      htmlFor="passcode" 
+                      className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                        isFocused || passcode ? 
+                        'text-xs text-emerald-500 dark:text-emerald-400 top-1' : 
+                        'text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2'
+                      }`}
+                    >
+                      Passcode
+                    </label>
+                  </div>
                 </motion.div>
 
                 {error && (
@@ -191,7 +202,7 @@ export default function Home() {
                 >
                   {loading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin mx-auto h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
