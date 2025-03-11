@@ -51,7 +51,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - `uint256 rewardIndex` - Tracks the distribution of rewards over time.
 - `uint256 lastRewarded` - Timestamp of the last reward distribution.
 - `uint256 totalDelegatedCOMP` - Total COMP delegated to this delegate.
-- `uint256 delegationCap` - The maximum COMP that can be delegated to this delegate (5% of total COMP supply).
+- `uint256 delegationCap` - The max COMP that can be delegated to this delegate (5%).
 - `mapping(address => uint) claimedRewards` - Tracks the rewards claimed by each delegator.
 - `mapping(address => uint) startRewardIndex` - Tracks the starting reward index for each delegator.
 
@@ -99,7 +99,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 ### For Delegates
 1. **Create Compensator**: Use the `CompensatorFactory` to create a `Compensator` contract.
 2. **Supply COMP**: Supply COMP into the contract to fund rewards for delegators.
-3. **Set Rate**: Define the reward rate (in COMP/second) to distribute rewards.
+3. **Set Reward**: Define the reward rate (in COMP/second) to distribute rewards.
 4. **Withdraw COMP**: Withdraw unused COMP, ensuring pending rewards are reserved.
 
 ### For Delegators
@@ -127,6 +127,3 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 
 ## Thanks We Owe
 Many thanks to long-time Compound community member [Mike Ghen](https://github.com/mikeghen), who created this concept and won a hackathon grant for it from Compound 2 years ago. We also thank Compound contributors heading the grants program, who've allowed Compensator to be furthered and surfaced in the community. Lastly, we thank the Compound community as a whole for the opportunity to drive greater outcomes for Compound.
-
-## License
-This project is licensed under the GNU General Public License.
