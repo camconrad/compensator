@@ -121,6 +121,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - **`ClaimRewards`**: Tracks reward claims by delegators.
 
 ## Future Improvements
+- **Multi-Chain Support**: Allow delegates and delegators to effectively interact cross-chain.
 - **Reward Redirection**: Allow delegators to redirect their rewards to the delegate as a form of support.
 - **Gas Optimization**: Further optimize gas usage for reward calculations and delegator interactions.
 
