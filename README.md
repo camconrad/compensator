@@ -104,9 +104,9 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 4. **Withdraw COMP**: Withdraw unused COMP, ensuring pending rewards are reserved.
 
 ### For Delegators
-1. **Delegate COMP**: Delegate COMP to delegate's `Compensator` contract to start earning rewards.
-2. **Update Delegation**: Update or withdraw COMP delegation to automatically claim any pending rewards.
-3. **Claim Rewards**: Claim your earned COMP rewards at any time.
+1. **Delegate COMP**: Delegate COMP to a delegate's `Compensator` contract to start earning.
+2. **Update Delegation**: Update or withdraw COMP delegation to claim pending rewards.
+3. **Claim Rewards**: Claim your proportionally accrued COMP rewards at any time.
 
 ## Security Features
 - **Delegation Cap**: A 5% cap ensures no single delegate can accumulate excessive voting power.
