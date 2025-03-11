@@ -110,7 +110,7 @@ export default function Home() {
                 height={42}
                 className="mb-3 mx-auto rounded-lg ml-[0px]"
               />
-              <h1 className="text-2xl text-[#030303] dark:text-white mb-2 ml-2 ">Compensator</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-[#030303] dark:text-white mb-2 ml-2 ">Compensator</h1>
               <span className="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs font-medium px-2.5 py-0.5 rounded-full">Beta</span>
             </motion.div>
             <motion.p className="text-[#030303] dark:text-white" variants={itemVariants}>Coming soon</motion.p>
