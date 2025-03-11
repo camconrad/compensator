@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -67,7 +67,8 @@ export default function Home() {
     localStorage.setItem('compensatorTheme', newTheme);
   };
 
-  const handlePasscodeSubmit = (e) => {
+  // Explicitly type the event parameter
+  const handlePasscodeSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
