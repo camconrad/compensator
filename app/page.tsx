@@ -102,7 +102,7 @@ export default function Home() {
           >
             <motion.div className="flex items-center gap-1" variants={itemVariants}>
               <Image
-                src={theme === 'dark' ? "/logo-white.png" : "/logo.png"}
+                src={theme === 'dark' ? "/logo.png" : "/logo-white.png"}
                 alt="Compensator Logo"
                 width={42}
                 height={42}
@@ -135,7 +135,7 @@ export default function Home() {
             <motion.div className="mb-2" variants={itemVariants}>
               <Link href="/">
                 <Image
-                  src={theme === 'dark' ? "/logo-white.png" : "/logo.png"}
+                  src={theme === 'dark' ? "/logo.png" : "/logo-white.png"}
                   alt="Compensator Logo"
                   width={54}
                   height={54}
