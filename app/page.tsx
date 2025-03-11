@@ -110,16 +110,16 @@ export default function Home() {
                 height={42}
                 className="mb-3 mx-auto rounded-lg ml-[0px]"
               />
-              <h1 className="text-2xl text-gray-900 dark:text-white mb-2 ml-2 ">Compensator</h1>
+              <h1 className="text-2xl text-[#030303] dark:text-white mb-2 ml-2 ">Compensator</h1>
               <span className="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs font-medium px-2.5 py-0.5 rounded-full">Beta</span>
             </motion.div>
-            <motion.p className="text-gray-600 dark:text-white" variants={itemVariants}>Coming soon</motion.p>
+            <motion.p className="text-[#030303] dark:text-white" variants={itemVariants}>Coming soon</motion.p>
             <motion.button
               onClick={() => {
                 localStorage.removeItem('compensatorAuthorized');
                 setAuthorized(false);
               }}
-              className="text-sm text-gray-500 dark:text-gray-400 underline mt-8 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              className="text-sm text-white dark:text-gray-400 px-2 py-1 font-[500] rounded-full bg-emerald-500 mt-8 dark:hover:text-gray-300 transition-colors"
               variants={itemVariants}
             >
               Sign out
@@ -144,7 +144,7 @@ export default function Home() {
                   className="mb-3 mx-auto rounded-lg"
                 />
               </Link>
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Compensator</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-[#030303] dark:text-white">Compensator</h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">Compound delegate marketplace</p>
             </motion.div>
 
@@ -159,7 +159,7 @@ export default function Home() {
                       onChange={(e) => setPasscode(e.target.value)}
                       onFocus={() => setIsFocused(true)}
                       onBlur={() => setIsFocused(false)}
-                      className="absolute inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                      className="absolute inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                       autoFocus
                     />
                     <label 

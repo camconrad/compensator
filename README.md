@@ -8,7 +8,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 ### 1. **Delegation and Rewards**
 - Delegates supply COMP into the `Compensator` contract to fund rewards for delegators.
 - Delegates set a reward rate (in COMP/second) to distribute rewards proportionally.
-- COMP holders delegate votes to the delegate's `Compensator` contract
+- COMP holders delegate votes to the delegate's `Compensator` contract.
 - Delegators earn rewards based on their share of delegated COMP.
 
 ### 2. **Vote Compensation**
