@@ -8,7 +8,7 @@ import {IGovernorBravo} from "../contracts/interfaces/IGovernorBravo.sol";
 
 contract CompensatorTest is Test {
     address internal constant COMP_TOKEN_ADDRESS = 0xc00e94Cb662C3520282E6f5717214004A7f26888;
-    address internal constant GOVERNOR_BRAVO_ADDRESS = 0xc0Da02939E1441F497fd74F78cE7Decb17B66529;
+    address internal constant GOVERNOR_BRAVO_ADDRESS = 0x309a862bbC1A00e45506cB8A802D1ff10004c8C0;
 
     IComp public compToken = IComp(COMP_TOKEN_ADDRESS);
     IGovernorBravo public governorBravo = IGovernorBravo(GOVERNOR_BRAVO_ADDRESS);
