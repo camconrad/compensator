@@ -128,7 +128,7 @@ export default function Home() {
         ) : (
           // Passcode gate - shown until correct passcode is entered
           <motion.main 
-            className="flex flex-col row-start-2 items-center text-center max-w-md w-full"
+            className="flex flex-col row-start-2 items-center text-center max-w-md w-full mt-[-24px]"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
