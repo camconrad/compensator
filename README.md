@@ -106,10 +106,10 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 ## Workflow
 
 ### For Delegates
-1. **Create Compensator**: Use the `CompensatorFactory` to create a `Compensator` contract.
-2. **Supply COMP**: Supply COMP into the contract to fund rewards for delegators.
-3. **Set Reward**: Define the reward rate (in COMP/second) to distribute rewards.
-4. **Withdraw COMP**: Withdraw unused COMP, ensuring pending rewards are reserved.
+1. **Create Compensator**: The `CompensatorFactory` creates a `Compensator` contract.
+2. **Supply COMP**: Supply COMP into the `Compensator` contract to fund delegator rewards.
+3. **Set Reward**: Define the reward rate (in COMP per second) to distribute rewards.
+4. **Withdraw COMP**: Withdraw unused COMP as needed (pending rewards reserved).
 
 ### For Delegators
 1. **Delegate COMP**: Delegate COMP to a delegate's `Compensator` contract to start earning.
