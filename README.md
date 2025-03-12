@@ -126,5 +126,5 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - **Reward Redirection**: Allow delegators to redirect their rewards to the delegate as a form of support.
 - **Gas Optimization**: Further optimize gas usage for reward calculations and delegator interactions.
 
-## Thanks We Owe
+## Acknowledgments
 Many thanks to long-time Compound community member [Mike Ghen](https://github.com/mikeghen), who created this concept and won a hackathon grant for it from Compound 2 years ago. We also thank Compound contributors heading the grants program, who've allowed Compensator to be furthered and surfaced in the community. Lastly, we thank the Compound community as a whole for the opportunity to drive greater outcomes for Compound.

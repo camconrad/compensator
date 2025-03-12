@@ -7,6 +7,14 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
+//  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
+// |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
+// \ \  \___|\ \  \|\  \ \  \\\__\ \  \ \  \|\  \ \  \|\  \ \  \\\  \ \  \\ \  \ \  \_|\ \   
+//  \ \  \    \ \  \\\  \ \  \\|__| \  \ \   ____\ \  \\\  \ \  \\\  \ \  \\ \  \ \  \ \\ \  
+//   \ \  \____\ \  \\\  \ \  \    \ \  \ \  \___|\ \  \\\  \ \  \\\  \ \  \\ \  \ \  \_\\ \ 
+//    \ \_______\ \_______\ \__\    \ \__\ \__\    \ \_______\ \_______\ \__\\ \__\ \_______\
+//     \|_______|\|_______|\|__|     \|__|\|__|     \|_______|\|_______|\|__| \|__|\|_______|
+
 /**
  * @title Compensator
  * @notice A contract that allows COMP token holders to delegate their voting power
@@ -44,18 +52,31 @@ contract Compensator is ERC20, Initializable {
     /// @notice Timestamp of the last time rewards were claimed (i.e. the rewardIndex was updated)
     uint256 public lastRewarded;
 
-    /// @notice Maps delegator to their claimed rewards
-    mapping(address => uint) public claimedRewards;
-
-    /// @notice Delegator starting reward index, used for calculating rewards
-    mapping(address => uint) public startRewardIndex;
-
     /// @notice Total amount of COMP delegated to this delegate through this system
     uint256 public totalDelegatedCOMP;
 
     /// @notice Cap on the amount of COMP that can be delegated to this delegate (5% of total COMP supply)
     uint256 public constant DELEGATION_CAP_PERCENT = 5; // 5%
     uint256 public delegationCap;
+
+    /// @notice Total pending rewards for all delegators
+    uint256 public totalPendingRewards;
+
+    /// @notice Tracks the starting reward index for each delegator
+    mapping(address => uint) public startRewardIndex;
+
+    /// @notice Tracks stakes for proposals by delegators
+    struct ProposalStake {
+        uint256 forStake; // Amount staked "For" a proposal
+        uint256 againstStake; // Amount staked "Against" a proposal
+    }
+    mapping(uint256 => mapping(address => ProposalStake)) public proposalStakes;
+
+    /// @notice Total stakes "For" a proposal
+    mapping(uint256 => uint256) public totalStakesFor;
+
+    /// @notice Total stakes "Against" a proposal
+    mapping(uint256 => uint256) public totalStakesAgainst;
 
     //////////////////////////
     // Events
@@ -70,29 +91,20 @@ contract Compensator is ERC20, Initializable {
     /// @notice Emitted when the delegate updates the reward rate
     event RewardRateUpdate(address indexed delegate, uint256 newRate);
 
-    /// @notice Emitted when a proposal is registered
-    event ProposalRegister(address indexed delegate, uint256 proposalId);
-
-    /// @notice Emitted when a proposal is voted on
-    event ProposalVote(address indexed delegate, uint256 proposalId, uint256 outcome);
-
-    /// @notice Emitted when a proposal claim is made
-    event ProposalClaim(address indexed delegate, uint256 proposalId, uint256 outcome);
-
     /// @notice Emitted when a delegator deposits COMP into the contract
     event DelegatorDeposit(address indexed delegator, uint256 amount);
 
     /// @notice Emitted when a delegator withdraws COMP from the contract
     event DelegatorWithdraw(address indexed delegator, uint256 amount);
 
-    /// @notice Emitted when a delegator is incentivized for voting
-    event Incentivize(address indexed delegator, uint256 proposalId, uint256 amount, uint256 outcome);
-
-    /// @notice Emitted when an incentive is recovered
-    event RecoverIncentive(address indexed delegator, uint256 proposalId, uint256 amount);
-
     /// @notice Emitted when a delegator claims their rewards
     event ClaimRewards(address indexed delegator, uint256 amount);
+
+    /// @notice Emitted when a delegator stakes COMP on a proposal
+    event ProposalStake(address indexed staker, uint256 proposalId, uint8 support, uint256 amount);
+
+    /// @notice Emitted when stakes are distributed after a proposal is resolved
+    event ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport);
 
     //////////////////////////
     // Modifiers
@@ -109,7 +121,7 @@ contract Compensator is ERC20, Initializable {
     //////////////////////////
 
     /**
-     * @notice Initializes the Compensator contract with the token name and symbol
+     * @notice Initializes the Compensator contract with name and symbol
      */
     constructor() ERC20("Compensator", "COMPENSATOR") {}
 
@@ -123,10 +135,11 @@ contract Compensator is ERC20, Initializable {
      * @param _delegateName The name of the delegate
      */
     function initialize(address _delegate, string memory _delegateName) public initializer {
+        require(_delegate != address(0), "Invalid delegate address");
         delegate = _delegate;
         delegateName = _delegateName;
-        rewardIndex = 1e18;
-        compToken.delegate(delegate);
+        rewardIndex = 1e18; // Initialize reward index
+        compToken.delegate(delegate); // Delegate voting power to the delegate
 
         // Set the delegation cap to 5% of the total COMP supply
         delegationCap = (compToken.totalSupply() * DELEGATION_CAP_PERCENT) / 100;
@@ -141,9 +154,7 @@ contract Compensator is ERC20, Initializable {
      * @return until The timestamp until which rewards will be distributed
      */
     function rewardsUntil() external view returns (uint256) {
-        if (rewardRate == 0) {
-            return block.timestamp;
-        }
+        if (rewardRate == 0) return block.timestamp;
         uint256 remainingRewardsTime = availableRewards / rewardRate;
         return lastRewarded + remainingRewardsTime;
     }
@@ -182,26 +193,11 @@ contract Compensator is ERC20, Initializable {
      */
     function delegateWithdraw(uint256 amount) external onlyDelegate {
         require(amount > 0, "Amount must be greater than 0");
-
-        // Calculate the total pending rewards for all delegators
-        uint256 totalPendingRewards = 0;
-        uint256 currentRewardIndex = _getCurrentRewardsIndex();
-        uint256 totalSupply = totalSupply();
-
-        if (totalSupply > 0) {
-            for (uint256 i = 0; i < totalSupply; i++) {
-                address delegator = _getDelegatorAtIndex(i);
-                uint256 pendingRewards = balanceOf(delegator) * (currentRewardIndex - startRewardIndex[delegator]) / 1e18;
-                totalPendingRewards += pendingRewards;
-            }
-        }
-
-        // Ensure that the amount is less than the available rewards minus pending rewards
-        require(amount <= availableRewards - totalPendingRewards, "Amount must be less than available rewards minus pending rewards");
+        require(amount <= availableRewards - totalPendingRewards, "Amount exceeds available rewards");
 
         availableRewards -= amount;
         compToken.transfer(delegate, amount);
-        
+
         emit DelegateWithdraw(delegate, amount);
     }
 
@@ -214,7 +210,7 @@ contract Compensator is ERC20, Initializable {
 
         _updateRewardsIndex();
         rewardRate = newRate;
-        
+
         emit RewardRateUpdate(delegate, newRate);
     }
 
@@ -228,8 +224,6 @@ contract Compensator is ERC20, Initializable {
      */
     function delegatorDeposit(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
-
-        // Check if the new delegation amount exceeds the cap
         require(totalDelegatedCOMP + amount <= delegationCap, "Delegation cap exceeded");
 
         _updateRewardsIndex();
@@ -256,7 +250,7 @@ contract Compensator is ERC20, Initializable {
     function delegatorWithdraw(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
 
-        _claimRewards(msg.sender); // updates the index and transfers rewards
+        _claimRewards(msg.sender); // Updates the index and transfers rewards
         _burn(msg.sender, amount);
         compToken.transfer(msg.sender, amount);
 
@@ -274,42 +268,87 @@ contract Compensator is ERC20, Initializable {
     }
 
     /**
+     * @notice Allows a delegator to stake COMP on a proposal
+     * @param proposalId The ID of the proposal
+     * @param support The vote option (0 = Against, 1 = For)
+     * @param amount The amount of COMP to stake
+     */
+    function stakeForProposal(uint256 proposalId, uint8 support, uint256 amount) external {
+        require(support == 0 || support == 1, "Invalid support value");
+        require(amount > 0, "Amount must be greater than 0");
+
+        compToken.transferFrom(msg.sender, address(this), amount);
+
+        if (support == 1) {
+            proposalStakes[proposalId][msg.sender].forStake += amount;
+            totalStakesFor[proposalId] += amount;
+        } else {
+            proposalStakes[proposalId][msg.sender].againstStake += amount;
+            totalStakesAgainst[proposalId] += amount;
+        }
+
+        emit ProposalStake(msg.sender, proposalId, support, amount);
+    }
+
+    /**
+     * @notice Allows the delegate to distribute stakes after a proposal is resolved
+     * @param proposalId The ID of the proposal
+     * @param winningSupport The winning vote option (0 = Against, 1 = For)
+     */
+    function distributeStakes(uint256 proposalId, uint8 winningSupport) external onlyDelegate {
+        require(winningSupport == 0 || winningSupport == 1, "Invalid support value");
+
+        if (winningSupport == 1) {
+            // Delegators who staked "For" pass their stake to the delegate
+            compToken.transfer(delegate, totalStakesFor[proposalId]);
+            // Delegators who staked "Against" get their stake back
+            compToken.transfer(address(this), totalStakesAgainst[proposalId]);
+        } else {
+            // Delegators who staked "Against" pass their stake to the delegate
+            compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+            // Delegators who staked "For" get their stake back
+            compToken.transfer(address(this), totalStakesFor[proposalId]);
+        }
+
+        emit ProposalStakeDistributed(proposalId, winningSupport);
+    }
+
+    //////////////////////////
+    // Internal Functions
+    //////////////////////////
+
+    /**
      * @notice Internal function to claim rewards for a delegator
      * @param delegator The address of the delegator
      */
     function _claimRewards(address delegator) internal {
         _updateRewardsIndex();
         uint pendingRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
-        startRewardIndex[msg.sender] = rewardIndex;
-        compToken.transfer(msg.sender, pendingRewards);
-        emit ClaimRewards(msg.sender, pendingRewards);
+        startRewardIndex[delegator] = rewardIndex; // Update the delegator's starting reward index
+        compToken.transfer(delegator, pendingRewards); // Transfer rewards to the delegator
+        emit ClaimRewards(delegator, pendingRewards);
     }
 
     /**
      * @notice Updates the reward index based on how much time has passed and the rewards rate
      */
     function _updateRewardsIndex() internal {
-        // How much time has passed since the last update?
         uint256 timeDelta = block.timestamp - lastRewarded;
-
-        // How much COMP is to be allocated to rewards?
         uint256 rewards = timeDelta * rewardRate;
 
-        // Adjust the available rewards by the amount allocated
         if (rewards > availableRewards) {
-            availableRewards = 0;
             rewards = availableRewards;
+            availableRewards = 0;
         } else {
             availableRewards -= rewards;
         }
 
-        // Update the reward index
         uint supply = totalSupply();
         if (supply > 0) {
             rewardIndex += rewards * 1e18 / supply;
+            totalPendingRewards += rewards;
         }
 
-        // Update the last rewarded timestamp
         lastRewarded = block.timestamp;
     }
 
