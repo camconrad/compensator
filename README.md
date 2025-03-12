@@ -98,7 +98,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
   Allows a delegator to claim their pending rewards.
 
 - **`stakeForProposal`**  
-  Allows the delegator to incentivize delegate to vote for, against, or abstain.
+  Allows the delegator to incentivize delegate to vote for or against.
 
 - **`distributeStakes`**  
   Allows the delegate to distribute staked COMP after a proposal resolves.
@@ -119,7 +119,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 
 ### For Delegators
 1. **Delegate COMP**: Delegate COMP to a delegate's `Compensator` contract to start earning.
-2. **Stake COMP**: Stake COMP to trade on potential vote outcomes (FOR, AGAINST, ABSTAIN).
+2. **Stake COMP**: Stake COMP to trade on potential vote outcomes such as for or against.
 3. **Update Delegation**: Update or withdraw COMP delegation to claim pending rewards.
 4. **Claim Rewards**: Claim your proportionally accrued COMP rewards at any time.
 
