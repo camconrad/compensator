@@ -135,13 +135,13 @@ export default function Home() {
             key="login-view"
           >
             <motion.div className="mb-2" variants={itemVariants}>
-              <Link href="/">
+              <Link className="mb-3" href="/">
                 <Image
                   src={theme === 'dark' ? "/logo.png" : "/logo-white.png"}
                   alt="Compensator Logo"
                   width={54}
                   height={54}
-                  className="mb-3 mx-auto rounded-lg"
+                  className="mx-auto rounded-lg"
                 />
               </Link>
               <h1 className="text-3xl font-bold tracking-tight text-[#030303] dark:text-white">Compensator</h1>
