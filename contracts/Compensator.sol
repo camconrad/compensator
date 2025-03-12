@@ -24,7 +24,7 @@ contract Compensator is ERC20, Initializable {
     IComp public constant compToken = IComp(0xc00e94Cb662C3520282E6f5717214004A7f26888);
 
     /// @notice The Governor Bravo contract for COMP governance
-    IGovernorBravo public constant governorBravo = IGovernorBravo(0xc0Da02939E1441F497fd74F78cE7Decb17B66529);
+    IGovernorBravo public constant governorBravo = IGovernorBravo(0x309a862bbC1A00e45506cB8A802D1ff10004c8C0);
 
     /// @notice The address of the delegate
     address public delegate;
