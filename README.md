@@ -119,8 +119,8 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 
 ## Security Features
 - **Delegation Cap**: A 5% cap ensures no single delegate can accumulate excessive voting power.
-- **Pending Rewards Protection**: Delegates cannot withdraw COMP that is reserved for pending rewards.
-- **Transfer Restrictions**: The `Compensator` token cannot be transferred between users, ensuring rewards are tied to the original delegator.
+- **Pending Rewards**: Delegates cannot withdraw COMP that is reserved for pending rewards.
+- **Transfer Restrictions**: The `Compensator` token cannot be transferred between users.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains.
