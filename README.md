@@ -55,6 +55,12 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - `uint256 delegationCap` - The max COMP that can be delegated to this delegate (5%).
 - `mapping(address => uint) claimedRewards` - Tracks the rewards claimed by each delegator.
 - `mapping(address => uint) startRewardIndex` - Tracks the starting reward index for each delegator.
+- `struct ProposalStake` - Tracks stakes for proposals by delegators:
+  - `uint256 forStake` - Amount staked "For" a proposal.
+  - `uint256 againstStake` - Amount staked "Against" a proposal.
+- `mapping(uint256 => mapping(address => ProposalStake)) proposalStakes` - Tracks the stakes of each delegator for a specific proposal.
+- `mapping(uint256 => uint256) totalStakesFor` - Total stakes "For" a specific proposal.
+- `mapping(uint256 => uint256) totalStakesAgainst` - Total stakes "Against" a specific proposal.
 
 #### Events
 - `DelegateDeposit` - Emitted when the delegate deposits COMP.
