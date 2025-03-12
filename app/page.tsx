@@ -161,7 +161,7 @@ export default function Home() {
                       onChange={(e) => setPasscode(e.target.value)}
                       onFocus={() => setIsFocused(true)}
                       onBlur={() => setIsFocused(false)}
-                      className="absolute inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                      className="absolute inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 border border-gray-200 dark:border-[#2e3746] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                       autoFocus
                     />
                     <label 
