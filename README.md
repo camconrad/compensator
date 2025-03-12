@@ -62,6 +62,8 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - `RewardRateUpdate` - Emitted when the delegate updates the reward rate.
 - `DelegatorDeposit` - Emitted when a delegator deposits COMP.
 - `DelegatorWithdraw` - Emitted when a delegator withdraws COMP.
+- `ProposalStake` - Emitted when a delegator stakes COMP for outcome.
+- `ProposalStakeDistributed` - Emitted when a delegate distributes stakes.
 - `ClaimRewards` - Emitted when a delegator claims their rewards.
 
 #### Functions
@@ -89,6 +91,12 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - **`claimRewards()`**  
   Allows a delegator to claim their pending rewards.
 
+- **`stakeForProposal`**  
+  Allows the delegator to incentivize delegate to vote for, against, or abstain.
+
+- **`distributeStakes`**  
+  Allows the delegate to distribute staked COMP after a proposal resolves.
+
 - **`getPendingRewards(address delegator)`**  
   Returns the amount of pending rewards for a delegator.
 
@@ -105,21 +113,14 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 
 ### For Delegators
 1. **Delegate COMP**: Delegate COMP to a delegate's `Compensator` contract to start earning.
-2. **Update Delegation**: Update or withdraw COMP delegation to claim pending rewards.
-3. **Claim Rewards**: Claim your proportionally accrued COMP rewards at any time.
+2. **Stake COMP**: Stake COMP to trade on potential vote outcomes (FOR, AGAINST, ABSTAIN).
+3. **Update Delegation**: Update or withdraw COMP delegation to claim pending rewards.
+4. **Claim Rewards**: Claim your proportionally accrued COMP rewards at any time.
 
 ## Security Features
 - **Delegation Cap**: A 5% cap ensures no single delegate can accumulate excessive voting power.
 - **Pending Rewards Protection**: Delegates cannot withdraw COMP that is reserved for pending rewards.
 - **Transfer Restrictions**: The `Compensator` token cannot be transferred between users, ensuring rewards are tied to the original delegator.
-
-## Events
-- **`DelegateDeposit`**: Tracks COMP deposits by the delegate.
-- **`DelegateWithdraw`**: Tracks COMP withdrawals by the delegate.
-- **`RewardRateUpdate`**: Tracks updates to the reward rate.
-- **`DelegatorDeposit`**: Tracks COMP deposits by delegators.
-- **`DelegatorWithdraw`**: Tracks COMP withdrawals by delegators.
-- **`ClaimRewards`**: Tracks reward claims by delegators.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains.
