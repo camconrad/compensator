@@ -136,15 +136,17 @@ export default function Home() {
           >
             <motion.div className="mb-2" variants={itemVariants}>
               <Link href="/">
-                <Image
-                  src={theme === 'dark' ? "/logo.png" : "/logo-white.png"}
-                  alt="Compensator Logo"
-                  width={54}
-                  height={54}
-                  className="mx-auto rounded-lg"
-                />
+                <div className="inline-block">
+                  <Image
+                    src={theme === 'dark' ? "/logo.png" : "/logo-white.png"}
+                    alt="Compensator Logo"
+                    width={54}
+                    height={54}
+                    className="mx-auto rounded-lg"
+                  />
+                </div>
               </Link>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#030303] dark:text-white">Compensator</h1>
+              <h1 className="mt-1 text-3xl font-bold tracking-tight text-[#030303] dark:text-white">Compensator</h1>
               <p className="text-gray-600 dark:text-gray-400 mt-[2px] mb-1">Compound delegate marketplace</p>
             </motion.div>
 
