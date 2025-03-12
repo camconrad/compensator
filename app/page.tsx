@@ -135,7 +135,7 @@ export default function Home() {
             key="login-view"
           >
             <motion.div className="mb-2" variants={itemVariants}>
-              <Link className="mb-3" href="/">
+              <Link href="/">
                 <Image
                   src={theme === 'dark' ? "/logo.png" : "/logo-white.png"}
                   alt="Compensator Logo"
@@ -144,8 +144,8 @@ export default function Home() {
                   className="mx-auto rounded-lg"
                 />
               </Link>
-              <h1 className="text-3xl font-bold tracking-tight text-[#030303] dark:text-white">Compensator</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">Compound delegate marketplace</p>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#030303] dark:text-white">Compensator</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-[2px] mb-1">Compound delegate marketplace</p>
             </motion.div>
 
             <motion.div className="rounded-xl w-full" variants={itemVariants}>
