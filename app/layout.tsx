@@ -1,4 +1,4 @@
-"use client"; // Mark this as a Client Component
+"use client";
 
 import { usePathname } from "next/navigation";
 import { Geist, Geist_Mono } from "next/font/google";
