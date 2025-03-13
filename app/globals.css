@@ -19,3 +19,18 @@ body {
   background: var(--background);
   font-family: 'Neue Haas Grotesk Display Pro', Arial, Helvetica, sans-serif;
 }
+
+/* Custom Swiper styles */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #10b981; /* Emerald color */
+}
+
+.swiper-pagination-bullet {
+  background: #ccc;
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: #10b981; /* Emerald color */
+}

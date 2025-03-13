@@ -1,6 +1,10 @@
-import type { Metadata } from "next";
+"use client"; // Mark this as a Client Component
+
+import { usePathname } from "next/navigation";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import ThemeProvider from "../providers/ThemeProvider";
+import AppProvider from "../providers/AppProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,12 +16,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Compensator",
-  // titleTemplate: "%s | Compensator",
-  description: "Welcome to Compensator, a delegate marketplace to trade COMP vote power.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,10 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider />
+        <AppProvider>
+          {children}
+        </AppProvider>
       </body>
     </html>
   );
