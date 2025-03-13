@@ -7,7 +7,7 @@ import "swiper/css/free-mode";
 import { useState, useRef } from "react";
 import Modal from "@/components/common/Modal";
 
-// Mock data for proposals
+// Mock data
 const proposals = [
   {
     id: 1,
@@ -37,20 +37,10 @@ const proposals = [
 ];
 
 const Proposals = () => {
-  const [showLeftGradient, setShowLeftGradient] = useState(false);
-  const [showRightGradient, setShowRightGradient] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [selectedOutcome, setSelectedOutcome] = useState<"For" | "Against" | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
-
-  const handleScroll = () => {
-    if (sliderRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-      setShowLeftGradient(scrollLeft > 0);
-      setShowRightGradient(scrollLeft + clientWidth < scrollWidth);
-    }
-  };
 
   const handleStakeClick = (proposalId: number, outcome: "For" | "Against") => {
     setSelectedProposal(proposalId);
@@ -59,9 +49,8 @@ const Proposals = () => {
   };
 
   const handleSubmitStake = (amount: number) => {
-    // Handle the stake submission logic here
     console.log(`Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`);
-    setIsModalOpen(false); // Close the modal after submission
+    setIsModalOpen(false);
   };
 
   return (
@@ -72,15 +61,8 @@ const Proposals = () => {
         </h2>
 
         <div className="relative overflow-hidden">
-          {/* {showLeftGradient && (
-            <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-white to-transparent dark:from-[#0e0e0e] z-[2] pointer-events-none"></div>
-          )}
-          {showRightGradient && (
-            <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white to-transparent dark:from-[#0e0e0e] z-[2] pointer-events-none"></div>
-          )} */}
           <div
             ref={sliderRef}
-            onScroll={handleScroll}
             className="relative z-[1]"
           >
             <Swiper
@@ -119,8 +101,6 @@ const Proposals = () => {
           </div>
         </div>
       </div>
-
-      {/* Modal for Staking */}
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <div className="p-6">
@@ -133,7 +113,7 @@ const Proposals = () => {
               className="w-full p-2 border border-gray-300 rounded-lg mb-4"
             />
             <button
-              onClick={() => handleSubmitStake(100)} // Replace with actual amount
+              onClick={() => handleSubmitStake(100)}
               className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
               Submit Stake
