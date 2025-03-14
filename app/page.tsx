@@ -260,7 +260,7 @@ export default function Home() {
         
           {/* Additional Info */}
           <motion.div
-            className="flex flex-col font-[family-name:var(--font-geist-sans)] font-regular gap-2 mt-8 text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center"
+            className="flex flex-col font-[family-name:var(--font-geist-sans)] font-regular gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center"
             variants={itemVariants}
           >
             <p>
