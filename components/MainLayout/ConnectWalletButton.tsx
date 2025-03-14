@@ -49,7 +49,7 @@ const ConnectWalletButton = () => {
         whileTap="tap"
         disabled={isLoading}
         className={`${
-          isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-emerald-700"
+          isLoading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
         } w-full px-4 py-[6px] min-h-[36px] font-[family-name:var(--font-geist-sans)] font-semibold text-xs transition-colors bg-[#fefefe] dark:bg-gray-700 border border-emerald-500 dark:border-emerald-700 text-black dark:text-white rounded-full flex justify-center items-center`}
       >
         {isLoading ? (
