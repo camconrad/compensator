@@ -120,7 +120,7 @@ const Delegates = () => {
             // autoplay={{ delay: 5000, disableOnInteraction: true }}
             className="!overflow-visible"
             onInit={(swiper) => {
-              if (swiper.params.navigation) {
+              if (typeof swiper.params.navigation === "object" && swiper.params.navigation) {
                 swiper.params.navigation.prevEl = navigationPrevRef.current;
                 swiper.params.navigation.nextEl = navigationNextRef.current;
                 swiper.navigation.init();

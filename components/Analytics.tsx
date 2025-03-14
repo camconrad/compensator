@@ -186,13 +186,13 @@ const Analytics = () => {
   const swiperRef = useRef<any>(null)
 
   useEffect(() => {
-    if (swiperRef.current && swiperRef.current.params.navigation) {
+    if (swiperRef.current && typeof swiperRef.current.params.navigation === "object" && swiperRef.current.params.navigation) {
       swiperRef.current.params.navigation.prevEl = navigationPrevRef.current;
       swiperRef.current.params.navigation.nextEl = navigationNextRef.current;
       swiperRef.current.navigation.init();
       swiperRef.current.navigation.update();
     }
-  }, [])
+  }, []);
 
   return (
     <div className="w-full mt-8 max-w-[1100px] mx-auto font-sans">
