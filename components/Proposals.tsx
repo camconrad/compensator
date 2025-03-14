@@ -131,10 +131,12 @@ const Proposals = () => {
             // autoplay={{ delay: 5000, disableOnInteraction: true }}
             className="!overflow-visible"
             onInit={(swiper) => {
-              swiper.params.navigation.prevEl = navigationPrevRef.current;
-              swiper.params.navigation.nextEl = navigationNextRef.current;
-              swiper.navigation.init();
-              swiper.navigation.update();
+              if (swiper.params.navigation) {
+                swiper.params.navigation.prevEl = navigationPrevRef.current;
+                swiper.params.navigation.nextEl = navigationNextRef.current;
+                swiper.navigation.init();
+                swiper.navigation.update();
+              }
             }}
           >
             {sortedProposals.map((proposal) => (

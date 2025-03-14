@@ -186,11 +186,11 @@ const Analytics = () => {
   const swiperRef = useRef<any>(null)
 
   useEffect(() => {
-    if (swiperRef.current) {
-      swiperRef.current.params.navigation.prevEl = navigationPrevRef.current
-      swiperRef.current.params.navigation.nextEl = navigationNextRef.current
-      swiperRef.current.navigation.init()
-      swiperRef.current.navigation.update()
+    if (swiperRef.current && swiperRef.current.params.navigation) {
+      swiperRef.current.params.navigation.prevEl = navigationPrevRef.current;
+      swiperRef.current.params.navigation.nextEl = navigationNextRef.current;
+      swiperRef.current.navigation.init();
+      swiperRef.current.navigation.update();
     }
   }, [])
 
