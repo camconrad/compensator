@@ -142,7 +142,7 @@ export default function Home() {
           key="login-view"
         >
           {/* Logo, Heading, and Description */}
-          <motion.div className="flex flex-col items-center text-center mb-8 font-[family-name:var(--font-geist-sans)] font-regular" variants={itemVariants}>
+          <motion.div className="flex flex-col items-center text-center mb-3 font-[family-name:var(--font-geist-sans)] font-regular" variants={itemVariants}>
             <Link href="/" className="mx-auto">
               <div className="inline-block">
                 <Image
