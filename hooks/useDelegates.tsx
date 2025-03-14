@@ -47,7 +47,7 @@ const useDelegates = () => {
     },
   });
 
-  return { agents: data || [], loading: isLoading, error };
+  return { delegates: data || [], loading: isLoading, error };
 };
 
 export default useDelegates;

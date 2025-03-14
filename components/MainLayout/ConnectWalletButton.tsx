@@ -2,13 +2,13 @@
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAccount, useDisconnect } from "wagmi";
 
 const ConnectWalletButton = () => {
   const { openConnectModal } = useConnectModal();
-  const { address, isConnected } = useAccount();
-  const { disconnect, disconnectAsync } = useDisconnect();
+  const { address } = useAccount();
+  const { disconnectAsync } = useDisconnect();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConnectWallet = async () => {
@@ -89,7 +89,9 @@ const ConnectWalletButton = () => {
       whileTap="tap"
       disabled={isLoading}
       className={`${
-        isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-red-700 hover:text-white"
+        isLoading
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:bg-red-700 hover:text-white"
       } w-full px-[10px] py-1 min-h-[34px] font-[family-name:var(--font-geist-sans)] font-medium transition-colors text-sm text-red-600 border border-red-600 rounded-full flex justify-center items-center`}
     >
       {isLoading ? (
