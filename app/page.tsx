@@ -296,7 +296,7 @@ export default function Home() {
             
             {/* Additional Information */}
             <motion.div
-              className="flex flex-col font-sans font-regular gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center"
+              className="flex flex-col font-sans gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400 max-w-xs text-center"
               variants={itemVariants}
             >
               <p>
