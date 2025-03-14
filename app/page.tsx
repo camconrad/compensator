@@ -21,7 +21,6 @@ export default function Home() {
   const [theme, setTheme] = useState("light");
   const correctPasscode = "2025";
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -43,21 +42,18 @@ export default function Home() {
     },
   };
 
-  // Check if user was previously authorized (from localStorage)
   useEffect(() => {
     const auth = localStorage.getItem("compensatorAuthorized");
     if (auth === "true") {
       setAuthorized(true);
     }
 
-    // Check for saved theme preference
     const savedTheme = localStorage.getItem("compensatorTheme");
     if (savedTheme) {
       setTheme(savedTheme);
     }
   }, []);
 
-  // Apply dark mode class to html element
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
@@ -66,19 +62,16 @@ export default function Home() {
     }
   }, [theme]);
 
-  // Handle theme toggle
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     localStorage.setItem("compensatorTheme", newTheme);
   };
 
-  // Handle passcode submission
   const handlePasscodeSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate a small delay for better UX
     setTimeout(() => {
       if (passcode === correctPasscode) {
         setAuthorized(true);
@@ -106,44 +99,35 @@ export default function Home() {
         />
       </Head>
 
-      {/* Main content */}
       <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         {authorized ? (
           <>
-            {/* Header */}
             <Header />
 
-            {/* Hero Section */}
             <section className="pt-20 pb-3">
               <HeroBanner />
             </section>
 
-            {/* Delegates Section */}
             <section className="">
               <Delegates />
             </section>
 
-            {/* Proposals Section */}
             <section className="">
               <Proposals />
             </section>
 
-            {/* Analytics Section */}
             <section className="">
               <Analytics />
             </section>
 
-            {/* Footer Section */}
             <motion.footer
               className="mt-[64px] font-sans mx-auto max-w-[1100px] pb-3 flex gap-2 flex-wrap items-center justify-between text-[13px] text-gray-500 dark:text-gray-400"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.2 }}
             >
-              {/* Divider */}
               <div className="w-full border-t border-gray-200 dark:border-gray-700 mb-2" />
 
-              {/* Left section: Copyright and links */}
               <div className="flex gap-4 items-center">
                 <span>© 2025 Compound</span>
                 <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
@@ -157,7 +141,6 @@ export default function Home() {
                 </a>
               </div>
 
-              {/* Right section: Theme toggle */}
               <motion.button
                 onClick={toggleTheme}
                 className="text-xs p-2 hover:rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
@@ -169,7 +152,6 @@ export default function Home() {
             </motion.footer>
           </>
         ) : (
-          // Passcode gate - shown until correct passcode is entered
           <motion.main
             className="flex flex-col items-center justify-center min-h-screen p-8 sm:p-20"
             initial="hidden"
@@ -177,7 +159,6 @@ export default function Home() {
             variants={containerVariants}
             key="login-view"
           >
-            {/* Logo, Heading, and Description */}
             <motion.div className="flex flex-col items-center text-center mb-3 font-sans" variants={itemVariants}>
               <Link href="/" className="mx-auto">
                 <div className="inline-block">
@@ -198,7 +179,6 @@ export default function Home() {
               </p>
             </motion.div>
 
-            {/* Form */}
             <motion.div className="w-full max-w-[360px]" variants={itemVariants}>
               <form
                 onSubmit={handlePasscodeSubmit}
@@ -293,8 +273,7 @@ export default function Home() {
                 </motion.button>
               </form>
             </motion.div>
-            
-            {/* Additional Information */}
+
             <motion.div
               className="flex flex-col font-sans gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400 max-w-xs text-center"
               variants={itemVariants}
