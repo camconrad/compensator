@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { IoMdClose } from 'react-icons/io';
+import { motion } from 'framer-motion';
 
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
   className?: string;
-  children?: React.ReactNode; // It's better to specify React.ReactNode for children prop type
+  children?: React.ReactNode;
   title?: string;
   hideCloseIcon?: boolean;
 }
@@ -19,46 +20,109 @@ const Modal = ({
   children,
 }: ModalProps) => {
   useEffect(() => {
-    const originalOverflow = document.body.style.overflowY;  // Store the original overflow style
-    document.body.style.overflowY = open ? 'hidden' : 'auto'; // Control the overflow based on the modal state
-
-    // Cleanup function to restore the original overflow style
+    const originalOverflow = document.body.style.overflowY;
+    document.body.style.overflowY = open ? 'hidden' : 'auto';
     return () => {
       document.body.style.overflowY = originalOverflow;
     };
   }, [open]);
 
+  // Backdrop variants
+  const backdropVariants = {
+    hidden: { 
+      opacity: 0,
+      backdropFilter: 'blur(0px)'
+    },
+    visible: { 
+      opacity: 1,
+      backdropFilter: 'blur(8px)',
+      transition: {
+        duration: 0.2,
+        ease: [0.23, 1, 0.32, 1]
+      }
+    }
+  };
+
+  const modalVariants = {
+    hidden: { 
+      scale: 0.85,
+      opacity: 0,
+      y: 20
+    },
+    visible: { 
+      scale: 1,
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25,
+        mass: 0.8,
+        delay: 0.05
+      }
+    }
+  };
+
+  const closeButtonVariants = {
+    rest: { scale: 1 },
+    hover: { scale: 1.1 },
+    tap: { scale: 0.95 }
+  };
+
+  if (!open) return null;
+
   return (
-    <div
-      className={`fixed top-0 left-0 z-[1000] h-screen w-full ${
-        open ? "overflow-y-hidden" : "overflow-y-auto"
-      } bg-white bg-opacity-10 dark:bg-[#030303] dark:bg-opacity-40 transition-all ${
-        open ? "opacity-1 backdrop-blur-sm" : "pointer-events-none opacity-0"
-      }`}
-      // onClick={() => handleClose()}
+    <motion.div
+      className="fixed top-0 left-0 z-[1000] h-screen w-full bg-white bg-opacity-10 dark:bg-[#0D131A] dark:bg-opacity-40"
+      onClick={handleClose}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={backdropVariants}
     >
-      <div className="flex min-h-screen items-center justify-center py-[10px] px-[8px]">
-        <div
-          className={`${className} relative mx-auto w-[380px] rounded-[24px] border dark:border-[#1D1D1D] bg-[#030303] p-4 transition-all ${
-            open ? "scale-100" : "scale-[0.9]"
-          }`}
-          onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking inside the modal content
+      <div className="flex min-h-screen items-center justify-center py-2 px-2">
+        <motion.div
+          className={`${className} relative mx-auto w-full max-w-sm rounded-3xl border border-[#efefef] dark:border-[#151f29] dark:bg-[#0D131A] overflow-hidden`}
+          onClick={(e) => e.stopPropagation()}
+          variants={modalVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          layout
         >
           {title && (
-            <h3 className="mb-[16px] text-[24px] font-semibold text-white">{title}</h3>
+            <motion.h3 
+              className="mb-4 text-2xl font-semibold text-white px-6 pt-6"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              {title}
+            </motion.h3>
           )}
           {!hideCloseIcon && (
-            <div
-              className="absolute top-2 right-2 z-10 flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-full bg-[#fff] bg-opacity-10 hover:bg-opacity-20"
+            <motion.div
+              className="absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 bg-opacity-20 hover:bg-opacity-30"
               onClick={handleClose}
+              variants={closeButtonVariants}
+              initial="rest"
+              whileHover="hover"
+              whileTap="tap"
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              <IoMdClose className="stroke-current text-[18px]" />
-            </div>
+              <IoMdClose className="stroke-current text-lg dark:text-gray-300" />
+            </motion.div>
           )}
-          {children}
-        </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.13 }}
+          >
+            {children}
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

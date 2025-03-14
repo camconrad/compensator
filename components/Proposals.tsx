@@ -6,6 +6,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import { useState, useRef } from "react";
 import Modal from "@/components/common/Modal";
+import Image from "next/image";
 
 // Mock data
 const proposals = [
@@ -41,6 +42,16 @@ const Proposals = () => {
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [selectedOutcome, setSelectedOutcome] = useState<"For" | "Against" | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState("light");
+
+  // State variables for the stake form
+  const [amount, setAmount] = useState("");
+  const [isUsd, setIsUsd] = useState(false);
+  const [hasSelectedPercentage, setHasSelectedPercentage] = useState(false);
+
+  // Mock data - in a real app, these would come from your API or data store
+  const userBalance = 0.0; // User's available COMP balance
+  const compPrice = 45.78; // Current COMP price in USD
 
   const handleStakeClick = (proposalId: number, outcome: "For" | "Against") => {
     setSelectedProposal(proposalId as any);
@@ -61,10 +72,7 @@ const Proposals = () => {
         </h2>
 
         <div className="relative overflow-hidden">
-          <div
-            ref={sliderRef}
-            className="relative z-[1]"
-          >
+          <div ref={sliderRef} className="relative z-[1]">
             <Swiper
               modules={[Navigation, FreeMode, Autoplay]}
               spaceBetween={16}
@@ -103,20 +111,84 @@ const Proposals = () => {
       </div>
       {isModalOpen && (
         <Modal handleClose={() => setIsModalOpen(false)} open={isModalOpen}>
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4">
+          <div className="p-6 font-[family-name:var(--font-geist-sans)]">
+            <h2 className="mt-7 text-xl font-semibold mb-4 dark:text-white">
               Stake COMP for Proposal {selectedProposal} ({selectedOutcome})
             </h2>
-            <input
-              type="number"
-              placeholder="Enter COMP amount"
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-            />
-            <button
-              onClick={() => handleSubmitStake(100)}
-              className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            <div className="relative mb-4">
+              <div className="flex flex-col space-y-2">
+                <div className="flex flex-col border bg-white dark:bg-gray-800 border-gray-300 dark:border-[#2e3746] rounded-lg h-20 p-3">
+                  <div className="flex items-center justify-between mt-[-6px]">
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-lg"
+                    />
+                    <div className="flex items-center mr-3">
+                      <Image
+                        src={theme === "dark" ? "/logo.png" : "/logo-white.png"}
+                        alt="Compensator Logo"
+                        width={20}
+                        height={20}
+                        className="mx-auto rounded-full"
+                      />
+                      <span className="px-2 py-2 dark:text-gray-200 rounded text-sm">
+                        COMP
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {amount
+                        ? `$${(parseFloat(amount) * compPrice).toFixed(2)}`
+                        : "$0.00"}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Balance: {userBalance.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              className={`grid ${hasSelectedPercentage ? "grid-cols-5" : "grid-cols-4"} gap-2 mb-4`}
             >
-              Submit Stake
+              {hasSelectedPercentage && (
+                <button
+                  onClick={() => {
+                    setAmount("");
+                    setHasSelectedPercentage(false);
+                  }}
+                  className="py-[4px] border border-gray-200 dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                >
+                  Reset
+                </button>
+              )}
+              {[25, 50, 75, 100].map((percent) => (
+                <button
+                  key={percent}
+                  onClick={() => {
+                    const value = (userBalance * (percent / 100)).toFixed(2);
+                    setAmount(value.toString());
+                    setHasSelectedPercentage(true);
+                  }}
+                  className="py-[4px] border border-gray-200 dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                >
+                  {percent}%
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => handleSubmitStake(parseFloat(amount))}
+              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance}
+              className={`w-full py-3 bg-emerald-600 font-medium text-white rounded-full transition-all duration-300 
+                ${!amount ? "opacity-70" : "hover:bg-emerald-700"} 
+                ${parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""}
+                disabled:bg-gray-400 disabled:cursor-not-allowed`}
+            >
+              {parseFloat(amount) > userBalance ? "Insufficient Balance" : "Submit Stake"}
             </button>
           </div>
         </Modal>
