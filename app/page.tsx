@@ -142,7 +142,7 @@ export default function Home() {
           key="login-view"
         >
           {/* Logo, Heading, and Description */}
-          <motion.div className="flex flex-col items-center text-center mb-8" variants={itemVariants}>
+          <motion.div className="flex flex-col items-center text-center mb-8 font-[family-name:var(--font-geist-sans)] font-regular" variants={itemVariants}>
             <Link href="/" className="mx-auto">
               <div className="inline-block">
                 <Image
@@ -166,7 +166,7 @@ export default function Home() {
           <motion.div className="w-full max-w-[360px]" variants={itemVariants}>
             <form
               onSubmit={handlePasscodeSubmit}
-              className="flex flex-col gap-3 w-full"
+              className="flex flex-col gap-3 w-full font-[family-name:var(--font-geist-sans)] font-regular"
             >
               <motion.div className="relative" variants={itemVariants}>
                 <div className="relative h-12">
@@ -222,7 +222,7 @@ export default function Home() {
                   loading
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-emerald-600"
-                } bg-emerald-500 text-white py-3 min-h-[50px] px-6 rounded-full font-medium transition-colors flex justify-center items-center`}
+                } bg-emerald-500 text-white py-3 min-h-[50px] font-[family-name:var(--font-geist-sans)] px-6 rounded-full font-medium transition-colors flex justify-center items-center`}
                 disabled={loading}
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
@@ -260,7 +260,7 @@ export default function Home() {
         
           {/* Additional Info */}
           <motion.div
-            className="flex flex-col gap-2 mt-8 text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center"
+            className="flex flex-col font-[family-name:var(--font-geist-sans)] font-regular gap-2 mt-8 text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center"
             variants={itemVariants}
           >
             <p>
@@ -273,7 +273,7 @@ export default function Home() {
 
         {/* Footer Section */}
         <motion.footer
-          className="mt-[64px] font-[family-name:var(--font-geist-sans)] font-medium pb-4 flex gap-2 flex-wrap items-center justify-center text-[13px] text-gray-500 dark:text-gray-400"
+          className="mt-[64px] font-[family-name:var(--font-geist-sans)] font-regular pb-4 flex gap-2 flex-wrap items-center justify-center text-[13px] text-gray-500 dark:text-gray-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.2 }}
