@@ -117,7 +117,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
-          className="bg-white flex flex-col justify-between h-auto w-full dark:bg-gray-800 rounded-xl p-5 shadow-sm transition-all duration-200 cursor-pointer"
+          className="bg-white flex flex-col justify-between h-auto w-full dark:bg-gray-800 rounded-lg p-5 shadow-sm transition-all duration-200 cursor-pointer"
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
         >

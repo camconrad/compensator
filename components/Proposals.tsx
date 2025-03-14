@@ -141,7 +141,7 @@ const Proposals = () => {
           >
             {sortedProposals.map((proposal) => (
               <SwiperSlide key={proposal.id} className="!w-[260px]">
-                <div className="bg-white flex flex-col justify-between min-h-[280px] w-full dark:bg-gray-800 rounded-xl shadow-sm p-5">
+                <div className="bg-white flex flex-col justify-between min-h-[280px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5">
                   <h3 className="text-xl font-semibold text-[#030303] dark:text-white mb-4">
                     {proposal.title}
                   </h3>

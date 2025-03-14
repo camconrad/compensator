@@ -131,7 +131,7 @@ const Delegates = () => {
             {sortedDelegates.map((delegate) => (
               <SwiperSlide key={delegate.id} className="!w-[260px]">
                 <Link href={delegate.link}>
-                  <div className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-xl shadow-sm p-5 duration-200 relative overflow-hidden">
+                  <div className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="relative h-12 w-12 flex-shrink-0">
                         <Image

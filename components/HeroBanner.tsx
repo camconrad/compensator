@@ -6,7 +6,7 @@ const HeroBanner = () => {
   return (
     <div className="flex items-center mt-[-12px] justify-center py-8 px-4 w-full max-w-[1100px] mx-auto">
       {/* Main Banner Container with Max Height/Width and Rounded Corners */}
-      <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-xl shadow-sm max-h-[180px] bg-white dark:bg-gray-800">
+      <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm max-h-[180px] bg-white dark:bg-gray-800">
         {/* Content */}
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 h-full p-8 md:p-12">
           {/* Left Column: Text Content */}
