@@ -10,8 +10,14 @@ export default {
   theme: {
   	extend: {
 		fontFamily: {
-			sans: ["Neue Haas Grotesk Display Pro", "Arial", "Helvetica", "sans-serif"],
+			sans: ["Neue Haas Grotesk Display Pro", "Inter", "Helvetica", "sans-serif"],
 		  },
+		fontWeight: {
+			normal: '400',
+			medium: '500',
+			semibold: '600',
+			bold: '700',
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

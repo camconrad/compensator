@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Neue Haas Grotesk Display Pro', Arial, Helvetica, sans-serif;
+  font-family: 'Neue Haas Grotesk Display Pro', Inter, Helvetica, sans-serif;
 }
 
 /* Custom Swiper styles */
@@ -39,8 +39,6 @@ body {
 .custom-navigation button.dark:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
-
 
 @layer base {
   :root {
@@ -97,8 +95,6 @@ body {
     --chart-5: 340 75% 55%;
   }
 }
-
-
 
 @layer base {
   * {
