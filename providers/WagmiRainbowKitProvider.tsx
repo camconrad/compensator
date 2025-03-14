@@ -37,4 +37,4 @@ const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default WagmiRainbowKitProvider;
+export default WagmiRainbowKitProvider

@@ -115,7 +115,7 @@ const SearchBar = () => {
   const hasResults = suggestions.length > 0 || fetchedDelegates.length > 0;
 
   return (
-    <div className="relative w-full md:max-w-[320px] ml-[-20px] font-[family-name:var(--font-geist-sans)]" ref={searchBarRef}>
+    <div className="relative w-full md:max-w-[320px] ml-[-20px] font-sans" ref={searchBarRef}>
       <motion.div
         className={`relative rounded-lg bg-white dark:bg-gray-800 border ${
           isFocused
@@ -143,12 +143,12 @@ const SearchBar = () => {
             className={`absolute left-9 pointer-events-none transition-all duration-200 ${
               isFocused || searchQuery ? 
               'text-xs text-emerald-500 dark:text-emerald-400 top-1' : 
-              'text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2'
+              'text-sm text-[#959595] dark:text-[#959595] top-1/2 -translate-y-1/2'
             }`}
           >
             Search delegates
           </label>
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#595959] dark:text-[#afafaf]">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#959595] dark:text-[#afafaf]">
             <FaSearch />
           </div>
 
@@ -324,7 +324,7 @@ const SearchBar = () => {
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="py-6 text-center text-sm text-gray-500 dark:text-gray-400"
+                className="py-6 text-center text-sm text-[#959595] dark:text-[#959595]"
               >
                 No results found for "{searchQuery}"
               </motion.div>

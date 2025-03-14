@@ -16,7 +16,7 @@ const HeroBanner = () => {
             transition={{ duration: 0.2 }}
             className="flex flex-col justify-center"
           >
-            <h1 className="text-2xl tracking-tight md:text-3xl font-bold text-black dark:text-white mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-2">
               Delegate votes,
               <br />
               earn rewards
@@ -38,4 +38,4 @@ const HeroBanner = () => {
   );
 };
 
-export default HeroBanner;
+export default HeroBanner

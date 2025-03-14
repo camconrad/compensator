@@ -82,7 +82,7 @@ const Modal = ({
     >
       <div className="flex min-h-screen items-center justify-center py-2 px-2">
         <motion.div
-          className={`${className} relative mx-auto w-full max-w-sm rounded-3xl border border-[#efefef] dark:border-[#151f29] dark:bg-[#0D131A] overflow-hidden`}
+          className={`${className} relative mx-auto w-full max-w-sm rounded-3xl border border-[#efefef] dark:border-[#151f29] bg-white dark:bg-[#0D131A] overflow-hidden`}
           onClick={(e) => e.stopPropagation()}
           variants={modalVariants}
           initial="hidden"
@@ -102,7 +102,7 @@ const Modal = ({
           )}
           {!hideCloseIcon && (
             <motion.div
-              className="absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 bg-opacity-20 hover:bg-opacity-30"
+              className="absolute top-3 right-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#ccd3d9] dark:bg-gray-800 bg-opacity-20 hover:bg-opacity-30"
               onClick={handleClose}
               variants={closeButtonVariants}
               initial="rest"

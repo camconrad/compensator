@@ -50,7 +50,7 @@ const ConnectWalletButton = () => {
         disabled={isLoading}
         className={`${
           isLoading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
-        } w-full px-4 py-[6px] min-h-[36px] font-[family-name:var(--font-geist-sans)] font-semibold text-xs transition-colors bg-[#fefefe] dark:bg-gray-700 border border-emerald-500 dark:border-emerald-700 text-black dark:text-white rounded-full flex justify-center items-center`}
+        } w-full px-[18px] shadow-sm py-[13px] min-h-[36px] font-semibold text-xs transition-colors bg-[#fefefe] dark:bg-gray-700 border-[0.8px] border-emerald-500 dark:border-emerald-700 text-black dark:text-white rounded-full flex justify-center items-center`}
       >
         {isLoading ? (
           <svg
@@ -92,7 +92,7 @@ const ConnectWalletButton = () => {
         isLoading
           ? "opacity-50 cursor-not-allowed"
           : "hover:bg-red-700 hover:text-white"
-      } w-full px-[10px] py-1 min-h-[34px] font-[family-name:var(--font-geist-sans)] font-medium transition-colors text-sm text-red-600 border border-red-600 rounded-full flex justify-center items-center`}
+      } w-full px-[10px] py-1 min-h-[34px] font-sans font-medium transition-colors text-sm text-red-600 border border-red-600 rounded-full flex justify-center items-center`}
     >
       {isLoading ? (
         <svg
