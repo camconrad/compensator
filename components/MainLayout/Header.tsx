@@ -104,7 +104,7 @@ const Header = () => {
           <div className="hidden lg:flex justify-center flex-grow">
             <SearchBar />
           </div>
-          <div className="hidden lg:flex items-center space-x-5">
+          <div className="hidden lg:flex items-center space-x-3">
             <NetworkDropdown />
             <div className="flex items-center space-x-4">
               <ConnectWalletButton />
@@ -161,20 +161,6 @@ const Header = () => {
                 onClick={() => setIsOpen(false)}
               >
                 <User className="w-5 h-5 mr-2" /> Profile
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Link
-                href="/explore"
-                className="flex items-center text-lg font-medium text-[#595959] dark:text-[#868686]"
-                onClick={() => setIsOpen(false)}
-              >
-                <Compass className="w-5 h-5 mr-2" /> Explore
               </Link>
             </motion.div>
 
