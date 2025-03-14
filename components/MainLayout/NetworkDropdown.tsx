@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import Image from "next/image";
 import { useSelectedNetwork, useSelectedNetworkActions } from "@/store/network/selector";
 import { networks } from "@/store/network/useNetwork";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useState } from "react";
 
 const NetworkDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);

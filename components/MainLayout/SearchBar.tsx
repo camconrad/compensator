@@ -16,7 +16,7 @@ import {
 const SearchBar = () => {
   const { delegates: fetchedDelegates = [], loading, error } = useDelegates(); // Fallback to an empty array
   // const recentDelegateIds = useMainLayoutRecentSearchDelegateIds();
-  const { addRecentDelegateSearch } = useMainLayoutActions();
+  const { addRecentAgentSearch } = useMainLayoutActions();
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const searchBarRef = useRef<HTMLDivElement | null>(null);
@@ -202,12 +202,12 @@ const SearchBar = () => {
                   Recent searches
                 </div>
                 <ul className="mb-4">
-                  {fetchedDelegates?.slice(0, 3)?.map((delegate, index) => (
+                  {fetchedDelegates?.slice(0, 3)?.map((delegate: any, index) => (
                     <Link
                       href={`/${delegate?.id}`}
                       key={`recent-${index}`}
                       onClick={() => {
-                        addRecentDelegateSearch(delegate?.id);
+                        addRecentAgentSearch(delegate?.id);
                         setIsFocused(false);
                       }}
                     >
@@ -244,12 +244,12 @@ const SearchBar = () => {
                   Search results
                 </div>
                 <ul className="mb-4">
-                  {suggestions.map((delegate, index) => (
+                  {suggestions.map((delegate: any, index) => (
                     <Link
                       href={`/${delegate?.id}`}
                       key={`search-${index}`}
                       onClick={() => {
-                        addRecentDelegateSearch(delegate?.id);
+                        addRecentAgentSearch(delegate?.id);
                         setIsFocused(false);
                       }}
                     >
@@ -286,12 +286,12 @@ const SearchBar = () => {
                 Popular delegates
               </div>
               <ul>
-                {fetchedDelegates?.slice(0, 3)?.map((delegate, index) => (
+                {fetchedDelegates?.slice(0, 3)?.map((delegate: any, index) => (
                   <Link
                     href={`/${delegate?.id}`}
                     key={`popular-${index}`}
                     onClick={() => {
-                      addRecentDelegateSearch(delegate?.id);
+                      addRecentAgentSearch(delegate?.id);
                       setIsFocused(false);
                     }}
                   >

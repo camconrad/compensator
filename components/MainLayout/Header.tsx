@@ -45,13 +45,13 @@ const Header = () => {
     if (address) {
       handleLogin();
     }
-  }, [address]);
+  }, [address, handleLogin]);
 
   useEffect(() => {
     if(accessToken) { 
       handleGetProfile();
     }
-  }, [accessToken]);
+  }, [accessToken, handleGetProfile]);
 
   useEffect(() => {
     if (isOpen) {

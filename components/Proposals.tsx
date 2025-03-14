@@ -43,7 +43,7 @@ const Proposals = () => {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const handleStakeClick = (proposalId: number, outcome: "For" | "Against") => {
-    setSelectedProposal(proposalId);
+    setSelectedProposal(proposalId as any);
     setSelectedOutcome(outcome);
     setIsModalOpen(true);
   };
@@ -102,7 +102,7 @@ const Proposals = () => {
         </div>
       </div>
       {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
+        <Modal handleClose={() => setIsModalOpen(false)} open={isModalOpen}>
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4">
               Stake COMP for Proposal {selectedProposal} ({selectedOutcome})
