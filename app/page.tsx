@@ -100,7 +100,7 @@ export default function Home() {
               <Header />
             </Headroom>
 
-            <section className="pt-20 pb-3">
+            <section className="pt-3 pb-3">
               <HeroBanner />
             </section>
 

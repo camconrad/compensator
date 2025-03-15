@@ -78,9 +78,7 @@ const Header = () => {
   return (
     <>
       <header
-        className={`inset-x-0 left-0 top-0 z-[100] w-full transition-colors duration-200 ${
-          isAtTop ? "bg-transparent" : "bg-[#EFF2F5]/80 backdrop-blur-lg dark:bg-[#0D131A]/90"
-        }`}
+        className="inset-x-0 left-0 top-0 w-full transition-colors duration-200 bg-[#EFF2F5]/80 backdrop-blur-lg dark:bg-[#0D131A]/90"
       >
         <div className="flex items-center justify-between w-full px-4 max-w-[1100px] py-3 mx-auto">
           <div className="flex items-center justify-start">

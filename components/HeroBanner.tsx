@@ -8,7 +8,7 @@ const HeroBanner = () => {
       {/* Main Banner Container with Max Height/Width and Rounded Corners */}
       <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm max-h-[180px] bg-white dark:bg-gray-800">
         {/* Content */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 h-full p-8 md:p-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full p-8 md:p-12">
           {/* Left Column: Text Content */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
