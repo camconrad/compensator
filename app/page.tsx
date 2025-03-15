@@ -10,7 +10,9 @@ import HeroBanner from "@/components/HeroBanner";
 import Delegates from "@/components/Delegates";
 import Proposals from "@/components/Proposals";
 import Analytics from "@/components/Analytics";
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon } from "lucide-react";
+import { useSettingActions, useSettingTheme } from "@/store/setting/selector";
+import Headroom from "react-headroom";
 
 export default function Home() {
   const [authorized, setAuthorized] = useState(false);
@@ -18,7 +20,8 @@ export default function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [theme, setTheme] = useState("light");
+  const theme = useSettingTheme();
+  const { updateTheme } = useSettingActions();
   const correctPasscode = "2025";
 
   const containerVariants = {
@@ -47,11 +50,6 @@ export default function Home() {
     if (auth === "true") {
       setAuthorized(true);
     }
-
-    const savedTheme = localStorage.getItem("compensatorTheme");
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
   }, []);
 
   useEffect(() => {
@@ -64,7 +62,7 @@ export default function Home() {
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
+    updateTheme(newTheme);
     localStorage.setItem("compensatorTheme", newTheme);
   };
 
@@ -88,10 +86,6 @@ export default function Home() {
   return (
     <>
       <Head>
-        <link
-          href="https://fonts.cdnfonts.com/css/neue-haas-grotesk-display-pro"
-          rel="stylesheet"
-        />
         <title>Home | Compensator</title>
         <meta
           name="description"
@@ -102,7 +96,9 @@ export default function Home() {
       <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         {authorized ? (
           <>
-            <Header />
+            <Headroom>
+              <Header />
+            </Headroom>
 
             <section className="pt-20 pb-3">
               <HeroBanner />
@@ -130,13 +126,24 @@ export default function Home() {
 
               <div className="flex gap-4 items-center">
                 <span>© 2025 Compound</span>
-                <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                <a
+                  href="#"
+                  className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                >
                   Terms
                 </a>
-                <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                <a
+                  href="#"
+                  className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                >
                   Privacy
                 </a>
-                <a href="https://github.com/camconrad/compensator" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                <a
+                  href="https://github.com/camconrad/compensator"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                >
                   GitHub
                 </a>
               </div>
@@ -159,7 +166,10 @@ export default function Home() {
             variants={containerVariants}
             key="login-view"
           >
-            <motion.div className="flex flex-col items-center text-center mb-3 font-sans" variants={itemVariants}>
+            <motion.div
+              className="flex flex-col items-center text-center mb-3 font-sans"
+              variants={itemVariants}
+            >
               <Link href="/" className="mx-auto">
                 <div className="inline-block">
                   <Image
@@ -179,7 +189,10 @@ export default function Home() {
               </p>
             </motion.div>
 
-            <motion.div className="w-full max-w-[360px]" variants={itemVariants}>
+            <motion.div
+              className="w-full max-w-[360px]"
+              variants={itemVariants}
+            >
               <form
                 onSubmit={handlePasscodeSubmit}
                 className="flex flex-col gap-3 w-full font-sans"
@@ -279,8 +292,8 @@ export default function Home() {
               variants={itemVariants}
             >
               <p>
-                First time here? This is an invite-only beta. Please contact your
-                Compound delegate for access.
+                First time here? This is an invite-only beta. Please contact
+                your Compound delegate for access.
               </p>
             </motion.div>
           </motion.main>
