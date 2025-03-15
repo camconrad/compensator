@@ -78,7 +78,7 @@ const Header = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 z-30 w-full transition-colors duration-200 ${
+        className={`inset-x-0 left-0 top-0 z-[100] w-full transition-colors duration-200 ${
           isAtTop ? "bg-transparent" : "bg-[#EFF2F5]/80 backdrop-blur-lg dark:bg-[#0D131A]/90"
         }`}
       >
