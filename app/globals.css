@@ -2,8 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NHaasGroteskDSPro-15UltTh.otf");
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NHaasGroteskDSPro-25Th.otf");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NHaasGroteskDSPro-55Rg.otf");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NHaasGroteskDSPro-65Rg.otf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NHaasGroteskDSPro-75Rg.otf");
+  font-weight: 700;
+}
+
 body {
-  font-family: 'Neue Haas Grotesk Display Pro', Inter, Helvetica, sans-serif;
+  font-family: "Neue Haas Grotesk Display Pro", Inter, Helvetica, sans-serif;
 }
 
 /* Custom Swiper styles */
