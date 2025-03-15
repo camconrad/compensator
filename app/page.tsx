@@ -104,15 +104,15 @@ export default function Home() {
               <HeroBanner />
             </section>
 
-            <section className="">
+            <section className="pt-1 pb-1 relative z-0">
               <Delegates />
             </section>
 
-            <section className="">
+            <section className="pt-1 pb-1 relative z-0">
               <Proposals />
             </section>
 
-            <section className="">
+            <section className="pt-1 pb-1 relative z-0">
               <Analytics />
             </section>
 
