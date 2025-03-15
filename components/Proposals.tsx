@@ -87,7 +87,7 @@ const Proposals = () => {
 
   return (
     <div className="w-full mt-8 max-w-[1100px] mx-auto font-sans">
-      <div className="container mx-auto px-4">
+      <div className="mx-auto px-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
           <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white">
             Proposals
@@ -122,14 +122,26 @@ const Proposals = () => {
           <Swiper
             modules={[Navigation, FreeMode]}
             spaceBetween={16}
-            slidesPerView="auto"
             freeMode={true}
             navigation={{
               prevEl: navigationPrevRef.current,
               nextEl: navigationNextRef.current,
             }}
+            breakpoints={{
+              0: {
+                slidesPerView: 1,
+              },
+              375: {
+                slidesPerView: 2,
+              },
+              768: {
+                slidesPerView: 3
+              },
+              1024: {
+                slidesPerView: 4,
+              },
+            }}
             // autoplay={{ delay: 5000, disableOnInteraction: true }}
-            className="!overflow-visible"
             onInit={(swiper) => {
               if (typeof swiper.params.navigation === "object" && swiper.params.navigation) {
                 swiper.params.navigation.prevEl = navigationPrevRef.current;
@@ -140,7 +152,7 @@ const Proposals = () => {
             }}
           >
             {sortedProposals.map((proposal) => (
-              <SwiperSlide key={proposal.id} className="!w-[260px]">
+              <SwiperSlide key={proposal.id} className="">
                 <div className="bg-white flex flex-col justify-between min-h-[280px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5">
                   <h3 className="text-xl font-semibold text-[#030303] dark:text-white mb-4">
                     {proposal.title}

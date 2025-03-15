@@ -196,26 +196,38 @@ const Analytics = () => {
 
   return (
     <div className="w-full mt-8 max-w-[1100px] mx-auto font-sans">
-      <div className="container mx-auto px-4">
+      <div className="mx-auto px-4">
         <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white mb-2">Analytics</h2>
 
         <div className="relative">
           <Swiper
             modules={[Navigation, FreeMode]}
             spaceBetween={16}
-            slidesPerView="auto"
             freeMode={true}
+            breakpoints={{
+              0: {
+                slidesPerView: 1,
+              },
+              375: {
+                slidesPerView: 2,
+              },
+              768: {
+                slidesPerView: 3
+              },
+              1024: {
+                slidesPerView: 4,
+              },
+            }}
             navigation={{
               prevEl: navigationPrevRef.current,
               nextEl: navigationNextRef.current,
             }}
-            className="!overflow-visible"
             onSwiper={(swiper) => {
               swiperRef.current = swiper
             }}
           >
             {analytics.map((metric) => (
-              <SwiperSlide key={metric.id} className="!w-[220px]">
+              <SwiperSlide key={metric.id} className="">
                 <AnalyticsCard metric={metric} />
               </SwiperSlide>
             ))}
