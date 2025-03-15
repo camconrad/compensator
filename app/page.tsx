@@ -96,9 +96,11 @@ export default function Home() {
       <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         {authorized ? (
           <>
+            <div className="relative z-50">
             <Headroom>
               <Header />
             </Headroom>
+            </div>
 
             <section className="pt-3 pb-3">
               <HeroBanner />
@@ -108,7 +110,7 @@ export default function Home() {
               <Delegates />
             </section>
 
-            <section className="pt-1 pb-1 relative z-0">
+            <section className="pt-1 pb-1 relative z-1">
               <Proposals />
             </section>
 
