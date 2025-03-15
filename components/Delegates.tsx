@@ -106,8 +106,6 @@ const Delegates = () => {
             </div>
           </div>
         </div>
-
-        <div className="relative">
           <Swiper
             modules={[Navigation, FreeMode]}
             spaceBetween={16}
@@ -129,7 +127,7 @@ const Delegates = () => {
             }}
           >
             {sortedDelegates.map((delegate) => (
-              <SwiperSlide key={delegate.id} className="!w-[260px]">
+              <SwiperSlide key={delegate.id} className="!w-[255px]">
                 <Link href={delegate.link}>
                   <div className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
@@ -174,7 +172,6 @@ const Delegates = () => {
               <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
             </button>
           </div>
-        </div>
       </div>
     </div>
   )
