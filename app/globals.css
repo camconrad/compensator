@@ -4,32 +4,86 @@
 
 @font-face {
   font-family: "Neue Haas Grotesk Display Pro";
-  src: url("/fonts/NHaasGroteskDSPro-15UltTh.otf");
+  src: url("/fonts/NeueHaasDisplayXXThin.ttf");
   font-weight: 100;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "Neue Haas Grotesk Display Pro";
-  src: url("/fonts/NHaasGroteskDSPro-25Th.otf");
+  src: url("/fonts/NeueHaasDisplayXXThinItalic.ttf");
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NeueHaasDisplayXThin.ttf");
   font-weight: 200;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "Neue Haas Grotesk Display Pro";
-  src: url("/fonts/NHaasGroteskDSPro-55Rg.otf");
+  src: url("/fonts/NeueHaasDisplayXThinItalic.ttf");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NeueHaasDisplayRoman.ttf");
   font-weight: 400;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "Neue Haas Grotesk Display Pro";
-  src: url("/fonts/NHaasGroteskDSPro-65Rg.otf");
+  src: url("/fonts/NeueHaasDisplayRomanItalic.ttf");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NeueHaasDisplayMediu.ttf");
   font-weight: 600;
+  font-style: normal;
 }
 
 @font-face {
   font-family: "Neue Haas Grotesk Display Pro";
-  src: url("/fonts/NHaasGroteskDSPro-75Rg.otf");
+  src: url("/fonts/NeueHaasDisplayMediumItalic.ttf");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NeueHaasDisplayBold.ttf");
   font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NeueHaasDisplayBoldItalic.ttf");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NeueHaasDisplayBlack.ttf");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk Display Pro";
+  src: url("/fonts/NeueHaasDisplayBlackItalic.ttf");
+  font-weight: 900;
+  font-style: italic;
 }
 
 body {
