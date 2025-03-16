@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, FreeMode } from "swiper/modules";
 import "swiper/css";
@@ -65,6 +65,7 @@ const Delegates = () => {
   const [sortBy, setSortBy] = useState("rank");
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
+  const swiperRef = useRef(null);
 
   // Sort delegates based on the selected option
   const sortedDelegates = [...delegates].sort((a, b) => {
@@ -75,6 +76,14 @@ const Delegates = () => {
     }
     return a.id - b.id;
   });
+
+  // Update navigation after component mounts
+  useEffect(() => {
+    if (swiperRef.current && swiperRef.current.swiper) {
+      swiperRef.current.swiper.navigation.init();
+      swiperRef.current.swiper.navigation.update();
+    }
+  }, []);
 
   return (
     <div className="w-full max-w-[1100px] mx-auto font-sans">
@@ -109,6 +118,7 @@ const Delegates = () => {
           </div>
         </div>
         <Swiper
+          ref={swiperRef}
           modules={[Navigation, FreeMode]}
           spaceBetween={16}
           freeMode={true}
@@ -124,13 +134,12 @@ const Delegates = () => {
               slidesPerView: 2,
             },
             768: {
-              slidesPerView: 3
+              slidesPerView: 3,
             },
             1024: {
               slidesPerView: 4,
             },
           }}
-          // autoplay={{ delay: 5000, disableOnInteraction: true }}
           onInit={(swiper) => {
             if (
               typeof swiper.params.navigation === "object" &&
@@ -143,7 +152,7 @@ const Delegates = () => {
             }
           }}
         >
-          {sortedDelegates.map((delegate) => (
+          {sortedDelegates.map((delegate, index) => (
             <SwiperSlide key={delegate.id} className="">
               <Link href={delegate.link}>
                 <div className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden">
@@ -165,13 +174,21 @@ const Delegates = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="mt-2 transition-transform duration-200 group-hover:-translate-y-12">
-                    <p className="text-xl font-bold text-[#030303] dark:text-white">
-                      {delegate.rewardAPR}
-                    </p>
-                    <p className="text-sm font-medium text-[#959595]">
-                      Reward APR
-                    </p>
+                  <div className="flex justify-between items-end mt-2 transition-transform duration-200 group-hover:-translate-y-12">
+                    <div>
+                      <p className="text-xl font-bold text-[#030303] dark:text-white">
+                        #{sortBy === "apr" ? index + 1 : delegate.id}
+                      </p>
+                      <p className="text-sm font-medium text-[#959595]">Rank</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-[#030303] dark:text-white">
+                        {delegate.rewardAPR}
+                      </p>
+                      <p className="text-sm font-medium text-[#959595]">
+                        Reward APR
+                      </p>
+                    </div>
                   </div>
                   <button className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981] text-white py-[10px] text-center font-medium rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0">
                     Delegate
@@ -200,4 +217,4 @@ const Delegates = () => {
   );
 };
 
-export default Delegates;
+export default Delegates
