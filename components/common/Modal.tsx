@@ -116,7 +116,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
 
   return (
     <motion.div
-      className="fixed inset-0 z-[1000] bg-white bg-opacity-10 dark:bg-[#0D131A] dark:bg-opacity-40 flex justify-end"
+      className="fixed inset-0 z-[1000] bg-white bg-opacity-40 backdrop-blur-sm dark:bg-[#0D131A] dark:bg-opacity-40 flex justify-end"
       onClick={handleClose}
       initial="hidden"
       animate="visible"
@@ -214,7 +214,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
             <div className="p-6 flex-1 overflow-y-auto">
               <div className="relative">
                 {/* From Token */}
-                <div className="rounded-xl bg-gray-100 dark:bg-gray-800/50 p-4 mb-2">
+                <div className="rounded-xl bg-gray-100 font-medium dark:bg-gray-800/50 p-4 mb-2">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-500 dark:text-gray-400">From</span>
                     <select
@@ -237,14 +237,14 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                       value={fromAmount}
                       onChange={(e) => setFromAmount(e.target.value)}
                     />
-                    <span className="min-w-20 text-sm text-gray-500 dark:text-gray-400">
+                    <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">
                       Balance: {tokenBalances[fromToken].toFixed(2)}
                     </span>
                   </div>
                 </div>
 
                 {/* Swap Button */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10">
                   <motion.div
                     className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-[#0D131A] shadow-md"
                     onClick={handleSwapTokens}
@@ -258,7 +258,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 </div>
 
                 {/* To Token */}
-                <div className="rounded-xl bg-gray-100 dark:bg-gray-800/50 p-4 mb-3">
+                <div className="rounded-xl bg-gray-100  font-medium dark:bg-gray-800/50 p-4 mb-3">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-500 dark:text-gray-400">To</span>
                     <select
@@ -277,18 +277,15 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                     <input
                       type="number"
                       placeholder="0.0"
-                      className="w-full border-none bg-transparent text-lg font-medium focus:outline-none dark:text-white"
+                      className="w-full border-none bg-transparent text-lg focus:outline-none dark:text-white"
                       value={toAmount}
                       onChange={(e) => setToAmount(e.target.value)}
                     />
-                     <span className="text-sm min-w-20 text-gray-500 dark:text-gray-400">
+                     <span className="text-sm min-w-[90px] text-gray-500 dark:text-gray-400">
                       Balance: {tokenBalances[toToken].toFixed(2)}
                     </span>
                   </div>
                 </div>
-
-                {/* Error Message */}
-                {error && <div className="text-sm text-red-500 text-center">{error}</div>}
 
                 {/* Swap Button */}
                 <button
@@ -298,6 +295,9 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 >
                   {isSwapping ? <Loader className="h-5 w-5 animate-spin mx-auto" /> : "Swap"}
                 </button>
+
+                {/* Error Message */}
+                {error && <div className="text-sm mt-3 font-medium text-red-500 text-center">{error}</div>}
               </div>
             </div>
           </motion.div>
