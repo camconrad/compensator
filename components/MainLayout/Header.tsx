@@ -136,7 +136,7 @@ const Header = () => {
             <div className="w-auto flex items-center gap-2">
               <Image src="/icon.png" alt="Compound icon" width={24} height={24} className="mb-1" />
               <div className="">
-                <h1 className="text-xl font-bold text-[#030303] dark:ext-white">Compensator</h1>
+                <h1 className="text-xl font-bold text-[#030303] dark:text-white">Compensator</h1>
               </div>
             </div>
           </Link>
@@ -158,7 +158,7 @@ const Header = () => {
                     rel="noopener noreferrer"
                     data-name={item.name}
                     className={`px-2 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
-                      ${hoveredTab === item.name ? "text-[#17212B]" : "dark:text-white text-[#17212B]"}`}
+                      ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
                     onMouseEnter={() => setHoveredTab(item.name)}
                     onMouseLeave={() =>
                       setHoveredTab(
