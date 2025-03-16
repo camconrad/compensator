@@ -197,7 +197,7 @@ const Analytics = () => {
   return (
     <div className="w-full mt-8 max-w-[1100px] mx-auto font-sans">
       <div className="mx-auto px-4">
-        <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white mb-2">Analytics</h2>
+        <h2 className="text-[24px] sm:text-2xl mb-2 font-bold text-[#030303] dark:text-white">Analytics</h2>
 
         <div className="relative">
           <Swiper

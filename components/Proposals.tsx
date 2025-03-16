@@ -89,12 +89,12 @@ const Proposals = () => {
   return (
     <div className="w-full mt-8 max-w-[1100px] mx-auto font-sans">
       <div className="mx-auto px-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-          <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white mb-[-12px]">
+        <div className="flex flex-row justify-between items-center gap-2 mb-4">
+          <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white  mb-[-10px] md:mb-[-12px]">
             Proposals
           </h2>
           <div className="flex items-center gap-2 transition-all duration-100 ease-linear">
-            <div className="flex bg-white shadow-sm dark:bg-gray-800 rounded-full p-1">
+            <div className="flex mb-[-6px] md:mb-[0px] bg-white shadow-sm dark:bg-gray-800 rounded-full p-1">
               <button
                 onClick={() => setSortBy("latest")}
                 className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${

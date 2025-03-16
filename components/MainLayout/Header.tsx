@@ -86,12 +86,12 @@ const Header = () => {
               <div className="w-auto flex items-center gap-2">
                 <Image
                   src="/icon.png"
-                  alt="Compensator logo"
+                  alt="Compound icon"
                   width={24}
                   height={24}
                   className="mb-1"
                 />
-                <div className="hidden sm:inline-block">
+                <div className="">
                   <h1 className="text-xl font-bold text-[#030303] dark:text-white">
                     Compensator
                   </h1>
@@ -110,11 +110,11 @@ const Header = () => {
           </div>
           <div className="flex items-center space-x-1 lg:hidden">
             {!isOpen && <ConnectWalletButton />}
-            <button onClick={() => setIsOpen(!isOpen)} className="pl-2" aria-label="Toggle menu">
+            {/* <button onClick={() => setIsOpen(!isOpen)} className="pl-2" aria-label="Toggle menu">
               <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </motion.div>
-            </button>
+            </button> */}
           </div>
         </div>
       </header>

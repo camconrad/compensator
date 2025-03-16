@@ -119,12 +119,12 @@ const Delegates = () => {
   return (
     <div className="w-full max-w-[1100px] mx-auto font-sans">
       <div className="mx-auto px-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-          <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white mb-[-12px]">
+        <div className="flex flex-row justify-between items-center gap-2 mb-4">
+          <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white mb-[-10px] md:mb-[-12px]">
             Delegates
           </h2>
           <div className="flex items-center gap-2">
-            <div className="flex bg-white dark:bg-gray-800 rounded-full p-1 transition-all duration-100 ease-linear">
+            <div className="flex mb-[-6px] md:mb-[0px] bg-white dark:bg-gray-800 rounded-full p-1 transition-all duration-100 ease-linear">
               <button
                 onClick={() => setSortBy("rank")}
                 className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
@@ -172,15 +172,6 @@ const Delegates = () => {
             },
           }}
           onInit={(swiper) => {
-            // if (
-            //   typeof swiper.params.navigation === "object" &&
-            //   swiper.params.navigation
-            // ) {
-            //   swiper.params.navigation.prevEl = navigationPrevRef.current;
-            //   swiper.params.navigation.nextEl = navigationNextRef.current;
-            //   swiper.navigation.init();
-            //   swiper.navigation.update();
-            // }
           }}
         >
           {sortedDelegates.map((delegate, index) => (
