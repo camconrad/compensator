@@ -10,7 +10,6 @@ import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Modal from "@/components/common/Modal";
 
-// Define the type for a delegate
 interface Delegate {
   id: number;
   name: string;
@@ -68,16 +67,19 @@ const Delegates = () => {
   const [sortBy, setSortBy] = useState("rank");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState("");
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
   const swiperRef = useRef<SwiperRef | null>(null);
 
-  // Sort delegates based on the selected option
+  const userBalance = 0.00; // Hard coded for short-term
+
   const sortedDelegates = [...delegates].sort((a, b) => {
     if (sortBy === "apr") {
       const aprA = Number.parseFloat(a.rewardAPR);
       const aprB = Number.parseFloat(b.rewardAPR);
-      return aprB - aprA; // Sort by highest APR
+      return aprB - aprA;
     }
     return a.id - b.id;
   });
@@ -89,15 +91,13 @@ const Delegates = () => {
     }
   }, []);
 
-  // Handle clicking the card to open the modal
   const handleCardClick = (delegate: Delegate) => {
     setSelectedDelegate(delegate);
     setIsModalOpen(true);
   };
 
-  // Handle clicking the button (prevent bubbling to the card)
   const handleButtonClick = (event: React.MouseEvent, delegate: Delegate) => {
-    event.stopPropagation(); // Prevent the card's onClick from firing
+    event.stopPropagation();
     setSelectedDelegate(delegate);
     setIsModalOpen(true);
   };
@@ -105,6 +105,14 @@ const Delegates = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedDelegate(null);
+    setAmount("");
+  };
+
+  const handleDelegateSubmit = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
   };
 
   return (
@@ -177,7 +185,7 @@ const Delegates = () => {
           {sortedDelegates.map((delegate, index) => (
             <SwiperSlide key={delegate.id} className="">
               <div
-                onClick={() => handleCardClick(delegate)} // Entire card is clickable
+                onClick={() => handleCardClick(delegate)}
                 className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 mb-6">
@@ -215,8 +223,8 @@ const Delegates = () => {
                   </div>
                 </div>
                 <button
-                  onClick={(event) => handleButtonClick(event, delegate)} // Button click stops propagation
-                  className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981] text-white py-[10px] text-center font-medium rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0"
+                  onClick={(event) => handleButtonClick(event, delegate)}
+                  className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981] text-white py-[10px] text-center font-semibold  rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0"
                 >
                   Delegate
                 </button>
@@ -253,9 +261,11 @@ const Delegates = () => {
                     <input
                       type="number"
                       placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
                       className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-lg"
                     />
-                    <div className="flex items-center mr-3">
+                    <div className="flex items-center mr-3 ml-2">
                       <Image
                         src="/logo.png"
                         alt="COMP Logo"
@@ -270,7 +280,7 @@ const Delegates = () => {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-xs text-[#959595]">$0.00</p>
-                    <p className="text-xs text-[#959595]">Balance: 0.00</p>
+                    <p className="text-xs text-[#959595]">Balance: {userBalance.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
@@ -279,6 +289,7 @@ const Delegates = () => {
               {[25, 50, 75, 100].map((percent) => (
                 <button
                   key={percent}
+                  onClick={() => setAmount(((percent / 100) * userBalance).toString())}
                   className="py-[4px] border border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   {percent}%
@@ -286,9 +297,42 @@ const Delegates = () => {
               ))}
             </div>
             <button
-              className="w-full py-3 bg-emerald-600 font-medium text-white rounded-full transition-all duration-300 hover:bg-emerald-700"
+              onClick={handleDelegateSubmit}
+              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
+              className={`${
+                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-emerald-600"
+              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
+                parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
+              }`}
             >
-              Delegate COMP
+              {loading ? (
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : parseFloat(amount) > userBalance ? (
+                "Insufficient Balance"
+              ) : (
+                "Delegate COMP"
+              )}
             </button>
           </div>
         </Modal>
@@ -297,4 +341,4 @@ const Delegates = () => {
   );
 };
 
-export default Delegates;
+export default Delegates

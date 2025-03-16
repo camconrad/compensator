@@ -106,7 +106,7 @@ export default function Home() {
               <HeroBanner />
             </section>
 
-            <section className="pt-1 pb-1 relative z-0">
+            <section className="pt-1 pb-1 relative z-1">
               <Delegates />
             </section>
 

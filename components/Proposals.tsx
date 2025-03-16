@@ -9,7 +9,6 @@ import Modal from "@/components/common/Modal";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, ThumbsUp, ThumbsDown } from "lucide-react";
 
-// Mock data
 const proposals = [
   {
     id: 1,
@@ -53,18 +52,16 @@ const Proposals = () => {
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [selectedOutcome, setSelectedOutcome] = useState<"For" | "Against" | null>(null);
   const [sortBy, setSortBy] = useState<"latest" | "popularity">("latest");
+  const [loading, setLoading] = useState(false);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
 
-  // State variables for the stake form
   const [amount, setAmount] = useState("");
   const [hasSelectedPercentage, setHasSelectedPercentage] = useState(false);
 
-  // Mock data
-  const userBalance = 0.00; 
-  const compPrice = 41.44; 
+  const userBalance = 0.00;
+  const compPrice = 41.44;
 
-  // Sort proposals based on the selected option
   const sortedProposals = [...proposals].sort((a, b) => {
     if (sortBy === "latest") {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -81,8 +78,12 @@ const Proposals = () => {
   };
 
   const handleSubmitStake = (amount: number) => {
-    console.log(`Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`);
-    setIsModalOpen(false);
+    setLoading(true);
+    setTimeout(() => {
+      console.log(`Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`);
+      setIsModalOpen(false);
+      setLoading(false);
+    }, 2000);
   };
 
   return (
@@ -141,7 +142,6 @@ const Proposals = () => {
                 slidesPerView: 4,
               },
             }}
-            // autoplay={{ delay: 5000, disableOnInteraction: true }}
             onInit={(swiper) => {
               if (typeof swiper.params.navigation === "object" && swiper.params.navigation) {
                 swiper.params.navigation.prevEl = navigationPrevRef.current;
@@ -210,7 +210,7 @@ const Proposals = () => {
                       onChange={(e) => setAmount(e.target.value)}
                       className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-lg"
                     />
-                    <div className="flex items-center mr-3">
+                    <div className="flex items-center mr-3 ml-2">
                       <Image
                         src="/logo.png"
                         alt="Compensator Logo"
@@ -266,13 +266,41 @@ const Proposals = () => {
             </div>
             <button
               onClick={() => handleSubmitStake(parseFloat(amount))}
-              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance}
-              className={`w-full py-3 bg-emerald-600 font-medium text-white rounded-full transition-all duration-300 
-                ${!amount ? "opacity-70" : "hover:bg-emerald-700"} 
-                ${parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""}
-                disabled:bg-gray-400 disabled:cursor-not-allowed`}
+              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
+              className={`${
+                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-emerald-600"
+              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
+                parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
+              }`}
             >
-              {parseFloat(amount) > userBalance ? "Insufficient Balance" : "Submit Stake"}
+              {loading ? (
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : parseFloat(amount) > userBalance ? (
+                "Insufficient Balance"
+              ) : (
+                "Submit Stake"
+              )}
             </button>
           </div>
         </Modal>

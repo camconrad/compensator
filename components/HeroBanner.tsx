@@ -5,11 +5,8 @@ import { motion } from "framer-motion";
 const HeroBanner = () => {
   return (
     <div className="flex items-center mt-[-12px] justify-center py-8 px-4 w-full max-w-[1100px] mx-auto">
-      {/* Main Banner Container with Max Height/Width and Rounded Corners */}
       <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm max-h-[180px] bg-white dark:bg-gray-800">
-        {/* Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full p-8 md:p-12">
-          {/* Left Column: Text Content */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -22,15 +19,13 @@ const HeroBanner = () => {
               earn rewards
             </h1>
           </motion.div>
-
-          {/* Right Column: Empty or could contain a call-to-action */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="flex items-center justify-start md:justify-end"
           >
-            {/* Optionally add a button here if needed */}
+            {/* Placeholder */}
           </motion.div>
         </div>
       </div>
