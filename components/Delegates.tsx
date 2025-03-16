@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Swiper, SwiperSlide, SwiperRef } from "swiper/react"; // Import SwiperRef
+import { Swiper, SwiperSlide, SwiperRef } from "swiper/react";
 import { Navigation, FreeMode } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -70,7 +70,7 @@ const Delegates = () => {
   const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-  const swiperRef = useRef<SwiperRef | null>(null); // Use SwiperRef type
+  const swiperRef = useRef<SwiperRef | null>(null);
 
   // Sort delegates based on the selected option
   const sortedDelegates = [...delegates].sort((a, b) => {
