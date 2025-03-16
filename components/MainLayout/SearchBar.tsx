@@ -193,7 +193,7 @@ const SearchBar = () => {
             exit="hidden"
             variants={dropdownVariants}
             transition={{ duration: 0.2 }}
-            className="absolute z-10 w-full max-w-[402px] mt-2 bg-white dark:bg-[#1D2833] border border-gray-200 dark:border-[#1c1c1c] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[400px]"
+            className="absolute z-10 w-full max-w-[402px] mt-2 bg-white dark:bg-[#1D2833] border border-gray-200 dark:border-[#28303e] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[400px]"
           >
             {!searchQuery && (
               <div>
