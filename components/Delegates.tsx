@@ -178,7 +178,7 @@ const Delegates = () => {
             <SwiperSlide key={delegate.id} className="">
               <div
                 onClick={() => handleCardClick(delegate)}
-                className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                className="group bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between min-h-[206px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 mb-6">
                   <div className="relative h-12 w-12 flex-shrink-0">
@@ -226,12 +226,12 @@ const Delegates = () => {
         </Swiper>
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
-            className="swiper-prev-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
+            className="swiper-prev-btn-delegates p-2 border border-[#efefef] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button
-            className="swiper-next-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
+            className="swiper-next-btn-delegates p-2 border border-[#efefef] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>

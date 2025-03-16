@@ -47,7 +47,7 @@ const HeroBanner = () => {
 
   return (
     <div className="flex items-center mt-[-12px] justify-center py-8 px-4 w-full max-w-[1100px] mx-auto">
-      <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm h-[180px] bg-white dark:bg-[#1D2833]">
+      <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm h-[180px] bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e]">
         {/* Carousel Content */}
         <div className="h-full">
           <AnimatePresence mode="wait">

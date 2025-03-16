@@ -117,7 +117,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
-          className="bg-white flex flex-col justify-between h-auto w-full dark:bg-[#1D2833] rounded-lg p-5 shadow-sm transition-all duration-200 cursor-pointer"
+          className="bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between h-auto w-full dark:bg-[#1D2833] rounded-lg p-5 shadow-sm transition-all duration-200 cursor-pointer"
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
         >
@@ -236,13 +236,13 @@ const Analytics = () => {
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
             ref={navigationPrevRef}
-            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
+            className="p-2 border border-[#efefef] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button
             ref={navigationNextRef}
-            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
+            className="p-2 border border-[#efefef] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>

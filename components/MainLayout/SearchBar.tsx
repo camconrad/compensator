@@ -120,7 +120,7 @@ const SearchBar = () => {
         className={`relative rounded-lg bg-white dark:bg-[#1D2833] border ${
           isFocused
             ? "border-emerald-300 dark:border-emerald-700" // Focused state
-            : "border-gray-200 dark:border-[#28303e]" // Unfocused state
+            : "border-[#efefef] dark:border-[#28303e]" // Unfocused state
         } transition-colors`}
         initial="unfocused"
         animate={isFocused ? "focused" : "unfocused"}
@@ -140,10 +140,10 @@ const SearchBar = () => {
           />
           <label 
             htmlFor="delegate-search" 
-            className={`absolute left-9 pointer-events-none transition-all duration-200 ${
+            className={`absolute left-9 font-medium pointer-events-none transition-all duration-200 ${
               isFocused || searchQuery ? 
               'text-xs text-emerald-500 dark:text-emerald-400 top-1' : 
-              'text-sm text-[#959595] dark:text-[#959595] top-1/2 -translate-y-1/2'
+              'text-sm text-[#959595] dark:text-gray-400 top-1/2 -translate-y-1/2'
             }`}
           >
             Search delegates
@@ -193,7 +193,7 @@ const SearchBar = () => {
             exit="hidden"
             variants={dropdownVariants}
             transition={{ duration: 0.2 }}
-            className="absolute z-10 w-full max-w-[402px] mt-2 bg-white dark:bg-[#1D2833] border border-gray-200 dark:border-[#28303e] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[400px]"
+            className="absolute z-10 w-full max-w-[402px] mt-2 bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[400px]"
           >
             {!searchQuery && (
               <div>
@@ -239,7 +239,7 @@ const SearchBar = () => {
 
             {searchQuery && suggestions.length > 0 && (
               <div>
-                <div className="flex items-center mb-2 text-sm font-semibold text-[#595959] dark:text-[#afafaf]">
+                <div className="flex items-center mb-2 text-sm font-medium text-[#595959] dark:text-[#afafaf]">
                   <FaSearch className="mr-2" />
                   Search results
                 </div>
@@ -281,7 +281,7 @@ const SearchBar = () => {
 
             {/* Popular Tokens Section */}
             <div>
-              <div className="flex items-center mb-2 text-sm font-semibold text-[#595959] dark:text-[#afafaf]">
+              <div className="flex items-center mb-2 text-sm font-medium text-[#595959] dark:text-[#afafaf]">
                 <FaChartLine className="mr-2" />
                 Popular delegates
               </div>

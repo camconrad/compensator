@@ -124,7 +124,7 @@ export default function Home() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.2 }}
             >
-              <div className="w-full border-t border-gray-200 dark:border-[#232F3B] mb-2" />
+              <div className="w-full border-t border-[#efefef] dark:border-[#232F3B] mb-2" />
 
               <div className="flex gap-4 items-center">
                 <span>© 2025 Compound</span>
@@ -208,7 +208,7 @@ export default function Home() {
                       onChange={(e) => setPasscode(e.target.value)}
                       onFocus={() => setIsFocused(true)}
                       onBlur={() => setIsFocused(false)}
-                      className="absolute inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-gray-200 text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                      className="absolute inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                       autoFocus
                     />
                     <label
