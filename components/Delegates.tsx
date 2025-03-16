@@ -69,9 +69,9 @@ const Delegates = () => {
   const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null);
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
+  const swiperRef = useRef<SwiperRef | null>(null);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-  const swiperRef = useRef<SwiperRef | null>(null);
 
     const userBalance = 0.00;
 
@@ -84,13 +84,13 @@ const Delegates = () => {
     return a.id - b.id;
   });
 
-  useEffect(() => {
-    if (swiperRef.current && swiperRef.current.swiper) {
-      const swiperInstance = swiperRef.current.swiper;
-      swiperInstance.navigation.init();
-      swiperInstance.navigation.update();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (swiperRef.current && swiperRef.current.swiper) {
+  //     const swiperInstance = swiperRef.current.swiper;
+  //     swiperInstance.navigation.init();
+  //     swiperInstance.navigation.update();
+  //   }
+  // }, []);
 
   const handleCardClick = (delegate: Delegate) => {
     setSelectedDelegate(delegate);
@@ -154,8 +154,8 @@ const Delegates = () => {
           spaceBetween={16}
           freeMode={true}
           navigation={{
-            prevEl: navigationPrevRef.current,
-            nextEl: navigationNextRef.current,
+            prevEl: '.swiper-prev-btn-delegates',
+            nextEl: '.swiper-next-btn-delegates',
           }}
           breakpoints={{
             0: {
@@ -172,15 +172,15 @@ const Delegates = () => {
             },
           }}
           onInit={(swiper) => {
-            if (
-              typeof swiper.params.navigation === "object" &&
-              swiper.params.navigation
-            ) {
-              swiper.params.navigation.prevEl = navigationPrevRef.current;
-              swiper.params.navigation.nextEl = navigationNextRef.current;
-              swiper.navigation.init();
-              swiper.navigation.update();
-            }
+            // if (
+            //   typeof swiper.params.navigation === "object" &&
+            //   swiper.params.navigation
+            // ) {
+            //   swiper.params.navigation.prevEl = navigationPrevRef.current;
+            //   swiper.params.navigation.nextEl = navigationNextRef.current;
+            //   swiper.navigation.init();
+            //   swiper.navigation.update();
+            // }
           }}
         >
           {sortedDelegates.map((delegate, index) => (
@@ -235,14 +235,12 @@ const Delegates = () => {
         </Swiper>
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
-            ref={navigationPrevRef}
-            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="swiper-prev-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button
-            ref={navigationNextRef}
-            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="swiper-next-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
           >
             <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>

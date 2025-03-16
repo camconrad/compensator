@@ -125,8 +125,8 @@ const Proposals = () => {
             spaceBetween={16}
             freeMode={true}
             navigation={{
-              prevEl: navigationPrevRef.current,
-              nextEl: navigationNextRef.current,
+              prevEl: '.swiper-prev-btn-proposals',
+              nextEl: '.swiper-next-btn-proposals',
             }}
             breakpoints={{
               0: {
@@ -143,12 +143,12 @@ const Proposals = () => {
               },
             }}
             onInit={(swiper) => {
-              if (typeof swiper.params.navigation === "object" && swiper.params.navigation) {
-                swiper.params.navigation.prevEl = navigationPrevRef.current;
-                swiper.params.navigation.nextEl = navigationNextRef.current;
-                swiper.navigation.init();
-                swiper.navigation.update();
-              }
+              // if (typeof swiper.params.navigation === "object" && swiper.params.navigation) {
+              //   swiper.params.navigation.prevEl = navigationPrevRef.current;
+              //   swiper.params.navigation.nextEl = navigationNextRef.current;
+              //   swiper.navigation.init();
+              //   swiper.navigation.update();
+              // }
             }}
           >
             {sortedProposals.map((proposal) => (
@@ -179,16 +179,14 @@ const Proposals = () => {
 
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
-            ref={navigationPrevRef}
-            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="swiper-prev-btn-proposals p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button
-            ref={navigationNextRef}
             className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
           >
-            <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <ArrowRight className="swiper-next-btn-proposals w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
         </div>
       </div>
