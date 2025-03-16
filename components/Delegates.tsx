@@ -76,9 +76,9 @@ const Delegates = () => {
 
   // Update navigation after component mounts
   useEffect(() => {
-    if (swiperRef.current && swiperRef.current.swiper) {
-      swiperRef.current.swiper.navigation.init();
-      swiperRef.current.swiper.navigation.update();
+    if (swiperRef.current) {
+      swiperRef.current.navigation.init();
+      swiperRef.current.navigation.update();
     }
   }, []);
 
@@ -279,4 +279,4 @@ const Delegates = () => {
   );
 };
 
-export default Delegates
+export default Delegates;
