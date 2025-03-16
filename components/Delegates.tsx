@@ -124,10 +124,10 @@ const Delegates = () => {
             Delegates
           </h2>
           <div className="flex items-center gap-2">
-            <div className="flex mb-[-6px] md:mb-[0px] bg-white dark:bg-[#1D2833] rounded-full p-1 transition-all duration-100 ease-linear">
+            <div className="flex mb-[-6px] font-semibold md:mb-[0px] bg-white dark:bg-[#1D2833] rounded-full p-1 transition-all duration-100 ease-linear">
               <button
                 onClick={() => setSortBy("rank")}
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
                   sortBy === "rank"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
                     : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
@@ -137,7 +137,7 @@ const Delegates = () => {
               </button>
               <button
                 onClick={() => setSortBy("apr")}
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   sortBy === "apr"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
                     : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
