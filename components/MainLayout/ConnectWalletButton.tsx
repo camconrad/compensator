@@ -29,9 +29,9 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
         setShowPopover(false)
       }
     }
-    document.addEventListener("mousedown", handleClickOutside as EventListener)
+    document.addEventListener("mousedown", handleClickOutside as unknown as EventListener)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside as EventListener)
+      document.removeEventListener("mousedown", handleClickOutside as unknown as EventListener)
     }
   }, [])
 

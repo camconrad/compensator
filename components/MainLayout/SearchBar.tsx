@@ -117,7 +117,7 @@ const SearchBar = () => {
   return (
     <div className="relative w-full md:max-w-[320px] ml-[-20px] font-sans" ref={searchBarRef}>
       <motion.div
-        className={`relative rounded-lg bg-white dark:bg-[#1D2833] border ${
+        className={`relative rounded-lg bg-transparent ${
           isFocused
             ? "border-emerald-300 dark:border-emerald-700" // Focused state
             : "border-[#efefef] dark:border-[#28303e]" // Unfocused state
@@ -135,7 +135,7 @@ const SearchBar = () => {
             onChange={(e) => handleSearch(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className="absolute inset-0 p-2 mt-2 text-xs rounded-lg pl-10 pr-12 w-full transition-all bg-white dark:bg-[#1D2833] text-[#030303] dark:text-white outline-none"
+            className="absolute inset-0 p-2 mt-2 text-xs rounded-lg pl-10 pr-12 w-full transition-all bg-transparent text-[#030303] dark:text-white outline-none"
             autoComplete="off"
           />
           <label 
@@ -153,7 +153,7 @@ const SearchBar = () => {
           </div>
 
           {/* Slash/Close Icon */}
-          <div className="absolute flex items-center justify-center w-[26px] h-[26px] text-[16px] font-semibold text-[#595959] dark:text-[#afafaf] transform -translate-y-1/2 bg-gray-100 dark:bg-gray-700 rounded-[6px] right-2 top-1/2">
+          <div className="absolute flex items-center justify-center w-[26px] h-[26px] text-[16px] font-semibold text-[#595959] dark:text-[#afafaf] transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-[6px] right-2 top-1/2">
             <AnimatePresence mode="wait">
               {!searchQuery ? (
                 <motion.span
