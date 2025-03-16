@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/banner.png" alt="Compound Icon" width=40%>
+  <img src="public/banner.png" alt="Compound Icon" width=100%>
 </p>
 
 ## Overview
