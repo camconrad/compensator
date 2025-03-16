@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/compensator.png" alt="Compound Icon" width=40%>
+  <img src="public/compensator-logo.png" alt="Compound Icon" width=40%>
 </p>
 
 ## Overview
