@@ -50,7 +50,7 @@ const ConnectWalletButton = () => {
         disabled={isLoading}
         className={`${
           isLoading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
-        } w-full px-[18px] shadow-sm py-[13px] min-h-[36px] font-semibold text-xs transition-colors bg-[#fefefe] dark:bg-gray-700 border-[0.8px] border-emerald-500 dark:border-emerald-700 text-black dark:text-white rounded-full flex justify-center items-center`}
+        } w-full px-[18px] shadow-sm py-[13px] min-h-[36px] font-semibold text-xs transition-colors bg-[#fefefe] dark:bg-[#1D2833] border-[0.8px] border-emerald-500 dark:border-emerald-700 text-black dark:text-white rounded-full flex justify-center items-center`}
       >
         {isLoading ? (
           <svg

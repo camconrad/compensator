@@ -117,10 +117,10 @@ const SearchBar = () => {
   return (
     <div className="relative w-full md:max-w-[320px] ml-[-20px] font-sans" ref={searchBarRef}>
       <motion.div
-        className={`relative rounded-lg bg-white dark:bg-gray-800 border ${
+        className={`relative rounded-lg bg-white dark:bg-[#1D2833] border ${
           isFocused
             ? "border-emerald-300 dark:border-emerald-700" // Focused state
-            : "border-gray-200 dark:border-[#2e3746]" // Unfocused state
+            : "border-gray-200 dark:border-[#28303e]" // Unfocused state
         } transition-colors`}
         initial="unfocused"
         animate={isFocused ? "focused" : "unfocused"}
@@ -135,7 +135,7 @@ const SearchBar = () => {
             onChange={(e) => handleSearch(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className="absolute inset-0 p-2 mt-2 text-xs rounded-lg pl-10 pr-12 w-full transition-all bg-white dark:bg-gray-800 text-[#030303] dark:text-white outline-none"
+            className="absolute inset-0 p-2 mt-2 text-xs rounded-lg pl-10 pr-12 w-full transition-all bg-white dark:bg-[#1D2833] text-[#030303] dark:text-white outline-none"
             autoComplete="off"
           />
           <label 
@@ -193,7 +193,7 @@ const SearchBar = () => {
             exit="hidden"
             variants={dropdownVariants}
             transition={{ duration: 0.2 }}
-            className="absolute z-10 w-full max-w-[402px] mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-[#1c1c1c] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[400px]"
+            className="absolute z-10 w-full max-w-[402px] mt-2 bg-white dark:bg-[#1D2833] border border-gray-200 dark:border-[#1c1c1c] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[400px]"
           >
             {!searchQuery && (
               <div>
@@ -214,7 +214,7 @@ const SearchBar = () => {
                       <motion.li
                         custom={index}
                         variants={itemVariants}
-                        className="flex items-center justify-between px-4 py-2 transition bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131313]"
+                        className="flex items-center justify-between px-4 py-2 transition bg-white dark:bg-[#1D2833] rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131313]"
                       >
                         <div className="flex items-center space-x-3">
                           <img src={delegate?.imageUrl} alt="" className="w-8 h-8 rounded-full" />
@@ -256,7 +256,7 @@ const SearchBar = () => {
                       <motion.li
                         custom={index}
                         variants={itemVariants}
-                        className="flex items-center justify-between px-4 py-2 transition bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131313]"
+                        className="flex items-center justify-between px-4 py-2 transition bg-white dark:bg-[#1D2833] rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131313]"
                       >
                         <div className="flex items-center space-x-3">
                           <img src={delegate?.imageUrl} alt="" className="w-8 h-8 rounded-full" />
@@ -298,7 +298,7 @@ const SearchBar = () => {
                     <motion.li
                       custom={index + 5} // Offset for staggered animation
                       variants={itemVariants}
-                      className="flex items-center justify-between px-4 py-2 transition bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131313]"
+                      className="flex items-center justify-between px-4 py-2 transition bg-white dark:bg-[#1D2833] rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131313]"
                     >
                       <div className="flex items-center space-x-3">
                         <img src={delegate?.imageUrl} alt="" className="w-8 h-8 rounded-full" />

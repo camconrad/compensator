@@ -124,12 +124,12 @@ const Delegates = () => {
             Delegates
           </h2>
           <div className="flex items-center gap-2">
-            <div className="flex mb-[-6px] md:mb-[0px] bg-white dark:bg-gray-800 rounded-full p-1 transition-all duration-100 ease-linear">
+            <div className="flex mb-[-6px] md:mb-[0px] bg-white dark:bg-[#1D2833] rounded-full p-1 transition-all duration-100 ease-linear">
               <button
                 onClick={() => setSortBy("rank")}
                 className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
                   sortBy === "rank"
-                    ? "bg-[#EFF2F5] dark:bg-gray-700 text-[#030303] dark:text-white shadow-sm"
+                    ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
                     : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                 }`}
               >
@@ -139,7 +139,7 @@ const Delegates = () => {
                 onClick={() => setSortBy("apr")}
                 className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
                   sortBy === "apr"
-                    ? "bg-[#EFF2F5] dark:bg-gray-700 text-[#030303] dark:text-white shadow-sm"
+                    ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
                     : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                 }`}
               >
@@ -178,7 +178,7 @@ const Delegates = () => {
             <SwiperSlide key={delegate.id} className="">
               <div
                 onClick={() => handleCardClick(delegate)}
-                className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 mb-6">
                   <div className="relative h-12 w-12 flex-shrink-0">
@@ -226,12 +226,12 @@ const Delegates = () => {
         </Swiper>
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
-            className="swiper-prev-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="swiper-prev-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button
-            className="swiper-next-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="swiper-next-btn-delegates p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
@@ -246,7 +246,7 @@ const Delegates = () => {
             </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
-                <div className="flex flex-col border bg-white dark:bg-gray-800 border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
+                <div className="flex flex-col border bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
                   <div className="flex items-center justify-between mt-[-6px]">
                     <input
                       type="number"

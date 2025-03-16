@@ -117,7 +117,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
-          className="bg-white flex flex-col justify-between h-auto w-full dark:bg-gray-800 rounded-lg p-5 shadow-sm transition-all duration-200 cursor-pointer"
+          className="bg-white flex flex-col justify-between h-auto w-full dark:bg-[#1D2833] rounded-lg p-5 shadow-sm transition-all duration-200 cursor-pointer"
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
         >
@@ -134,7 +134,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
       >
-        <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-t-md">
+        <div className="bg-white dark:bg-[#1D2833] rounded-t-md">
           <div className="p-4">
             <div className="flex justify-between items-center mb-1">
               <h4 className="font-semibold text-base">{metric.type}</h4>
@@ -167,7 +167,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
           </div>
         </div>
 
-        <div className="p-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 rounded-b-md">
+        <div className="p-3 bg-gray-50 dark:bg-[#1D2833] border-t border-gray-100 dark:border-[#28303e] rounded-b-md">
           <div className="flex justify-between items-center">
             <span className="text-xs text-gray-500 dark:text-gray-400">Last 7 days</span>
             <button className="text-xs font-medium underline text-emerald-600 dark:text-emerald-500 focus:outline-none">
@@ -236,13 +236,13 @@ const Analytics = () => {
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
             ref={navigationPrevRef}
-            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button
             ref={navigationNextRef}
-            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="p-2 border border-gray-300 dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
           >
             <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
