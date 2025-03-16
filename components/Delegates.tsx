@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide, SwiperRef } from "swiper/react"; // Import SwiperRef
 import { Navigation, FreeMode } from "swiper/modules";
-import { Swiper as SwiperCore } from "swiper";
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Modal from "@/components/common/Modal";
+
+// Define the type for a delegate
 interface Delegate {
   id: number;
   name: string;
@@ -69,7 +70,7 @@ const Delegates = () => {
   const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-  const swiperRef = useRef<SwiperCore | null>(null);
+  const swiperRef = useRef<SwiperRef | null>(null); // Use SwiperRef type
 
   // Sort delegates based on the selected option
   const sortedDelegates = [...delegates].sort((a, b) => {
@@ -81,16 +82,22 @@ const Delegates = () => {
     return a.id - b.id;
   });
 
-  // Update navigation after component mounts
   useEffect(() => {
-    if (swiperRef.current) {
+    if (swiperRef.current && swiperRef.current.navigation) {
       swiperRef.current.navigation.init();
       swiperRef.current.navigation.update();
     }
   }, []);
 
-  // Add type for the delegate parameter
-  const handleDelegateClick = (delegate: Delegate) => {
+  // Handle clicking the card to open the modal
+  const handleCardClick = (delegate: Delegate) => {
+    setSelectedDelegate(delegate);
+    setIsModalOpen(true);
+  };
+
+  // Handle clicking the button (prevent bubbling to the card)
+  const handleButtonClick = (event: React.MouseEvent, delegate: Delegate) => {
+    event.stopPropagation(); // Prevent the card's onClick from firing
     setSelectedDelegate(delegate);
     setIsModalOpen(true);
   };
@@ -169,7 +176,10 @@ const Delegates = () => {
         >
           {sortedDelegates.map((delegate, index) => (
             <SwiperSlide key={delegate.id} className="">
-              <div className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden">
+              <div
+                onClick={() => handleCardClick(delegate)} // Entire card is clickable
+                className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+              >
                 <div className="flex items-center gap-3 mb-6">
                   <div className="relative h-12 w-12 flex-shrink-0">
                     <Image
@@ -205,7 +215,7 @@ const Delegates = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleDelegateClick(delegate)}
+                  onClick={(event) => handleButtonClick(event, delegate)} // Button click stops propagation
                   className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981] text-white py-[10px] text-center font-medium rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0"
                 >
                   Delegate
