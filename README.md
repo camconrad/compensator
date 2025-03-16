@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo.png" alt="Compound Logo" width=13.4%>
+  <img src="public/logo.png" alt="Compound Logo" width=13.4% style="border-radius: 12px;">
 </p>
 <p align="center">
   <i align="center">Compound delegate marketplace</i>
