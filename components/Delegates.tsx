@@ -3,12 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, FreeMode } from "swiper/modules";
+import { Swiper as SwiperCore } from "swiper";
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import Modal from "@/components/common/Modal";
 
 const delegates = [
   {
@@ -17,7 +18,6 @@ const delegates = [
     address: "0x123..4567",
     image: "/delegates/a16z.jpg",
     rewardAPR: "0.00%",
-    link: "/delegates/a16z",
   },
   {
     id: 2,
@@ -25,7 +25,6 @@ const delegates = [
     address: "0x123..4567",
     image: "/delegates/gauntlet.png",
     rewardAPR: "0.00%",
-    link: "/delegates/gauntlet",
   },
   {
     id: 3,
@@ -33,7 +32,6 @@ const delegates = [
     address: "0x123..4567",
     image: "/delegates/geoffrey-hayes.jpg",
     rewardAPR: "0.00%",
-    link: "/delegates/geoffrey-hayes",
   },
   {
     id: 4,
@@ -41,7 +39,6 @@ const delegates = [
     address: "0x123..4567",
     image: "/delegates/tennis-bowling.jpg",
     rewardAPR: "0.00%",
-    link: "/delegates/tennis-bowl",
   },
   {
     id: 5,
@@ -49,7 +46,6 @@ const delegates = [
     address: "0x123..4567",
     image: "/delegates/monet-supply.jpg",
     rewardAPR: "0.00%",
-    link: "/delegates/monet-supply",
   },
   {
     id: 6,
@@ -57,15 +53,16 @@ const delegates = [
     address: "0x123..4567",
     image: "/delegates/all-the-colors.jpg",
     rewardAPR: "0.00%",
-    link: "/delegates/monet-supply",
   },
 ];
 
 const Delegates = () => {
   const [sortBy, setSortBy] = useState("rank");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDelegate, setSelectedDelegate] = useState(null);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
-  const swiperRef = useRef(null);
+  const swiperRef = useRef<SwiperCore | null>(null);
 
   // Sort delegates based on the selected option
   const sortedDelegates = [...delegates].sort((a, b) => {
@@ -84,6 +81,16 @@ const Delegates = () => {
       swiperRef.current.swiper.navigation.update();
     }
   }, []);
+
+  const handleDelegateClick = (delegate) => {
+    setSelectedDelegate(delegate);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedDelegate(null);
+  };
 
   return (
     <div className="w-full max-w-[1100px] mx-auto font-sans">
@@ -154,47 +161,48 @@ const Delegates = () => {
         >
           {sortedDelegates.map((delegate, index) => (
             <SwiperSlide key={delegate.id} className="">
-              <Link href={delegate.link}>
-                <div className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="relative h-12 w-12 flex-shrink-0">
-                      <Image
-                        src={delegate.image || "/placeholder.svg"}
-                        alt={delegate.name}
-                        fill
-                        className="object-cover rounded-full"
-                      />
-                    </div>
-                    <div className="truncate">
-                      <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">
-                        {delegate.name}
-                      </h3>
-                      <p className="text-sm font-medium text-[#959595]">
-                        {delegate.address}
-                      </p>
-                    </div>
+              <div className="group bg-white flex flex-col justify-between min-h-[206px] w-full dark:bg-gray-800 rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="relative h-12 w-12 flex-shrink-0">
+                    <Image
+                      src={delegate.image || "/placeholder.svg"}
+                      alt={delegate.name}
+                      fill
+                      className="object-cover rounded-full"
+                    />
                   </div>
-                  <div className="flex justify-between items-end mt-2 transition-transform duration-200 group-hover:-translate-y-12">
-                    <div>
-                      <p className="text-xl font-bold text-[#030303] dark:text-white">
-                        #{sortBy === "apr" ? index + 1 : delegate.id}
-                      </p>
-                      <p className="text-sm font-medium text-[#959595]">Rank</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-[#030303] dark:text-white">
-                        {delegate.rewardAPR}
-                      </p>
-                      <p className="text-sm font-medium text-[#959595]">
-                        Reward APR
-                      </p>
-                    </div>
+                  <div className="truncate">
+                    <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">
+                      {delegate.name}
+                    </h3>
+                    <p className="text-sm font-medium text-[#959595]">
+                      {delegate.address}
+                    </p>
                   </div>
-                  <button className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981] text-white py-[10px] text-center font-medium rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0">
-                    Delegate
-                  </button>
                 </div>
-              </Link>
+                <div className="flex justify-between items-end mt-2 transition-transform duration-200 group-hover:-translate-y-12">
+                  <div>
+                    <p className="text-xl font-bold text-[#030303] dark:text-white">
+                      #{sortBy === "apr" ? index + 1 : delegate.id}
+                    </p>
+                    <p className="text-sm font-medium text-[#959595]">Rank</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-[#030303] dark:text-white">
+                      {delegate.rewardAPR}
+                    </p>
+                    <p className="text-sm font-medium text-[#959595]">
+                      Reward APR
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDelegateClick(delegate)}
+                  className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981] text-white py-[10px] text-center font-medium rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0"
+                >
+                  Delegate
+                </button>
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -213,6 +221,60 @@ const Delegates = () => {
           </button>
         </div>
       </div>
+
+      {isModalOpen && selectedDelegate && (
+        <Modal handleClose={handleModalClose} open={isModalOpen}>
+          <div className="p-6 font-[family-name:var(--font-geist-sans)]">
+            <h2 className="mt-7 text-xl font-semibold mb-4 dark:text-white">
+              Delegate COMP to {selectedDelegate.name}
+            </h2>
+            <div className="relative mb-4">
+              <div className="flex flex-col space-y-2">
+                <div className="flex flex-col border bg-white dark:bg-gray-800 border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
+                  <div className="flex items-center justify-between mt-[-6px]">
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-lg"
+                    />
+                    <div className="flex items-center mr-3">
+                      <Image
+                        src="/logo.png"
+                        alt="COMP Logo"
+                        width={20}
+                        height={20}
+                        className="mx-auto rounded-full"
+                      />
+                      <span className="px-2 py-2 dark:text-gray-200 rounded text-sm">
+                        COMP
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-xs text-[#959595]">$0.00</p>
+                    <p className="text-xs text-[#959595]">Balance: 0.00</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[25, 50, 75, 100].map((percent) => (
+                <button
+                  key={percent}
+                  className="py-[4px] border border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                >
+                  {percent}%
+                </button>
+              ))}
+            </div>
+            <button
+              className="w-full py-3 bg-emerald-600 font-medium text-white rounded-full transition-all duration-300 hover:bg-emerald-700"
+            >
+              Delegate COMP
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
