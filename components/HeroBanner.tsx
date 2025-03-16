@@ -18,11 +18,11 @@ const HeroBanner = () => {
       titleSecondary: "for or against specific proposals.",
       image: "/placeholder.svg?height=120&width=200",
     },
-    {
-      titlePrimary: "Join the Compound community.",
-      titleSecondary: "The future of money is in your hands.",
-      image: "/placeholder.svg?height=120&width=200",
-    },
+    // {
+    //   titlePrimary: "Join the Compound community.",
+    //   titleSecondary: "The future of money is in your hands.",
+    //   image: "/placeholder.svg?height=120&width=200",
+    // },
   ]
 
   useEffect(() => {
