@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-
-import authServices from "@/services/auth"
 import Image from "next/image"
 import Link from "next/link"
+import authServices from "@/services/auth"
 import { useEffect, useState, useRef } from "react"
 import { useAccount } from "wagmi"
 import ConnectWalletButton from "./ConnectWalletButton"
@@ -12,7 +11,6 @@ import httpClient from "@/services/httpClient"
 import { useSelectedAccessToken, useSelectedAuthActions } from "@/store/auth/selector"
 import NetworkDropdown from "./NetworkDropdown"
 import { usePathname } from "next/navigation"
-// Import icons from React Icons (Font Awesome solid)
 import { FaHome, FaCompass, FaUser, FaFileAlt } from "react-icons/fa"
 
 const Header = () => {
@@ -26,7 +24,6 @@ const Header = () => {
   const navRef = useRef<HTMLDivElement>(null)
   const indicatorRef = useRef<HTMLDivElement>(null)
 
-  // Using filled icons from React Icons
   const navItems = [
     {
       name: "Home",
@@ -94,37 +91,33 @@ const Header = () => {
     }
   }, [])
 
-  // Set the active tab based on the current path
   useEffect(() => {
     const currentPath = pathname
     const activeItem = navItems.find((item) => item.href === currentPath)
     if (activeItem) {
       setHoveredTab(activeItem.name)
     } else {
-      // If we're on a subpage, highlight the parent section
       if (currentPath.startsWith("/explore")) setHoveredTab("Explore")
       else if (currentPath.startsWith("/profile")) setHoveredTab("Profile")
       else setHoveredTab("Home")
     }
   }, [pathname])
 
-  // Update the indicator position when hovering or when the active tab changes
   useEffect(() => {
-    if (!navRef.current || !indicatorRef.current || !hoveredTab) return
+    if (!navRef.current || !indicatorRef.current || !hoveredTab) return;
 
-    const navElement = navRef.current
-    const indicator = indicatorRef.current
+    const navElement = navRef.current;
+    const indicator = indicatorRef.current;
 
-    const activeTabElement = navElement.querySelector(`[data-name="${hoveredTab}"]`) as HTMLElement
+    const activeTabElement = navElement.querySelector(`[data-name="${hoveredTab}"]`) as HTMLElement;
 
     if (activeTabElement) {
-      const tabRect = activeTabElement.getBoundingClientRect()
-      const navRect = navElement.getBoundingClientRect()
+      const tabRect = activeTabElement.getBoundingClientRect();
+      const navRect = navElement.getBoundingClientRect();
 
-      // Set the width and height to match the tab
-      indicator.style.width = `${tabRect.width}px`
-      indicator.style.height = `${tabRect.height}px`
-      indicator.style.transform = `translateX(${tabRect.left - navRect.left}px)`
+      indicator.style.width = `${tabRect.width}px`;
+      indicator.style.height = `${tabRect.height}px`;
+      indicator.style.transform = `translateX(${tabRect.left - navRect.left}px)`;
     }
   }, [hoveredTab])
 
@@ -143,7 +136,6 @@ const Header = () => {
 
           <div className="hidden md:block relative">
             <nav ref={navRef} className="flex items-center space-x-1 relative">
-              {/* Sliding background indicator */}
               <div
                 ref={indicatorRef}
                 className="absolute rounded-full dark:bg-[#1D2833] bg-[#D7DFE4] transition-all duration-200 ease-in-out z-0"
@@ -205,7 +197,6 @@ const Header = () => {
         </div>
 
         <div className="flex items-center justify-end space-x-3 md:space-x-4">
-          {/* Mobile Navigation */}
           <div className="md:hidden flex items-center mr-2">
             <MobileNavigation navItems={navItems} currentPath={pathname} />
           </div>
@@ -221,7 +212,6 @@ const Header = () => {
   )
 }
 
-// Mobile Navigation Component
 const MobileNavigation = ({
   navItems,
   currentPath,
