@@ -42,7 +42,7 @@ const delegates: Delegate[] = [
   },
   {
     id: 4,
-    name: "Tennis Bowl",
+    name: "Tennis Bowling",
     address: "0x123..4567",
     image: "/delegates/tennis-bowling.jpg",
     rewardAPR: "0.00%",

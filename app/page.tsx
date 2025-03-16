@@ -253,7 +253,7 @@ export default function Home() {
                     loading
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-emerald-600"
-                  } bg-emerald-500 text-white py-3 min-h-[50px] font-sans px-6 rounded-full font-semibold transition-colors flex justify-center items-center`}
+                  } bg-[#10b981] text-white py-3 min-h-[50px] font-sans px-6 rounded-full font-semibold transition-colors flex justify-center items-center`}
                   disabled={loading}
                   variants={itemVariants}
                   whileHover={{ scale: 1.02 }}
