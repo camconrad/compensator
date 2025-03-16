@@ -97,7 +97,7 @@ const Proposals = () => {
             <div className="flex mb-[-6px] md:mb-[0px] bg-white shadow-sm dark:bg-[#1D2833] rounded-full p-1">
               <button
                 onClick={() => setSortBy("latest")}
-                className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                   sortBy === "latest"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
                     : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
@@ -107,7 +107,7 @@ const Proposals = () => {
               </button>
               <button
                 onClick={() => setSortBy("popularity")}
-                className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                   sortBy === "popularity"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
                     : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
