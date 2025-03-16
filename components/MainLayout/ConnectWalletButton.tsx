@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react"
 import { useAccount, useDisconnect } from "wagmi"
 import { Copy, Check, ChevronDown } from "lucide-react"
 import Image from "next/image"
+import { MouseEvent } from "react"
 
 const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
   const { openConnectModal } = useConnectModal()
@@ -14,25 +15,23 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [showPopover, setShowPopover] = useState(false)
   const [copied, setCopied] = useState(false)
-  const popoverRef = useRef(null)
-  const buttonRef = useRef(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
-  // Handle clicks outside the popover to close it
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Close popover if click is outside both the popover and the button
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         popoverRef.current && 
-        !popoverRef.current.contains(event.target) && 
+        !popoverRef.current.contains(event.target as Node) && 
         buttonRef.current && 
-        !buttonRef.current.contains(event.target)
+        !buttonRef.current.contains(event.target as Node)
       ) {
         setShowPopover(false)
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside as EventListener)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside as EventListener)
     }
   }, [])
 
@@ -72,7 +71,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
     }
   }
 
-  const formatAddress = (address) => {
+  const formatAddress = (address: string) => {
     if (!address) return ""
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
   }
@@ -83,7 +82,6 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
     tap: { scale: 0.98 },
   }
 
-  // Enhanced popover animation variants with subtle bounce
   const popoverVariants = {
     hidden: {
       opacity: 0,
@@ -210,15 +208,11 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
                 </div>
                 <motion.button 
                   onClick={copyToClipboard} 
-                  className="text-[#030303] dark:text-white p-1"
+                  className="text-[#030303] dark:text-white p-1 hover:text-[#030303]/80 hover:dark:text-white/80 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {copied ? (
-                    <Check className="h-3 w-3 text-green-500" />
-                  ) : (
-                    <Copy className="h-3 w-3" />
-                  )}
+                  <Copy className="h-3 w-3" />
                 </motion.button>
               </div>
               <motion.button
