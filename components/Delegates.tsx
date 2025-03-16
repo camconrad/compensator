@@ -10,8 +10,15 @@ import "swiper/css/navigation";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Modal from "@/components/common/Modal";
+interface Delegate {
+  id: number;
+  name: string;
+  address: string;
+  image: string;
+  rewardAPR: string;
+}
 
-const delegates = [
+const delegates: Delegate[] = [
   {
     id: 1,
     name: "a16z",
@@ -59,7 +66,7 @@ const delegates = [
 const Delegates = () => {
   const [sortBy, setSortBy] = useState("rank");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDelegate, setSelectedDelegate] = useState(null);
+  const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
   const swiperRef = useRef<SwiperCore | null>(null);
@@ -82,7 +89,8 @@ const Delegates = () => {
     }
   }, []);
 
-  const handleDelegateClick = (delegate) => {
+  // Add type for the delegate parameter
+  const handleDelegateClick = (delegate: Delegate) => {
     setSelectedDelegate(delegate);
     setIsModalOpen(true);
   };
