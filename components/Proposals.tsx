@@ -87,7 +87,7 @@ const Proposals = () => {
   };
 
   return (
-    <div className="w-full mt-8 max-w-[1100px] mx-auto font-sans">
+    <div className="w-full mt-3 max-w-[1100px] mx-auto font-sans">
       <div className="mx-auto px-4">
         <div className="flex flex-row justify-between items-center gap-2 mb-4">
           <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white  mb-[-10px] md:mb-[-12px]">
@@ -193,8 +193,8 @@ const Proposals = () => {
 
       {isModalOpen && (
         <Modal handleClose={() => setIsModalOpen(false)} open={isModalOpen}>
-          <div className="p-6 font-[family-name:var(--font-geist-sans)]">
-            <h2 className="mt-7 text-xl font-semibold mb-4 dark:text-white">
+          <div className="p-2">
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">
               Stake COMP for Proposal {selectedProposal} ({selectedOutcome})
             </h2>
             <div className="relative mb-4">

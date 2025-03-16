@@ -240,8 +240,8 @@ const Delegates = () => {
 
       {isModalOpen && selectedDelegate && (
         <Modal handleClose={handleModalClose} open={isModalOpen}>
-          <div className="p-6 font-[family-name:var(--font-geist-sans)]">
-            <h2 className="mt-7 text-xl font-semibold mb-4 dark:text-white">
+          <div className="p-2">
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">
               Delegate COMP to {selectedDelegate.name}
             </h2>
             <div className="relative mb-4">
