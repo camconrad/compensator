@@ -73,7 +73,7 @@ const Delegates = () => {
   const navigationNextRef = useRef(null);
   const swiperRef = useRef<SwiperRef | null>(null);
 
-  const userBalance = 0.00; // Hard coded for short-term
+    const userBalance = 0.00;
 
   const sortedDelegates = [...delegates].sort((a, b) => {
     if (sortBy === "apr") {
@@ -85,9 +85,10 @@ const Delegates = () => {
   });
 
   useEffect(() => {
-    if (swiperRef.current && swiperRef.current.navigation) {
-      swiperRef.current.navigation.init();
-      swiperRef.current.navigation.update();
+    if (swiperRef.current && swiperRef.current.swiper) {
+      const swiperInstance = swiperRef.current.swiper;
+      swiperInstance.navigation.init();
+      swiperInstance.navigation.update();
     }
   }, []);
 
