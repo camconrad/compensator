@@ -173,7 +173,7 @@ const Header = () => {
                     href={item.href}
                     data-name={item.name}
                     className={`px-2 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center no-underline
-                      ${hoveredTab === item.name ? "text-[#17212B]" : "dark:text-white text-[#17212B]"}`}
+                      ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
                     onMouseEnter={() => setHoveredTab(item.name)}
                     onMouseLeave={() =>
                       setHoveredTab(
@@ -244,7 +244,7 @@ const MobileNavigation = ({
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center px-2 py-1 text-sm no-underline ${currentPath === item.href ? "bg-[#1D2833] text-white" : "text-[#17212B]"}`}
+                className={`flex items-center px-2 py-1 text-sm no-underline ${currentPath === item.href ? "bg-[#1D2833] text-white" : "text-[#17212B] dark:text-white"}`}
                 onClick={() => setIsOpen(false)}
               >
                 {item.icon}
@@ -254,7 +254,7 @@ const MobileNavigation = ({
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center px-2 py-1 text-sm no-underline ${currentPath === item.href ? "bg-[#1D2833] text-white" : "text-[#17212B]"}`}
+                className={`flex items-center px-2 py-1 text-sm no-underline ${currentPath === item.href ? "bg-[#1D2833] text-white" : "text-[#17212B] dark:text-white"}`}
                 onClick={() => setIsOpen(false)}
               >
                 {item.icon}
