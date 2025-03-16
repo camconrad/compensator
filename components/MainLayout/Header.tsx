@@ -146,7 +146,7 @@ const Header = () => {
               {/* Sliding background indicator */}
               <div
                 ref={indicatorRef}
-                className="absolute rounded-full dark:bg-[#1D2833] bg-[#D7DFE4] transition-all duration-300 ease-in-out z-0"
+                className="absolute rounded-full dark:bg-[#1D2833] bg-[#D7DFE4] transition-all duration-200 ease-in-out z-0"
               />
 
               {navItems.map((item) =>
