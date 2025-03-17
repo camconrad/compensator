@@ -201,7 +201,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
           <div className="p-4">
             <h3 className="text-[#030303] dark:text-gray-400 font-semibold text-xs mb-3">Connected Wallet</h3>
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-green-500"></span>
                 <span className="text-[#030303] dark:text-white text-xs font-semibold">{formatAddress(address)}</span>
               </div>
