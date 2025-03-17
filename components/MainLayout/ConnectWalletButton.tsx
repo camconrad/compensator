@@ -7,6 +7,7 @@ import { useAccount, useDisconnect } from "wagmi"
 import { Copy, Check, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { MouseEvent } from "react"
+import { createPortal } from "react-dom"
 
 const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
   const { openConnectModal } = useConnectModal()
@@ -173,7 +174,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
             relative px-4 py-3 rounded-full
             bg-white dark:bg-[#1D2833]
             text-[#030303] font-medium text-sm
-            flex items-center gap-2 transition-colors
+            flex items-center gap-2 transition-colors focus:outline-none
             border border-[#efefef] dark:border-[#28303e]
           `}
         >
@@ -183,58 +184,56 @@ const ConnectWalletButton = ({ compRewards = "0.0000" }) => {
         </motion.button>
       </div>
 
-      {/* Animated Popover with Bounce Effect */}
-      <AnimatePresence>
-        {showPopover && (
-          <motion.div
-            ref={popoverRef}
-            className="absolute font-medium right-0 mt-2 w-full min-w-[310px] bg-white dark:bg-[#1D2833] rounded-xl shadow-lg z-10 border border-[#efefef] dark:border-[#28303E] overflow-hidden"
-            variants={popoverVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            style={{ 
-              originX: 1, 
-              originY: 0,
-              transformOrigin: "top right" 
-            }}
-          >
-            <div className="p-4">
-              <h3 className="text-[#030303] dark:text-gray-400 font-semibold text-xs mb-3">Connected Wallet</h3>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                  <span className="text-[#030303] dark:text-white text-xs font-semibold">{formatAddress(address)}</span>
-                </div>
-                <motion.button 
-                  onClick={copyToClipboard} 
-                  className="text-[#030303] dark:text-white p-1 hover:text-[#030303]/80 hover:dark:text-white/80 transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Copy className="h-3 w-3" />
-                </motion.button>
+      {showPopover && createPortal(
+        <motion.div
+          ref={popoverRef}
+          className="fixed font-medium mt-2 ml-[-207px] w-[320px] min-w-[310px] bg-white dark:bg-[#1D2833] rounded-xl shadow-lg z-50 border border-[#efefef] dark:border-[#28303E] overflow-hidden"
+          variants={popoverVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          style={{ 
+            top: buttonRef.current?.getBoundingClientRect().bottom,
+            left: buttonRef.current?.getBoundingClientRect().left,
+            transformOrigin: "top right"
+          }}
+        >
+          <div className="p-4">
+            <h3 className="text-[#030303] dark:text-gray-400 font-semibold text-xs mb-3">Connected Wallet</h3>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                <span className="text-[#030303] dark:text-white text-xs font-semibold">{formatAddress(address)}</span>
               </div>
-              <motion.button
-                onClick={handleDisconnectWallet}
-                className="w-full py-3 px-4 text-xs font-semibold bg-[#D7DFE4] dark:bg-[#2B3947] hover:bg-[#c7d1d6] dark:hover:bg-[#2F3E4D] text-[#030303] dark:text-white rounded-full mb-2 transition-colors"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <motion.button 
+                onClick={copyToClipboard} 
+                className="text-[#030303] dark:text-white p-1 hover:text-[#030303]/80 hover:dark:text-white/80 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Disconnect Wallet
-              </motion.button>
-              <motion.button
-                onClick={handleChangeWallet}
-                className="w-full py-3 px-4 text-xs font-semibold bg-[#D7DFE4] dark:bg-[#2B3947] hover:bg-[#c7d1d6] dark:hover:bg-[#2F3E4D] text-[#030303] dark:text-white rounded-full transition-colors"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Change Wallet
+                <Copy className="h-3 w-3" />
               </motion.button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <motion.button
+              onClick={handleDisconnectWallet}
+              className="w-full py-3 px-4 text-xs font-semibold bg-[#D7DFE4] dark:bg-[#2B3947] hover:bg-[#c7d1d6] dark:hover:bg-[#2F3E4D] text-[#030303] dark:text-white rounded-full mb-2 transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Disconnect Wallet
+            </motion.button>
+            <motion.button
+              onClick={handleChangeWallet}
+              className="w-full py-3 px-4 text-xs font-semibold bg-[#D7DFE4] dark:bg-[#2B3947] hover:bg-[#c7d1d6] dark:hover:bg-[#2F3E4D] text-[#030303] dark:text-white rounded-full transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Change Wallet
+            </motion.button>
+          </div>
+        </motion.div>,
+        document.body
+      )}
     </div>
   )
 }
