@@ -97,9 +97,13 @@ export default function Home() {
         {authorized ? (
           <>
             <div className="relative z-50">
-            <Headroom>
-              <Header />
-            </Headroom>
+              <Headroom
+                style={{
+                  overflowX: "hidden",
+                }}
+              >
+                <Header />
+              </Headroom>
             </div>
 
             <section className="pt-3 pb-3">
