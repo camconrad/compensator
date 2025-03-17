@@ -236,7 +236,7 @@ const MobileNavigation = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 w-48 bg-[#1D2833] rounded-md shadow-lg py-1 z-50">
+        <div className="absolute top-full right-0 w-48 bg-white dark:bg-[#1D2833] rounded-md shadow-lg py-1 z-50">
           {navItems.map((item) =>
             item.external ? (
               <a
@@ -244,7 +244,7 @@ const MobileNavigation = ({
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center px-2 py-1 text-sm ${currentPath === item.href ? "bg-[#1D2833] text-white" : "text-[#17212B] dark:text-white"}`}
+                className={`flex items-center px-2 py-1 text-sm ${currentPath === item.href ? "bg-white dark:bg-[#1D2833] text-white" : "bg-white text-[#17212B] dark:text-white"}`}
                 onClick={() => setIsOpen(false)}
               >
                 {item.icon}
@@ -254,7 +254,7 @@ const MobileNavigation = ({
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center px-2 py-1 text-sm ${currentPath === item.href ? "bg-[#1D2833] text-white" : "text-[#17212B] dark:text-white"}`}
+                className={`flex items-center px-2 py-1 text-sm ${currentPath === item.href ? "bg-white dark:bg-[#1D2833] text-white" : "bg-white text-[#17212B] dark:text-white"}`}
                 onClick={() => setIsOpen(false)}
               >
                 {item.icon}

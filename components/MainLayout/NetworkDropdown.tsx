@@ -21,9 +21,9 @@ const NetworkDropdown = () => {
 
   return (
     <div className="relative">
-      <button
-        onClick={toggleDropdown}
-        className="flex items-center space-x-2 text-[#595959] dark:text-[#868686] transition-all duration-200 hover:text-black dark:hover:text-white"
+      <div
+        // onClick={toggleDropdown}
+        className=""
       >
         <Image
           src={currentNetwork?.icon}
@@ -35,7 +35,7 @@ const NetworkDropdown = () => {
         {/* <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
           <ChevronDown size={16} />
         </motion.div> */}
-      </button>
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: -10 }}

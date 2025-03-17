@@ -214,7 +214,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
             <div className="p-6 flex-1 overflow-y-auto">
               <div className="relative">
                 {/* From Token */}
-                <div className="rounded-xl bg-gray-100 font-medium dark:bg-gray-800/50 p-4 mb-2">
+                <div className="rounded-xl bg-gray-100 font-medium dark:bg-gray-800/50 p-4 mb-1">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm text-gray-500 dark:text-gray-400">From</span>
                     <select
@@ -244,9 +244,9 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 </div>
 
                 {/* Swap Button */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-[60%] z-10">
+                <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-[56%] z-10">
                   <motion.div
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-[#0D131A] shadow-md"
+                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 border-4 border-white dark:border-[#0D131A]"
                     onClick={handleSwapTokens}
                     variants={closeButtonVariants}
                     initial="rest"
