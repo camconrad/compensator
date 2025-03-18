@@ -20,7 +20,6 @@ import {
   braveWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 
-
 const wallets = [
   metaMaskWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
   walletConnectWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
@@ -35,6 +34,7 @@ const connectors = connectorsForWallets(wallets, {
   appName: "Compensator",
 });
 
+// Create the Wagmi configuration
 const wagmiConfig = createConfig({
   connectors,
   chains: [mainnet],
@@ -47,7 +47,7 @@ const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   const theme = useSettingTheme();
 
   return (
-    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
+    <WagmiProvider config={wagmiConfig}>
       <RainbowKitProvider
         theme={theme === "dark" ? midnightTheme() : lightTheme()}
         // modalSize="compact"
