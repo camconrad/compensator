@@ -40,7 +40,6 @@ const wagmiConfig = getDefaultConfig({
   projectId: "02a231b2406ed316c861abefc95c5e59",
   chains: [mainnet],
   ssr: true,
-  connectors,
 });
 
 const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
@@ -58,4 +57,4 @@ const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default WagmiRainbowKitProvider;
+export default WagmiRainbowKitProvider
