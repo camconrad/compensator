@@ -9,7 +9,7 @@ import "swiper/css/navigation";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import Modal from "@/components/common/Modal";
-import { FaVoteYea, FaUser, FaHistory } from "react-icons/fa";
+import Link from "next/link";
 
 interface Delegate {
   id: number;
@@ -345,9 +345,9 @@ const Delegates = () => {
               <div className="">
                 Profile
               </div>
-              <button href="/{selectedDelegate.name}" className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
+              <Link href={`/${selectedDelegate.name}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
                 @{selectedDelegate.name}
-              </button>
+              </Link>
             </div>
           </div>
         </Modal>
