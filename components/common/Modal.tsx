@@ -213,7 +213,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
             {/* Rest of the Swap UI */}
             <div className="p-6 flex-1 overflow-y-auto">
               <div className="relative">
-              <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-gray-800/50 p-3 mb-1">
+              <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] p-3 mb-1">
                 <div className="flex justify-between mb-0 items-center">
                     <div className="gap-4 flex flex-col">
                       {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Sell</span> */}
@@ -250,7 +250,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 {/* Swap Toggle/Switch Button */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-[56%] z-10">
                   <motion.div
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#EFF2F5] dark:bg-gray-700 border-4 border-white dark:border-[#0D131A]"
+                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#EFF2F5] dark:bg-[#1D2833] border-4 border-white dark:border-[#0D131A]"
                     onClick={handleSwapTokens}
                     variants={closeButtonVariants}
                     initial="rest"
@@ -262,7 +262,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 </div>
 
                 {/* To Token */}
-                <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-gray-800/50 p-3 mb-3">
+                <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] p-3 mb-3">
                 <div className="flex justify-between mb-0 items-center">
                     <div className="gap-4 flex flex-col">
                       {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Buy</span> */}
@@ -298,7 +298,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
 
                 {/* Swap Button */}
                 <button
-                  className="w-full py-3 bg-[#10b981] text-white font-semibold rounded-full hover:bg-emerald-600 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                  className="w-full py-3 bg-[#10b981e0] text-white font-semibold rounded-full hover:bg-emerald-600 transition-all duration-200 transform hover:scale-105 active:scale-95"
                   onClick={handleSwap}
                   disabled={isSwapping}
                 >

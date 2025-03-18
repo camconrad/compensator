@@ -222,7 +222,7 @@ const Delegates = () => {
                 </div>
                 <button
                   onClick={(event) => handleButtonClick(event, delegate)}
-                  className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981] text-white py-[10px] text-center font-semibold  rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0"
+                  className="absolute transition-all duration-200 transform hover:scale-105 active:scale-95 bottom-3 w-[90%] left-0 right-0 mx-auto text-sm bg-[#10b981e0] text-white py-[10px] text-center font-semibold  rounded-full opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-0"
                 >
                   Delegate
                 </button>
@@ -260,7 +260,7 @@ const Delegates = () => {
             </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
-                <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
+                <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#28303e] rounded-lg h-20 p-3">
                   <div className="flex items-center justify-between mt-[-6px]">
                     <input
                       type="number"
@@ -307,7 +307,7 @@ const Delegates = () => {
                 loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
-              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
+              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center ${
                 parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
               }`}
             >

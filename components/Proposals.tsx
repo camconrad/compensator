@@ -163,10 +163,10 @@ const Proposals = () => {
                   <h3 className="text-xl font-semibold text-[#030303] dark:text-white mb-4">
                     {proposal.title}
                   </h3>
-                  <div className="flex flex-col gap-2 font-[family-name:var(--font-geist-sans)] font-medium text-xs">
+                  <div className="flex flex-col gap-2 font-medium text-xs">
                     <button
                       onClick={() => handleStakeClick(proposal.id, "For")}
-                      className="flex-1 py-3 px-4 bg-transparent border border-[#10b981] uppercase text-[#10b981] rounded-full hover:bg-[#10b981] hover:text-white transition-all duration-200 transform hover:scale-105 active:scale-95"
+                      className="flex-1 py-3 px-4 bg-transparent border border-[#10b981] uppercase text-[#10b981e0] rounded-full hover:bg-[#10b981e0] hover:text-white transition-all duration-200 transform hover:scale-105 active:scale-95"
                     >
                       <ThumbsUp className="inline-block w-4 h-4" />
                     </button>
@@ -205,7 +205,7 @@ const Proposals = () => {
             </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
-                <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
+                <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#28303e] rounded-lg h-20 p-3">
                   <div className="flex items-center justify-between mt-[-6px]">
                     <input
                       type="number"
@@ -275,7 +275,7 @@ const Proposals = () => {
                 loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
-              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
+              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center ${
                 parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
               }`}
             >
