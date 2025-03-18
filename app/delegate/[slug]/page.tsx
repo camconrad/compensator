@@ -298,32 +298,15 @@ export default function DelegatePage() {
                     <div className="inline-flex items-center px-2 py-1 mt-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-medium">
                       {delegate.status}
                     </div>
-                    <p className="text-sm text-[#6D7C8D] dark:text-gray-400 mt-3">{delegate.bio}</p>
-                    <div className="flex flex-wrap items-center gap-4 mt-4">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <span className="text-sm text-[#6D7C8D] dark:text-gray-400">{delegate.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4 text-blue-500" />
-                        <span className="text-sm text-[#6D7C8D] dark:text-gray-400">
-                          {delegate.totalDelegations} Delegations
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-[#6D7C8D] dark:text-gray-400">
-                          {delegate.activeProposals} Active Proposals
-                        </span>
-                      </div>
-                    </div>
                   </div>
+                  <div className="h-full flex items-center">
                   <button 
                     className="bg-[#10b981] text-white px-6 py-3 rounded-full font-semibold text-xs transition-all duration-200 transform hover:scale-105 active:scale-95"
                     onClick={() => setIsModalOpen(true)}
                   >
                     Delegate COMP
                   </button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-center p-8">
@@ -339,7 +322,7 @@ export default function DelegatePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.1 }}
             >
-              <h2 className="text-2xl font-bold text-[#030303] dark:text-white mb-6">Proposals</h2>
+              <h2 className="text-xl font-bold text-[#030303] dark:text-white mb-3">Proposals</h2>
 
               {isProposalsLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -362,13 +345,13 @@ export default function DelegatePage() {
               ) : proposals.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {proposals.map((proposal, index) => (
-                    <motion.div
+                    <div
                       key={index}
-                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
-                      whileHover={{ y: -2 }}
+                      className="p-4 bg-white dark:bg-[#1D2833] rounded-md"
+                      // initial={{ opacity: 0, y: 20 }}
+                      // animate={{ opacity: 1, y: 0 }}
+                      // transition={{ duration: 0.13, delay: 0.1 + index * 0.05 }}
+                      // whileHover={{ y: -2 }}
                     >
                       <h3 className="text-lg font-semibold text-[#030303] dark:text-white">{proposal.title}</h3>
                       <div className="flex items-center mt-2">
@@ -403,7 +386,7 @@ export default function DelegatePage() {
                           <p className="text-sm text-red-600 dark:text-red-400">Against: {proposal.votesAgainst}K</p>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -420,12 +403,12 @@ export default function DelegatePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.2 }}
             >
-              <h2 className="text-2xl font-bold text-[#030303] dark:text-white mb-6">Received Delegations</h2>
+              <h2 className="text-xl font-bold text-[#030303] dark:text-white mb-3">Received Delegations</h2>
 
               {isDelegationsLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((_, index) => (
-                    <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
+                    <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-md animate-pulse">
                       <div className="flex justify-between items-center">
                         <div>
                           <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
