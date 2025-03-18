@@ -85,14 +85,6 @@ const Delegates = () => {
     return a.id - b.id;
   });
 
-  // useEffect(() => {
-  //   if (swiperRef.current && swiperRef.current.swiper) {
-  //     const swiperInstance = swiperRef.current.swiper;
-  //     swiperInstance.navigation.init();
-  //     swiperInstance.navigation.update();
-  //   }
-  // }, []);
-
   const handleCardClick = (delegate: Delegate) => {
     setSelectedDelegate(delegate);
     setIsModalOpen(true);

@@ -311,7 +311,7 @@ const Proposals = () => {
                 Staked Against
               </div>
               <div className="flex items-center">
-              <ArrowDownRight className="w-4 h-4 mr-1 text-red-500" />
+              {/* <ThumbsDown className="w-4 h-4 mr-1 text-red-500" /> */}
                 {stakedAgainst.toFixed(2)} COMP
               </div>
             </div>
@@ -320,7 +320,7 @@ const Proposals = () => {
                 Staked For
               </div>
               <div className="flex items-center">
-              <ArrowUpRight className="w-4 h-4 mr-1 text-green-500" />
+              {/* <ThumbsUp className="w-4 h-4 mr-1 text-green-500" /> */}
                 {stakedFor.toFixed(2)} COMP
               </div>
             </div>
