@@ -258,7 +258,7 @@ export default function ProfilePage() {
                   </p>
                   <Link
                     href="/explore"
-                    className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-9 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold text-sm"
+                    className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-9 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold text-sm"
                   >
                     Explore Delegates
                   </Link>
