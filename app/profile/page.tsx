@@ -238,7 +238,7 @@ export default function ProfilePage() {
             )}
           </AnimatePresence>
 
-          <div className="mx-auto max-w-[1100px] w-full p-4 mt-4 mb-12">
+          <div className="mx-auto max-w-[1100px] w-full p-4 mt-[-120px]">
 
             {!isWalletConnected ? (
               // Single disconnected wallet section
@@ -276,15 +276,15 @@ export default function ProfilePage() {
                 >
                   {isProfileLoading ? (
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                      <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-[#2c2c2c] animate-pulse"></div>
+                      <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
                       <div className="flex-1">
-                        <div className="h-8 w-48 bg-gray-200 dark:bg-[#2c2c2c] rounded-md animate-pulse mb-2"></div>
-                        <div className="h-4 w-32 bg-gray-200 dark:bg-[#2c2c2c] rounded-md animate-pulse mb-3"></div>
-                        <div className="h-4 w-full bg-gray-200 dark:bg-[#2c2c2c] rounded-md animate-pulse mb-2"></div>
-                        <div className="h-4 w-3/4 bg-gray-200 dark:bg-[#2c2c2c] rounded-md animate-pulse mb-4"></div>
+                        <div className="h-8 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                        <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-3"></div>
+                        <div className="h-4 w-full bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                        <div className="h-4 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-4"></div>
                         <div className="flex flex-wrap gap-4">
-                          <div className="h-5 w-32 bg-gray-200 dark:bg-[#2c2c2c] rounded-md animate-pulse"></div>
-                          <div className="h-5 w-36 bg-gray-200 dark:bg-[#2c2c2c] rounded-md animate-pulse"></div>
+                          <div className="h-5 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                          <div className="h-5 w-36 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                         </div>
                       </div>
                     </div>
@@ -344,12 +344,12 @@ export default function ProfilePage() {
                       {[1, 2].map((_, index) => (
                         <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
                           <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 bg-gray-200 dark:bg-[#2c2c2c] rounded-full"></div>
+                            <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
                             <div>
-                              <div className="h-5 w-40 bg-gray-200 dark:bg-[#2c2c2c] rounded-md mb-2"></div>
-                              <div className="h-4 w-32 bg-gray-200 dark:bg-[#2c2c2c] rounded-md"></div>
+                              <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
+                              <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
                             </div>
-                            <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#2c2c2c] rounded-md"></div>
+                            <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
                           </div>
                         </div>
                       ))}
@@ -419,16 +419,16 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[1, 2].map((_, index) => (
                         <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
-                          <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#2c2c2c] rounded-md mb-3"></div>
+                          <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md mb-3"></div>
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="h-5 w-16 bg-gray-200 dark:bg-[#2c2c2c] rounded-full"></div>
-                            <div className="h-4 w-24 bg-gray-200 dark:bg-[#2c2c2c] rounded-md"></div>
+                            <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
+                            <div className="h-4 w-24 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
                           </div>
-                          <div className="h-4 w-full bg-gray-200 dark:bg-[#2c2c2c] rounded-md mb-2"></div>
-                          <div className="h-2 w-full bg-gray-200 dark:bg-[#2c2c2c] rounded-full mb-2"></div>
+                          <div className="h-4 w-full bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
+                          <div className="h-2 w-full bg-gray-200 dark:bg-[#33475b] rounded-full mb-2"></div>
                           <div className="flex justify-between">
-                            <div className="h-4 w-20 bg-gray-200 dark:bg-[#2c2c2c] rounded-md"></div>
-                            <div className="h-4 w-20 bg-gray-200 dark:bg-[#2c2c2c] rounded-md"></div>
+                            <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                            <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
                           </div>
                         </div>
                       ))}
@@ -464,7 +464,7 @@ export default function ProfilePage() {
                                 {(proposal.votesFor + proposal.votesAgainst).toFixed(2)}K
                               </p>
                             </div>
-                            <div className="w-full bg-gray-200 dark:bg-[#2c2c2c] rounded-full h-1.5">
+                            <div className="w-full bg-gray-200 dark:bg-[#33475b] rounded-full h-1.5">
                               <div
                                 className="bg-emerald-500 h-1.5 rounded-full"
                                 style={{

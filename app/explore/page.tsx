@@ -302,7 +302,7 @@ const ExplorePage = () => {
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.2 }}
               className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden"
             >
               <div className="overflow-x-auto">
