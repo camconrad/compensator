@@ -123,7 +123,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
         >
           <div className="flex flex-col gap-2">
             <h3 className="text-2xl font-bold text-[#030303] dark:text-white">{metric.value}</h3>
-            <p className="text-sm font-[500] text-[#959595]">{metric.type}</p>
+            <p className="text-sm font-[500] text-[#6D7C8D]">{metric.type}</p>
           </div>
         </div>
       </PopoverTrigger>

@@ -45,7 +45,7 @@ export default function TermsOfService() {
               Terms of Service
             </h1>
 
-            <div className="prose dark:prose-dark font-medium text-[#959595]">
+            <div className="prose dark:prose-dark font-medium text-[#6D7C8D]">
               <p>
                 Welcome to Compensator! These Terms of Service ("Terms") govern
                 your use of the Compensator website and services ("Services")

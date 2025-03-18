@@ -114,7 +114,7 @@ const Proposals = () => {
                 className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   sortBy === "latest"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
-                    : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
+                    : "text-[#6D7C8D] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                 }`}
               >
                 Latest
@@ -124,7 +124,7 @@ const Proposals = () => {
                 className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   sortBy === "popularity"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
-                    : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
+                    : "text-[#6D7C8D] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                 }`}
               >
                 Popular
@@ -228,12 +228,12 @@ const Proposals = () => {
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2 font-medium">
-                    <p className="text-xs text-[#959595]">
+                    <p className="text-xs text-[#6D7C8D]">
                       {amount
                         ? `$${(parseFloat(amount) * compPrice).toFixed(2)}`
                         : "$0.00"}
                     </p>
-                    <p className="text-xs text-[#959595]">
+                    <p className="text-xs text-[#6D7C8D]">
                       Balance: {userBalance.toFixed(2)}
                     </p>
                   </div>
@@ -306,7 +306,7 @@ const Proposals = () => {
                 "Submit Stake"
               )}
             </button>
-            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">
                 Staked Against
               </div>
@@ -315,7 +315,7 @@ const Proposals = () => {
                 {stakedAgainst.toFixed(2)} COMP
               </div>
             </div>
-            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">
                 Staked For
               </div>

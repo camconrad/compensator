@@ -63,7 +63,7 @@ const HeroBanner = () => {
                 <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-1">
                   {slides[currentSlide].titlePrimary}
                 </h1>
-                <p className="text-xl md:text-2xl font-medium text-[#959595]">
+                <p className="text-xl md:text-2xl font-medium text-[#6D7C8D]">
                   {slides[currentSlide].titleSecondary}
                 </p>
               </div>

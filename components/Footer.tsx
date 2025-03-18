@@ -17,14 +17,14 @@ export default function Footer() {
 
   return (
     <motion.footer
-      className="mt-[64px] font-sans mx-auto max-w-[1100px] pb-3 flex gap-2 flex-wrap items-center justify-between text-[13px] text-gray-500 dark:text-gray-400"
+      className="mt-[32px] font-sans mx-auto max-w-[1100px] pb-3 flex gap-2 flex-wrap items-center justify-between text-[13px] text-[#6D7C8D]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3, duration: 0.2 }}
     >
       <div className="w-full border-t border-[#dde0e0] dark:border-[#232F3B] mb-2" />
 
-      <div className="flex gap-4 items-center font-medium text-[#959595]">
+      <div className="flex gap-4 items-center font-medium">
         <span>© 2025 Compound</span>
         <Link
           href="/terms"

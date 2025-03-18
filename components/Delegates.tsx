@@ -136,7 +136,7 @@ const Delegates = () => {
                 className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
                   sortBy === "rank"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
-                    : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
+                    : "text-[#6D7C8D]dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                 }`}
               >
                 Rank
@@ -146,7 +146,7 @@ const Delegates = () => {
                 className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   sortBy === "apr"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
-                    : "text-[#959595] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
+                    : "text-[#6D7C8D]dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                 }`}
               >
                 APR
@@ -199,7 +199,7 @@ const Delegates = () => {
                     <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">
                       {delegate.name}
                     </h3>
-                    <p className="text-sm font-medium text-[#959595]">
+                    <p className="text-sm font-medium text-[#6D7C8D]">
                       {delegate.address}
                     </p>
                   </div>
@@ -209,13 +209,13 @@ const Delegates = () => {
                     <p className="text-xl font-bold text-[#030303] dark:text-white">
                       #{sortBy === "apr" ? index + 1 : delegate.id}
                     </p>
-                    <p className="text-sm font-medium text-[#959595]">Rank</p>
+                    <p className="text-sm font-medium text-[#6D7C8D]">Rank</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xl font-bold text-[#030303] dark:text-white">
                       {delegate.rewardAPR}
                     </p>
-                    <p className="text-sm font-medium text-[#959595]">
+                    <p className="text-sm font-medium text-[#6D7C8D]">
                       Reward APR
                     </p>
                   </div>
@@ -275,8 +275,8 @@ const Delegates = () => {
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs font-medium text-[#959595]">$0.00</p>
-                    <p className="text-xs font-medium text-[#959595]">Balance: {userBalance.toFixed(2)}</p>
+                    <p className="text-xs font-medium text-[#6D7C8D]">$0.00</p>
+                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: {userBalance.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
@@ -330,7 +330,7 @@ const Delegates = () => {
                 "Delegate COMP"
               )}
             </button>
-            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">
                 Delegated votes
               </div>
@@ -338,7 +338,7 @@ const Delegates = () => {
                 0.00 COMP
               </div>
             </div>
-            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">
                 Last active
               </div>
@@ -346,11 +346,11 @@ const Delegates = () => {
                 7 days ago
               </div>
             </div>
-            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">
                 Profile
               </div>
-              <Link href={`/${formatNameForURL(selectedDelegate.name)}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
+              <Link href={`/delegate/${formatNameForURL(selectedDelegate.name)}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
                 @{formatNameForDisplay(selectedDelegate.name)}
               </Link>
             </div>

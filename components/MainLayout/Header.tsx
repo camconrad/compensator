@@ -34,17 +34,17 @@ const Header = () => {
     },
     {
       name: "Explore",
-      href: "#",
+      href: "/explore",
       icon: <FaCompass className="w-3 h-3 text-[#6D7D8E] mr-2" />,
     },
     {
       name: "Profile",
-      href: "#",
+      href: "/profile",
       icon: <FaUser className="w-3 h-3 text-[#6D7D8E] mr-2" />,
     },
     {
       name: "Docs",
-      href: "#",
+      href: "https://docs.compensator.io",
       external: true,
       icon: <FaFileAlt className="w-3 h-3 text-[#6D7D8E] mr-2" />,
     },
@@ -97,32 +97,32 @@ const Header = () => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
+
     checkIsMobile()
-    window.addEventListener('resize', checkIsMobile)
-    
+    window.addEventListener("resize", checkIsMobile)
+
     return () => {
-      window.removeEventListener('resize', checkIsMobile)
+      window.removeEventListener("resize", checkIsMobile)
     }
   }, [])
 
   useEffect(() => {
-    const currentPath = pathname;
-  
-    if (currentPath === "/privacy" || currentPath === "/terms") {
-      setHoveredTab(null);
-      return;
+    const currentPath = pathname
+
+    if (currentPath === "/privacy" || currentPath === "/terms" || currentPath.startsWith("/delegate/")) {
+      setHoveredTab(null)
+      return
     }
 
-    const activeItem = navItems.find((item) => item.href === currentPath);
+    const activeItem = navItems.find((item) => item.href === currentPath)
     if (activeItem) {
-      setHoveredTab(activeItem.name);
+      setHoveredTab(activeItem.name)
     } else {
-      if (currentPath.startsWith("/explore")) setHoveredTab("Explore");
-      else if (currentPath.startsWith("/profile")) setHoveredTab("Profile");
-      else setHoveredTab("Home");
+      if (currentPath.startsWith("/explore")) setHoveredTab("Explore")
+      else if (currentPath.startsWith("/profile")) setHoveredTab("Profile")
+      else setHoveredTab("Home")
     }
-  }, [pathname]);
+  }, [pathname])
 
   useEffect(() => {
     if (!navRef.current || !indicatorRef.current || !hoveredTab) return
@@ -217,7 +217,7 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-en gap-3">
           <div className="hidden md:block mr-3">
             <NetworkDropdown />
           </div>
@@ -269,62 +269,63 @@ const MobileNavigation = ({
         aria-label={isOpen ? "Close menu" : "Open menu"}
       >
         <div className="w-5 h-5 relative flex items-center justify-center">
-          <span 
+          <span
             className={`absolute h-0.5 w-3 bg-current transform transition-all duration-300 ease-in-out ${
               isOpen ? "rotate-45" : "translate-y-[-4px]"
             }`}
           />
-          <span 
+          <span
             className={`absolute h-0.5 w-3 bg-current transition-all duration-300 ease-in-out ${
               isOpen ? "opacity-0" : "opacity-100"
             }`}
           />
-          <span 
+          <span
             className={`absolute h-0.5 w-3 bg-current transform transition-all duration-300 ease-in-out ${
               isOpen ? "-rotate-45" : "translate-y-[4px]"
             }`}
           />
         </div>
       </button>
-      {isOpen && createPortal(
-        <div
-          ref={dropdownRef}
-          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm z-40"
-          onClick={() => setIsOpen(false)}
-        >
+      {isOpen &&
+        createPortal(
           <div
-            className="absolute pt-24 pl-2 w-full h-full bg-[#EFF2F5] dark:bg-[#1D2833] rounded-md shadow-lg py-1 z-50"
-            onClick={(e) => e.stopPropagation()}
+            ref={dropdownRef}
+            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm z-40"
+            onClick={() => setIsOpen(false)}
           >
-            {navItems.map((item) =>
-              item.external ? (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? " text-white dark:text-white" : "text-[#17212B] dark:text-white"}`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {/* {item.icon} */}
-                  {item.name}
-                </a>
-              ) : (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? "text-[#10B981] dark:text-white" : "text-[#17212B] dark:text-white"}`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {/* {item.icon} */}
-                  {item.name}
-                </Link>
-              ),
-            )}
-          </div>
-        </div>,
-        document.body
-      )}
+            <div
+              className="absolute pt-24 pl-2 w-full h-full bg-[#EFF2F5] dark:bg-[#1D2833] rounded-md shadow-lg py-1 z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {navItems.map((item) =>
+                item.external ? (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? " text-white dark:text-white" : "text-[#17212B] dark:text-white"}`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {/* {item.icon} */}
+                    {item.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? "text-[#10B981] dark:text-white" : "text-[#17212B] dark:text-white"}`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {/* {item.icon} */}
+                    {item.name}
+                  </Link>
+                ),
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }
