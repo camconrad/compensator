@@ -64,6 +64,19 @@ const delegates: Delegate[] = [
   },
 ];
 
+// Utility function to format the name for URLs
+const formatNameForURL = (name: string) => {
+  return name
+    .toLowerCase() // Convert to lowercase
+    .replace(/\s+/g, '-') // Replace spaces with dashes
+    .replace(/[^a-z0-9-]/g, ''); // Remove any non-alphanumeric characters except dashes
+};
+
+// Utility function to format the name for display (remove spaces)
+const formatNameForDisplay = (name: string) => {
+  return name.replace(/\s+/g, ''); // Remove all spaces
+};
+
 const Delegates = () => {
   const [sortBy, setSortBy] = useState("rank");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +87,7 @@ const Delegates = () => {
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
 
-    const userBalance = 0.00;
+  const userBalance = 0.00;
 
   const sortedDelegates = [...delegates].sort((a, b) => {
     if (sortBy === "apr") {
@@ -337,8 +350,8 @@ const Delegates = () => {
               <div className="">
                 Profile
               </div>
-              <Link href={`/${selectedDelegate.name}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
-                @{selectedDelegate.name}
+              <Link href={`/${formatNameForURL(selectedDelegate.name)}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
+                @{formatNameForDisplay(selectedDelegate.name)}
               </Link>
             </div>
           </div>
