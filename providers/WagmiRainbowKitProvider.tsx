@@ -3,51 +3,31 @@
 import { useSettingTheme } from "@/store/setting/selector";
 import {
   RainbowKitProvider,
+  getDefaultConfig,
   lightTheme,
   midnightTheme,
-  connectorsForWallets,
 } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { PropsWithChildren } from "react";
 import { mainnet } from "wagmi/chains";
-import { WagmiProvider, createConfig, http } from "wagmi";
-import {
-  metaMaskWallet,
-  walletConnectWallet,
-  coinbaseWallet,
-  trustWallet,
-  ledgerWallet,
-  braveWallet,
-} from "@rainbow-me/rainbowkit/wallets";
+import { WagmiProvider } from "wagmi";
+import { metaMask, walletConnect } from "wagmi/connectors";
 
-const wallets = [
-  metaMaskWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
-  walletConnectWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
-  coinbaseWallet({ appName: "Compensator" }),
-  trustWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
-  ledgerWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
-  braveWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
-];
+// Add WalletConnect to the list of connectors
+const connectors = [metaMask(), walletConnect({ projectId: "" })];
 
-const connectors = connectorsForWallets(wallets, {
-  projectId: "02a231b2406ed316c861abefc95c5e59",
+const wagmiConfig = getDefaultConfig({
   appName: "Compensator",
-});
-
-// Create the Wagmi configuration
-const wagmiConfig = createConfig({
-  connectors,
+  projectId: "02a231b2406ed316c861abefc95c5e59",
   chains: [mainnet],
-  transports: {
-    [mainnet.id]: http(),
-  },
+  ssr: true,
 });
 
 const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   const theme = useSettingTheme();
 
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
       <RainbowKitProvider
         theme={theme === "dark" ? midnightTheme() : lightTheme()}
         // modalSize="compact"
@@ -58,4 +38,4 @@ const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default WagmiRainbowKitProvider;
+export default WagmiRainbowKitProvider
