@@ -216,9 +216,9 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 {/* From Token */}
                 <div className="rounded-xl bg-gray-100 font-medium dark:bg-gray-800/50 p-4 mb-1">
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">From</span>
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">From</span>
                     <select
-                      className="border-none bg-gray-200 dark:bg-gray-700 rounded-lg px-3 py-1 text-sm dark:text-white"
+                      className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm dark:text-white"
                       value={fromToken}
                       onChange={(e) => setFromToken(e.target.value)}
                     >
@@ -233,11 +233,11 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                     <input
                       type="number"
                       placeholder="0.0"
-                      className="w-full border-none bg-transparent text-lg font-medium focus:outline-none dark:text-white"
+                      className="w-full border-none font-semibold bg-transparent text-lg focus:outline-none dark:text-white"
                       value={fromAmount}
                       onChange={(e) => setFromAmount(e.target.value)}
                     />
-                    <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">
+                    <span className="min-w-[90px] text-sm text-gray-500 font-medium dark:text-gray-400">
                       Balance: {tokenBalances[fromToken].toFixed(2)}
                     </span>
                   </div>
@@ -260,9 +260,9 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 {/* To Token */}
                 <div className="rounded-xl bg-gray-100  font-medium dark:bg-gray-800/50 p-4 mb-3">
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">To</span>
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">To</span>
                     <select
-                      className="border-none bg-gray-200 dark:bg-gray-700 rounded-lg px-3 py-1 text-sm dark:text-white"
+                      className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm dark:text-white"
                       value={toToken}
                       onChange={(e) => setToToken(e.target.value)}
                     >
@@ -277,11 +277,11 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                     <input
                       type="number"
                       placeholder="0.0"
-                      className="w-full border-none bg-transparent text-lg focus:outline-none dark:text-white"
+                      className="w-full border-none bg-transparent font-semibold text-lg focus:outline-none dark:text-white"
                       value={toAmount}
                       onChange={(e) => setToAmount(e.target.value)}
                     />
-                     <span className="text-sm min-w-[90px] text-gray-500 dark:text-gray-400">
+                     <span className="text-sm min-w-[90px] text-gray-500 font-medium dark:text-gray-400">
                       Balance: {tokenBalances[toToken].toFixed(2)}
                     </span>
                   </div>

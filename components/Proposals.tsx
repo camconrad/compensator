@@ -206,7 +206,7 @@ const Proposals = () => {
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-lg"
+                      className="w-full bg-transparent font-semibold dark:text-gray-100 focus:outline-none text-lg"
                     />
                     <div className="flex items-center mr-3 ml-2">
                       <Image
@@ -216,12 +216,12 @@ const Proposals = () => {
                         height={20}
                         className="mx-auto rounded-full"
                       />
-                      <span className="px-2 py-2 dark:text-gray-200 rounded text-sm">
+                      <span className="px-1 font-semibold py-2 dark:text-gray-200 rounded text-sm">
                         COMP
                       </span>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center mt-2">
+                  <div className="flex justify-between items-center mt-2 font-medium">
                     <p className="text-xs text-[#959595]">
                       {amount
                         ? `$${(parseFloat(amount) * compPrice).toFixed(2)}`
@@ -243,7 +243,7 @@ const Proposals = () => {
                     setAmount("");
                     setHasSelectedPercentage(false);
                   }}
-                  className="py-[4px] border border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   Reset
                 </button>
@@ -256,7 +256,7 @@ const Proposals = () => {
                     setAmount(value.toString());
                     setHasSelectedPercentage(true);
                   }}
-                  className="py-[4px] border border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   {percent}%
                 </button>
