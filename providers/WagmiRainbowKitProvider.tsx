@@ -11,13 +11,14 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { PropsWithChildren } from "react";
 import { mainnet } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
-import { metaMask } from "wagmi/connectors";
+import { metaMask, walletConnect } from "wagmi/connectors";
 
-const connectors = [metaMask()];
+// Add WalletConnect to the list of connectors
+const connectors = [metaMask(), walletConnect({ projectId: "your-walletconnect-project-id" })];
 
 const wagmiConfig = getDefaultConfig({
   appName: "Compensator",
-  projectId: "compensator",
+  projectId: "02a231b2406ed316c861abefc95c5e59",
   chains: [mainnet],
   ssr: true,
 });
