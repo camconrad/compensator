@@ -250,10 +250,10 @@ export default function ProfilePage() {
               >
                 <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                   <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mb-3">
-                    <Wallet className="h-6 w-6 text-[#6D7C8D] dark:text-gray-400" />
+                    <Wallet className="h-6 w-6 text-[#030303] dark:text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white mb-[2px]">Disconnected</h2>
-                  <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-md">
+                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">Disconnected</h2>
+                  <p className="text-[#6D7C8D] mt-1 font-medium dark:text-gray-400 mb-4 max-w-md">
                     Connect a web3 wallet to view your profile
                   </p>
                   <Link
