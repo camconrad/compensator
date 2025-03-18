@@ -30,23 +30,23 @@ const Header = () => {
     {
       name: "Home",
       href: "/",
-      icon: <FaHome className="w-3 h-3 text-[#6D7D8E] mr-2" />,
+      icon: <FaHome className="w-3 h-3 text-[#6D7D8E] mr-1" />,
     },
     {
       name: "Explore",
       href: "/explore",
-      icon: <FaCompass className="w-3 h-3 text-[#6D7D8E] mr-2" />,
+      icon: <FaCompass className="w-3 h-3 text-[#6D7D8E] mr-1" />,
     },
     {
       name: "Profile",
       href: "/profile",
-      icon: <FaUser className="w-3 h-3 text-[#6D7D8E] mr-2" />,
+      icon: <FaUser className="w-3 h-3 text-[#6D7D8E] mr-1" />,
     },
     {
       name: "Docs",
       href: "https://docs.compensator.io",
       external: true,
-      icon: <FaFileAlt className="w-3 h-3 text-[#6D7D8E] mr-2" />,
+      icon: <FaFileAlt className="w-3 h-3 text-[#6D7D8E] mr-1" />,
     },
   ]
 
@@ -156,7 +156,7 @@ const Header = () => {
           </Link>
 
           <div className="hidden md:block relative">
-            <nav ref={navRef} className="flex items-center space-x-1 relative">
+            <nav ref={navRef} className="flex items-center relative">
               <div
                 ref={indicatorRef}
                 className="absolute rounded-full dark:bg-[#1D2833] bg-[#D7DFE4] transition-all duration-200 ease-in-out z-0"
@@ -170,7 +170,7 @@ const Header = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     data-name={item.name}
-                    className={`px-2 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
+                    className={`px-3 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
                       ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
                     onMouseEnter={() => setHoveredTab(item.name)}
                     onMouseLeave={() =>
@@ -193,7 +193,7 @@ const Header = () => {
                     key={item.name}
                     href={item.href}
                     data-name={item.name}
-                    className={`px-2 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
+                    className={`px-3 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
                       ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
                     onMouseEnter={() => setHoveredTab(item.name)}
                     onMouseLeave={() =>
@@ -218,7 +218,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center justify-en gap-3">
-          <div className="hidden md:block mr-3">
+          <div className="hidden md:block">
             <NetworkDropdown />
           </div>
           <div className="">
