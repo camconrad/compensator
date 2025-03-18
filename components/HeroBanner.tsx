@@ -91,7 +91,7 @@ const HeroBanner = () => {
                 setCurrentSlide(index)
               }}
               className={`w-2 h-2 rounded-full transition-all focus:outline-none ${
-                currentSlide === index ? "bg-primary w-6" : "bg-gray-300 dark:bg-gray-600"
+                currentSlide === index ? "bg-primary w-4" : "bg-gray-300 dark:bg-gray-600"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
