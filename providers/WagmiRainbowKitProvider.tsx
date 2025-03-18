@@ -11,10 +11,9 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { PropsWithChildren } from "react";
 import { mainnet } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
-import { metaMask, walletConnect } from "wagmi/connectors";
+import { metaMask, walletConnect, coinbaseWallet} from "wagmi/connectors";
 
-// Add WalletConnect to the list of connectors
-const connectors = [metaMask(), walletConnect({ projectId: "" })];
+const connectors = [metaMask(), walletConnect({ projectId: "02a231b2406ed316c861abefc95c5e59" }), coinbaseWallet({ appName: "Compensator" })];
 
 const wagmiConfig = getDefaultConfig({
   appName: "Compensator",
