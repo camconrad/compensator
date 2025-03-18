@@ -13,8 +13,7 @@ import { mainnet } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
 import { metaMask, walletConnect } from "wagmi/connectors";
 
-// Add WalletConnect to the list of connectors
-const connectors = [metaMask(), walletConnect({ projectId: "your-walletconnect-project-id" })];
+const connectors = [metaMask(), walletConnect({ projectId: "02a231b2406ed316c861abefc95c5e59" })];
 
 const wagmiConfig = getDefaultConfig({
   appName: "Compensator",
