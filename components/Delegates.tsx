@@ -340,7 +340,7 @@ const Delegates = () => {
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">
-                Delegate APR
+                Reward APR
               </div>
               <div className="">
                 0.00%
