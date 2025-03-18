@@ -247,6 +247,14 @@ const Delegates = () => {
       {isModalOpen && selectedDelegate && (
         <Modal handleClose={handleModalClose} open={isModalOpen}>
           <div className="">
+          <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full">
+                <Image
+                  src={selectedDelegate.image || "/placeholder.svg"}
+                  alt={selectedDelegate.name}
+                  fill
+                  className="object-cover rounded-full"
+                />
+              </div>
             <h2 className="text-xl font-semibold mb-4 dark:text-white">
               Delegate COMP to {selectedDelegate.name}
             </h2>

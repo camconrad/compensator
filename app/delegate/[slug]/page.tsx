@@ -12,6 +12,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useParams } from "next/navigation"
+import Modal from "@/components/common/Modal"
 
 // Types for our data
 interface Delegate {
@@ -48,6 +49,9 @@ export default function DelegatePage() {
   // State management
   const [isError, setIsError] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>("")
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [amount, setAmount] = useState<string>("")
 
   // Data states with proper typing
   const [delegate, setDelegate] = useState<Delegate | null>(null)
@@ -80,8 +84,8 @@ export default function DelegatePage() {
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" "),
         address: "0x5898...4848",
-        image: "/delegates/geoffrey-hayes.jpg",
-        bio: "Experienced Compound delegate with a focus on sustainable growth and community-driven governance.",
+        image: "/logo.png",
+        bio: "Experienced Compound delegate",
         status: "Active",
         votingPower: "12.35% of Quorum",
         totalDelegations: 24,
@@ -176,6 +180,20 @@ export default function DelegatePage() {
     if (isDelegateLoading || !delegate) fetchDelegateData()
     if (isProposalsLoading || proposals.length === 0) fetchProposals()
     if (isDelegationsLoading || delegations.length === 0) fetchDelegations()
+  }
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+    setAmount("")
+  }
+
+  // Handle delegate submit
+  const handleDelegateSubmit = () => {
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+    }, 2000)
   }
 
   return (
@@ -275,7 +293,7 @@ export default function DelegatePage() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h1 className="text-3xl font-bold text-[#030303] dark:text-white">{delegate.name}</h1>
+                    <h1 className="text-xl font-bold text-[#030303] dark:text-white">{delegate.name}</h1>
                     <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{delegate.address}</p>
                     <div className="inline-flex items-center px-2 py-1 mt-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-medium">
                       {delegate.status}
@@ -300,9 +318,12 @@ export default function DelegatePage() {
                       </div>
                     </div>
                   </div>
-                  <Button className="bg-[#10b981] text-white px-6 py-2 rounded-full hover:bg-emerald-600 transition-colors font-semibold">
+                  <button 
+                    className="bg-[#10b981] text-white px-6 py-3 rounded-full font-semibold text-xs transition-all duration-200 transform hover:scale-105 active:scale-95"
+                    onClick={() => setIsModalOpen(true)}
+                  >
                     Delegate COMP
-                  </Button>
+                  </button>
                 </div>
               ) : (
                 <div className="flex items-center justify-center p-8">
@@ -447,6 +468,129 @@ export default function DelegatePage() {
         </motion.main>
         <Footer />
       </div>
+
+      {/* Delegate Modal */}
+      {isModalOpen && delegate && (
+        <Modal handleClose={handleModalClose} open={isModalOpen}>
+          <div className="">
+            <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full">
+              <Image
+                src={delegate.image || "/placeholder.svg"}
+                alt={delegate.name}
+                fill
+                className="object-cover rounded-full"
+              />
+            </div>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">
+              Delegate COMP to {delegate.name}
+            </h2>
+            <div className="relative mb-4">
+              <div className="flex flex-col space-y-2">
+                <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
+                  <div className="flex items-center justify-between mt-[-6px]">
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
+                    />
+                    <div className="flex items-center mr-3 ml-2">
+                      <Image
+                        src="/logo.png"
+                        alt="COMP Logo"
+                        width={20}
+                        height={20}
+                        className="mx-auto rounded-full"
+                      />
+                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">
+                        COMP
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-xs font-medium text-[#6D7C8D]">$0.00</p>
+                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: 0.00</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[25, 50, 75, 100].map((percent) => (
+                <button
+                  key={percent}
+                  onClick={() => setAmount(((percent / 100) * 0).toString())}
+                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-[#EFF2F5] dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                >
+                  {percent}%
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={handleDelegateSubmit}
+              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > 0 || loading}
+              className={`${
+                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-emerald-600"
+              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
+                parseFloat(amount) > 0 ? "bg-red-500 hover:bg-red-600" : ""
+              }`}
+            >
+              {loading ? (
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : parseFloat(amount) > 0 ? (
+                "Insufficient Balance"
+              ) : (
+                "Delegate COMP"
+              )}
+            </button>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
+              <div className="">
+                Delegated votes
+              </div>
+              <div className="">
+                0.00 COMP
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
+              <div className="">
+                Last active
+              </div>
+              <div className="">
+                7 days ago
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
+              <div className="">
+                Profile
+              </div>
+              <Link href={`/delegate/${delegateSlug}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
+                @{delegate.name.replace(/\s+/g, '')}
+              </Link>
+            </div>
+          </div>
+        </Modal>
+      )}
     </>
   )
 }
