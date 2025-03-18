@@ -49,7 +49,7 @@ const NetworkDropdown = () => {
               <div
                 key={network.name}
                 onClick={() => handleNetworkChange(network?.value)}
-                className="flex items-center font-[family-name:var(--font-geist-sans)] font-medium space-x-2 py-1 px-[6px] hover:bg-gray-100 hover:rounded-md dark:hover:bg-gray-700 cursor-pointer"
+                className="flex items-center font-medium space-x-2 py-1 px-[6px] hover:bg-gray-100 hover:rounded-md dark:hover:bg-gray-700 cursor-pointer"
               >
                 <Image
                   src={network.icon}

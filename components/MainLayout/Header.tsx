@@ -12,6 +12,7 @@ import { useSelectedAccessToken, useSelectedAuthActions } from "@/store/auth/sel
 import NetworkDropdown from "./NetworkDropdown"
 import { usePathname } from "next/navigation"
 import { FaHome, FaCompass, FaUser, FaFileAlt } from "react-icons/fa"
+import { createPortal } from "react-dom"
 
 const Header = () => {
   const [isAtTop, setIsAtTop] = useState(true)
@@ -23,6 +24,7 @@ const Header = () => {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null)
   const navRef = useRef<HTMLDivElement>(null)
   const indicatorRef = useRef<HTMLDivElement>(null)
+  const [isMobile, setIsMobile] = useState(false)
 
   const navItems = [
     {
@@ -88,6 +90,19 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll)
     return () => {
       window.removeEventListener("scroll", handleScroll)
+    }
+  }, [])
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile)
     }
   }, [])
 
@@ -196,15 +211,15 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-end space-x-3 md:space-x-4">
-          <div className="md:hidden flex items-center mr-2">
-            <MobileNavigation navItems={navItems} currentPath={pathname} />
-          </div>
-          <div className="">
+        <div className="flex items-center justify-end">
+          <div className="hidden md:block mr-3">
             <NetworkDropdown />
           </div>
           <div className="">
-            <ConnectWalletButton />
+            <ConnectWalletButton isMobile={isMobile} />
+          </div>
+          <div className="md:hidden flex items-center">
+            <MobileNavigation navItems={navItems} currentPath={pathname} />
           </div>
         </div>
       </div>
@@ -217,52 +232,92 @@ const MobileNavigation = ({
   currentPath,
 }: { navItems: { name: string; href: string; external?: boolean; icon: React.ReactNode }[]; currentPath: string }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   return (
     <div className="relative">
+      {/* Mobile Menu Button with animation */}
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-md text-gray-400 bg-[#D7DFE4] dark:hover:bg-white/10 hover:text-white"
+        className="p-2 rounded-full bg-[#D8DFE5] dark:bg-[#1D2833] text-[#17212B] dark:text-white flex items-center justify-center w-10 h-10 relative"
+        aria-label={isOpen ? "Close menu" : "Open menu"}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-full right-0 w-48 bg-white dark:bg-[#1D2833] rounded-md shadow-lg py-1 z-50">
-          {navItems.map((item) =>
-            item.external ? (
-              <a
-                key={item.name}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center px-2 py-1 text-sm ${currentPath === item.href ? "bg-white dark:bg-[#1D2833] text-white" : "bg-white text-[#17212B] dark:text-white"}`}
-                onClick={() => setIsOpen(false)}
-              >
-                {item.icon}
-                {item.name}
-              </a>
-            ) : (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center px-2 py-1 text-sm ${currentPath === item.href ? "bg-white dark:bg-[#1D2833] text-white" : "bg-white text-[#17212B] dark:text-white"}`}
-                onClick={() => setIsOpen(false)}
-              >
-                {item.icon}
-                {item.name}
-              </Link>
-            ),
-          )}
+        <div className="w-5 h-5 relative flex items-center justify-center">
+          <span 
+            className={`absolute h-0.5 w-3 bg-current transform transition-all duration-300 ease-in-out ${
+              isOpen ? "rotate-45" : "translate-y-[-4px]"
+            }`}
+          />
+          <span 
+            className={`absolute h-0.5 w-3 bg-current transition-all duration-300 ease-in-out ${
+              isOpen ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          <span 
+            className={`absolute h-0.5 w-3 bg-current transform transition-all duration-300 ease-in-out ${
+              isOpen ? "-rotate-45" : "translate-y-[4px]"
+            }`}
+          />
         </div>
+      </button>
+      {isOpen && createPortal(
+        <div
+          ref={dropdownRef}
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm z-40"
+          onClick={() => setIsOpen(false)}
+        >
+          <div
+            className="absolute pt-24 pl-2 w-full h-full bg-[#EFF2F5] dark:bg-[#1D2833] rounded-md shadow-lg py-1 z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {navItems.map((item) =>
+              item.external ? (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? " text-white dark:text-white" : "text-[#17212B] dark:text-white"}`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {/* {item.icon} */}
+                  {item.name}
+                </a>
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? "text-[#10B981] dark:text-white" : "text-[#17212B] dark:text-white"}`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {/* {item.icon} */}
+                  {item.name}
+                </Link>
+              ),
+            )}
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   )
