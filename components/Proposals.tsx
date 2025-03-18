@@ -307,21 +307,21 @@ const Proposals = () => {
               )}
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
-              <div className="flex items-center">
-                <ArrowUpRight className="w-4 h-4 mr-1 text-green-500" />
-                Staked For
+              <div className="">
+                Staked Against
               </div>
-              <div className="transition-all duration-300">
-                {stakedFor.toFixed(2)} COMP
+              <div className="flex items-center">
+              <ArrowDownRight className="w-4 h-4 mr-1 text-red-500" />
+                {stakedAgainst.toFixed(2)} COMP
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
-              <div className="flex items-center">
-                <ArrowDownRight className="w-4 h-4 mr-1 text-red-500" />
-                Staked Against
+              <div className="">
+                Staked For
               </div>
-              <div className="transition-all duration-300">
-                {stakedAgainst.toFixed(2)} COMP
+              <div className="flex items-center">
+              <ArrowUpRight className="w-4 h-4 mr-1 text-green-500" />
+                {stakedFor.toFixed(2)} COMP
               </div>
             </div>
           </div>

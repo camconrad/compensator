@@ -7,8 +7,9 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import Image from "next/image";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import Modal from "@/components/common/Modal";
+import { FaVoteYea, FaUser, FaHistory } from "react-icons/fa";
 
 interface Delegate {
   id: number;
@@ -287,43 +288,67 @@ const Delegates = () => {
               ))}
             </div>
             <button
-  onClick={handleDelegateSubmit}
-  disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
-  className={`${
-    loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
-      ? "opacity-50 cursor-not-allowed"
-      : "hover:bg-emerald-600"
-  } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
-    parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
-  }`}
->
-  {loading ? (
-    <svg
-      className="animate-spin h-4 w-4 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      ></circle>
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      ></path>
-    </svg>
-  ) : parseFloat(amount) > userBalance ? (
-    "Insufficient Balance"
-  ) : (
-    "Delegate COMP"
-  )}
-</button>
+              onClick={handleDelegateSubmit}
+              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
+              className={`${
+                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-emerald-600"
+              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
+                parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
+              }`}
+            >
+              {loading ? (
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : parseFloat(amount) > userBalance ? (
+                "Insufficient Balance"
+              ) : (
+                "Delegate COMP"
+              )}
+            </button>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+              <div className="">
+                Delegated votes
+              </div>
+              <div className="">
+                0.00 COMP
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+              <div className="">
+                Last active
+              </div>
+              <div className="">
+                7 days ago
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+              <div className="">
+                Profile
+              </div>
+              <button href="/{selectedDelegate.name}" className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
+                @{selectedDelegate.name}
+              </button>
+            </div>
           </div>
         </Modal>
       )}
