@@ -140,7 +140,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
               <h4 className="font-semibold text-base">{metric.type}</h4>
               <div
                 className={`flex items-center gap-1 text-sm font-medium ${
-                  metric.trend === "up" ? "text-emerald-500" : "text-red-500"
+                  metric.trend === "up" ? "text-emerald-600 dark:text-emerald-500" : "text-red-500"
                 }`}
               >
                 {metric.trend === "up" ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
@@ -168,9 +168,9 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
         </div>
 
         <div className="p-3 bg-gray-50 dark:bg-[#1D2833] border-t border-gray-100 dark:border-[#28303e] rounded-b-md">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center font-medium">
             <span className="text-xs text-gray-500 dark:text-gray-400">Last 7 days</span>
-            <button className="text-xs font-medium underline text-emerald-600 dark:text-emerald-500 focus:outline-none">
+            <button className="text-xs underline text-emerald-600 dark:text-emerald-500 focus:outline-none">
               Dune
             </button>
           </div>
