@@ -73,8 +73,8 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
     }
   }
 
-  const formatAddress = (address: string) => {
-    if (!address) return ""
+  const formatAddress = (address?: string) => {
+    if (!address) return "N/A"
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
   }
 

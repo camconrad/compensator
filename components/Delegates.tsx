@@ -240,20 +240,20 @@ const Delegates = () => {
 
       {isModalOpen && selectedDelegate && (
         <Modal handleClose={handleModalClose} open={isModalOpen}>
-          <div className="p-2">
+          <div className="">
             <h2 className="text-xl font-semibold mb-4 dark:text-white">
               Delegate COMP to {selectedDelegate.name}
             </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
-                <div className="flex flex-col border bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
+                <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
                   <div className="flex items-center justify-between mt-[-6px]">
                     <input
                       type="number"
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-lg font-semibold"
+                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
                     />
                     <div className="flex items-center mr-3 ml-2">
                       <Image
@@ -280,50 +280,50 @@ const Delegates = () => {
                 <button
                   key={percent}
                   onClick={() => setAmount(((percent / 100) * userBalance).toString())}
-                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-[#EFF2F5] dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   {percent}%
                 </button>
               ))}
             </div>
             <button
-              onClick={handleDelegateSubmit}
-              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
-              className={`${
-                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-emerald-600"
-              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
-              }`}
-            >
-              {loading ? (
-                <svg
-                  className="animate-spin h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : parseFloat(amount) > userBalance ? (
-                "Insufficient Balance"
-              ) : (
-                "Delegate COMP"
-              )}
-            </button>
+  onClick={handleDelegateSubmit}
+  disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
+  className={`${
+    loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
+      ? "opacity-50 cursor-not-allowed"
+      : "hover:bg-emerald-600"
+  } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
+    parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
+  }`}
+>
+  {loading ? (
+    <svg
+      className="animate-spin h-4 w-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  ) : parseFloat(amount) > userBalance ? (
+    "Insufficient Balance"
+  ) : (
+    "Delegate COMP"
+  )}
+</button>
           </div>
         </Modal>
       )}

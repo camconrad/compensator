@@ -4,10 +4,10 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, FreeMode } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/free-mode";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Modal from "@/components/common/Modal";
 import Image from "next/image";
-import { ArrowLeft, ArrowRight, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, ThumbsUp, ThumbsDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 const proposals = [
   {
@@ -59,6 +59,9 @@ const Proposals = () => {
   const [amount, setAmount] = useState("");
   const [hasSelectedPercentage, setHasSelectedPercentage] = useState(false);
 
+  const [stakedFor, setStakedFor] = useState(0.00);
+  const [stakedAgainst, setStakedAgainst] = useState(0.00);
+
   const userBalance = 0.00;
   const compPrice = 41.44;
 
@@ -81,10 +84,21 @@ const Proposals = () => {
     setLoading(true);
     setTimeout(() => {
       console.log(`Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`);
+      if (selectedOutcome === "For") {
+        setStakedFor(prev => prev + amount);
+      } else if (selectedOutcome === "Against") {
+        setStakedAgainst(prev => prev + amount);
+      }
       setIsModalOpen(false);
       setLoading(false);
     }, 2000);
   };
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setAmount("");
+    }
+  }, [isModalOpen]);
 
   return (
     <div className="w-full mt-3 max-w-[1100px] mx-auto font-sans">
@@ -142,14 +156,6 @@ const Proposals = () => {
                 slidesPerView: 4,
               },
             }}
-            onInit={(swiper) => {
-              // if (typeof swiper.params.navigation === "object" && swiper.params.navigation) {
-              //   swiper.params.navigation.prevEl = navigationPrevRef.current;
-              //   swiper.params.navigation.nextEl = navigationNextRef.current;
-              //   swiper.navigation.init();
-              //   swiper.navigation.update();
-              // }
-            }}
           >
             {sortedProposals.map((proposal) => (
               <SwiperSlide key={proposal.id} className="">
@@ -193,13 +199,13 @@ const Proposals = () => {
 
       {isModalOpen && (
         <Modal handleClose={() => setIsModalOpen(false)} open={isModalOpen}>
-          <div className="p-2">
+          <div className="">
             <h2 className="text-xl font-semibold mb-4 dark:text-white">
               Stake COMP for Proposal {selectedProposal} ({selectedOutcome})
             </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
-                <div className="flex flex-col border bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
+                <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
                   <div className="flex items-center justify-between mt-[-6px]">
                     <input
                       type="number"
@@ -243,7 +249,7 @@ const Proposals = () => {
                     setAmount("");
                     setHasSelectedPercentage(false);
                   }}
-                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-[#EFF2F5] dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   Reset
                 </button>
@@ -256,7 +262,7 @@ const Proposals = () => {
                     setAmount(value.toString());
                     setHasSelectedPercentage(true);
                   }}
-                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
+                  className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-[#EFF2F5] dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   {percent}%
                 </button>
@@ -300,6 +306,24 @@ const Proposals = () => {
                 "Submit Stake"
               )}
             </button>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+              <div className="flex items-center">
+                <ArrowUpRight className="w-4 h-4 mr-1 text-green-500" />
+                Staked For
+              </div>
+              <div className="transition-all duration-300">
+                {stakedFor.toFixed(2)} COMP
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#959595]">
+              <div className="flex items-center">
+                <ArrowDownRight className="w-4 h-4 mr-1 text-red-500" />
+                Staked Against
+              </div>
+              <div className="transition-all duration-300">
+                {stakedAgainst.toFixed(2)} COMP
+              </div>
+            </div>
           </div>
         </Modal>
       )}

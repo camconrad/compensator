@@ -213,40 +213,44 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
             {/* Rest of the Swap UI */}
             <div className="p-6 flex-1 overflow-y-auto">
               <div className="relative">
-                {/* From Token */}
-                <div className="rounded-xl bg-gray-100 font-medium dark:bg-gray-800/50 p-4 mb-1">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">From</span>
-                    <select
-                      className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm dark:text-white"
-                      value={fromToken}
-                      onChange={(e) => setFromToken(e.target.value)}
-                    >
-                      <option value="ETH">ETH</option>
-                      <option value="WBTC">WBTC</option>
-                      <option value="USDT">USDT</option>
-                      <option value="USDC">USDC</option>
-                      <option value="COMP">COMP</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      placeholder="0.0"
-                      className="w-full border-none font-semibold bg-transparent text-lg focus:outline-none dark:text-white"
-                      value={fromAmount}
-                      onChange={(e) => setFromAmount(e.target.value)}
-                    />
-                    <span className="min-w-[90px] text-sm text-gray-500 font-medium dark:text-gray-400">
-                      Balance: {tokenBalances[fromToken].toFixed(2)}
-                    </span>
+              <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-gray-800/50 p-3 mb-1">
+                <div className="flex justify-between mb-0 items-center">
+                    <div className="gap-4 flex flex-col">
+                      {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Sell</span> */}
+                      <input
+                          type="number"
+                          placeholder="0.00"
+                          className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
+                          value={fromAmount}
+                          onChange={(e) => setFromAmount(e.target.value)}
+                        />
+                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">
+                        $0.00
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <select
+                        className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm font-semibold dark:text-white"
+                        value={fromToken}
+                        onChange={(e) => setFromToken(e.target.value)}
+                      >
+                        <option value="ETH">ETH</option>
+                        <option value="WBTC">WBTC</option>
+                        <option value="USDT">USDT</option>
+                        <option value="USDC">USDC</option>
+                        <option value="COMP">COMP</option>
+                      </select>
+                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400 mt-1 min-w-[86px]">
+                        Balance: {tokenBalances[fromToken].toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Swap Button */}
+                {/* Swap Toggle/Switch Button */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-[56%] z-10">
                   <motion.div
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 border-4 border-white dark:border-[#0D131A]"
+                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#EFF2F5] dark:bg-gray-700 border-4 border-white dark:border-[#0D131A]"
                     onClick={handleSwapTokens}
                     variants={closeButtonVariants}
                     initial="rest"
@@ -258,32 +262,37 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                 </div>
 
                 {/* To Token */}
-                <div className="rounded-xl bg-gray-100  font-medium dark:bg-gray-800/50 p-4 mb-3">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">To</span>
-                    <select
-                      className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm dark:text-white"
-                      value={toToken}
-                      onChange={(e) => setToToken(e.target.value)}
-                    >
-                      <option value="ETH">ETH</option>
-                      <option value="WBTC">WBTC</option>
-                      <option value="USDT">USDT</option>
-                      <option value="USDC">USDC</option>
-                      <option value="COMP">COMP</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      placeholder="0.0"
-                      className="w-full border-none bg-transparent font-semibold text-lg focus:outline-none dark:text-white"
-                      value={toAmount}
-                      onChange={(e) => setToAmount(e.target.value)}
-                    />
-                     <span className="text-sm min-w-[90px] text-gray-500 font-medium dark:text-gray-400">
-                      Balance: {tokenBalances[toToken].toFixed(2)}
-                    </span>
+                <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-gray-800/50 p-3 mb-3">
+                <div className="flex justify-between mb-0 items-center">
+                    <div className="gap-4 flex flex-col">
+                      {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Buy</span> */}
+                      <input
+                          type="number"
+                          placeholder="0.00"
+                          className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
+                          value={toAmount}
+                          onChange={(e) => setFromAmount(e.target.value)}
+                        />
+                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">
+                        $0.00
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <select
+                        className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm font-semibold dark:text-white"
+                        value={toToken}
+                        onChange={(e) => setToToken(e.target.value)}
+                      >
+                        <option value="ETH">ETH</option>
+                        <option value="WBTC">WBTC</option>
+                        <option value="USDT">USDT</option>
+                        <option value="USDC">USDC</option>
+                        <option value="COMP">COMP</option>
+                      </select>
+                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400 mt-1 min-w-[86px]">
+                        Balance: {tokenBalances[toToken].toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -293,7 +302,30 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                   onClick={handleSwap}
                   disabled={isSwapping}
                 >
-                  {isSwapping ? <Loader className="h-5 w-5 animate-spin mx-auto" /> : "Swap"}
+                  {isSwapping ? (
+                    <svg
+                      className="animate-spin mx-auto h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    "Swap"
+                  )}
                 </button>
 
                 {/* Error Message */}
