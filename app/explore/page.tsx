@@ -230,7 +230,7 @@ const ExplorePage = () => {
           {/* Table Section with View All Delegates title and filter dropdown */}
           <section>
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-1">View All Delegates</h2>
+              <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-1">Explore Delegates</h2>
               <div className="relative mb-3" ref={filterRef}>
                 <Button
                   variant="outline"
@@ -303,17 +303,17 @@ const ExplorePage = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="bg-white rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden"
+              className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden"
             >
               <div className="overflow-x-auto">
                 <table className="w-full mx-auto" role="table">
-                  <thead className="bg-[#F9FAFB] dark:bg-[#1D2833]" role="rowgroup">
+                  <thead className="bg-[#F9FAFB] dark:bg-[#17212B]" role="rowgroup">
                     <tr role="row">
                       <th
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#030303] dark:text-white"
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 cursor-pointer">
                           Rank
                           <ChevronsUpDown className="h-4 w-4 text-[#6D7C8D]" />
                         </div>
@@ -322,7 +322,7 @@ const ExplorePage = () => {
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#030303] dark:text-white"
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 cursor-pointer">
                           Delegate
                           <ChevronsUpDown className="h-4 w-4 text-[#6D7C8D]" />
                         </div>
@@ -331,7 +331,7 @@ const ExplorePage = () => {
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#030303] dark:text-white"
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 cursor-pointer">
                           Voting Power
                           <ChevronsUpDown className="h-4 w-4 text-[#6D7C8D]" />
                         </div>
@@ -340,7 +340,7 @@ const ExplorePage = () => {
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#030303] dark:text-white"
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 cursor-pointer">
                           Active Proposals
                           <ChevronsUpDown className="h-4 w-4 text-[#6D7C8D]" />
                         </div>
@@ -349,7 +349,7 @@ const ExplorePage = () => {
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#030303] dark:text-white"
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 cursor-pointer">
                           Total Delegations
                           <ChevronsUpDown className="h-4 w-4 text-[#6D7C8D]" />
                         </div>
@@ -358,7 +358,7 @@ const ExplorePage = () => {
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#030303] dark:text-white"
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 cursor-pointer">
                           7D Performance
                           <ChevronsUpDown className="h-4 w-4 text-[#6D7C8D]" />
                         </div>
@@ -370,25 +370,25 @@ const ExplorePage = () => {
                       ? Array.from({ length: 10 }).map((_, index) => (
                           <tr key={index} className="border-b dark:border-b-[#232F3B] border-b-[#efefef]">
                             <td className="px-6 py-4 animate-pulse">
-                              <div className="w-5 h-5 bg-gray-300 dark:bg-[#2c2c2c] rounded-full"></div>
+                              <div className="w-5 h-5 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
                             </td>
                             <td className="px-6 py-4 animate-pulse">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gray-300 dark:bg-[#2c2c2c] rounded-full"></div>
-                                <div className="w-24 h-4 bg-gray-300 dark:bg-[#2c2c2c] rounded-md"></div>
+                                <div className="w-8 h-8 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
+                                <div className="w-24 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                               </div>
                             </td>
                             <td className="px-6 py-4 animate-pulse">
-                              <div className="w-12 h-4 bg-gray-300 dark:bg-[#2c2c2c] rounded-md"></div>
+                              <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
                             <td className="px-6 py-4 animate-pulse">
-                              <div className="w-16 h-4 bg-gray-300 dark:bg-[#2c2c2c] rounded-md"></div>
+                              <div className="w-16 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
                             <td className="px-6 py-4 animate-pulse">
-                              <div className="w-12 h-4 bg-gray-300 dark:bg-[#2c2c2c] rounded-md"></div>
+                              <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
                             <td className="px-6 py-4 animate-pulse">
-                              <div className="w-10 h-4 bg-gray-300 dark:bg-[#2c2c2c] rounded-md"></div>
+                              <div className="w-10 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
                           </tr>
                         ))
@@ -398,7 +398,7 @@ const ExplorePage = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: index * 0.05 }}
                             key={delegate.id}
-                            className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
+                            className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
                             onClick={() => {
                               window.location.href = `/delegate/${formatNameForURL(delegate.name)}`
                             }}
@@ -423,7 +423,7 @@ const ExplorePage = () => {
                             </td>
                             <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300">
                               <div className="flex items-center">
-                                <div className="w-16 bg-gray-200 dark:bg-[#2c2c2c] rounded-full h-1.5 mr-2">
+                                <div className="w-16 bg-gray-200 dark:bg-[#425365] rounded-full h-1.5 mr-2">
                                   <div
                                     className="bg-emerald-500 h-1.5 rounded-full"
                                     style={{ width: `${delegate.votingPower}%` }}
@@ -442,7 +442,7 @@ const ExplorePage = () => {
                               </div>
                             </td>
                             <td
-                              className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-green-500" : "text-red-500"}`}
+                              className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#4dd0a4]" : "text-[#f54a4a] dark:text-[#f54a4a]"}`}
                             >
                               <div className="flex items-center">
                                 {delegate.performance7D >= 0 ? (
@@ -476,7 +476,7 @@ const ExplorePage = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="px-3 py-1 bg-[#10b981] text-white hover:bg-emerald-600 hover:text-white"
+                    className="px-3 py-1 bg-[#10b981] font-semibold text-white dark:text-[#0D131A] hover:bg-emerald-600 hover:text-white"
                   >
                     1
                   </Button>

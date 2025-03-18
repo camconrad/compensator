@@ -17,7 +17,7 @@ export default function Footer() {
 
   return (
     <motion.footer
-      className="mt-[32px] font-sans mx-auto max-w-[1100px] pb-3 flex gap-2 flex-wrap items-center justify-between text-[13px] text-[#6D7C8D]"
+      className="mt-[64px] px-4 font-sans mx-auto max-w-[1100px] pb-3 flex gap-2 flex-wrap items-center justify-between text-[13px] text-[#6D7C8D]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3, duration: 0.2 }}
