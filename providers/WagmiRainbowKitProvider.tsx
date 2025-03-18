@@ -6,20 +6,41 @@ import {
   getDefaultConfig,
   lightTheme,
   midnightTheme,
+  connectorsForWallets,
 } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { PropsWithChildren } from "react";
 import { mainnet } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
-import { metaMask, walletConnect } from "wagmi/connectors";
+import {
+  metaMaskWallet,
+  walletConnectWallet,
+  coinbaseWallet,
+  trustWallet,
+  ledgerWallet,
+  braveWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 
-const connectors = [metaMask(), walletConnect({ projectId: "02a231b2406ed316c861abefc95c5e59" })];
+const wallets = [
+  metaMaskWallet,
+  walletConnectWallet,
+  coinbaseWallet,
+  trustWallet,
+  ledgerWallet,
+  braveWallet,
+];
+
+const connectors = connectorsForWallets(wallets, {
+  projectId: "02a231b2406ed316c861abefc95c5e59",
+  appName: "Compensator",
+});
 
 const wagmiConfig = getDefaultConfig({
   appName: "Compensator",
   projectId: "02a231b2406ed316c861abefc95c5e59",
   chains: [mainnet],
   ssr: true,
+  connectors,
 });
 
 const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
