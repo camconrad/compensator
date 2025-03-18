@@ -22,12 +22,12 @@ import {
 } from "@rainbow-me/rainbowkit/wallets";
 
 const wallets = [
-  metaMaskWallet,
-  walletConnectWallet,
-  coinbaseWallet,
-  trustWallet,
-  ledgerWallet,
-  braveWallet,
+  metaMaskWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
+  walletConnectWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
+  coinbaseWallet({ appName: "Compensator" }),
+  trustWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
+  ledgerWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
+  braveWallet({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
 ];
 
 const connectors = connectorsForWallets(wallets, {
@@ -57,4 +57,4 @@ const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default WagmiRainbowKitProvider
+export default WagmiRainbowKitProvider;
