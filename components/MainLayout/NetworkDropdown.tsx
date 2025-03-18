@@ -26,11 +26,18 @@ const NetworkDropdown = () => {
         className=""
       >
         <Image
-          src={currentNetwork?.icon}
+          src={currentNetwork?.value === "mainnet" ? "/ethereum.svg" : currentNetwork?.icon}
           alt={currentNetwork?.name}
           width={24}
           height={24}
-          className="rounded-md dark:invert"
+          className="rounded-md dark:hidden"
+        />
+        <Image
+          src={currentNetwork?.value === "mainnet" ? "/eth-dark.svg" : currentNetwork?.icon}
+          alt={currentNetwork?.name}
+          width={24}
+          height={24}
+          className="rounded-md hidden dark:block"
         />
         {/* <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
           <ChevronDown size={16} />
@@ -52,11 +59,18 @@ const NetworkDropdown = () => {
                 className="flex items-center font-medium space-x-2 py-1 px-[6px] hover:bg-gray-100 hover:rounded-md dark:hover:bg-gray-700 cursor-pointer"
               >
                 <Image
-                  src={network.icon}
+                  src={network.value === "mainnet" ? "/ethereum.svg" : network.icon}
                   alt={network.name}
                   width={24}
                   height={24}
-                  className="rounded-md dark:invert"
+                  className="rounded-md dark:hidden"
+                />
+                <Image
+                  src={network.value === "mainnet" ? "/eth-dark.svg" : network.icon}
+                  alt={network.name}
+                  width={24}
+                  height={24}
+                  className="rounded-md hidden dark:block"
                 />
                 <span className="text-[#595959] dark:text-white">{network.name}</span>
               </div>
