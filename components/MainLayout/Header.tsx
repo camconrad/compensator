@@ -107,16 +107,22 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
-    const currentPath = pathname
-    const activeItem = navItems.find((item) => item.href === currentPath)
-    if (activeItem) {
-      setHoveredTab(activeItem.name)
-    } else {
-      if (currentPath.startsWith("/explore")) setHoveredTab("Explore")
-      else if (currentPath.startsWith("/profile")) setHoveredTab("Profile")
-      else setHoveredTab("Home")
+    const currentPath = pathname;
+  
+    if (currentPath === "/privacy" || currentPath === "/terms") {
+      setHoveredTab(null);
+      return;
     }
-  }, [pathname])
+
+    const activeItem = navItems.find((item) => item.href === currentPath);
+    if (activeItem) {
+      setHoveredTab(activeItem.name);
+    } else {
+      if (currentPath.startsWith("/explore")) setHoveredTab("Explore");
+      else if (currentPath.startsWith("/profile")) setHoveredTab("Profile");
+      else setHoveredTab("Home");
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!navRef.current || !indicatorRef.current || !hoveredTab) return
