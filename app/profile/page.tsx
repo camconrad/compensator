@@ -7,9 +7,10 @@ import Footer from "@/components/Footer"
 import { useSettingTheme } from "@/store/setting/selector"
 import Headroom from "react-headroom"
 import { TrendingUp, Users, AlertCircle, Wallet } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useAccount } from "wagmi"
 
 // Types for our data
 interface UserProfile {
@@ -41,9 +42,9 @@ interface Proposal {
 
 export default function ProfilePage() {
   const theme = useSettingTheme()
+  const { address, isConnected } = useAccount()
 
   // State management
-  const [isWalletConnected, setIsWalletConnected] = useState<boolean>(false)
   const [isError, setIsError] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>("")
 
@@ -52,67 +53,59 @@ export default function ProfilePage() {
   const [delegations, setDelegations] = useState<Delegation[]>([])
   const [proposals, setProposals] = useState<Proposal[]>([])
 
-  // Loading states for different sections
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true)
   const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true)
   const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true)
 
-  // Check wallet connection status
-  useEffect(() => {
-    // Simulate checking if wallet is connected
-    const checkWalletConnection = async () => {
-      // In a real app, this would check the wallet connection status
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setIsWalletConnected(false) // Set to false by default for demo
+  const loadAllData = useCallback(async () => {
+    try {
+      await Promise.all([fetchProfileData(), fetchDelegations(), fetchProposals()])
+    } catch (error) {
+      console.error("Error loading data:", error)
+      setIsError(true)
+      setErrorMessage("Failed to load profile data. Please try again.")
     }
-
-    checkWalletConnection()
   }, [])
 
-  // Fetch data if wallet is connected
   useEffect(() => {
-    if (isWalletConnected) {
-      fetchProfileData()
-      fetchDelegations()
-      fetchProposals()
+    if (isConnected && address) {
+      loadAllData()
     } else {
-      // Reset loading states if wallet is not connected
       setIsProfileLoading(false)
       setIsDelegationsLoading(false)
       setIsProposalsLoading(false)
-    }
-  }, [isWalletConnected])
 
-  // Simulate fetching profile data
+      setProfile(null)
+      setDelegations([])
+      setProposals([])
+    }
+  }, [isConnected, address, loadAllData])
+
   const fetchProfileData = async () => {
     setIsProfileLoading(true)
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1200))
 
-      // Mock data
       setProfile({
         name: "Your Name",
-        address: "0x1234...5678",
-        image: "/placeholder.svg?height=96&width=96",
-        bio: "Compound governance participant since 2023.",
-        votingPower: "0.05% of Quorum",
-        totalDelegations: 2,
-        activeDelegations: 1,
+        address: address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : "0x1234...5678",
+        image: "/logo.png",
+        bio: "Profile bio goes here. Write a short description about yourself and your interests.",
+        votingPower: "0.00 COMP", // Placeholder
+        totalDelegations: 0, // Placeholder
+        activeDelegations: 0, // Placeholder
       })
       setIsProfileLoading(false)
     } catch (error) {
       setIsError(true)
-      setErrorMessage("Failed to load profile data. Please try again.")
+      setErrorMessage("Failed to load profile data. Try again.")
       setIsProfileLoading(false)
     }
   }
 
-  // Simulate fetching delegations
   const fetchDelegations = async () => {
     setIsDelegationsLoading(true)
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       // Mock data
@@ -138,17 +131,15 @@ export default function ProfilePage() {
     }
   }
 
-  // Simulate fetching proposals
   const fetchProposals = async () => {
     setIsProposalsLoading(true)
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1800))
 
       // Mock data
       setProposals([
         {
-          title: "Add wasperOETHb as collateral into cWETHv3 on Base",
+          title: "Proposal example title #1",
           status: "ACTIVE",
           date: "Mar 14th, 2025",
           votesFor: 573.63,
@@ -157,12 +148,12 @@ export default function ProfilePage() {
           voteDirection: "for",
         },
         {
-          title: "Add tETH as collateral into cWETHv3 on Mainnet",
+          title: "Proposal example title #1",
           status: "ACTIVE",
           date: "Mar 14th, 2025",
           votesFor: 703.99,
           votesAgainst: 0.29,
-          voted: false,
+          voted: true,
           voteDirection: null,
         },
       ])
@@ -174,16 +165,20 @@ export default function ProfilePage() {
     }
   }
 
-  // Handle retry on error
   const handleRetry = () => {
     setIsError(false)
     setErrorMessage("")
 
-    if (isWalletConnected) {
-      if (isProfileLoading || !profile) fetchProfileData()
-      if (isDelegationsLoading || delegations.length === 0) fetchDelegations()
-      if (isProposalsLoading || proposals.length === 0) fetchProposals()
+    if (isConnected) {
+      loadAllData()
     }
+  }
+
+  const formatNameForURL = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
   }
 
   return (
@@ -239,9 +234,7 @@ export default function ProfilePage() {
           </AnimatePresence>
 
           <div className="mx-auto max-w-[1100px] w-full p-4 mt-[-120px]">
-
-            {!isWalletConnected ? (
-              // Single disconnected wallet section
+            {!isConnected ? (
               <motion.div
                 className="mb-8 bg-white dark:bg-[#1D2833] p-6 rounded-lg"
                 initial={{ y: 20, opacity: 0 }}
@@ -258,18 +251,16 @@ export default function ProfilePage() {
                   </p>
                   <Link
                     href="/explore"
-                    className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-9 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold text-sm"
+                    className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-gray-200 dark:hover:text-[#0D131A] font-semibold text-sm"
                   >
                     Explore Delegates
                   </Link>
                 </div>
               </motion.div>
             ) : (
-              // Connected wallet sections
               <>
-                {/* Profile Section */}
                 <motion.div
-                  className="mb-8 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm"
+                  className="mt-[140px] mb-8 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.2 }}
@@ -316,12 +307,20 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </div>
-                      <Link
-                        href="/explore"
-                        className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-9 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
-                      >
-                        Find Delegates
-                      </Link>
+                      <div className="flex flex-row gap-2"> {/* Changed flex-col to flex-row */}
+                        <Link
+                          href="#"
+                          className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
+                        >
+                          Create Rewards
+                        </Link>
+                        {/* <Link
+                          href="#"
+                          className="bg-emerald-500 transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold"
+                        >
+                          Delegate COMP
+                        </Link> */}
+                      </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center p-8">
@@ -330,14 +329,13 @@ export default function ProfilePage() {
                   )}
                 </motion.div>
 
-                {/* My Delegations Section */}
                 <motion.div
                   className="mb-8"
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.2, delay: 0.1 }}
                 >
-                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">My Delegations</h2>
+                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">Delegations</h2>
 
                   {isDelegationsLoading ? (
                     <div className="space-y-4">
@@ -356,38 +354,33 @@ export default function ProfilePage() {
                     </div>
                   ) : delegations.length > 0 ? (
                     <div className="space-y-4">
-                      {delegations.map((delegation, index) => (
-                        <motion.div
-                          key={index}
-                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
-                          whileHover={{ y: -2 }}
-                          onClick={() =>
-                            (window.location.href = `/delegate/${delegation.delegate.toLowerCase().replace(/\s+/g, "-")}`)
-                          }
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-12 w-12 flex-shrink-0">
-                              <Image
-                                src={delegation.delegateImage || "/placeholder.svg?height=48&width=48"}
-                                alt={delegation.delegate}
-                                width={48}
-                                height={48}
-                                className="object-cover rounded-full"
-                              />
-                            </div>
-                            <div>
-                              <p className="text-base font-semibold text-[#030303] dark:text-white">
-                                {delegation.delegate}
-                              </p>
-                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
-                            </div>
-                            <p className="ml-auto text-xs text-[#6D7C8D] dark:text-gray-400">{delegation.date}</p>
+                    {delegations.map((delegation, index) => (
+                      <motion.div
+                        key={index}
+                        className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
+                        onClick={() => (window.location.href = `/delegate/${formatNameForURL(delegation.delegate)}`)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-12 w-12 flex-shrink-0">
+                            <Image
+                              src={delegation.delegateImage || "/placeholder.svg?height=48&width=48"}
+                              alt={delegation.delegate}
+                              width={48}
+                              height={48}
+                              className="object-cover rounded-full"
+                            />
                           </div>
-                        </motion.div>
-                      ))}
+                          <div className="">
+                            <p className="text-base font-semibold text-[#030303] dark:text-white">{delegation.delegate}</p>
+                            <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
+                          </div>
+                          <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">{delegation.date}</p>
+                        </div>
+                      </motion.div>
+                    ))}
                     </div>
                   ) : (
                     <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
@@ -398,7 +391,7 @@ export default function ProfilePage() {
                       </p>
                       <Link
                         href="/explore"
-                        className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-9 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
+                        className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
                       >
                         Find Delegates
                       </Link>
@@ -406,14 +399,13 @@ export default function ProfilePage() {
                   )}
                 </motion.div>
 
-                {/* My Voting History Section */}
                 <motion.div
                   className="mb-8"
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.2, delay: 0.2 }}
                 >
-                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">My Voting History</h2>
+                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">History</h2>
 
                   {isProposalsLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -438,11 +430,10 @@ export default function ProfilePage() {
                       {proposals.map((proposal, index) => (
                         <motion.div
                           key={index}
-                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer" // Removed hover:shadow-md and transition-shadow
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: 0.2 + index * 0.05 }}
-                          whileHover={{ y: -2 }}
                         >
                           <h3 className="text-lg font-semibold text-[#030303] dark:text-white">{proposal.title}</h3>
                           <div className="flex items-center mt-2">
@@ -455,12 +446,12 @@ export default function ProfilePage() {
                             >
                               {proposal.status}
                             </span>
-                            <span className="text-sm text-[#6D7C8D] dark:text-gray-400 ml-2">{proposal.date}</span>
+                            <span className="text-sm text-[#6D7C8D] font-medium dark:text-gray-400 ml-2">{proposal.date}</span>
                           </div>
                           <div className="mt-3">
                             <div className="flex justify-between mb-1">
-                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Votes</p>
-                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                              <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">Votes</p>
+                              <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
                                 {(proposal.votesFor + proposal.votesAgainst).toFixed(2)}K
                               </p>
                             </div>
@@ -473,10 +464,8 @@ export default function ProfilePage() {
                               ></div>
                             </div>
                             <div className="flex justify-between mt-2">
-                              <p className="text-sm text-green-600 dark:text-green-400">For: {proposal.votesFor}K</p>
-                              <p className="text-sm text-red-600 dark:text-red-400">
-                                Against: {proposal.votesAgainst}K
-                              </p>
+                              <p className="text-sm font-medium text-green-600 dark:text-green-400">{proposal.votesFor}K</p>
+                              <p className="text-sm font-medium text-red-600 dark:text-red-400">{proposal.votesAgainst}K</p>
                             </div>
                           </div>
                           {proposal.voted && (
@@ -503,10 +492,10 @@ export default function ProfilePage() {
                         You haven't voted on any proposals yet. Active proposals will appear here once you've voted.
                       </p>
                       <Link
-                        href="/proposals"
-                        className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-9 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
+                        href="#"
+                        className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
                       >
-                        View Active Proposals
+                        View Proposals
                       </Link>
                     </div>
                   )}
@@ -520,4 +509,3 @@ export default function ProfilePage() {
     </>
   )
 }
-
