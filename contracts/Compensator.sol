@@ -3,9 +3,9 @@ pragma solidity ^0.8.21;
 
 import "./IComp.sol";
 import "./IGovernorBravo.sol";
-import "./@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
@@ -70,6 +70,8 @@ contract Compensator is ERC20, Initializable {
         uint256 forStake; // Amount staked "For" a proposal
         uint256 againstStake; // Amount staked "Against" a proposal
     }
+
+    /// @notice Mapping to track stakes for each proposal by each delegator
     mapping(uint256 => mapping(address => ProposalStake)) public proposalStakes;
 
     /// @notice Total stakes "For" a proposal
@@ -268,11 +270,11 @@ contract Compensator is ERC20, Initializable {
     }
 
     /**
-     * @notice Allows a delegator to stake COMP on a proposal
-     * @param proposalId The ID of the proposal
-     * @param support The vote option (0 = Against, 1 = For)
-     * @param amount The amount of COMP to stake
-     */
+    * @notice Allows a delegator to stake COMP on a proposal
+    * @param proposalId The ID of the proposal
+    * @param support The vote option (0 = Against, 1 = For)
+    * @param amount The amount of COMP to stake
+    */
     function stakeForProposal(uint256 proposalId, uint8 support, uint256 amount) external {
         require(support == 0 || support == 1, "Invalid support value");
         require(amount > 0, "Amount must be greater than 0");
