@@ -6,13 +6,14 @@ import Header from "@/components/MainLayout/Header"
 import Footer from "@/components/Footer"
 import { useSettingTheme } from "@/store/setting/selector"
 import Headroom from "react-headroom"
-import { TrendingUp, Users, AlertCircle, Wallet } from "lucide-react"
+import { TrendingUp, Users, AlertCircle, Wallet, WandSparkles } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useAccount } from "wagmi"
+import ConnectWalletButton from "@/components/MainLayout/ConnectWalletButton"
+import Modal from "@/components/common/Modal"
 
-// Types for our data
 interface UserProfile {
   name: string
   address: string
@@ -44,18 +45,21 @@ export default function ProfilePage() {
   const theme = useSettingTheme()
   const { address, isConnected } = useAccount()
 
-  // State management
   const [isError, setIsError] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>("")
-
-  // Data states with proper typing
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [delegations, setDelegations] = useState<Delegation[]>([])
   const [proposals, setProposals] = useState<Proposal[]>([])
-
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true)
   const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true)
   const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true)
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [profileName, setProfileName] = useState<string>("")
+  const [delegateAddress, setDelegateAddress] = useState<string>("")
+  const [apr, setApr] = useState<string>("") // APR input
+  const [fundingAmount, setFundingAmount] = useState<string>("")
+  const [isFocused, setIsFocused] = useState(false)
 
   const loadAllData = useCallback(async () => {
     try {
@@ -74,7 +78,6 @@ export default function ProfilePage() {
       setIsProfileLoading(false)
       setIsDelegationsLoading(false)
       setIsProposalsLoading(false)
-
       setProfile(null)
       setDelegations([])
       setProposals([])
@@ -85,15 +88,14 @@ export default function ProfilePage() {
     setIsProfileLoading(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1200))
-
       setProfile({
-        name: "Your Name",
+        name: "Username",
         address: address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : "0x1234...5678",
         image: "/logo.png",
-        bio: "Profile bio goes here. Write a short description about yourself and your interests.",
-        votingPower: "0.00 COMP", // Placeholder
-        totalDelegations: 0, // Placeholder
-        activeDelegations: 0, // Placeholder
+        bio: "Bio goes here",
+        votingPower: "0.00 COMP",
+        totalDelegations: 0,
+        activeDelegations: 0,
       })
       setIsProfileLoading(false)
     } catch (error) {
@@ -107,8 +109,6 @@ export default function ProfilePage() {
     setIsDelegationsLoading(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Mock data
       setDelegations([
         {
           delegate: "Geoffrey Hayes",
@@ -135,8 +135,6 @@ export default function ProfilePage() {
     setIsProposalsLoading(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1800))
-
-      // Mock data
       setProposals([
         {
           title: "Proposal example title #1",
@@ -168,7 +166,6 @@ export default function ProfilePage() {
   const handleRetry = () => {
     setIsError(false)
     setErrorMessage("")
-
     if (isConnected) {
       loadAllData()
     }
@@ -179,6 +176,74 @@ export default function ProfilePage() {
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "")
+  }
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.2 },
+    },
+  }
+
+  const handleRewardsButtonClick = () => {
+    setIsRewardsModalOpen(true)
+  }
+
+  const handleRewardsModalClose = () => {
+    setIsRewardsModalOpen(false)
+    setProfileName("")
+    setDelegateAddress("")
+    setApr("")
+    setFundingAmount("")
+  }
+
+  const handleRewardsSubmit = async () => {
+    setLoading(true)
+    try {
+      // Validate inputs
+      if (!profileName || !delegateAddress || !apr || !fundingAmount) {
+        throw new Error("Please fill in all fields")
+      }
+
+      // Convert APR to COMP/second
+      const aprValue = parseFloat(apr)
+      if (isNaN(aprValue) || aprValue <= 0) {
+        throw new Error("Invalid APR value")
+      }
+
+      const secondsInYear = 365 * 24 * 60 * 60
+      const compPerSecond = (aprValue / 100) * parseFloat(fundingAmount) / secondsInYear
+
+      const response = await fetch("/api/createCompensator", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          delegatee: delegateAddress,
+          delegateeName: profileName,
+          rewardRate: compPerSecond.toString(),
+          fundingAmount: fundingAmount,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to create Compensator contract")
+      }
+
+      const data = await response.json()
+      console.log("Compensator contract created:", data)
+
+      handleRewardsModalClose()
+    } catch (error) {
+      console.error("Error creating compensator contract:", error)
+      setIsError(true)
+      setErrorMessage("Failed to create Compensator contract. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -205,7 +270,6 @@ export default function ProfilePage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Error Message */}
           <AnimatePresence>
             {isError && (
               <motion.div
@@ -249,12 +313,9 @@ export default function ProfilePage() {
                   <p className="text-[#6D7C8D] mt-1 font-medium dark:text-gray-400 mb-4 max-w-md">
                     Connect a web3 wallet to view your profile
                   </p>
-                  <Link
-                    href="/explore"
-                    className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-gray-200 dark:hover:text-[#0D131A] font-semibold text-sm"
-                  >
-                    Explore Delegates
-                  </Link>
+                  <div className="w-auto">
+                    <ConnectWalletButton isMobile={false} />
+                  </div>
                 </div>
               </motion.div>
             ) : (
@@ -290,36 +351,30 @@ export default function ProfilePage() {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 font-medium">
                         <h2 className="text-2xl font-bold text-[#030303] dark:text-white">{profile.name}</h2>
                         <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{profile.address}</p>
                         <p className="text-sm text-[#6D7C8D] dark:text-gray-400 mt-3">{profile.bio}</p>
                         <div className="flex flex-wrap items-center gap-4 mt-4">
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm text-[#6D7C8D] dark:text-gray-400">{profile.votingPower}</span>
+                          <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
+                            Vote Power
+                            <span className="text-[#030303] dark:text-white">{profile.votingPower}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4 text-emerald-500" />
-                            <span className="text-sm text-[#6D7C8D] dark:text-gray-400">
-                              {profile.activeDelegations} Active Delegations
+                          <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
+                            Delegators: 
+                            <span className="text-[#030303] dark:text-white">
+                              {profile.activeDelegations}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-row gap-2"> {/* Changed flex-col to flex-row */}
-                        <Link
-                          href="#"
+                      <div className="flex flex-row gap-2">
+                        <button
+                          onClick={handleRewardsButtonClick}
                           className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
                         >
-                          Create Rewards
-                        </Link>
-                        {/* <Link
-                          href="#"
-                          className="bg-emerald-500 transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold"
-                        >
-                          Delegate COMP
-                        </Link> */}
+                          Offer Rewards
+                        </button>
                       </div>
                     </div>
                   ) : (
@@ -328,6 +383,156 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </motion.div>
+
+                {isRewardsModalOpen && (
+                  <Modal handleClose={handleRewardsModalClose} open={isRewardsModalOpen}>
+                    <div className="">
+                      <h2 className="text-xl font-semibold mb-4 dark:text-white">Offer Rewards</h2>
+                      <div className="space-y-4">
+                        {/* Profile Name Input */}
+                        <motion.div className="relative" variants={itemVariants}>
+                          <div className="relative h-14">
+                            <input
+                              id="profileName"
+                              type="text"
+                              value={profileName}
+                              onChange={(e) => setProfileName(e.target.value)}
+                              onFocus={() => setIsFocused(true)}
+                              onBlur={() => setIsFocused(false)}
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                              autoFocus
+                            />
+                            <label
+                              htmlFor="profileName"
+                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                                isFocused || profileName
+                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                              }`}
+                            >
+                              Profile Name
+                            </label>
+                          </div>
+                        </motion.div>
+
+                        {/* Delegate Address Input */}
+                        <motion.div className="relative" variants={itemVariants}>
+                          <div className="relative h-14">
+                            <input
+                              id="delegateAddress"
+                              type="text"
+                              value={delegateAddress}
+                              onChange={(e) => setDelegateAddress(e.target.value)}
+                              onFocus={() => setIsFocused(true)}
+                              onBlur={() => setIsFocused(false)}
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                            />
+                            <label
+                              htmlFor="delegateAddress"
+                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                                isFocused || delegateAddress
+                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                              }`}
+                            >
+                              Delegate Address
+                            </label>
+                            <button
+                              onClick={() => setDelegateAddress(address || "")}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-[#EFF2F5] dark:bg-[#2e3746] transition-colors"
+                            >
+                              <WandSparkles className="h-4 w-4 text-[#6D7C8D] dark:text-gray-400" />
+                            </button>
+                          </div>
+                        </motion.div>
+
+                        {/* APR Input */}
+                        <motion.div className="relative" variants={itemVariants}>
+                          <div className="relative h-14">
+                            <input
+                              id="apr"
+                              type="number"
+                              value={apr}
+                              onChange={(e) => setApr(e.target.value)}
+                              onFocus={() => setIsFocused(true)}
+                              onBlur={() => setIsFocused(false)}
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                            />
+                            <label
+                              htmlFor="apr"
+                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                                isFocused || apr
+                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                              }`}
+                            >
+                              Reward Rate (APR %)
+                            </label>
+                          </div>
+                        </motion.div>
+
+                        {/* Funding Amount Input */}
+                        <motion.div className="relative" variants={itemVariants}>
+                          <div className="relative h-14">
+                            <input
+                              id="fundingAmount"
+                              type="number"
+                              value={fundingAmount}
+                              onChange={(e) => setFundingAmount(e.target.value)}
+                              onFocus={() => setIsFocused(true)}
+                              onBlur={() => setIsFocused(false)}
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                            />
+                            <label
+                              htmlFor="fundingAmount"
+                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                                isFocused || fundingAmount
+                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                              }`}
+                            >
+                              Funding Amount (COMP)
+                            </label>
+                          </div>
+                        </motion.div>
+                      </div>
+                      <button
+                        onClick={handleRewardsSubmit}
+                        disabled={!profileName || !delegateAddress || !apr || !fundingAmount || loading}
+                        className={`${
+                          loading || !profileName || !delegateAddress || !apr || !fundingAmount
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-emerald-600"
+                        } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
+                      >
+                        {loading ? (
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                        ) : (
+                          "Create Compensator"
+                        )}
+                      </button>
+                    </div>
+                  </Modal>
+                )}
 
                 <motion.div
                   className="mb-8"
@@ -354,33 +559,33 @@ export default function ProfilePage() {
                     </div>
                   ) : delegations.length > 0 ? (
                     <div className="space-y-4">
-                    {delegations.map((delegation, index) => (
-                      <motion.div
-                        key={index}
-                        className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
-                        onClick={() => (window.location.href = `/delegate/${formatNameForURL(delegation.delegate)}`)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-12 w-12 flex-shrink-0">
-                            <Image
-                              src={delegation.delegateImage || "/placeholder.svg?height=48&width=48"}
-                              alt={delegation.delegate}
-                              width={48}
-                              height={48}
-                              className="object-cover rounded-full"
-                            />
+                      {delegations.map((delegation, index) => (
+                        <motion.div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
+                          onClick={() => (window.location.href = `/delegate/${formatNameForURL(delegation.delegate)}`)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-12 flex-shrink-0">
+                              <Image
+                                src={delegation.delegateImage || "/placeholder.svg?height=48&width=48"}
+                                alt={delegation.delegate}
+                                width={48}
+                                height={48}
+                                className="object-cover rounded-full"
+                              />
+                            </div>
+                            <div className="">
+                              <p className="text-base font-semibold text-[#030303] dark:text-white">{delegation.delegate}</p>
+                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
+                            </div>
+                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">{delegation.date}</p>
                           </div>
-                          <div className="">
-                            <p className="text-base font-semibold text-[#030303] dark:text-white">{delegation.delegate}</p>
-                            <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
-                          </div>
-                          <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">{delegation.date}</p>
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      ))}
                     </div>
                   ) : (
                     <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
@@ -430,7 +635,7 @@ export default function ProfilePage() {
                       {proposals.map((proposal, index) => (
                         <motion.div
                           key={index}
-                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer" // Removed hover:shadow-md and transition-shadow
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: 0.2 + index * 0.05 }}

@@ -230,7 +230,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                     </div>
                     <div className="flex flex-col gap-4">
                       <select
-                        className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm font-semibold dark:text-white"
+                        className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
                         value={fromToken}
                         onChange={(e) => setFromToken(e.target.value)}
                       >
@@ -279,7 +279,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                     </div>
                     <div className="flex flex-col gap-4">
                       <select
-                        className="border-none bg-gray-200 focus:outline-none dark:bg-gray-700 rounded-lg px-2 py-2 text-sm font-semibold dark:text-white"
+                        className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
                         value={toToken}
                         onChange={(e) => setToToken(e.target.value)}
                       >
