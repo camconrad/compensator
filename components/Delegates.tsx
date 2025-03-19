@@ -62,6 +62,48 @@ const delegates: Delegate[] = [
     image: "/delegates/all-the-colors.jpg",
     rewardAPR: "0.00%",
   },
+  {
+    id: 7,
+    name: "Wintermute",
+    address: "0x123..4567",
+    image: "/delegates/wintermute.jpg",
+    rewardAPR: "0.00%",
+  },
+  {
+    id: 8,
+    name: "Arr00",
+    address: "0x123..4567",
+    image: "/delegates/arr00.jpg",
+    rewardAPR: "0.00%",
+  },
+  {
+    id: 9,
+    name: "Franklin DAO",
+    address: "0x123..4567",
+    image: "/delegates/franklin-dao.jpg",
+    rewardAPR: "0.00%",
+  },
+  {
+    id: 10,
+    name: "Michigan Blockchain",
+    address: "0x123..4567",
+    image: "/delegates/mich-blockchain.jpg",
+    rewardAPR: "0.00%",
+  },
+  {
+    id: 11,
+    name: "P Gov",
+    address: "0x123..4567",
+    image: "/delegates/pgov.jpg",
+    rewardAPR: "0.00%",
+  },
+  {
+    id: 12,
+    name: "Avantgarde",
+    address: "0x123..4567",
+    image: "/delegates/avantgarde.jpg",
+    rewardAPR: "0.00%",
+  },
 ];
 
 // Utility function to format the name for URLs
