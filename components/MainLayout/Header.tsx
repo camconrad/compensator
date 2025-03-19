@@ -30,23 +30,23 @@ const Header = () => {
     {
       name: "Home",
       href: "/",
-      icon: <FaHome className="w-3 h-3 text-[#6D7D8E] mr-1" />,
+      icon: <FaHome className="w-[14px] h-[14px] text-[#6D7D8E] mr-2" />,
     },
     {
       name: "Explore",
       href: "/explore",
-      icon: <FaCompass className="w-3 h-3 text-[#6D7D8E] mr-1" />,
+      icon: <FaCompass className="w-[14px] h-[14px] text-[#6D7D8E] mr-2" />,
     },
     {
       name: "Profile",
       href: "/profile",
-      icon: <FaUser className="w-3 h-3 text-[#6D7D8E] mr-1" />,
+      icon: <FaUser className="w-[14px] h-[14px] text-[#6D7D8E] mr-2" />,
     },
     {
       name: "Docs",
       href: "https://docs.compensator.io",
       external: true,
-      icon: <FaFileAlt className="w-3 h-3 text-[#6D7D8E] mr-1" />,
+      icon: <FaFileAlt className="w-[14px] h-[14px] text-[#6D7D8E] mr-2" />,
     },
   ]
 
