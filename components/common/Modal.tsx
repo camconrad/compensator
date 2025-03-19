@@ -31,6 +31,14 @@ const closeButtonVariants = {
   tap: { scale: 0.95 },
 }
 
+const tokenIcons: Record<string, string> = {
+  ETH: "/eth.svg",
+  WBTC: "/wbtc.svg",
+  USDT: "/usdt.svg",
+  USDC: "/usdc.svg",
+  COMP: "/logo.png",
+}
+
 const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, children }: ModalProps) => {
   const [showSwapUI, setShowSwapUI] = useState(false)
   const [fromToken, setFromToken] = useState("ETH")
@@ -213,33 +221,37 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
             {/* Rest of the Swap UI */}
             <div className="p-6 flex-1 overflow-y-auto">
               <div className="relative">
-              <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] p-3 mb-1">
-                <div className="flex justify-between mb-0 items-center">
+                <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] p-3 mb-1">
+                  <div className="flex justify-between mb-0 items-center">
                     <div className="gap-4 flex flex-col">
-                      {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Sell</span> */}
                       <input
-                          type="number"
-                          placeholder="0.00"
-                          className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
-                          value={fromAmount}
-                          onChange={(e) => setFromAmount(e.target.value)}
-                        />
-                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">
-                        $0.00
-                      </span>
+                        type="number"
+                        placeholder="0.00"
+                        className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
+                        value={fromAmount}
+                        onChange={(e) => setFromAmount(e.target.value)}
+                      />
+                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">$0.00</span>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <select
-                        className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
-                        value={fromToken}
-                        onChange={(e) => setFromToken(e.target.value)}
-                      >
-                        <option value="ETH">ETH</option>
-                        <option value="WBTC">WBTC</option>
-                        <option value="USDT">USDT</option>
-                        <option value="USDC">USDC</option>
-                        <option value="COMP">COMP</option>
-                      </select>
+                      <div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 rounded-lg pl-2">
+                        <img
+                          src={tokenIcons[fromToken]}
+                          alt={fromToken}
+                          className="h-6 w-6 rounded-full"
+                        />
+                        <select
+                          className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
+                          value={fromToken}
+                          onChange={(e) => setFromToken(e.target.value)}
+                        >
+                          {Object.keys(tokenIcons).map((token) => (
+                            <option key={token} value={token}>
+                              {token}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       <span className="text-sm text-gray-500 font-medium dark:text-gray-400 mt-1 min-w-[86px]">
                         Balance: {tokenBalances[fromToken].toFixed(2)}
                       </span>
@@ -263,32 +275,36 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
 
                 {/* To Token */}
                 <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] p-3 mb-3">
-                <div className="flex justify-between mb-0 items-center">
+                  <div className="flex justify-between mb-0 items-center">
                     <div className="gap-4 flex flex-col">
-                      {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Buy</span> */}
                       <input
-                          type="number"
-                          placeholder="0.00"
-                          className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
-                          value={toAmount}
-                          onChange={(e) => setFromAmount(e.target.value)}
-                        />
-                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">
-                        $0.00
-                      </span>
+                        type="number"
+                        placeholder="0.00"
+                        className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
+                        value={toAmount}
+                        onChange={(e) => setFromAmount(e.target.value)}
+                      />
+                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">$0.00</span>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <select
-                        className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
-                        value={toToken}
-                        onChange={(e) => setToToken(e.target.value)}
-                      >
-                        <option value="ETH">ETH</option>
-                        <option value="WBTC">WBTC</option>
-                        <option value="USDT">USDT</option>
-                        <option value="USDC">USDC</option>
-                        <option value="COMP">COMP</option>
-                      </select>
+                      <div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 rounded-lg pl-2">
+                        <img
+                          src={tokenIcons[toToken]}
+                          alt={toToken}
+                          className="h-6 w-6 rounded-full"
+                        />
+                        <select
+                          className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
+                          value={toToken}
+                          onChange={(e) => setToToken(e.target.value)}
+                        >
+                          {Object.keys(tokenIcons).map((token) => (
+                            <option key={token} value={token}>
+                              {token}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       <span className="text-sm text-gray-500 font-medium dark:text-gray-400 mt-1 min-w-[86px]">
                         Balance: {tokenBalances[toToken].toFixed(2)}
                       </span>
