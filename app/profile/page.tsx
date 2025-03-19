@@ -60,6 +60,7 @@ export default function ProfilePage() {
   const [apr, setApr] = useState<string>("") // APR input
   const [fundingAmount, setFundingAmount] = useState<string>("")
   const [isFocused, setIsFocused] = useState(false)
+  const [modalKey, setModalKey] = useState<number>(Date.now()) // Unique key for modal
 
   const loadAllData = useCallback(async () => {
     try {
@@ -138,7 +139,7 @@ export default function ProfilePage() {
       setProposals([
         {
           title: "Proposal example title #1",
-          status: "ACTIVE",
+          status: "Active",
           date: "Mar 14th, 2025",
           votesFor: 573.63,
           votesAgainst: 0.04,
@@ -147,7 +148,7 @@ export default function ProfilePage() {
         },
         {
           title: "Proposal example title #1",
-          status: "ACTIVE",
+          status: "Active",
           date: "Mar 14th, 2025",
           votesFor: 703.99,
           votesAgainst: 0.29,
@@ -189,6 +190,7 @@ export default function ProfilePage() {
 
   const handleRewardsButtonClick = () => {
     setIsRewardsModalOpen(true)
+    setModalKey(Date.now()) // Update the key to force a re-render
   }
 
   const handleRewardsModalClose = () => {
@@ -310,7 +312,7 @@ export default function ProfilePage() {
                     <Wallet className="h-6 w-6 text-[#030303] dark:text-white" />
                   </div>
                   <h2 className="text-lg font-semibold text-[#030303] dark:text-white">Disconnected</h2>
-                  <p className="text-[#6D7C8D] mt-1 font-medium dark:text-gray-400 mb-4 max-w-md">
+                  <p className="text-[#6D7C8D] mt-1 font-medium dark:text-gray-400 mb-4 max-w-md mx-auto">
                     Connect a web3 wallet to view your profile
                   </p>
                   <div className="w-auto">
@@ -385,7 +387,7 @@ export default function ProfilePage() {
                 </motion.div>
 
                 {isRewardsModalOpen && (
-                  <Modal handleClose={handleRewardsModalClose} open={isRewardsModalOpen}>
+                  <Modal handleClose={handleRewardsModalClose} open={isRewardsModalOpen} key={modalKey}>
                     <div className="">
                       <h2 className="text-xl font-semibold mb-4 dark:text-white">Offer Rewards</h2>
                       <div className="space-y-4">
@@ -644,7 +646,7 @@ export default function ProfilePage() {
                           <div className="flex items-center mt-2">
                             <span
                               className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                                proposal.status === "ACTIVE"
+                                proposal.status === "Active"
                                   ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                   : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
                               }`}
