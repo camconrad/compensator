@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import "./interfaces/IComp.sol";
-import "./interfaces/IGovernorBravo.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "./IComp.sol";
+import "./IGovernorBravo.sol";
+import "./@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 import "./Compensator.sol";
-import "@openzeppelin/contracts/proxy/Clones.sol";
+import "./@openzeppelin/contracts/proxy/Clones.sol";
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
