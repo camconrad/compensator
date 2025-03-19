@@ -2,6 +2,12 @@
   <img src="public/banner.png" alt="Compound Icon" width=100%>
 </p>
 
+## Factory Address
+
+| Network | Address |
+|---------|---------|
+| Mainnet | [0xE76632FF20e31ac970CEBA307375C5A4f89a32fC](https://etherscan.io/address/0xE76632FF20e31ac970CEBA307375C5A4f89a32fC) |
+
 ## Overview
 Compensator is a dedicated delegate marketplace for the Compound DAO, designed to address low voter turnout and lack of incentivization in governance. It enables COMP holders to delegate voting power in exchange for transparent rewards, fostering greater participation in vote outcomes. Delegates attract voting power through competitive compensation, creating a vibrant and efficient governance ecosystem.
 

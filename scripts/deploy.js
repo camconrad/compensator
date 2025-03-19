@@ -1,27 +1,22 @@
-async function deployAndSetup() {
-    const CompensatorFactory = await ethers.getContractFactory("CompensatorFactory");
-    const factory = await CompensatorFactory.deploy();
-    await factory.deployed();
-    console.log("CompensatorFactory deployed to:", factory.address);
+async function main() {
+  // Get the contract factory
+  const CompensatorFactory = await ethers.getContractFactory("CompensatorFactory");
   
-    const delegatee = "0x123...";
-    const delegateeName = "Delegate 1";
+  // Deploy the contract
+  const deployTransaction = await CompensatorFactory.deploy();
   
-    await factory.createCompensator(delegatee, delegateeName);
-    const compensatorAddress = await factory.getCompensator(delegatee);
-    console.log("Compensator deployed to:", compensatorAddress);
+  // Wait for deployment to be mined
+  const compensatorFactory = await deployTransaction.waitForDeployment();
   
-    const Compensator = await ethers.getContractFactory("Compensator");
-    const compensator = Compensator.attach(compensatorAddress);
+  // Get the deployed address
+  const address = await compensatorFactory.getAddress();
   
-    console.log("Setting reward rate...");
-    await compensator.setRewardRate(ethers.utils.parseEther("10")); 
-    console.log("Reward rate set!");
-  }
-  
-  deployAndSetup()
-    .then(() => process.exit(0))
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
-    });
+  console.log("CompensatorFactory deployed to:", address);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
