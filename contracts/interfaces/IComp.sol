@@ -8,4 +8,5 @@ interface IComp {
     function transferFrom(address sender, address recipient, uint256 amount) external returns(bool);
     function delegate(address delegatee) external;
     function getCurrentVotes(address account) external view returns (uint256);
+    function totalSupply() external view returns (uint256);
 }

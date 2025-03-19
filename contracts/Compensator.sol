@@ -63,7 +63,7 @@ contract Compensator is ERC20, Initializable {
     uint256 public totalPendingRewards;
 
     /// @notice Tracks the starting reward index for each delegator
-    mapping(address => uint) public startRewardIndex;
+    mapping(address => uint256) public startRewardIndex;
 
     /// @notice Tracks stakes for proposals by delegators
     struct ProposalStake {
@@ -101,7 +101,7 @@ contract Compensator is ERC20, Initializable {
     event ClaimRewards(address indexed delegator, uint256 amount);
 
     /// @notice Emitted when a delegator stakes COMP on a proposal
-    event ProposalStake(address indexed staker, uint256 proposalId, uint8 support, uint256 amount);
+    event ProposalStaked(address indexed staker, uint256 proposalId, uint8 support, uint256 amount);
 
     /// @notice Emitted when stakes are distributed after a proposal is resolved
     event ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport);
@@ -165,7 +165,7 @@ contract Compensator is ERC20, Initializable {
      * @return The total amount of rewards available to be claimed by the delegator
      */
     function getPendingRewards(address delegator) external view returns (uint256) {
-        uint currIndex = _getCurrentRewardsIndex();
+        uint256 currIndex = _getCurrentRewardsIndex();
         return balanceOf(delegator) * (currIndex - startRewardIndex[delegator]) / 1e18;
     }
 
@@ -287,7 +287,7 @@ contract Compensator is ERC20, Initializable {
             totalStakesAgainst[proposalId] += amount;
         }
 
-        emit ProposalStake(msg.sender, proposalId, support, amount);
+        emit ProposalStaked(msg.sender, proposalId, support, amount);
     }
 
     /**
@@ -323,7 +323,7 @@ contract Compensator is ERC20, Initializable {
      */
     function _claimRewards(address delegator) internal {
         _updateRewardsIndex();
-        uint pendingRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
+        uint256 pendingRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
         startRewardIndex[delegator] = rewardIndex; // Update the delegator's starting reward index
         compToken.transfer(delegator, pendingRewards); // Transfer rewards to the delegator
         emit ClaimRewards(delegator, pendingRewards);
@@ -343,7 +343,7 @@ contract Compensator is ERC20, Initializable {
             availableRewards -= rewards;
         }
 
-        uint supply = totalSupply();
+        uint256 supply = totalSupply();
         if (supply > 0) {
             rewardIndex += rewards * 1e18 / supply;
             totalPendingRewards += rewards;
@@ -359,7 +359,7 @@ contract Compensator is ERC20, Initializable {
     function _getCurrentRewardsIndex() internal view returns (uint256) {
         uint256 timeDelta = block.timestamp - lastRewarded;
         uint256 rewards = timeDelta * rewardRate;
-        uint supply = totalSupply();
+        uint256 supply = totalSupply();
         if (supply > 0) {
             return rewardIndex + rewards * 1e18 / supply;
         } else {
@@ -372,13 +372,21 @@ contract Compensator is ERC20, Initializable {
     //////////////////////////
 
     /**
-     * @notice Overrides the _transfer function to block transfers
+     * @notice Overrides the transfer function to block transfers
+     * @param to The address receiving tokens
+     * @param amount The amount of tokens to transfer
+     */
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        revert("Transfers are disabled");
+    }
+
+    /**
+     * @notice Overrides the transferFrom function to block transfers
      * @param from The address sending tokens
      * @param to The address receiving tokens
      * @param amount The amount of tokens to transfer
      */
-    function _transfer(address from, address to, uint256 amount) internal override {
-        require(from == address(0) || to == address(0), "Transfers are disabled");
-        super._transfer(from, to, amount);
+    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
+        revert("Transfers are disabled");
     }
 }
