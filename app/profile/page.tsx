@@ -400,7 +400,7 @@ export default function ProfilePage() {
                               onChange={(e) => setProfileName(e.target.value)}
                               onFocus={() => setIsFocused(true)}
                               onBlur={() => setIsFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                               autoFocus
                             />
                             <label
@@ -426,7 +426,7 @@ export default function ProfilePage() {
                               onChange={(e) => setDelegateAddress(e.target.value)}
                               onFocus={() => setIsFocused(true)}
                               onBlur={() => setIsFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                             />
                             <label
                               htmlFor="delegateAddress"
@@ -457,7 +457,7 @@ export default function ProfilePage() {
                               onChange={(e) => setApr(e.target.value)}
                               onFocus={() => setIsFocused(true)}
                               onBlur={() => setIsFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                             />
                             <label
                               htmlFor="apr"
@@ -482,7 +482,7 @@ export default function ProfilePage() {
                               onChange={(e) => setFundingAmount(e.target.value)}
                               onFocus={() => setIsFocused(true)}
                               onBlur={() => setIsFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-white dark:bg-gray-800 dark:border-[#2e3746] border border-[#efefef] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                             />
                             <label
                               htmlFor="fundingAmount"
