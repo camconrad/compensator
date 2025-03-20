@@ -190,7 +190,7 @@ export default function ProfilePage() {
 
   const handleRewardsButtonClick = () => {
     setIsRewardsModalOpen(true)
-    setModalKey(Date.now()) // Update the key to force a re-render
+    setModalKey(Date.now())
   }
 
   const handleRewardsModalClose = () => {
@@ -210,13 +210,13 @@ export default function ProfilePage() {
       }
 
       // Convert APR to COMP/second
-      const aprValue = parseFloat(apr)
+      const aprValue = Number.parseFloat(apr)
       if (isNaN(aprValue) || aprValue <= 0) {
         throw new Error("Invalid APR value")
       }
 
       const secondsInYear = 365 * 24 * 60 * 60
-      const compPerSecond = (aprValue / 100) * parseFloat(fundingAmount) / secondsInYear
+      const compPerSecond = ((aprValue / 100) * Number.parseFloat(fundingAmount)) / secondsInYear
 
       const response = await fetch("/api/createCompensator", {
         method: "POST",
@@ -334,14 +334,14 @@ export default function ProfilePage() {
                       <div className="flex-1">
                         <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
                         <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-3"></div>
-                        <div className="h-3 w-full bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                        <div className="h-3 w-24 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
                       </div>
                     </div>
-                  ) : profile ? (
+                  ) : (
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                       <div className="w-24 h-24 rounded-full overflow-hidden">
                         <Image
-                          src={profile.image || "/placeholder.svg"}
+                          src={profile?.image || "/logo.png"}
                           alt="Your Profile"
                           width={96}
                           height={96}
@@ -349,34 +349,39 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className="flex-1 font-medium">
-                        <h2 className="text-xl font-bold text-[#030303] dark:text-white">{profile.name}</h2>
-                        <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{profile.address}</p>
-                        <p className="text-sm text-[#6D7C8D] dark:text-gray-400 mt-3">{profile.bio}</p>
+                        <h2 className="text-xl font-bold text-[#030303] dark:text-white">
+                          {profile?.name || "Username"}
+                        </h2>
+                        <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                          {profile?.address ||
+                            (address
+                              ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
+                              : "0x1234...5678")}
+                        </p>
+                        <p className="text-sm text-[#6D7C8D] dark:text-gray-400 mt-3">
+                          {profile?.bio || "Bio goes here"}
+                        </p>
                         <div className="flex flex-wrap items-center gap-4 mt-4">
                           <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
                             Vote Power
-                            <span className="text-[#030303] dark:text-white">{profile.votingPower}</span>
+                            <span className="text-[#030303] dark:text-white">
+                              {profile?.votingPower || "0.00 COMP"}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
-                            Delegators: 
-                            <span className="text-[#030303] dark:text-white">
-                              {profile.activeDelegations}
-                            </span>
+                            Delegators:
+                            <span className="text-[#030303] dark:text-white">{profile?.activeDelegations || 0}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex flex-row gap-2">
                         <button
                           onClick={handleRewardsButtonClick}
-                          className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
+                          className="bg-[#EFF2F5] transition-all text-sm duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
                         >
                           Create Compensator
                         </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center p-8">
-                      <p className="text-[#6D7C8D] dark:text-gray-400">No profile data available</p>
                     </div>
                   )}
                 </motion.div>
@@ -560,13 +565,7 @@ export default function ProfilePage() {
                   ) : proposals.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {proposals.map((proposal, index) => (
-                        <motion.div
-                          key={index}
-                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, delay: 0.2 + index * 0.05 }}
-                        >
+                        <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer">
                           <h3 className="text-lg font-semibold text-[#030303] dark:text-white">{proposal.title}</h3>
                           <div className="flex items-center mt-2">
                             <span
@@ -578,7 +577,9 @@ export default function ProfilePage() {
                             >
                               {proposal.status}
                             </span>
-                            <span className="text-sm text-[#6D7C8D] font-medium dark:text-gray-400 ml-2">{proposal.date}</span>
+                            <span className="text-sm text-[#6D7C8D] font-medium dark:text-gray-400 ml-2">
+                              {proposal.date}
+                            </span>
                           </div>
                           <div className="mt-3">
                             <div className="flex justify-between mb-1">
@@ -596,8 +597,12 @@ export default function ProfilePage() {
                               ></div>
                             </div>
                             <div className="flex justify-between mt-2">
-                              <p className="text-sm font-medium text-green-600 dark:text-green-400">{proposal.votesFor}K</p>
-                              <p className="text-sm font-medium text-red-600 dark:text-red-400">{proposal.votesAgainst}K</p>
+                              <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                                {proposal.votesFor}K
+                              </p>
+                              <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                                {proposal.votesAgainst}K
+                              </p>
                             </div>
                           </div>
                           {proposal.voted && (
@@ -613,13 +618,15 @@ export default function ProfilePage() {
                               </span>
                             </div>
                           )}
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                   ) : (
                     <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
-                      <TrendingUp className="h-12 w-12 text-[#6D7C8D] dark:text-gray-400 mx-auto mb-4" />
-                      <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-2">No Voting History</h2>
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Voting History</h2>
                       <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
                         You haven't voted on any proposals yet. Active proposals will appear here once you've voted.
                       </p>
@@ -659,12 +666,9 @@ export default function ProfilePage() {
                   ) : delegations.length > 0 ? (
                     <div className="space-y-4">
                       {delegations.map((delegation, index) => (
-                        <motion.div
+                        <div
                           key={index}
                           className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
                           onClick={() => (window.location.href = `/delegate/${formatNameForURL(delegation.delegate)}`)}
                         >
                           <div className="flex items-center gap-3">
@@ -678,18 +682,24 @@ export default function ProfilePage() {
                               />
                             </div>
                             <div className="">
-                              <p className="text-base font-semibold text-[#030303] dark:text-white">{delegation.delegate}</p>
+                              <p className="text-base font-semibold text-[#030303] dark:text-white">
+                                {delegation.delegate}
+                              </p>
                               <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
                             </div>
-                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">{delegation.date}</p>
+                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
+                              {delegation.date}
+                            </p>
                           </div>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                   ) : (
                     <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
-                      <Users className="h-12 w-12 text-[#6D7C8D] dark:text-gray-400 mx-auto mb-4" />
-                      <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-2">No Delegations Yet</h2>
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <Users className="h-6 w-6 text-[#030303] dark:text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Delegations Yet</h2>
                       <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
                         You haven't delegated to anyone yet. Find delegates to support on the explore page.
                       </p>
