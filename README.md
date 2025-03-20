@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/banner.png" alt="Compound Icon" width=100%>
+  <img src="public/showcase.png" alt="Compensator" width=100%>
 </p>
 
 ## Factory Address
