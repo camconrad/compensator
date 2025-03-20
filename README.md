@@ -29,7 +29,7 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - A 5% cap is enforced on the total COMP that can be delegated to a single delegate.
 - This ensures no single delegate can accumulate excessive or malicious voting power.
 
-See [Protocol Specs](https://github.com/camconrad/compensator/tree/main/contracts/readme.md) for more detail.
+See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contracts/README.md) for more detail.
 
 ## Workflow
 
