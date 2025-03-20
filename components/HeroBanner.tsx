@@ -2,23 +2,37 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useSettingTheme } from "@/store/setting/selector"
 
 const HeroBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [autoplay, setAutoplay] = useState(true)
+  const theme = useSettingTheme()
 
   const slides = [
     {
       titlePrimary: "Delegate Compound (COMP)",
       titleSecondary: "to accrue COMP rewards in real-time.",
-      image: "/stake.png", // Placeholder until the other illustration is finished
+      imageLight: "/delegate-light.png",
+      imageDark: "/delegate-dark.png",
+      imageHeight: "230px",
+      marginTop: "-30px",
+      marginLeft: "0px",
     },
     {
       titlePrimary: "Stake Compound (COMP)",
       titleSecondary: "for or against specific proposals.",
-      image: "/stake.png",
+      imageLight: "/stake-light.png",
+      imageDark: "/stake-dark.png",
+      imageHeight: "180px",
+      marginTop: "0px",
+      marginLeft: "-40px",
     },
   ]
+
+  const getImage = (slide) => {
+    return theme === "light" ? slide.imageLight : slide.imageDark
+  }
 
   useEffect(() => {
     if (!autoplay) return
@@ -41,7 +55,9 @@ const HeroBanner = () => {
   }
 
   return (
-    <div className="sm:flex items-center hidden mt-[-12px] justify-center py-8 px-4 w-full max-w-[1100px] mx-auto">
+    <div 
+      className="sm:flex items-center hidden justify-center py-8 px-4 w-full max-w-[1100px] mx-auto"
+    >
       <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm h-[180px] bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e]">
         {/* Carousel Content */}
         <div className="h-full">
@@ -58,13 +74,20 @@ const HeroBanner = () => {
                 <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-1">
                   {slides[currentSlide].titlePrimary}
                 </h1>
-                <p className="text-xl md:text-2xl font-medium text-[#6D7C8D]">{slides[currentSlide].titleSecondary}</p>
+                <p className="text-xl md:text-2xl font-medium text-[#6D7C8D]">
+                  {slides[currentSlide].titleSecondary}
+                </p>
               </div>
-              <div className="absolute right-[-4%] top-[58%] transform -translate-y-1/2 h-full">
+              <div className="absolute right-[-4%] top-[58%] transform -translate-y-1/2 h-full"
+                style={{ marginTop: slides[currentSlide].marginTop }}>
                 <img
-                  src={slides[currentSlide].image || "/placeholder.svg"}
+                  src={getImage(slides[currentSlide]) || "/placeholder.svg"}
                   alt="Slide illustration"
-                  className="h-[172px] w-auto object-contain"
+                  style={{ 
+                    height: slides[currentSlide].imageHeight,
+                    marginLeft: slides[currentSlide].marginLeft
+                  }}
+                  className="w-auto object-contain"
                 />
               </div>
             </motion.div>
