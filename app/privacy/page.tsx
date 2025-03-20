@@ -45,7 +45,7 @@ export default function PrivacyPolicy() {
               Privacy Policy
             </h1>
 
-            <div className="prose dark:prose-dark font-medium text-[#959595]">
+            <div className="prose dark:prose-dark font-medium text-[#6D7C8D]">
               <p>
                 Your privacy is important to us. This Privacy Policy explains how
                 Compensator ("we," "us," or "our") collects, uses, and protects

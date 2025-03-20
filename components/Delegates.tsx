@@ -83,7 +83,7 @@ const Delegates = () => {
                 className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   sortBy === "apr"
                     ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white shadow-sm"
-                    : "text-[#6D7C8D]dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
+                    : "text-[#6D7C8D] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                 }`}
               >
                 APR

@@ -188,7 +188,7 @@ const ExplorePage = () => {
                         <span className="text-sm font-medium text-[#030303] dark:text-white">Filter Delegates</span>
                         <button
                           onClick={() => setIsFilterOpen(false)}
-                          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                          className="text-gray-500 hover:text-gray-700 dark:text-[#ccd8e8] dark:hover:text-gray-200"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -199,7 +199,7 @@ const ExplorePage = () => {
                           className={`w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${
                             activeTab === "all"
                               ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white"
-                              : "text-[#7A8999] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#232F3B]"
+                              : "text-[#6D7C8D] dark:text-[#ccd8e8] hover:bg-gray-100 dark:hover:bg-[#232F3B]"
                           }`}
                         >
                           All Delegates
@@ -209,7 +209,7 @@ const ExplorePage = () => {
                           className={`w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${
                             activeTab === "positive"
                               ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white"
-                              : "text-[#7A8999] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#232F3B]"
+                              : "text-[#6D7C8D] dark:text-[#ccd8e8] hover:bg-gray-100 dark:hover:bg-[#232F3B]"
                           }`}
                         >
                           Positive Performance
@@ -219,7 +219,7 @@ const ExplorePage = () => {
                           className={`w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${
                             activeTab === "negative"
                               ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white"
-                              : "text-[#7A8999] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#232F3B]"
+                              : "text-[#6D7C8D] dark:text-[#ccd8e8] hover:bg-gray-100 dark:hover:bg-[#232F3B]"
                           }`}
                         >
                           Negative Performance
@@ -243,73 +243,73 @@ const ExplorePage = () => {
                     <tr role="row">
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "80px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           Rank
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "180px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           Delegate
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">APR</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Vote Power</span>
                           <span className="sm:hidden">Vote Po.</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Active Prop.</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Delegations</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">7D Perf.</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                     </tr>
@@ -356,7 +356,7 @@ const ExplorePage = () => {
                             }}
                           >
                             <td
-                              className="px-6 text-[#030303] py-4 dark:text-gray-300 text-sm"
+                              className="px-6 text-[#030303] py-4 dark:text-[#ccd8e8] text-sm"
                               style={{ width: "80px" }}
                             >
                               #{index + 1 + (currentPage - 1) * itemsPerPage}
@@ -376,17 +376,17 @@ const ExplorePage = () => {
                                 <span className="text-[#030303] text-sm font-semibold truncate dark:text-white block mb-[-3px]">
                                   {delegate.name}
                                 </span>
-                                <span className="text-xs text-[#7A8999] dark:text-gray-400">{delegate.address}</span>
+                                <span className="text-xs text-[#6D7C8D] dark:text-[#ccd8e8]">{delegate.address}</span>
                               </div>
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               <span className="">{delegate.rewardAPR}</span>
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               <div className="flex items-center">
@@ -400,17 +400,17 @@ const ExplorePage = () => {
                               </div>
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               {delegate.activeProposals}
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               <div className="flex items-center">
-                                <Users className="h-3.5 w-3.5 mr-1.5 text-[#7A8999] dark:text-gray-400" />
+                                <Users className="h-3.5 w-3.5 mr-1.5 text-[#6D7C8D] dark:text-[#ccd8e8]" />
                                 {delegate.totalDelegations}
                               </div>
                             </td>
@@ -480,11 +480,11 @@ const ExplorePage = () => {
             {/* No Results */}
             {!loading && filteredDelegates.length === 0 && (
               <div className="text-center py-12">
-                <div className="mx-auto h-12 w-12 text-[#7A8999] mb-4">
+                <div className="mx-auto h-12 w-12 text-[#6D7C8D] mb-4">
                   <Search className="h-12 w-12" />
                 </div>
                 <h3 className="text-lg font-medium text-[#030303] dark:text-white mb-2">No delegates found</h3>
-                <p className="text-[#7A8999] dark:text-gray-400 mb-4">Try adjusting your search or filter criteria</p>
+                <p className="text-[#6D7C8D] dark:text-[#ccd8e8] mb-4">Try adjusting your search or filter criteria</p>
                 <Button
                   onClick={() => {
                     setSearchQuery("")

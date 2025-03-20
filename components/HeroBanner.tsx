@@ -11,12 +11,12 @@ const HeroBanner = () => {
     {
       titlePrimary: "Delegate Compound (COMP)",
       titleSecondary: "to accrue COMP rewards in real-time.",
-      image: "/placeholder.svg?height=120&width=200",
+      image: "/stake.png", // Placeholder until the other illustration is finished
     },
     {
       titlePrimary: "Stake Compound (COMP)",
       titleSecondary: "for or against specific proposals.",
-      image: "/placeholder.svg?height=120&width=200",
+      image: "/stake.png",
     },
     // {
     //   titlePrimary: "Join the Compound community.",
@@ -46,7 +46,7 @@ const HeroBanner = () => {
   }
 
   return (
-    <div className="flex items-center mt-[-12px] justify-center py-8 px-4 w-full max-w-[1100px] mx-auto">
+    <div className="sm:flex items-center hidden mt-[-12px] justify-center py-8 px-4 w-full max-w-[1100px] mx-auto">
       <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm h-[180px] bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e]">
         {/* Carousel Content */}
         <div className="h-full">
@@ -60,7 +60,7 @@ const HeroBanner = () => {
               className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full p-8 md:p-12"
             >
               <div className="flex flex-col justify-center">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-1">
+                <h1 className="text-2xl md:text-3xl font-bold mt-[-48px] text-[#030303] dark:text-white mb-1">
                   {slides[currentSlide].titlePrimary}
                 </h1>
                 <p className="text-xl md:text-2xl font-medium text-[#6D7C8D]">
@@ -68,13 +68,10 @@ const HeroBanner = () => {
                 </p>
               </div>
               <div className="hidden md:flex items-center justify-end">
-                <motion.img
+                <img
                   src={slides[currentSlide].image}
                   alt="Slide illustration"
-                  className="max-h-[120px] object-contain"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
+                  className="max-h-[200px] mt-[-24px] object-contain"
                 />
               </div>
             </motion.div>

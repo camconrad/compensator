@@ -169,7 +169,7 @@ const AnalyticsCard = ({ metric }: { metric: (typeof analytics)[0] }) => {
 
         <div className="p-3 bg-gray-50 dark:bg-[#1D2833] border-t border-gray-100 dark:border-[#28303e] rounded-b-md">
           <div className="flex justify-between items-center font-medium">
-            <span className="text-xs text-gray-500 dark:text-gray-400">Last 7 days</span>
+            <span className="text-xs text-[#6D7C8D]">Last 7 days</span>
             <button className="text-xs underline text-emerald-600 dark:text-emerald-500 focus:outline-none">
               Dune
             </button>
