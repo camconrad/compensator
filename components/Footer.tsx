@@ -38,14 +38,14 @@ export default function Footer() {
         >
           Privacy
         </Link>
-        <Link
+        {/* <Link
           href="https://github.com/camconrad/compensator"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
         >
           GitHub
-        </Link>
+        </Link> */}
         <Link
           href="https://docs.compensator.io"
           target="_blank"
