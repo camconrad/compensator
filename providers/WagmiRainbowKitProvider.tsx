@@ -11,11 +11,15 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { PropsWithChildren } from "react";
 import { mainnet } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
-import { metaMask, walletConnect, coinbaseWallet} from "wagmi/connectors";
+import { metaMask, walletConnect, coinbaseWallet } from "wagmi/connectors";
 
-const connectors = [metaMask(), walletConnect({ projectId: "02a231b2406ed316c861abefc95c5e59" }), coinbaseWallet({ appName: "Compensator" })];
+const connectors = [
+  metaMask(),
+  walletConnect({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
+  coinbaseWallet({ appName: "Compensator" }),
+];
 
-const wagmiConfig = getDefaultConfig({
+export const wagmiConfig = getDefaultConfig({
   appName: "Compensator",
   projectId: "02a231b2406ed316c861abefc95c5e59",
   chains: [mainnet],
@@ -37,4 +41,4 @@ const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default WagmiRainbowKitProvider
+export default WagmiRainbowKitProvider;

@@ -1,115 +1,138 @@
-"use client"
+"use client";
 
-import Head from "next/head"
-import { motion, AnimatePresence } from "framer-motion"
-import Header from "@/components/MainLayout/Header"
-import Footer from "@/components/Footer"
-import { useSettingTheme } from "@/store/setting/selector"
-import Headroom from "react-headroom"
-import { TrendingUp, Users, AlertCircle, Wallet, WandSparkles } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { useAccount } from "wagmi"
-import ConnectWalletButton from "@/components/MainLayout/ConnectWalletButton"
-import Modal from "@/components/common/Modal"
+import Head from "next/head";
+import { motion, AnimatePresence } from "framer-motion";
+import Header from "@/components/MainLayout/Header";
+import Footer from "@/components/Footer";
+import { useSettingTheme } from "@/store/setting/selector";
+import Headroom from "react-headroom";
+import {
+  TrendingUp,
+  Users,
+  AlertCircle,
+  Wallet,
+  WandSparkles,
+} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import ConnectWalletButton from "@/components/MainLayout/ConnectWalletButton";
+import Modal from "@/components/common/Modal";
+import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
+import { getEthersSigner } from "@/hooks/useEtherProvider";
+import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
+import { switchChain, waitForTransactionReceipt } from "@wagmi/core";
+import toast from "react-hot-toast";
+import { mainnet } from "wagmi/chains";
 
 interface UserProfile {
-  name: string
-  address: string
-  image: string
-  bio: string
-  votingPower: string
-  totalDelegations: number
-  activeDelegations: number
+  name: string;
+  address: string;
+  image: string;
+  bio: string;
+  votingPower: string;
+  totalDelegations: number;
+  activeDelegations: number;
 }
 
 interface Delegation {
-  delegate: string
-  delegateImage: string
-  amount: string
-  date: string
+  delegate: string;
+  delegateImage: string;
+  amount: string;
+  date: string;
 }
 
 interface Proposal {
-  title: string
-  status: string
-  date: string
-  votesFor: number
-  votesAgainst: number
-  voted: boolean
-  voteDirection: "for" | "against" | null
+  title: string;
+  status: string;
+  date: string;
+  votesFor: number;
+  votesAgainst: number;
+  voted: boolean;
+  voteDirection: "for" | "against" | null;
 }
 
 export default function ProfilePage() {
-  const theme = useSettingTheme()
-  const { address, isConnected } = useAccount()
+  const theme = useSettingTheme();
+  const { address, isConnected } = useAccount();
 
-  const [isError, setIsError] = useState<boolean>(false)
-  const [errorMessage, setErrorMessage] = useState<string>("")
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [delegations, setDelegations] = useState<Delegation[]>([])
-  const [proposals, setProposals] = useState<Proposal[]>([])
-  const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true)
-  const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true)
-  const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true)
-  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [profileName, setProfileName] = useState<string>("")
-  const [delegateAddress, setDelegateAddress] = useState<string>("")
-  const [apr, setApr] = useState<string>("") // APR input
-  const [fundingAmount, setFundingAmount] = useState<string>("")
-  const [isFocused, setIsFocused] = useState(false)
-  const [modalKey, setModalKey] = useState<number>(Date.now()) // Unique key for modal
+  const [isError, setIsError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [delegations, setDelegations] = useState<Delegation[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
+  const [isDelegationsLoading, setIsDelegationsLoading] =
+    useState<boolean>(true);
+  const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true);
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [profileName, setProfileName] = useState<string>("");
+  const [delegateAddress, setDelegateAddress] = useState<string>("");
+  const [apr, setApr] = useState<string>(""); // APR input
+  const [fundingAmount, setFundingAmount] = useState<string>("");
+  const [isFocused, setIsFocused] = useState(false);
+  const [modalKey, setModalKey] = useState<number>(Date.now()); // Unique key for modal
+  const { compensatorContract } = useGetCompensatorContract();
+  const { switchChainAsync } = useSwitchChain();
 
   const loadAllData = useCallback(async () => {
     try {
-      await Promise.all([fetchProfileData(), fetchDelegations(), fetchProposals()])
+      await Promise.all([
+        fetchProfileData(),
+        fetchDelegations(),
+        fetchProposals(),
+      ]);
     } catch (error) {
-      console.error("Error loading data:", error)
-      setIsError(true)
-      setErrorMessage("Failed to load profile data. Please try again.")
+      console.error("Error loading data:", error);
+      setIsError(true);
+      setErrorMessage("Failed to load profile data. Please try again.");
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (isConnected && address) {
-      loadAllData()
+      loadAllData();
     } else {
-      setIsProfileLoading(false)
-      setIsDelegationsLoading(false)
-      setIsProposalsLoading(false)
-      setProfile(null)
-      setDelegations([])
-      setProposals([])
+      setIsProfileLoading(false);
+      setIsDelegationsLoading(false);
+      setIsProposalsLoading(false);
+      setProfile(null);
+      setDelegations([]);
+      setProposals([]);
     }
-  }, [isConnected, address, loadAllData])
+  }, [isConnected, address, loadAllData]);
 
   const fetchProfileData = async () => {
-    setIsProfileLoading(true)
+    setIsProfileLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+      await new Promise((resolve) => setTimeout(resolve, 1200));
       setProfile({
         name: "Username",
-        address: address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : "0x1234...5678",
+        address: address
+          ? `${address.substring(0, 6)}...${address.substring(
+              address.length - 4
+            )}`
+          : "0x1234...5678",
         image: "/logo.png",
         bio: "Bio goes here",
         votingPower: "0.00 COMP",
         totalDelegations: 0,
         activeDelegations: 0,
-      })
-      setIsProfileLoading(false)
+      });
+      setIsProfileLoading(false);
     } catch (error) {
-      setIsError(true)
-      setErrorMessage("Failed to load profile data. Try again.")
-      setIsProfileLoading(false)
+      setIsError(true);
+      setErrorMessage("Failed to load profile data. Try again.");
+      setIsProfileLoading(false);
     }
-  }
+  };
 
   const fetchDelegations = async () => {
-    setIsDelegationsLoading(true)
+    setIsDelegationsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       setDelegations([
         {
           delegate: "Geoffrey Hayes",
@@ -123,19 +146,19 @@ export default function ProfilePage() {
           amount: "300 COMP",
           date: "Mar 5th, 2025",
         },
-      ])
-      setIsDelegationsLoading(false)
+      ]);
+      setIsDelegationsLoading(false);
     } catch (error) {
-      setIsError(true)
-      setErrorMessage("Failed to load delegations. Please try again.")
-      setIsDelegationsLoading(false)
+      setIsError(true);
+      setErrorMessage("Failed to load delegations. Please try again.");
+      setIsDelegationsLoading(false);
     }
-  }
+  };
 
   const fetchProposals = async () => {
-    setIsProposalsLoading(true)
+    setIsProposalsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1800))
+      await new Promise((resolve) => setTimeout(resolve, 1800));
       setProposals([
         {
           title: "Proposal example title #1",
@@ -155,29 +178,29 @@ export default function ProfilePage() {
           voted: true,
           voteDirection: null,
         },
-      ])
-      setIsProposalsLoading(false)
+      ]);
+      setIsProposalsLoading(false);
     } catch (error) {
-      setIsError(true)
-      setErrorMessage("Failed to load proposals. Please try again.")
-      setIsProposalsLoading(false)
+      setIsError(true);
+      setErrorMessage("Failed to load proposals. Please try again.");
+      setIsProposalsLoading(false);
     }
-  }
+  };
 
   const handleRetry = () => {
-    setIsError(false)
-    setErrorMessage("")
+    setIsError(false);
+    setErrorMessage("");
     if (isConnected) {
-      loadAllData()
+      loadAllData();
     }
-  }
+  };
 
   const formatNameForURL = (name: string) => {
     return name
       .toLowerCase()
       .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")
-  }
+      .replace(/[^a-z0-9-]/g, "");
+  };
 
   const itemVariants = {
     visible: {
@@ -185,73 +208,109 @@ export default function ProfilePage() {
       opacity: 1,
       transition: { duration: 0.2 },
     },
-  }
+  };
 
   const handleRewardsButtonClick = () => {
-    setIsRewardsModalOpen(true)
-    setModalKey(Date.now())
-  }
+    setIsRewardsModalOpen(true);
+    setModalKey(Date.now());
+  };
 
   const handleRewardsModalClose = () => {
-    setIsRewardsModalOpen(false)
-    setProfileName("")
-    setDelegateAddress("")
-    setApr("")
-    setFundingAmount("")
-  }
+    setIsRewardsModalOpen(false);
+    setProfileName("");
+    setDelegateAddress("");
+    setApr("");
+    setFundingAmount("");
+  };
+
 
   const handleRewardsSubmit = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
+      await switchChainAsync({ chainId: mainnet.id });
+
+      if (!address || !compensatorContract) {
+        throw new Error("Please connect to a wallet");
+      }
+
       // Validate inputs
       if (!profileName || !delegateAddress || !apr || !fundingAmount) {
-        throw new Error("Please fill in all fields")
+        throw new Error("Please fill in all fields");
       }
 
       // Convert APR to COMP/second
-      const aprValue = Number.parseFloat(apr)
+      const aprValue = Number.parseFloat(apr);
       if (isNaN(aprValue) || aprValue <= 0) {
-        throw new Error("Invalid APR value")
+        throw new Error("Invalid APR value");
       }
 
-      const secondsInYear = 365 * 24 * 60 * 60
-      const compPerSecond = ((aprValue / 100) * Number.parseFloat(fundingAmount)) / secondsInYear
+      const secondsInYear = 365 * 24 * 60 * 60;
+      const compPerSecond =
+        ((aprValue / 100) * Number.parseFloat(fundingAmount)) / secondsInYear;
 
-      const response = await fetch("/api/createCompensator", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          delegatee: delegateAddress,
-          delegateeName: profileName,
-          rewardRate: compPerSecond.toString(),
-          fundingAmount: fundingAmount,
-        }),
-      })
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+      const gas = await compensatorContract.createCompensator.estimateGas(
+        delegateAddress,
+        profileName
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to create Compensator contract")
+      const receipt = await compensatorContract.createCompensator(
+        delegateAddress,
+        profileName,
+        {
+          gasLimit: gas,
+          maxFeePerGas: feeData.maxFeePerGas,
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+        }
+      );
+      const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+        hash: receipt?.hash,
+      });
+
+      if (transactionReceipt?.status === "success") {
+        toast.success("Successful Created");
+        handleRewardsModalClose();
       }
 
-      const data = await response.json()
-      console.log("Compensator contract created:", data)
+      // const response = await fetch("/api/createCompensator", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     delegatee: delegateAddress,
+      //     delegateeName: profileName,
+      //     rewardRate: compPerSecond.toString(),
+      //     fundingAmount: fundingAmount,
+      //   }),
+      // });
 
-      handleRewardsModalClose()
+      // if (!response.ok) {
+      //   throw new Error("Failed to create Compensator contract");
+      // }
+
+      // const data = await response.json();
+      // console.log("Compensator contract created:", data);
     } catch (error) {
-      console.error("Error creating compensator contract:", error)
-      setIsError(true)
-      setErrorMessage("Failed to create Compensator contract. Please try again.")
+      console.error("Error creating compensator contract:", error);
+      setIsError(true);
+      setErrorMessage(
+        "Failed to create Compensator contract. Please try again."
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <>
       <Head>
         <title>My Profile | Compensator</title>
-        <meta name="description" content="View your Compound governance profile and delegations" />
+        <meta
+          name="description"
+          content="View your Compound governance profile and delegations"
+        />
       </Head>
 
       <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
@@ -310,7 +369,9 @@ export default function ProfilePage() {
                   <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mb-3">
                     <Wallet className="h-6 w-6 text-[#030303] dark:text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">Disconnected</h2>
+                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                    Disconnected
+                  </h2>
                   <p className="text-[#6D7C8D] mt-1 font-medium dark:text-gray-400 mb-4 max-w-md mx-auto">
                     Connect a web3 wallet to view your profile
                   </p>
@@ -354,7 +415,10 @@ export default function ProfilePage() {
                         <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
                           {profile?.address ||
                             (address
-                              ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
+                              ? `${address.substring(
+                                  0,
+                                  6
+                                )}...${address.substring(address.length - 4)}`
                               : "0x1234...5678")}
                         </p>
                         <p className="text-sm text-[#6D7C8D] dark:text-gray-400 mt-3">
@@ -369,7 +433,9 @@ export default function ProfilePage() {
                           </div>
                           <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
                             Delegators:
-                            <span className="text-[#030303] dark:text-white">{profile?.activeDelegations || 0}</span>
+                            <span className="text-[#030303] dark:text-white">
+                              {profile?.activeDelegations || 0}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -386,12 +452,21 @@ export default function ProfilePage() {
                 </motion.div>
 
                 {isRewardsModalOpen && (
-                  <Modal handleClose={handleRewardsModalClose} open={isRewardsModalOpen} key={modalKey}>
+                  <Modal
+                    handleClose={handleRewardsModalClose}
+                    open={isRewardsModalOpen}
+                    key={modalKey}
+                  >
                     <div className="">
-                      <h2 className="text-xl font-semibold mb-4 dark:text-white">Create Compensator</h2>
+                      <h2 className="text-xl font-semibold mb-4 dark:text-white">
+                        Create Compensator
+                      </h2>
                       <div className="space-y-4">
                         {/* Profile Name Input */}
-                        <motion.div className="relative" variants={itemVariants}>
+                        <motion.div
+                          className="relative"
+                          variants={itemVariants}
+                        >
                           <div className="relative h-14">
                             <input
                               id="profileName"
@@ -417,13 +492,18 @@ export default function ProfilePage() {
                         </motion.div>
 
                         {/* Delegate Address Input */}
-                        <motion.div className="relative" variants={itemVariants}>
+                        <motion.div
+                          className="relative"
+                          variants={itemVariants}
+                        >
                           <div className="relative h-14">
                             <input
                               id="delegateAddress"
                               type="text"
                               value={delegateAddress}
-                              onChange={(e) => setDelegateAddress(e.target.value)}
+                              onChange={(e) =>
+                                setDelegateAddress(e.target.value)
+                              }
                               onFocus={() => setIsFocused(true)}
                               onBlur={() => setIsFocused(false)}
                               className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
@@ -448,7 +528,10 @@ export default function ProfilePage() {
                         </motion.div>
 
                         {/* APR Input */}
-                        <motion.div className="relative" variants={itemVariants}>
+                        <motion.div
+                          className="relative"
+                          variants={itemVariants}
+                        >
                           <div className="relative h-14">
                             <input
                               id="apr"
@@ -473,7 +556,10 @@ export default function ProfilePage() {
                         </motion.div>
 
                         {/* Funding Amount Input */}
-                        <motion.div className="relative" variants={itemVariants}>
+                        <motion.div
+                          className="relative"
+                          variants={itemVariants}
+                        >
                           <div className="relative h-14">
                             <input
                               id="fundingAmount"
@@ -499,9 +585,19 @@ export default function ProfilePage() {
                       </div>
                       <button
                         onClick={handleRewardsSubmit}
-                        disabled={!profileName || !delegateAddress || !apr || !fundingAmount || loading}
+                        disabled={
+                          !profileName ||
+                          !delegateAddress ||
+                          !apr ||
+                          !fundingAmount ||
+                          loading
+                        }
                         className={`${
-                          loading || !profileName || !delegateAddress || !apr || !fundingAmount
+                          loading ||
+                          !profileName ||
+                          !delegateAddress ||
+                          !apr ||
+                          !fundingAmount
                             ? "opacity-50 cursor-not-allowed"
                             : "hover:bg-emerald-600"
                         } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
@@ -541,12 +637,17 @@ export default function ProfilePage() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.2, delay: 0.2 }}
                 >
-                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">History</h2>
+                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">
+                    History
+                  </h2>
 
                   {isProposalsLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[1, 2].map((_, index) => (
-                        <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
+                        >
                           <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md mb-3"></div>
                           <div className="flex items-center gap-2 mb-3">
                             <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
@@ -564,8 +665,13 @@ export default function ProfilePage() {
                   ) : proposals.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {proposals.map((proposal, index) => (
-                        <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer">
-                          <h3 className="text-lg font-semibold text-[#030303] dark:text-white">{proposal.title}</h3>
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
+                        >
+                          <h3 className="text-lg font-semibold text-[#030303] dark:text-white">
+                            {proposal.title}
+                          </h3>
                           <div className="flex items-center mt-2">
                             <span
                               className={`px-2 py-0.5 text-xs font-medium rounded-full ${
@@ -582,16 +688,26 @@ export default function ProfilePage() {
                           </div>
                           <div className="mt-3">
                             <div className="flex justify-between mb-1">
-                              <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">Votes</p>
                               <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
-                                {(proposal.votesFor + proposal.votesAgainst).toFixed(2)}K
+                                Votes
+                              </p>
+                              <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
+                                {(
+                                  proposal.votesFor + proposal.votesAgainst
+                                ).toFixed(2)}
+                                K
                               </p>
                             </div>
                             <div className="w-full bg-gray-200 dark:bg-[#33475b] rounded-full h-1.5">
                               <div
                                 className="bg-emerald-500 h-1.5 rounded-full"
                                 style={{
-                                  width: `${(proposal.votesFor / (proposal.votesFor + proposal.votesAgainst)) * 100}%`,
+                                  width: `${
+                                    (proposal.votesFor /
+                                      (proposal.votesFor +
+                                        proposal.votesAgainst)) *
+                                    100
+                                  }%`,
                                 }}
                               ></div>
                             </div>
@@ -613,7 +729,10 @@ export default function ProfilePage() {
                                     : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                                 }`}
                               >
-                                You voted {proposal.voteDirection === "for" ? "For" : "Against"}
+                                You voted{" "}
+                                {proposal.voteDirection === "for"
+                                  ? "For"
+                                  : "Against"}
                               </span>
                             </div>
                           )}
@@ -625,9 +744,12 @@ export default function ProfilePage() {
                       <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
                         <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
                       </div>
-                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Voting History</h2>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        No Voting History
+                      </h2>
                       <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-sm mx-auto">
-                        You haven't voted on any proposals yet. Active proposals will appear here once you've voted.
+                        You haven't voted on any proposals yet. Active proposals
+                        will appear here once you've voted.
                       </p>
                       <Link
                         href="#"
@@ -645,12 +767,17 @@ export default function ProfilePage() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.2, delay: 0.1 }}
                 >
-                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">Delegations</h2>
+                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">
+                    Delegations
+                  </h2>
 
                   {isDelegationsLoading ? (
                     <div className="space-y-4">
                       {[1, 2].map((_, index) => (
-                        <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
+                        >
                           <div className="flex items-center gap-3">
                             <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
                             <div>
@@ -668,12 +795,19 @@ export default function ProfilePage() {
                         <div
                           key={index}
                           className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
-                          onClick={() => (window.location.href = `/delegate/${formatNameForURL(delegation.delegate)}`)}
+                          onClick={() =>
+                            (window.location.href = `/delegate/${formatNameForURL(
+                              delegation.delegate
+                            )}`)
+                          }
                         >
                           <div className="flex items-center gap-3">
                             <div className="relative h-12 w-12 flex-shrink-0">
                               <Image
-                                src={delegation.delegateImage || "/placeholder.svg?height=48&width=48"}
+                                src={
+                                  delegation.delegateImage ||
+                                  "/placeholder.svg?height=48&width=48"
+                                }
                                 alt={delegation.delegate}
                                 width={48}
                                 height={48}
@@ -684,7 +818,9 @@ export default function ProfilePage() {
                               <p className="text-base font-semibold text-[#030303] dark:text-white">
                                 {delegation.delegate}
                               </p>
-                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
+                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                                Amount: {delegation.amount}
+                              </p>
                             </div>
                             <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
                               {delegation.date}
@@ -698,9 +834,12 @@ export default function ProfilePage() {
                       <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
                         <Users className="h-6 w-6 text-[#030303] dark:text-white" />
                       </div>
-                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Delegations Yet</h2>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        No Delegations Yet
+                      </h2>
                       <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-sm mx-auto">
-                        You haven't delegated to anyone yet. Find delegates to support on the explore page.
+                        You haven't delegated to anyone yet. Find delegates to
+                        support on the explore page.
                       </p>
                       <Link
                         href="/explore"
@@ -718,5 +857,5 @@ export default function ProfilePage() {
         <Footer />
       </div>
     </>
-  )
+  );
 }
