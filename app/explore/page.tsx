@@ -4,17 +4,7 @@ import type React from "react"
 import { useEffect, useState, useRef } from "react"
 import Head from "next/head"
 import Image from "next/image"
-import {
-  TrendingUp,
-  TrendingDown,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  Filter,
-  ChevronsUpDown,
-  X,
-} from "lucide-react"
+import { TrendingUp, TrendingDown, Users, ChevronLeft, ChevronRight, Search, Filter, ChevronsUpDown, X } from 'lucide-react'
 import toast from "react-hot-toast"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -24,7 +14,6 @@ import { useSettingTheme } from "@/store/setting/selector"
 import Headroom from "react-headroom"
 import { delegatesData, formatNameForURL } from "@/lib/delegate-data"
 
-// Mock Data Fetching Function
 const fetchDelegates = async () => {
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
   await delay(1500)
@@ -255,7 +244,7 @@ const ExplorePage = () => {
                       <th
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
-                        style={{ width: "100px" }}
+                        style={{ width: "80px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           Rank
@@ -265,10 +254,20 @@ const ExplorePage = () => {
                       <th
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
-                        style={{ width: "200px" }}
+                        style={{ width: "180px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           Delegate
+                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+                        style={{ width: "120px" }}
+                      >
+                        <div className="flex items-center justify-start cursor-pointer">
+                          <span className="hidden sm:inline">APR</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
                         </div>
                       </th>
@@ -286,33 +285,30 @@ const ExplorePage = () => {
                       <th
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
-                        style={{ width: "150px" }}
+                        style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
-                          <span className="hidden sm:inline">Active Proposals</span>
-                          <span className="sm:hidden">Active Props.</span>
+                          <span className="hidden sm:inline">Active Prop.</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
                         </div>
                       </th>
                       <th
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
-                        style={{ width: "150px" }}
+                        style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
-                          <span className="hidden sm:inline">Total Delegations</span>
-                          <span className="sm:hidden">Delegations</span>
+                          <span className="hidden sm:inline">Delegations</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
                         </div>
                       </th>
                       <th
                         scope="col"
                         className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
-                        style={{ width: "150px" }}
+                        style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
-                          <span className="hidden sm:inline">7D Performance</span>
-                          <span className="sm:hidden">7D Perf.</span>
+                          <span className="hidden sm:inline">7D Perf.</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
                         </div>
                       </th>
@@ -322,10 +318,10 @@ const ExplorePage = () => {
                     {loading
                       ? Array.from({ length: 10 }).map((_, index) => (
                           <tr key={index} className="border-b dark:border-b-[#232F3B] border-b-[#efefef]">
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "100px" }}>
+                            <td className="px-6 py-4 animate-pulse" style={{ width: "80px" }}>
                               <div className="w-5 h-5 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "200px" }}>
+                            <td className="px-6 py-4 animate-pulse" style={{ width: "180px" }}>
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
                                 <div className="w-24 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
@@ -334,13 +330,16 @@ const ExplorePage = () => {
                             <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
                               <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "150px" }}>
-                              <div className="w-16 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
-                            </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "150px" }}>
+                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
                               <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "150px" }}>
+                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+                              <div className="w-16 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
+                            </td>
+                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+                              <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
+                            </td>
+                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
                               <div className="w-10 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
                           </tr>
@@ -358,11 +357,11 @@ const ExplorePage = () => {
                           >
                             <td
                               className="px-6 text-[#030303] py-4 dark:text-gray-300 text-sm"
-                              style={{ width: "100px" }}
+                              style={{ width: "80px" }}
                             >
                               #{index + 1 + (currentPage - 1) * itemsPerPage}
                             </td>
-                            <td className="flex items-center py-3 gap-3 px-6" style={{ width: "200px" }}>
+                            <td className="flex items-center py-3 gap-3 px-6" style={{ width: "180px" }}>
                               <div className="relative overflow-hidden rounded-full w-[36px] h-[36px]">
                                 <Image
                                   src={delegate.image || "/placeholder.svg"}
@@ -384,6 +383,12 @@ const ExplorePage = () => {
                               className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
                               style={{ width: "120px" }}
                             >
+                              <span className="">{delegate.rewardAPR}</span>
+                            </td>
+                            <td
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              style={{ width: "120px" }}
+                            >
                               <div className="flex items-center">
                                 <div className="w-16 bg-gray-200 dark:bg-[#425365] rounded-full h-1.5 mr-2">
                                   <div
@@ -396,13 +401,13 @@ const ExplorePage = () => {
                             </td>
                             <td
                               className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
-                              style={{ width: "150px" }}
+                              style={{ width: "120px" }}
                             >
                               {delegate.activeProposals}
                             </td>
                             <td
                               className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
-                              style={{ width: "150px" }}
+                              style={{ width: "120px" }}
                             >
                               <div className="flex items-center">
                                 <Users className="h-3.5 w-3.5 mr-1.5 text-[#7A8999] dark:text-gray-400" />
@@ -411,7 +416,7 @@ const ExplorePage = () => {
                             </td>
                             <td
                               className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#5fe7b9]" : "text-[#f54a4a] dark:text-[#d67979]"}`}
-                              style={{ width: "150px" }}
+                              style={{ width: "120px" }}
                             >
                               <div className="flex items-center">
                                 {delegate.performance7D >= 0 ? (
