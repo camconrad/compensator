@@ -4,12 +4,22 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSettingTheme } from "@/store/setting/selector"
 
+interface Slide {
+  titlePrimary: string;
+  titleSecondary: string;
+  imageLight: string;
+  imageDark: string;
+  imageHeight: string;
+  marginTop: string;
+  marginLeft: string;
+}
+
 const HeroBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [autoplay, setAutoplay] = useState(true)
   const theme = useSettingTheme()
 
-  const slides = [
+  const slides: Slide[] = [
     {
       titlePrimary: "Delegate Compound (COMP)",
       titleSecondary: "to accrue COMP rewards in real-time.",
@@ -30,7 +40,7 @@ const HeroBanner = () => {
     },
   ]
 
-  const getImage = (slide) => {
+  const getImage = (slide: Slide) => {
     return theme === "light" ? slide.imageLight : slide.imageDark
   }
 
