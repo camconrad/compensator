@@ -12,13 +12,12 @@ export const useGetCompensatorContract = () => {
   const handleSetContract = async () => {
     try {
       const { signer } = await getEthersSigner(wagmiConfig);
-      // aqua core contract
-      const aquaCoreContract = new ethers.Contract(
+      const compensatorContract = new ethers.Contract(
         compensatorContractInfo.address,
         compensatorContractInfo.abi,
         signer
       );
-      setCompensatorContract(aquaCoreContract);
+      setCompensatorContract(compensatorContract);
     } catch (error) {}
   };
 

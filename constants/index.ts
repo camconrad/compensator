@@ -1,8 +1,3 @@
-export const envConfig = {
-  PREFIX_REF: "Aquatic_",
-  ADMIN_REF: 'Aquatic_2025'
-};
-
 import { compensatorAbi } from "./abi/compensator";
 
 export interface IContractInfo {
