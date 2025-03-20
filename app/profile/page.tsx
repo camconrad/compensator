@@ -370,7 +370,7 @@ export default function ProfilePage() {
                           onClick={handleRewardsButtonClick}
                           className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
                         >
-                          Offer Rewards
+                          Create Compensator
                         </button>
                       </div>
                     </div>
@@ -384,7 +384,7 @@ export default function ProfilePage() {
                 {isRewardsModalOpen && (
                   <Modal handleClose={handleRewardsModalClose} open={isRewardsModalOpen} key={modalKey}>
                     <div className="">
-                      <h2 className="text-xl font-semibold mb-4 dark:text-white">Offer Rewards</h2>
+                      <h2 className="text-xl font-semibold mb-4 dark:text-white">Create Compensator</h2>
                       <div className="space-y-4">
                         {/* Profile Name Input */}
                         <motion.div className="relative" variants={itemVariants}>

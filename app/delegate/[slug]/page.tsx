@@ -301,10 +301,10 @@ export default function DelegatePage() {
                   </div>
                   <div className="h-full flex items-center">
                     <button
-                      className="bg-[#10b981] text-white px-6 py-3 rounded-full font-semibold text-xs transition-all duration-200 transform hover:scale-105 active:scale-95"
+                      className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
                       onClick={() => setIsModalOpen(true)}
                     >
-                      Delegate COMP
+                      Delegate
                     </button>
                   </div>
                 </div>
