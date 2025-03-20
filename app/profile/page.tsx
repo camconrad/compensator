@@ -627,7 +627,7 @@ export default function ProfilePage() {
                         <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
                       </div>
                       <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Voting History</h2>
-                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
+                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-sm mx-auto">
                         You haven't voted on any proposals yet. Active proposals will appear here once you've voted.
                       </p>
                       <Link
@@ -700,7 +700,7 @@ export default function ProfilePage() {
                         <Users className="h-6 w-6 text-[#030303] dark:text-white" />
                       </div>
                       <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Delegations Yet</h2>
-                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
+                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-sm mx-auto">
                         You haven't delegated to anyone yet. Find delegates to support on the explore page.
                       </p>
                       <Link
