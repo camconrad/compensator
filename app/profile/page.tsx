@@ -540,76 +540,6 @@ export default function ProfilePage() {
                   className="mb-8"
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.2, delay: 0.1 }}
-                >
-                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">Delegations</h2>
-
-                  {isDelegationsLoading ? (
-                    <div className="space-y-4">
-                      {[1, 2].map((_, index) => (
-                        <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
-                          <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
-                            <div>
-                              <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
-                              <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                            </div>
-                            <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : delegations.length > 0 ? (
-                    <div className="space-y-4">
-                      {delegations.map((delegation, index) => (
-                        <motion.div
-                          key={index}
-                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
-                          onClick={() => (window.location.href = `/delegate/${formatNameForURL(delegation.delegate)}`)}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-12 w-12 flex-shrink-0">
-                              <Image
-                                src={delegation.delegateImage || "/placeholder.svg?height=48&width=48"}
-                                alt={delegation.delegate}
-                                width={48}
-                                height={48}
-                                className="object-cover rounded-full"
-                              />
-                            </div>
-                            <div className="">
-                              <p className="text-base font-semibold text-[#030303] dark:text-white">{delegation.delegate}</p>
-                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
-                            </div>
-                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">{delegation.date}</p>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
-                      <Users className="h-12 w-12 text-[#6D7C8D] dark:text-gray-400 mx-auto mb-4" />
-                      <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-2">No Delegations Yet</h2>
-                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
-                        You haven't delegated to anyone yet. Find delegates to support on the explore page.
-                      </p>
-                      <Link
-                        href="/explore"
-                        className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
-                      >
-                        Find Delegates
-                      </Link>
-                    </div>
-                  )}
-                </motion.div>
-
-                <motion.div
-                  className="mb-8"
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.2, delay: 0.2 }}
                 >
                   <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">History</h2>
@@ -703,6 +633,76 @@ export default function ProfilePage() {
                         className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
                       >
                         View Proposals
+                      </Link>
+                    </div>
+                  )}
+                </motion.div>
+
+                <motion.div
+                  className="mb-8"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.2, delay: 0.1 }}
+                >
+                  <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">Delegations</h2>
+
+                  {isDelegationsLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2].map((_, index) => (
+                        <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
+                          <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
+                            <div>
+                              <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
+                              <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                            </div>
+                            <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : delegations.length > 0 ? (
+                    <div className="space-y-4">
+                      {delegations.map((delegation, index) => (
+                        <motion.div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: 0.1 + index * 0.05 }}
+                          onClick={() => (window.location.href = `/delegate/${formatNameForURL(delegation.delegate)}`)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-12 flex-shrink-0">
+                              <Image
+                                src={delegation.delegateImage || "/placeholder.svg?height=48&width=48"}
+                                alt={delegation.delegate}
+                                width={48}
+                                height={48}
+                                className="object-cover rounded-full"
+                              />
+                            </div>
+                            <div className="">
+                              <p className="text-base font-semibold text-[#030303] dark:text-white">{delegation.delegate}</p>
+                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
+                            </div>
+                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">{delegation.date}</p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
+                      <Users className="h-12 w-12 text-[#6D7C8D] dark:text-gray-400 mx-auto mb-4" />
+                      <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-2">No Delegations Yet</h2>
+                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
+                        You haven't delegated to anyone yet. Find delegates to support on the explore page.
+                      </p>
+                      <Link
+                        href="/explore"
+                        className="bg-[#EFF2F5] transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
+                      >
+                        Find Delegates
                       </Link>
                     </div>
                   )}
