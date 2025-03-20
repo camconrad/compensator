@@ -18,11 +18,6 @@ const HeroBanner = () => {
       titleSecondary: "for or against specific proposals.",
       image: "/stake.png",
     },
-    // {
-    //   titlePrimary: "Join the Compound community.",
-    //   titleSecondary: "The future of money is in your hands.",
-    //   image: "/placeholder.svg?height=120&width=200",
-    // },
   ]
 
   useEffect(() => {
@@ -57,21 +52,19 @@ const HeroBanner = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full p-8 md:p-12"
+              className="relative h-full p-8 md:p-12 overflow-hidden"
             >
-              <div className="flex flex-col justify-center">
-                <h1 className="text-2xl md:text-3xl font-bold mt-[-48px] text-[#030303] dark:text-white mb-1">
+              <div className="flex flex-col justify-center max-w-[50%] z-10 relative">
+                <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-1">
                   {slides[currentSlide].titlePrimary}
                 </h1>
-                <p className="text-xl md:text-2xl font-medium text-[#6D7C8D]">
-                  {slides[currentSlide].titleSecondary}
-                </p>
+                <p className="text-xl md:text-2xl font-medium text-[#6D7C8D]">{slides[currentSlide].titleSecondary}</p>
               </div>
-              <div className="hidden md:flex items-center justify-end">
+              <div className="absolute right-[-4%] top-[58%] transform -translate-y-1/2 h-full">
                 <img
-                  src={slides[currentSlide].image}
+                  src={slides[currentSlide].image || "/placeholder.svg"}
                   alt="Slide illustration"
-                  className="max-h-[200px] mt-[-24px] object-contain"
+                  className="h-[172px] w-auto object-contain"
                 />
               </div>
             </motion.div>
