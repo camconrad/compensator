@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState, useRef } from "react"
 import Head from "next/head"
 import Image from "next/image"
@@ -24,15 +23,13 @@ import Footer from "@/components/Footer"
 import { useSettingTheme } from "@/store/setting/selector"
 import Headroom from "react-headroom"
 
-// Utility function to format the name for URLs
 const formatNameForURL = (name: string) => {
   return name
-    .toLowerCase() // Convert to lowercase
-    .replace(/\s+/g, "-") // Replace spaces with dashes
-    .replace(/[^a-z0-9-]/g, "") // Remove any non-alphanumeric characters except dashes
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
 }
 
-// Featured Delegates Data
 interface Delegate {
   id: number
   name: string
@@ -212,9 +209,8 @@ const delegatesData: Delegate[] = [
 // Mock Data Fetching Function
 const fetchDelegates = async () => {
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-  await delay(1500) // Simulate network delay
+  await delay(1500)
 
-  // Use the same delegate data but add additional properties for the table
   return delegatesData.map((delegate, index) => ({
     ...delegate,
     votingPower: Math.floor(Math.random() * 100),
@@ -227,8 +223,8 @@ const fetchDelegates = async () => {
 }
 
 const handleCopyClick = (e: React.MouseEvent, address: string) => {
-  e.preventDefault() // Prevent the Link navigation
-  e.stopPropagation() // Prevent event bubbling
+  e.preventDefault()
+  e.stopPropagation()
   navigator.clipboard
     .writeText(address)
     .then(() => {
@@ -279,7 +275,6 @@ const ExplorePage = () => {
   }, [])
 
   useEffect(() => {
-    // Filter delegates based on search query and active tab
     let filtered = tableData
 
     if (searchQuery) {
@@ -299,7 +294,6 @@ const ExplorePage = () => {
     setFilteredDelegates(filtered)
   }, [searchQuery, activeTab, tableData])
 
-  // Close filter dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
@@ -346,7 +340,7 @@ const ExplorePage = () => {
           transition={{ duration: 0.5 }}
           className="max-w-[1100px] mx-auto p-4"
         >
-          {/* Table Section with View All Delegates title and filter dropdown */}
+          {/* Table Section */}
           <section>
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-1">Explore Delegates</h2>
@@ -425,157 +419,174 @@ const ExplorePage = () => {
               className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden"
             >
               <div className="overflow-x-auto">
-                <table className="w-full mx-auto" role="table">
-                  <thead className="bg-[#F9FAFB] dark:bg-[#17212B]" role="rowgroup">
-                    <tr role="row">
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999]"
-                      >
-                        <div className="flex items-center gap-1 cursor-pointer">
-                          Rank
-                          <ChevronsUpDown className="h-4 w-4 text-[#7A8999]" />
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999]"
-                      >
-                        <div className="flex items-center gap-1 cursor-pointer">
-                          Delegate
-                          <ChevronsUpDown className="h-4 w-4 text-[#7A8999]" />
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999]"
-                      >
-                        <div className="flex truncate items-center gap-1 cursor-pointer">
-                          Voting Power
-                          <ChevronsUpDown className="h-4 w-4 text-[#7A8999]" />
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999]"
-                      >
-                        <div className="flex truncate items-center gap-1 cursor-pointer">
-                          Active Proposals
-                          <ChevronsUpDown className="h-4 w-4 text-[#7A8999]" />
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999]"
-                      >
-                        <div className="flex truncate items-center gap-1 cursor-pointer">
-                          Total Delegations
-                          <ChevronsUpDown className="h-4 w-4 text-[#7A8999]" />
-                        </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999]"
-                      >
-                        <div className="flex truncate items-center gap-1 cursor-pointer">
-                          7D Performance
-                          <ChevronsUpDown className="h-4 w-4 text-[#7A8999]" />
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loading
-                      ? Array.from({ length: 10 }).map((_, index) => (
-                          <tr key={index} className="border-b dark:border-b-[#232F3B] border-b-[#efefef]">
-                            <td className="px-6 py-4 animate-pulse">
-                              <div className="w-5 h-5 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
-                            </td>
-                            <td className="px-6 py-4 animate-pulse">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
-                                <div className="w-24 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 animate-pulse">
-                              <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
-                            </td>
-                            <td className="px-6 py-4 animate-pulse">
-                              <div className="w-16 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
-                            </td>
-                            <td className="px-6 py-4 animate-pulse">
-                              <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
-                            </td>
-                            <td className="px-6 py-4 animate-pulse">
-                              <div className="w-10 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
-                            </td>
-                          </tr>
-                        ))
-                      : filteredDelegates.map((delegate, index) => (
-                          <motion.tr
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: index * 0.05 }}
-                            key={delegate.id}
-                            className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
-                            onClick={() => {
-                              window.location.href = `/delegate/${formatNameForURL(delegate.name)}`
-                            }}
-                          >
-                            <td className="px-6 text-[#030303] py-4 dark:text-gray-300 text-sm">#{index + 1}</td>
-                            <td className="flex items-center py-3 gap-3 px-6">
-                              <div className="relative overflow-hidden rounded-full w-[36px] h-[36px]">
-                                <Image
-                                  src={delegate.image || "/placeholder.svg"}
-                                  alt={delegate.name}
-                                  width={36}
-                                  height={36}
-                                  className="object-cover rounded-full"
-                                />
-                              </div>
-                              <div>
-                                <span className="text-[#030303] text-sm font-semibold truncate dark:text-white block mb-[-3px]">
-                                  {delegate.name}
-                                </span>
-                                <span className="text-xs text-[#7A8999] dark:text-gray-400">{delegate.address}</span>
-                              </div>
-                            </td>
-                            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300">
-                              <div className="flex items-center">
-                                <div className="w-16 bg-gray-200 dark:bg-[#425365] rounded-full h-1.5 mr-2">
-                                  <div
-                                    className="bg-emerald-500 h-1.5 rounded-full"
-                                    style={{ width: `${delegate.votingPower}%` }}
-                                  ></div>
-                                </div>
-                                <span>{delegate.votingPower}%</span>
-                              </div>
-                            </td>
-                            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300">
-                              {delegate.activeProposals}
-                            </td>
-                            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300">
-                              <div className="flex items-center">
-                                <Users className="h-3.5 w-3.5 mr-1.5 text-[#7A8999] dark:text-gray-400" />
-                                {delegate.totalDelegations}
-                              </div>
-                            </td>
-                            <td
-                              className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#4dd0a4]" : "text-[#f54a4a] dark:text-[#f54a4a]"}`}
-                            >
-                              <div className="flex items-center">
-                                {delegate.performance7D >= 0 ? (
-                                  <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
-                                ) : (
-                                  <TrendingDown className="h-3.5 w-3.5 mr-1.5" />
-                                )}
-                                {delegate.performance7D.toFixed(2)}%
-                              </div>
-                            </td>
-                          </motion.tr>
-                        ))}
-                  </tbody>
-                </table>
+              <table
+  className="w-full mx-auto"
+  role="table"
+  style={{ tableLayout: "fixed" }}
+>
+  <thead className="bg-[#F9FAFB] dark:bg-[#17212B]" role="rowgroup">
+    <tr role="row">
+      <th
+        scope="col"
+        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+        style={{ width: "100px" }}
+      >
+        <div className="flex items-center justify-start cursor-pointer">
+          Rank
+          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+        </div>
+      </th>
+      <th
+        scope="col"
+        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+        style={{ width: "200px" }} // Fixed width for Delegate column
+      >
+        <div className="flex items-center justify-start cursor-pointer">
+          Delegate
+          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+        </div>
+      </th>
+      <th
+        scope="col"
+        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+        style={{ width: "120px" }}
+      >
+        <div className="flex items-center justify-start cursor-pointer">
+          <span className="hidden sm:inline">Vote Power</span>
+          <span className="sm:hidden">Vote Po.</span>
+          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+        </div>
+      </th>
+      <th
+        scope="col"
+        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+        style={{ width: "150px" }}
+      >
+        <div className="flex items-center justify-start cursor-pointer">
+          <span className="hidden sm:inline">Active Proposals</span>
+          <span className="sm:hidden">Active Props.</span>
+          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+        </div>
+      </th>
+      <th
+        scope="col"
+        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+        style={{ width: "150px" }}
+      >
+        <div className="flex items-center justify-start cursor-pointer">
+          <span className="hidden sm:inline">Total Delegations</span>
+          <span className="sm:hidden">Delegations</span>
+          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+        </div>
+      </th>
+      <th
+        scope="col"
+        className="px-6 py-3 text-sm font-semibold text-left text-[#7A8999] dark:text-[#7A8999] whitespace-nowrap"
+        style={{ width: "150px" }}
+      >
+        <div className="flex items-center justify-start cursor-pointer">
+          <span className="hidden sm:inline">7D Performance</span>
+          <span className="sm:hidden">7D Perf.</span>
+          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#7A8999]" />
+        </div>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {loading
+      ? Array.from({ length: 10 }).map((_, index) => (
+          <tr key={index} className="border-b dark:border-b-[#232F3B] border-b-[#efefef]">
+            <td className="px-6 py-4 animate-pulse" style={{ width: "100px" }}>
+              <div className="w-5 h-5 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
+            </td>
+            <td className="px-6 py-4 animate-pulse" style={{ width: "200px" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
+                <div className="w-24 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
+              </div>
+            </td>
+            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+              <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
+            </td>
+            <td className="px-6 py-4 animate-pulse" style={{ width: "150px" }}>
+              <div className="w-16 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
+            </td>
+            <td className="px-6 py-4 animate-pulse" style={{ width: "150px" }}>
+              <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
+            </td>
+            <td className="px-6 py-4 animate-pulse" style={{ width: "150px" }}>
+              <div className="w-10 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
+            </td>
+          </tr>
+        ))
+      : filteredDelegates.map((delegate, index) => (
+          <motion.tr
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            key={delegate.id}
+            className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
+            onClick={() => {
+              window.location.href = `/delegate/${formatNameForURL(delegate.name)}`
+            }}
+          >
+            <td className="px-6 text-[#030303] py-4 dark:text-gray-300 text-sm" style={{ width: "100px" }}>
+              #{index + 1}
+            </td>
+            <td className="flex items-center py-3 gap-3 px-6" style={{ width: "200px" }}>
+              <div className="relative overflow-hidden rounded-full w-[36px] h-[36px]">
+                <Image
+                  src={delegate.image || "/placeholder.svg"}
+                  alt={delegate.name}
+                  width={36}
+                  height={36}
+                  className="object-cover rounded-full"
+                />
+              </div>
+              <div>
+                <span className="text-[#030303] text-sm font-semibold truncate dark:text-white block mb-[-3px]">
+                  {delegate.name}
+                </span>
+                <span className="text-xs text-[#7A8999] dark:text-gray-400">{delegate.address}</span>
+              </div>
+            </td>
+            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300" style={{ width: "120px" }}>
+              <div className="flex items-center">
+                <div className="w-16 bg-gray-200 dark:bg-[#425365] rounded-full h-1.5 mr-2">
+                  <div
+                    className="bg-emerald-500 h-1.5 rounded-full"
+                    style={{ width: `${delegate.votingPower}%` }}
+                  ></div>
+                </div>
+                <span>{delegate.votingPower}%</span>
+              </div>
+            </td>
+            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300" style={{ width: "150px" }}>
+              {delegate.activeProposals}
+            </td>
+            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300" style={{ width: "150px" }}>
+              <div className="flex items-center">
+                <Users className="h-3.5 w-3.5 mr-1.5 text-[#7A8999] dark:text-gray-400" />
+                {delegate.totalDelegations}
+              </div>
+            </td>
+            <td
+              className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#4dd0a4]" : "text-[#f54a4a] dark:text-[#f54a4a]"}`}
+              style={{ width: "150px" }}
+            >
+              <div className="flex items-center">
+                {delegate.performance7D >= 0 ? (
+                  <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+                ) : (
+                  <TrendingDown className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                {delegate.performance7D.toFixed(2)}%
+              </div>
+            </td>
+          </motion.tr>
+        ))}
+  </tbody>
+</table>
               </div>
             </motion.div>
 
