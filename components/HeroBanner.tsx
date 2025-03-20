@@ -58,7 +58,7 @@ const HeroBanner = () => {
     <div 
       className="sm:flex items-center hidden justify-center py-8 px-4 w-full max-w-[1100px] mx-auto"
     >
-      <div className="relative max-w-7xl w-full mx-auto overflow-hidden rounded-lg shadow-sm h-[180px] bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e]">
+      <div className="relative max-w-7xl w-full mt-[-12px] mx-auto overflow-hidden rounded-lg shadow-sm h-[180px] bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e]">
         {/* Carousel Content */}
         <div className="h-full">
           <AnimatePresence mode="wait">
@@ -71,7 +71,7 @@ const HeroBanner = () => {
               className="relative h-full p-8 md:p-12 overflow-hidden"
             >
               <div className="flex flex-col justify-center max-w-[50%] z-10 relative">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-1">
+                <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-1 mt-[6px]">
                   {slides[currentSlide].titlePrimary}
                 </h1>
                 <p className="text-xl md:text-2xl font-medium text-[#6D7C8D]">
