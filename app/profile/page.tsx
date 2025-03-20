@@ -332,14 +332,9 @@ export default function ProfilePage() {
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                       <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
                       <div className="flex-1">
-                        <div className="h-8 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                        <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
                         <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-3"></div>
-                        <div className="h-4 w-full bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                        <div className="h-4 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-4"></div>
-                        <div className="flex flex-wrap gap-4">
-                          <div className="h-5 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                          <div className="h-5 w-36 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                        </div>
+                        <div className="h-3 w-full bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
                       </div>
                     </div>
                   ) : profile ? (
@@ -354,7 +349,7 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className="flex-1 font-medium">
-                        <h2 className="text-2xl font-bold text-[#030303] dark:text-white">{profile.name}</h2>
+                        <h2 className="text-xl font-bold text-[#030303] dark:text-white">{profile.name}</h2>
                         <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{profile.address}</p>
                         <p className="text-sm text-[#6D7C8D] dark:text-gray-400 mt-3">{profile.bio}</p>
                         <div className="flex flex-wrap items-center gap-4 mt-4">
