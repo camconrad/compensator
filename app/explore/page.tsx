@@ -362,7 +362,7 @@ const ExplorePage = () => {
                               #{index + 1 + (currentPage - 1) * itemsPerPage}
                             </td>
                             <td className="flex items-center py-3 gap-3 px-6" style={{ width: "180px" }}>
-                              <div className="relative overflow-hidden rounded-full w-[36px] h-[36px]">
+                              <div className="relative overflow-hidden rounded-full min-w-[36px] min-h-[36px] w-[36px] h-[36px]">
                                 <Image
                                   src={delegate.image || "/placeholder.svg"}
                                   alt={delegate.name}

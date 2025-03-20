@@ -80,7 +80,7 @@ export interface Delegate {
     },
     {
       id: 10,
-      name: "Michigan Block..",
+      name: "Michigan Blockchain",
       address: "0x123..4567",
       image: "/delegates/mich.jpg",
       rewardAPR: "0.00%",
@@ -122,7 +122,7 @@ export interface Delegate {
     },
     {
       id: 16,
-      name: "Event Horizon DAO",
+      name: "Event Horizon",
       address: "0x123..4567",
       image: "/delegates/event-horizon.jpg",
       rewardAPR: "0.00%",
@@ -157,7 +157,7 @@ export interface Delegate {
     },
     {
       id: 21,
-      name: "Blockchain at Col..",
+      name: "Blockchain at Columbia",
       address: "0x123..4567",
       image: "/delegates/columbia.jpg",
       rewardAPR: "0.00%",
