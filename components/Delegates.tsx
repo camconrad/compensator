@@ -85,9 +85,9 @@ const delegates: Delegate[] = [
   },
   {
     id: 10,
-    name: "Michigan Blockchain",
+    name: "Michigan Block..",
     address: "0x123..4567",
-    image: "/delegates/mich-blockchain.jpg",
+    image: "/delegates/mich.jpg",
     rewardAPR: "0.00%",
   },
   {
@@ -162,9 +162,9 @@ const delegates: Delegate[] = [
   },
   {
     id: 21,
-    name: "Blockchain at Columbia",
+    name: "Blockchain at Col..",
     address: "0x123..4567",
-    image: "/delegates/columbia-blockchain.jpg",
+    image: "/delegates/columbia.jpg",
     rewardAPR: "0.00%",
   },
   {
@@ -213,7 +213,7 @@ const delegates: Delegate[] = [
     id: 28,
     name: "Scopelift",
     address: "0x123..4567",
-    image: "/delegates/scopelift.jpg",
+    image: "/delegates/dakeshi.jpg",
     rewardAPR: "0.00%",
   },
   {
