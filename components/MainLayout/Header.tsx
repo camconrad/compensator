@@ -1,30 +1,31 @@
-"use client"
+"use client";
 
-import type React from "react"
-import Image from "next/image"
-import Link from "next/link"
-import authServices from "@/services/auth"
-import { useEffect, useState, useRef } from "react"
-import { useAccount } from "wagmi"
-import ConnectWalletButton from "./ConnectWalletButton"
-import httpClient from "@/services/httpClient"
-import { useSelectedAccessToken, useSelectedAuthActions } from "@/store/auth/selector"
-import NetworkDropdown from "./NetworkDropdown"
-import { usePathname } from "next/navigation"
-import { FaHome, FaCompass, FaUser, FaFileAlt } from "react-icons/fa"
-import { createPortal } from "react-dom"
+import type React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import Head from "next/head";
+import authServices from "@/services/auth";
+import { useEffect, useState, useRef } from "react";
+import { useAccount } from "wagmi";
+import ConnectWalletButton from "./ConnectWalletButton";
+import httpClient from "@/services/httpClient";
+import { useSelectedAccessToken, useSelectedAuthActions } from "@/store/auth/selector";
+import NetworkDropdown from "./NetworkDropdown";
+import { usePathname } from "next/navigation";
+import { FaHome, FaCompass, FaUser, FaFileAlt } from "react-icons/fa";
+import { createPortal } from "react-dom";
 
 const Header = () => {
-  const [isAtTop, setIsAtTop] = useState(true)
-  const { setAddress, setAccessToken } = useSelectedAuthActions()
-  const accessToken = useSelectedAccessToken()
-  const pathname = usePathname()
+  const [isAtTop, setIsAtTop] = useState(true);
+  const { setAddress, setAccessToken } = useSelectedAuthActions();
+  const accessToken = useSelectedAccessToken();
+  const pathname = usePathname();
 
-  const { address } = useAccount()
-  const [hoveredTab, setHoveredTab] = useState<string | null>(null)
-  const navRef = useRef<HTMLDivElement>(null)
-  const indicatorRef = useRef<HTMLDivElement>(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const { address } = useAccount();
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const navItems = [
     {
@@ -48,200 +49,214 @@ const Header = () => {
       external: true,
       icon: <FaFileAlt className="w-[14px] h-[14px] text-[#6D7D8E] mr-2" />,
     },
-  ]
+  ];
 
   const handleLogin = async () => {
     try {
-      const response = await authServices.login(address as string)
-      httpClient.setAccessToken(response?.data?.access_token)
-      setAddress(address as string)
-      setAccessToken(response?.data?.access_token)
+      const response = await authServices.login(address as string);
+      httpClient.setAccessToken(response?.data?.access_token);
+      setAddress(address as string);
+      setAccessToken(response?.data?.access_token);
     } catch (error) {
-      console.log("error :>> ", error)
+      console.log("error :>> ", error);
     }
-  }
+  };
 
   const handleGetProfile = async () => {
     try {
-      const response = await authServices.getProfile(address as string)
-      console.log("response :>> ", response)
+      const response = await authServices.getProfile(address as string);
+      console.log("response :>> ", response);
     } catch (error) {
-      console.log("error :>> ", error)
+      console.log("error :>> ", error);
     }
-  }
+  };
 
   useEffect(() => {
     if (address) {
-      handleLogin()
+      handleLogin();
     }
-  }, [address])
+  }, [address]);
 
   useEffect(() => {
     if (accessToken) {
-      handleGetProfile()
+      handleGetProfile();
     }
-  }, [accessToken])
+  }, [accessToken]);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsAtTop(window.scrollY === 0)
-    }
+      setIsAtTop(window.scrollY === 0);
+    };
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+      setIsMobile(window.innerWidth < 768);
+    };
 
-    checkIsMobile()
-    window.addEventListener("resize", checkIsMobile)
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
 
     return () => {
-      window.removeEventListener("resize", checkIsMobile)
-    }
-  }, [])
+      window.removeEventListener("resize", checkIsMobile);
+    };
+  }, []);
 
   useEffect(() => {
-    const currentPath = pathname
+    const currentPath = pathname;
 
     if (currentPath === "/privacy" || currentPath === "/terms" || currentPath.startsWith("/delegate/")) {
-      setHoveredTab(null)
-      return
+      setHoveredTab(null);
+      return;
     }
 
-    const activeItem = navItems.find((item) => item.href === currentPath)
+    const activeItem = navItems.find((item) => item.href === currentPath);
     if (activeItem) {
-      setHoveredTab(activeItem.name)
+      setHoveredTab(activeItem.name);
     } else {
-      if (currentPath.startsWith("/explore")) setHoveredTab("Explore")
-      else if (currentPath.startsWith("/profile")) setHoveredTab("Profile")
-      else setHoveredTab("Home")
+      if (currentPath.startsWith("/explore")) setHoveredTab("Explore");
+      else if (currentPath.startsWith("/profile")) setHoveredTab("Profile");
+      else setHoveredTab("Home");
     }
-  }, [pathname])
+  }, [pathname]);
 
   useEffect(() => {
-    if (!navRef.current || !indicatorRef.current || !hoveredTab) return
+    if (!navRef.current || !indicatorRef.current || !hoveredTab) return;
 
-    const navElement = navRef.current
-    const indicator = indicatorRef.current
+    const navElement = navRef.current;
+    const indicator = indicatorRef.current;
 
-    const activeTabElement = navElement.querySelector(`[data-name="${hoveredTab}"]`) as HTMLElement
+    const activeTabElement = navElement.querySelector(`[data-name="${hoveredTab}"]`) as HTMLElement;
 
     if (activeTabElement) {
-      const tabRect = activeTabElement.getBoundingClientRect()
-      const navRect = navElement.getBoundingClientRect()
+      const tabRect = activeTabElement.getBoundingClientRect();
+      const navRect = navElement.getBoundingClientRect();
 
-      indicator.style.width = `${tabRect.width}px`
-      indicator.style.height = `${tabRect.height}px`
-      indicator.style.transform = `translateX(${tabRect.left - navRect.left}px)`
+      indicator.style.width = `${tabRect.width}px`;
+      indicator.style.height = `${tabRect.height}px`;
+      indicator.style.transform = `translateX(${tabRect.left - navRect.left}px)`;
     }
-  }, [hoveredTab])
+  }, [hoveredTab]);
 
   return (
-    <header className="inset-x-0 left-0 top-0 w-full transition-colors duration-200 bg-[#EFF2F5] dark:bg-[#0D131A] backdrop-blur-lg">
-      <div className="flex items-center justify-between w-full px-4 max-w-[1100px] py-3 mx-auto">
-        <div className="flex items-center justify-start">
-          <Link href="/" className="mr-4">
-            <div className="w-auto flex items-center gap-2">
-              <Image src="/icon.png" alt="Compound icon" width={24} height={24} className="mb-1" />
-              <div className="">
-                <h1 className="text-xl font-bold text-[#030303] dark:text-white">Compensator</h1>
+    <>
+      <Head>
+        <style>{`
+          body {
+            background-color: #EFF2F5;
+          }
+          .dark body {
+            background-color: #0D131A;
+          }
+        `}</style>
+      </Head>
+      <header className="inset-x-0 left-0 top-0 w-full bg-[#EFF2F5] dark:bg-[#0D131A] backdrop-blur-lg">
+        <div className="flex items-center justify-between w-full px-4 max-w-[1100px] py-3 mx-auto">
+          <div className="flex items-center justify-start">
+            <Link href="/" className="mr-4">
+              <div className="w-auto flex items-center gap-2">
+                <Image src="/icon.png" alt="Compound icon" width={24} height={24} className="mb-1" />
+                <div className="">
+                  <h1 className="text-xl font-bold text-[#030303] dark:text-white">Compensator</h1>
+                </div>
               </div>
+            </Link>
+
+            <div className="hidden md:block relative">
+              <nav ref={navRef} className="flex items-center relative">
+                <div
+                  ref={indicatorRef}
+                  className="absolute rounded-full dark:bg-[#1D2833] bg-[#D7DFE4] transition-all duration-200 ease-in-out z-0"
+                />
+
+                {navItems.map((item) =>
+                  item.external ? (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-name={item.name}
+                      className={`px-3 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
+                        ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
+                      onMouseEnter={() => setHoveredTab(item.name)}
+                      onMouseLeave={() =>
+                        setHoveredTab(
+                          pathname === "/"
+                            ? "Home"
+                            : pathname === "/explore"
+                              ? "Explore"
+                              : pathname === "/profile"
+                                ? "Profile"
+                                : "Home",
+                        )
+                      }
+                    >
+                      {item.icon}
+                      {item.name}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      data-name={item.name}
+                      className={`px-3 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
+                        ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
+                      onMouseEnter={() => setHoveredTab(item.name)}
+                      onMouseLeave={() =>
+                        setHoveredTab(
+                          pathname === "/"
+                            ? "Home"
+                            : pathname === "/explore"
+                              ? "Explore"
+                              : pathname === "/profile"
+                                ? "Profile"
+                                : "Home",
+                        )
+                      }
+                    >
+                      {item.icon}
+                      {item.name}
+                    </Link>
+                  ),
+                )}
+              </nav>
             </div>
-          </Link>
+          </div>
 
-          <div className="hidden md:block relative">
-            <nav ref={navRef} className="flex items-center relative">
-              <div
-                ref={indicatorRef}
-                className="absolute rounded-full dark:bg-[#1D2833] bg-[#D7DFE4] transition-all duration-200 ease-in-out z-0"
-              />
-
-              {navItems.map((item) =>
-                item.external ? (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-name={item.name}
-                    className={`px-3 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
-                      ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
-                    onMouseEnter={() => setHoveredTab(item.name)}
-                    onMouseLeave={() =>
-                      setHoveredTab(
-                        pathname === "/"
-                          ? "Home"
-                          : pathname === "/explore"
-                            ? "Explore"
-                            : pathname === "/profile"
-                              ? "Profile"
-                              : "Home",
-                      )
-                    }
-                  >
-                    {item.icon}
-                    {item.name}
-                  </a>
-                ) : (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    data-name={item.name}
-                    className={`px-3 py-1 rounded-full text-sm font-semibold relative z-10 transition-colors duration-200 flex items-center
-                      ${hoveredTab === item.name ? "text-[#17212B] dark:text-white" : "dark:text-white text-[#17212B]"}`}
-                    onMouseEnter={() => setHoveredTab(item.name)}
-                    onMouseLeave={() =>
-                      setHoveredTab(
-                        pathname === "/"
-                          ? "Home"
-                          : pathname === "/explore"
-                            ? "Explore"
-                            : pathname === "/profile"
-                              ? "Profile"
-                              : "Home",
-                      )
-                    }
-                  >
-                    {item.icon}
-                    {item.name}
-                  </Link>
-                ),
-              )}
-            </nav>
+          <div className="flex items-center justify-en gap-3">
+            <div className="hidden md:block">
+              <NetworkDropdown />
+            </div>
+            <div className="">
+              <ConnectWalletButton isMobile={isMobile} />
+            </div>
+            <div className="md:hidden flex items-center">
+              <MobileNavigation navItems={navItems} currentPath={pathname} />
+            </div>
           </div>
         </div>
-
-        <div className="flex items-center justify-en gap-3">
-          <div className="hidden md:block">
-            <NetworkDropdown />
-          </div>
-          <div className="">
-            <ConnectWalletButton isMobile={isMobile} />
-          </div>
-          <div className="md:hidden flex items-center">
-            <MobileNavigation navItems={navItems} currentPath={pathname} />
-          </div>
-        </div>
-      </div>
-    </header>
-  )
-}
+      </header>
+    </>
+  );
+};
 
 const MobileNavigation = ({
   navItems,
   currentPath,
-}: { navItems: { name: string; href: string; external?: boolean; icon: React.ReactNode }[]; currentPath: string }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+}: {
+  navItems: { name: string; href: string; external?: boolean; icon: React.ReactNode }[];
+  currentPath: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -250,14 +265,14 @@ const MobileNavigation = ({
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
+    };
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -327,7 +342,7 @@ const MobileNavigation = ({
           document.body,
         )}
     </div>
-  )
-}
+  );
+};
 
 export default Header

@@ -6,26 +6,13 @@ import Header from "@/components/MainLayout/Header"
 import Footer from "@/components/Footer"
 import { useSettingTheme } from "@/store/setting/selector"
 import Headroom from "react-headroom"
-import { Star, TrendingUp, Users, ArrowLeft, AlertCircle } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import { useParams } from "next/navigation"
 import Modal from "@/components/common/Modal"
-
-// Types for our data
-interface Delegate {
-  name: string
-  address: string
-  image: string
-  bio: string
-  status: string
-  votingPower: string
-  totalDelegations: number
-  activeProposals: number
-  rating: number
-}
+import { findDelegateBySlug, formatNameForDisplay, type Delegate } from "@/lib/delegate-data"
 
 interface Proposal {
   title: string
@@ -77,21 +64,42 @@ export default function DelegatePage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1200))
 
-      // Mock data - in a real app, this would use the delegateSlug to fetch the specific delegate
-      setDelegate({
-        name: delegateSlug
+      // Find the delegate from our shared data
+      const foundDelegate = findDelegateBySlug(delegateSlug)
+
+      if (foundDelegate) {
+        // Use the delegate data from our shared list
+        setDelegate({
+          ...foundDelegate,
+          bio: "Experienced Compound delegate",
+          status: "Active",
+          votingPower: "12.35% of Quorum",
+          totalDelegations: 24,
+          activeProposals: 3,
+          rating: 4.7,
+        })
+      } else {
+        // Fallback if delegate not found
+        const delegateName = delegateSlug
           .split("-")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" "),
-        address: "0x5898...4848",
-        image: "/logo.png",
-        bio: "Experienced Compound delegate",
-        status: "Active",
-        votingPower: "12.35% of Quorum",
-        totalDelegations: 24,
-        activeProposals: 3,
-        rating: 4.7,
-      })
+          .join(" ")
+
+        setDelegate({
+          id: 0,
+          name: delegateName,
+          address: "0x5898...4848",
+          image: "/placeholder.svg?height=96&width=96",
+          rewardAPR: "0.00%",
+          bio: "Experienced Compound delegate",
+          status: "Active",
+          votingPower: "12.35% of Quorum",
+          totalDelegations: 24,
+          activeProposals: 3,
+          rating: 4.7,
+        })
+      }
+
       setIsDelegateLoading(false)
     } catch (error) {
       setIsError(true)
@@ -122,13 +130,6 @@ export default function DelegatePage() {
           date: "Mar 14th, 2025",
           votesFor: 703.99,
           votesAgainst: 0.29,
-        },
-        {
-          title: "[Gauntlet] – Rewards Top Up for Ethereum, Base and Optimism",
-          status: "PENDING EXECUTION",
-          date: "Mar 10th, 2025",
-          votesFor: 684,
-          votesAgainst: 517.09,
         },
       ])
       setIsProposalsLoading(false)
@@ -256,7 +257,6 @@ export default function DelegatePage() {
           </AnimatePresence>
 
           <div className="mx-auto max-w-[1100px] w-full p-4 mt-4">
-
             {/* Delegate Profile Section */}
             <motion.div
               className="mb-8 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm"
@@ -268,16 +268,9 @@ export default function DelegatePage() {
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                   <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
                   <div className="flex-1">
-                    <div className="h-8 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                    <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
                     <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-3"></div>
-                    <div className="h-6 w-20 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse mb-3"></div>
-                    <div className="h-4 w-full bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                    <div className="h-4 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-4"></div>
-                    <div className="flex flex-wrap gap-4">
-                      <div className="h-5 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                      <div className="h-5 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                      <div className="h-5 w-36 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                    </div>
+                    <div className="h-3 w-20 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse mb-3"></div>
                   </div>
                   <div className="h-10 w-32 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
                 </div>
@@ -285,11 +278,12 @@ export default function DelegatePage() {
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                   <div className="w-24 h-24 rounded-full overflow-hidden">
                     <Image
-                      src={delegate.image || "/placeholder.svg?height=96&width=96"}
+                      src={delegate.image || "/placeholder.svg"}
                       alt={delegate.name}
                       width={96}
                       height={96}
-                      className="w-full h-full object-cover"
+                      className="object-cover"
+                      unoptimized
                     />
                   </div>
                   <div className="flex-1">
@@ -300,12 +294,12 @@ export default function DelegatePage() {
                     </div>
                   </div>
                   <div className="h-full flex items-center">
-                  <button 
-                    className="bg-[#10b981] text-white px-6 py-3 rounded-full font-semibold text-xs transition-all duration-200 transform hover:scale-105 active:scale-95"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    Delegate COMP
-                  </button>
+                    <button
+                      className="bg-[#10b981] text-white px-6 py-3 rounded-full font-semibold text-xs transition-all duration-200 transform hover:scale-105 active:scale-95"
+                      onClick={() => setIsModalOpen(true)}
+                    >
+                      Delegate
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -326,7 +320,7 @@ export default function DelegatePage() {
 
               {isProposalsLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[1, 2, 3].map((_, index) => (
+                  {[1, 2].map((_, index) => (
                     <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
                       <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md mb-3"></div>
                       <div className="flex items-center gap-2 mb-3">
@@ -335,24 +329,13 @@ export default function DelegatePage() {
                       </div>
                       <div className="h-4 w-full bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
                       <div className="h-2 w-full bg-gray-200 dark:bg-[#33475b] rounded-full mb-2"></div>
-                      <div className="flex justify-between">
-                        <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                        <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                      </div>
                     </div>
                   ))}
                 </div>
               ) : proposals.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {proposals.map((proposal, index) => (
-                    <div
-                      key={index}
-                      className="p-4 bg-white dark:bg-[#1D2833] rounded-md"
-                      // initial={{ opacity: 0, y: 20 }}
-                      // animate={{ opacity: 1, y: 0 }}
-                      // transition={{ duration: 0.13, delay: 0.1 + index * 0.05 }}
-                      // whileHover={{ y: -2 }}
-                    >
+                    <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-md">
                       <h3 className="text-lg font-semibold text-[#030303] dark:text-white">{proposal.title}</h3>
                       <div className="flex items-center mt-2">
                         <span
@@ -403,7 +386,7 @@ export default function DelegatePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.2 }}
             >
-              <h2 className="text-xl font-bold text-[#030303] dark:text-white mb-3">Received Delegations</h2>
+              <h2 className="text-xl font-bold text-[#030303] dark:text-white mb-3">Delegators</h2>
 
               {isDelegationsLoading ? (
                 <div className="space-y-4">
@@ -456,17 +439,17 @@ export default function DelegatePage() {
       {isModalOpen && delegate && (
         <Modal handleClose={handleModalClose} open={isModalOpen}>
           <div className="">
-            <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full">
+            <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full overflow-hidden">
               <Image
                 src={delegate.image || "/placeholder.svg"}
                 alt={delegate.name}
-                fill
-                className="object-cover rounded-full"
+                width={56}
+                height={56}
+                className="object-cover"
+                unoptimized
               />
             </div>
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">
-              Delegate COMP to {delegate.name}
-            </h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">Delegate COMP to {delegate.name}</h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
                 <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
@@ -479,16 +462,8 @@ export default function DelegatePage() {
                       className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
                     />
                     <div className="flex items-center mr-3 ml-2">
-                      <Image
-                        src="/logo.png"
-                        alt="COMP Logo"
-                        width={20}
-                        height={20}
-                        className="mx-auto rounded-full"
-                      />
-                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">
-                        COMP
-                      </span>
+                      <Image src="/logo.png" alt="COMP Logo" width={20} height={20} className="mx-auto rounded-full" />
+                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">COMP</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2">
@@ -511,13 +486,13 @@ export default function DelegatePage() {
             </div>
             <button
               onClick={handleDelegateSubmit}
-              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > 0 || loading}
+              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > 0 || loading}
               className={`${
-                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > 0
+                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > 0
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
               } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                parseFloat(amount) > 0 ? "bg-red-500 hover:bg-red-600" : ""
+                Number.parseFloat(amount) > 0 ? "bg-red-500 hover:bg-red-600" : ""
               }`}
             >
               {loading ? (
@@ -527,48 +502,34 @@ export default function DelegatePage() {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : parseFloat(amount) > 0 ? (
+              ) : Number.parseFloat(amount) > 0 ? (
                 "Insufficient Balance"
               ) : (
                 "Delegate COMP"
               )}
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Delegated votes
-              </div>
-              <div className="">
-                0.00 COMP
-              </div>
+              <div className="">Delegated votes</div>
+              <div className="">0.00 COMP</div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Last active
-              </div>
-              <div className="">
-                7 days ago
-              </div>
+              <div className="">Last active</div>
+              <div className="">7 days ago</div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Profile
-              </div>
-              <Link href={`/delegate/${delegateSlug}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
-                @{delegate.name.replace(/\s+/g, '')}
+              <div className="">Profile</div>
+              <Link
+                href={`/delegate/${delegateSlug}`}
+                className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none"
+              >
+                @{formatNameForDisplay(delegate.name)}
               </Link>
             </div>
           </div>

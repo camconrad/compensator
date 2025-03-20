@@ -22,252 +22,7 @@ import Header from "@/components/MainLayout/Header"
 import Footer from "@/components/Footer"
 import { useSettingTheme } from "@/store/setting/selector"
 import Headroom from "react-headroom"
-
-const formatNameForURL = (name: string) => {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-}
-
-interface Delegate {
-  id: number
-  name: string
-  address: string
-  image: string
-  rewardAPR: string
-  votingPower?: number
-  activeProposals?: number
-  totalDelegations?: number
-  performance7D?: number
-}
-
-const delegatesData: Delegate[] = [
-  {
-    id: 1,
-    name: "a16z",
-    address: "0x123..4567",
-    image: "/delegates/a16z.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 2,
-    name: "Gauntlet",
-    address: "0x123..4567",
-    image: "/delegates/gauntlet.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 3,
-    name: "Geoffrey Hayes",
-    address: "0x123..4567",
-    image: "/delegates/geoffrey-hayes.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 4,
-    name: "Tennis Bowling",
-    address: "0x123..4567",
-    image: "/delegates/tennis-bowling.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 5,
-    name: "Monet Supply",
-    address: "0x123..4567",
-    image: "/delegates/monet-supply.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 6,
-    name: "allthecolors",
-    address: "0x123..4567",
-    image: "/delegates/all-the-colors.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 7,
-    name: "Wintermute",
-    address: "0x123..4567",
-    image: "/delegates/wintermute.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 8,
-    name: "Arr00",
-    address: "0x123..4567",
-    image: "/delegates/arr00.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 9,
-    name: "Franklin DAO",
-    address: "0x123..4567",
-    image: "/delegates/franklin-dao.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 10,
-    name: "Michigan Block..",
-    address: "0x123..4567",
-    image: "/delegates/mich.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 11,
-    name: "P Gov",
-    address: "0x123..4567",
-    image: "/delegates/pgov.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 12,
-    name: "Avantgarde",
-    address: "0x123..4567",
-    image: "/delegates/avantgarde.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 13,
-    name: "blck",
-    address: "0x123..4567",
-    image: "/delegates/blck.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 14,
-    name: "Bryan Colligan",
-    address: "0x123..4567",
-    image: "/delegates/bryan-colligan.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 15,
-    name: "blockchainUCLA",
-    address: "0x123..4567",
-    image: "/delegates/blockchainUCLA.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 16,
-    name: "Event Horizon DAO",
-    address: "0x123..4567",
-    image: "/delegates/event-horizon.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 17,
-    name: "CalBlockchain",
-    address: "0x123..4567",
-    image: "/delegates/cal-blockchain.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 18,
-    name: "she256",
-    address: "0x123..4567",
-    image: "/delegates/she256.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 19,
-    name: "Arana Digital",
-    address: "0x123..4567",
-    image: "/delegates/arana-digital.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 20,
-    name: "ResevoirDAO",
-    address: "0x123..4567",
-    image: "/delegates/resevoirDAO.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 21,
-    name: "Blockchain at Col..",
-    address: "0x123..4567",
-    image: "/delegates/columbia.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 22,
-    name: "hi_Reverie",
-    address: "0x123..4567",
-    image: "/delegates/reverie.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 23,
-    name: "Dragonfly Capital",
-    address: "0x123..4567",
-    image: "/delegates/dragonfly-capital.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 24,
-    name: "holonaut.eth",
-    address: "0x123..4567",
-    image: "/delegates/holonaut.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 25,
-    name: "dakeshi",
-    address: "0x123..4567",
-    image: "/delegates/dakeshi.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 26,
-    name: "DeFi Pulse Index",
-    address: "0x123..4567",
-    image: "/delegates/defi-pulse-index.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 27,
-    name: "Sharp",
-    address: "0x123..4567",
-    image: "/delegates/sharp.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 28,
-    name: "Scopelift",
-    address: "0x123..4567",
-    image: "/delegates/dakeshi.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 29,
-    name: "Argonaut",
-    address: "0x123..4567",
-    image: "/delegates/argonaut.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 30,
-    name: "b0x.eth",
-    address: "0x123..4567",
-    image: "/delegates/b0x.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 31,
-    name: "Polychain Capital",
-    address: "0x123..4567",
-    image: "/delegates/polychain-capital.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 32,
-    name: "Michael Lewellen",
-    address: "0x123..4567",
-    image: "/delegates/michael-lewellen.jpg",
-    rewardAPR: "0.00%",
-  },
-]
+import { delegatesData, formatNameForURL } from "@/lib/delegate-data"
 
 // Mock Data Fetching Function
 const fetchDelegates = async () => {
@@ -387,9 +142,9 @@ const ExplorePage = () => {
   const currentItems = filteredDelegates.slice(indexOfFirstItem, indexOfLastItem)
 
   const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    setCurrentPage(pageNumber)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 
   return (
     <>
@@ -494,11 +249,7 @@ const ExplorePage = () => {
               className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden"
             >
               <div className="overflow-x-auto">
-                <table
-                  className="w-full mx-auto"
-                  role="table"
-                  style={{ tableLayout: "fixed" }}
-                >
+                <table className="w-full mx-auto" role="table" style={{ tableLayout: "fixed" }}>
                   <thead className="bg-[#F9FAFB] dark:bg-[#17212B]" role="rowgroup">
                     <tr role="row">
                       <th
@@ -605,7 +356,10 @@ const ExplorePage = () => {
                               window.location.href = `/delegate/${formatNameForURL(delegate.name)}`
                             }}
                           >
-                            <td className="px-6 text-[#030303] py-4 dark:text-gray-300 text-sm" style={{ width: "100px" }}>
+                            <td
+                              className="px-6 text-[#030303] py-4 dark:text-gray-300 text-sm"
+                              style={{ width: "100px" }}
+                            >
                               #{index + 1 + (currentPage - 1) * itemsPerPage}
                             </td>
                             <td className="flex items-center py-3 gap-3 px-6" style={{ width: "200px" }}>
@@ -616,6 +370,7 @@ const ExplorePage = () => {
                                   width={36}
                                   height={36}
                                   className="object-cover rounded-full"
+                                  unoptimized
                                 />
                               </div>
                               <div>
@@ -625,7 +380,10 @@ const ExplorePage = () => {
                                 <span className="text-xs text-[#7A8999] dark:text-gray-400">{delegate.address}</span>
                               </div>
                             </td>
-                            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300" style={{ width: "120px" }}>
+                            <td
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              style={{ width: "120px" }}
+                            >
                               <div className="flex items-center">
                                 <div className="w-16 bg-gray-200 dark:bg-[#425365] rounded-full h-1.5 mr-2">
                                   <div
@@ -636,17 +394,23 @@ const ExplorePage = () => {
                                 <span>{delegate.votingPower}%</span>
                               </div>
                             </td>
-                            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300" style={{ width: "150px" }}>
+                            <td
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              style={{ width: "150px" }}
+                            >
                               {delegate.activeProposals}
                             </td>
-                            <td className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300" style={{ width: "150px" }}>
+                            <td
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-gray-300"
+                              style={{ width: "150px" }}
+                            >
                               <div className="flex items-center">
                                 <Users className="h-3.5 w-3.5 mr-1.5 text-[#7A8999] dark:text-gray-400" />
                                 {delegate.totalDelegations}
                               </div>
                             </td>
                             <td
-                              className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#4dd0a4]" : "text-[#f54a4a] dark:text-[#f54a4a]"}`}
+                              className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#5fe7b9]" : "text-[#f54a4a] dark:text-[#d67979]"}`}
                               style={{ width: "150px" }}
                             >
                               <div className="flex items-center">

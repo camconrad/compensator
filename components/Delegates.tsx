@@ -1,308 +1,63 @@
-"use client";
+"use client"
 
-import { useState, useRef, useEffect } from "react";
-import { Swiper, SwiperSlide, SwiperRef } from "swiper/react";
-import { Navigation, FreeMode } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/free-mode";
-import "swiper/css/navigation";
-import Image from "next/image";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
-import Modal from "@/components/common/Modal";
-import Link from "next/link";
+import type React from "react"
 
-interface Delegate {
-  id: number;
-  name: string;
-  address: string;
-  image: string;
-  rewardAPR: string;
-}
-
-const delegates: Delegate[] = [
-  {
-    id: 1,
-    name: "a16z",
-    address: "0x123..4567",
-    image: "/delegates/a16z.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 2,
-    name: "Gauntlet",
-    address: "0x123..4567",
-    image: "/delegates/gauntlet.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 3,
-    name: "Geoffrey Hayes",
-    address: "0x123..4567",
-    image: "/delegates/geoffrey-hayes.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 4,
-    name: "Tennis Bowling",
-    address: "0x123..4567",
-    image: "/delegates/tennis-bowling.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 5,
-    name: "Monet Supply",
-    address: "0x123..4567",
-    image: "/delegates/monet-supply.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 6,
-    name: "allthecolors",
-    address: "0x123..4567",
-    image: "/delegates/all-the-colors.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 7,
-    name: "Wintermute",
-    address: "0x123..4567",
-    image: "/delegates/wintermute.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 8,
-    name: "Arr00",
-    address: "0x123..4567",
-    image: "/delegates/arr00.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 9,
-    name: "Franklin DAO",
-    address: "0x123..4567",
-    image: "/delegates/franklin-dao.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 10,
-    name: "Michigan Block..",
-    address: "0x123..4567",
-    image: "/delegates/mich.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 11,
-    name: "P Gov",
-    address: "0x123..4567",
-    image: "/delegates/pgov.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 12,
-    name: "Avantgarde",
-    address: "0x123..4567",
-    image: "/delegates/avantgarde.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 13,
-    name: "blck",
-    address: "0x123..4567",
-    image: "/delegates/blck.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 14,
-    name: "Bryan Colligan",
-    address: "0x123..4567",
-    image: "/delegates/bryan-colligan.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 15,
-    name: "blockchainUCLA",
-    address: "0x123..4567",
-    image: "/delegates/blockchainUCLA.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 16,
-    name: "Event Horizon DAO",
-    address: "0x123..4567",
-    image: "/delegates/event-horizon.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 17,
-    name: "CalBlockchain",
-    address: "0x123..4567",
-    image: "/delegates/cal-blockchain.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 18,
-    name: "she256",
-    address: "0x123..4567",
-    image: "/delegates/she256.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 19,
-    name: "Arana Digital",
-    address: "0x123..4567",
-    image: "/delegates/arana-digital.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 20,
-    name: "ResevoirDAO",
-    address: "0x123..4567",
-    image: "/delegates/resevoirDAO.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 21,
-    name: "Blockchain at Col..",
-    address: "0x123..4567",
-    image: "/delegates/columbia.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 22,
-    name: "hi_Reverie",
-    address: "0x123..4567",
-    image: "/delegates/reverie.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 23,
-    name: "Dragonfly Capital",
-    address: "0x123..4567",
-    image: "/delegates/dragonfly-capital.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 24,
-    name: "holonaut.eth",
-    address: "0x123..4567",
-    image: "/delegates/holonaut.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 25,
-    name: "dakeshi",
-    address: "0x123..4567",
-    image: "/delegates/dakeshi.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 26,
-    name: "DeFi Pulse Index",
-    address: "0x123..4567",
-    image: "/delegates/defi-pulse-index.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 27,
-    name: "Sharp",
-    address: "0x123..4567",
-    image: "/delegates/sharp.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 28,
-    name: "Scopelift",
-    address: "0x123..4567",
-    image: "/delegates/dakeshi.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 29,
-    name: "Argonaut",
-    address: "0x123..4567",
-    image: "/delegates/argonaut.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 30,
-    name: "b0x.eth",
-    address: "0x123..4567",
-    image: "/delegates/b0x.png",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 31,
-    name: "Polychain Capital",
-    address: "0x123..4567",
-    image: "/delegates/polychain-capital.jpg",
-    rewardAPR: "0.00%",
-  },
-  {
-    id: 32,
-    name: "Michael Lewellen",
-    address: "0x123..4567",
-    image: "/delegates/michael-lewellen.jpg",
-    rewardAPR: "0.00%",
-  },
-];
-
-// Utility function to format the name for URLs
-const formatNameForURL = (name: string) => {
-  return name
-    .toLowerCase() // Convert to lowercase
-    .replace(/\s+/g, '-') // Replace spaces with dashes
-    .replace(/[^a-z0-9-]/g, ''); // Remove any non-alphanumeric characters except dashes
-};
-
-// Utility function to format the name for display (remove spaces)
-const formatNameForDisplay = (name: string) => {
-  return name.replace(/\s+/g, ''); // Remove all spaces
-};
+import { useState, useRef } from "react"
+import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react"
+import { Navigation, FreeMode } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/free-mode"
+import "swiper/css/navigation"
+import Image from "next/image"
+import { ArrowLeft, ArrowRight } from "lucide-react"
+import Modal from "@/components/common/Modal"
+import Link from "next/link"
+import { delegatesData, formatNameForURL, formatNameForDisplay, type Delegate } from "@/lib/delegate-data"
 
 const Delegates = () => {
-  const [sortBy, setSortBy] = useState("rank");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState("");
-  const swiperRef = useRef<SwiperRef | null>(null);
-  const navigationPrevRef = useRef(null);
-  const navigationNextRef = useRef(null);
+  const [sortBy, setSortBy] = useState("rank")
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [amount, setAmount] = useState("")
+  const swiperRef = useRef<SwiperRef | null>(null)
+  const navigationPrevRef = useRef(null)
+  const navigationNextRef = useRef(null)
 
-  const userBalance = 0.00;
+  const userBalance = 0.0
 
-  const sortedDelegates = [...delegates].sort((a, b) => {
+  const sortedDelegates = [...delegatesData].sort((a, b) => {
     if (sortBy === "apr") {
-      const aprA = Number.parseFloat(a.rewardAPR);
-      const aprB = Number.parseFloat(b.rewardAPR);
-      return aprB - aprA;
+      const aprA = Number.parseFloat(a.rewardAPR)
+      const aprB = Number.parseFloat(b.rewardAPR)
+      return aprB - aprA
     }
-    return a.id - b.id;
-  });
+    return a.id - b.id
+  })
 
   const handleCardClick = (delegate: Delegate) => {
-    setSelectedDelegate(delegate);
-    setIsModalOpen(true);
-  };
+    setSelectedDelegate(delegate)
+    setIsModalOpen(true)
+  }
 
   const handleButtonClick = (event: React.MouseEvent, delegate: Delegate) => {
-    event.stopPropagation();
-    setSelectedDelegate(delegate);
-    setIsModalOpen(true);
-  };
+    event.stopPropagation()
+    setSelectedDelegate(delegate)
+    setIsModalOpen(true)
+  }
 
   const handleModalClose = () => {
-    setIsModalOpen(false);
-    setSelectedDelegate(null);
-    setAmount("");
-  };
+    setIsModalOpen(false)
+    setSelectedDelegate(null)
+    setAmount("")
+  }
 
   const handleDelegateSubmit = () => {
-    setLoading(true);
+    setLoading(true)
     setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
+      setLoading(false)
+    }, 2000)
+  }
 
   return (
     <div className="w-full max-w-[1100px] mx-auto font-sans">
@@ -342,8 +97,8 @@ const Delegates = () => {
           spaceBetween={16}
           freeMode={true}
           navigation={{
-            prevEl: '.swiper-prev-btn-delegates',
-            nextEl: '.swiper-next-btn-delegates',
+            prevEl: ".swiper-prev-btn-delegates",
+            nextEl: ".swiper-next-btn-delegates",
           }}
           breakpoints={{
             0: {
@@ -359,8 +114,7 @@ const Delegates = () => {
               slidesPerView: 4,
             },
           }}
-          onInit={(swiper) => {
-          }}
+          onInit={(swiper) => {}}
         >
           {sortedDelegates.map((delegate, index) => (
             <SwiperSlide key={delegate.id} className="">
@@ -375,15 +129,12 @@ const Delegates = () => {
                       alt={delegate.name}
                       fill
                       className="object-cover rounded-full"
+                      unoptimized
                     />
                   </div>
                   <div className="truncate">
-                    <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">
-                      {delegate.name}
-                    </h3>
-                    <p className="text-sm font-medium text-[#6D7C8D]">
-                      {delegate.address}
-                    </p>
+                    <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">{delegate.name}</h3>
+                    <p className="text-sm font-medium text-[#6D7C8D]">{delegate.address}</p>
                   </div>
                 </div>
                 <div className="flex justify-between items-end mt-2 transition-transform duration-200 group-hover:-translate-y-12">
@@ -394,12 +145,8 @@ const Delegates = () => {
                     <p className="text-sm font-medium text-[#6D7C8D]">Rank</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-[#030303] dark:text-white">
-                      {delegate.rewardAPR}
-                    </p>
-                    <p className="text-sm font-medium text-[#6D7C8D]">
-                      Reward APR
-                    </p>
+                    <p className="text-xl font-bold text-[#030303] dark:text-white">{delegate.rewardAPR}</p>
+                    <p className="text-sm font-medium text-[#6D7C8D]">Reward APR</p>
                   </div>
                 </div>
                 <button
@@ -413,14 +160,10 @@ const Delegates = () => {
           ))}
         </Swiper>
         <div className="flex justify-center items-center gap-2 mt-8">
-          <button
-            className="swiper-prev-btn-delegates p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
-          >
+          <button className="swiper-prev-btn-delegates p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
-          <button
-            className="swiper-next-btn-delegates p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
-          >
+          <button className="swiper-next-btn-delegates p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors">
             <ArrowRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
         </div>
@@ -429,17 +172,17 @@ const Delegates = () => {
       {isModalOpen && selectedDelegate && (
         <Modal handleClose={handleModalClose} open={isModalOpen}>
           <div className="">
-          <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full">
-                <Image
-                  src={selectedDelegate.image || "/placeholder.svg"}
-                  alt={selectedDelegate.name}
-                  fill
-                  className="object-cover rounded-full"
-                />
-              </div>
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">
-              Delegate COMP to {selectedDelegate.name}
-            </h2>
+            <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full overflow-hidden">
+              <Image
+                src={selectedDelegate.image || "/placeholder.svg"}
+                alt={selectedDelegate.name}
+                width={56}
+                height={56}
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">Delegate COMP to {selectedDelegate.name}</h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
                 <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#28303e] rounded-lg h-20 p-3">
@@ -452,16 +195,8 @@ const Delegates = () => {
                       className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
                     />
                     <div className="flex items-center mr-3 ml-2">
-                      <Image
-                        src="/logo.png"
-                        alt="COMP Logo"
-                        width={20}
-                        height={20}
-                        className="mx-auto rounded-full"
-                      />
-                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">
-                        COMP
-                      </span>
+                      <Image src="/logo.png" alt="COMP Logo" width={20} height={20} className="mx-auto rounded-full" />
+                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">COMP</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2">
@@ -484,13 +219,13 @@ const Delegates = () => {
             </div>
             <button
               onClick={handleDelegateSubmit}
-              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
+              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > userBalance || loading}
               className={`${
-                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
+                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > userBalance
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
               } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
+                Number.parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
               }`}
             >
               {loading ? (
@@ -500,55 +235,37 @@ const Delegates = () => {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : parseFloat(amount) > userBalance ? (
+              ) : Number.parseFloat(amount) > userBalance ? (
                 "Insufficient Balance"
               ) : (
                 "Delegate COMP"
               )}
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Reward APR
-              </div>
-              <div className="">
-                0.00%
-              </div>
+              <div className="">Reward APR</div>
+              <div className="">0.00%</div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Delegated votes
-              </div>
-              <div className="">
-                0.00 COMP
-              </div>
+              <div className="">Delegated votes</div>
+              <div className="">0.00 COMP</div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Last active
-              </div>
-              <div className="">
-                7 days ago
-              </div>
+              <div className="">Last active</div>
+              <div className="">7 days ago</div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Profile
-              </div>
-              <Link href={`/delegate/${formatNameForURL(selectedDelegate.name)}`} className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none">
+              <div className="">Profile</div>
+              <Link
+                href={`/delegate/${formatNameForURL(selectedDelegate.name)}`}
+                className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none"
+              >
                 @{formatNameForDisplay(selectedDelegate.name)}
               </Link>
             </div>
@@ -556,7 +273,7 @@ const Delegates = () => {
         </Modal>
       )}
     </div>
-  );
-};
+  )
+}
 
 export default Delegates
