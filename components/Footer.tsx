@@ -46,6 +46,14 @@ export default function Footer() {
         >
           GitHub
         </Link>
+        <Link
+          href="https://docs.compensator.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+        >
+          Docs
+        </Link>
       </div>
 
       <motion.button
