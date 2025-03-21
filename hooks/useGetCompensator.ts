@@ -6,28 +6,23 @@ import { ethers } from "ethers";
 import { compensatorContractInfo } from "@/constants";
 
 export const useGetCompensatorContract = () => {
-  const { address } = useAccount();
-  const [compensatorContract, setCompensatorContract] = useState<any>();
-
-  const handleSetContract = async () => {
+  const handleSetCompensatorContract = async (compensatorAddress: string) => {
     try {
       const { signer } = await getEthersSigner(wagmiConfig);
       const compensatorContract = new ethers.Contract(
-        compensatorContractInfo.address,
+        compensatorAddress || "",
         compensatorContractInfo.abi,
         signer
       );
-      setCompensatorContract(compensatorContract);
-    } catch (error) {}
+
+      return compensatorContract;
+    } catch (error) {
+      console.error(error);
+      return;
+    }
   };
 
-  useEffect(() => {
-    if (compensatorContractInfo && address) {
-      handleSetContract();
-    }
-  }, [compensatorContractInfo, address]);
-
   return {
-    compensatorContract,
+    handleSetCompensatorContract,
   };
 };
