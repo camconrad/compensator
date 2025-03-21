@@ -19,12 +19,14 @@ import Image from "next/image";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import ConnectWalletButton from "@/components/MainLayout/ConnectWalletButton";
 import Modal from "@/components/common/Modal";
-import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
+import { useGetCompensatorFactoryContract } from "@/hooks/useGetCompensatorFactoryContract";
 import { getEthersSigner } from "@/hooks/useEtherProvider";
 import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
 import { switchChain, waitForTransactionReceipt } from "@wagmi/core";
 import toast from "react-hot-toast";
 import { mainnet } from "wagmi/chains";
+import { useGetCompensatorContract } from "@/hooks/useGetCompensator";
+import { ethers } from "ethers";
 
 interface UserProfile {
   name: string;
@@ -74,8 +76,9 @@ export default function ProfilePage() {
   const [fundingAmount, setFundingAmount] = useState<string>("");
   const [isFocused, setIsFocused] = useState(false);
   const [modalKey, setModalKey] = useState<number>(Date.now()); // Unique key for modal
-  const { compensatorContract } = useGetCompensatorContract();
+  const { compensatorFactoryContract } = useGetCompensatorFactoryContract();
   const { switchChainAsync } = useSwitchChain();
+  const { handleSetCompensatorContract } = useGetCompensatorContract();
 
   const loadAllData = useCallback(async () => {
     try {
@@ -223,13 +226,48 @@ export default function ProfilePage() {
     setFundingAmount("");
   };
 
+  const handleSetReward = async (compensatorAddress: string) => {
+    try {
+      const compensatorContract = await handleSetCompensatorContract(
+        compensatorAddress
+      );
+      if (!compensatorContract) {
+        throw new Error("Compensator contract not found");
+      }
+
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+      const gas = await compensatorFactoryContract.setRewardRate.estimateGas(
+        ethers.formatUnits(apr, 18).toString()
+      );
+      const receipt = await compensatorFactoryContract.setRewardRate(
+        ethers.formatUnits(apr, 18).toString(),
+        {
+          gasLimit: gas,
+          maxFeePerGas: feeData.maxFeePerGas,
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+        }
+      );
+      const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+        hash: receipt?.hash,
+      });
+      if (transactionReceipt?.status === "success") {
+        toast.success("Set reward successfully");
+        // step 3;
+        // handleRewardsModalClose();
+      }
+    } catch (error) {
+      console.log("error :>> ", error);
+    } finally {
+    }
+  };
 
   const handleRewardsSubmit = async () => {
     setLoading(true);
     try {
       await switchChainAsync({ chainId: mainnet.id });
 
-      if (!address || !compensatorContract) {
+      if (!address || !compensatorFactoryContract) {
         throw new Error("Please connect to a wallet");
       }
 
@@ -250,12 +288,13 @@ export default function ProfilePage() {
 
       const { provider } = await getEthersSigner(wagmiConfig);
       const feeData = await provider.getFeeData();
-      const gas = await compensatorContract.createCompensator.estimateGas(
-        delegateAddress,
-        profileName
-      );
+      const gas =
+        await compensatorFactoryContract.createCompensator.estimateGas(
+          delegateAddress,
+          profileName
+        );
 
-      const receipt = await compensatorContract.createCompensator(
+      const receipt = await compensatorFactoryContract.createCompensator(
         delegateAddress,
         profileName,
         {
@@ -270,28 +309,10 @@ export default function ProfilePage() {
 
       if (transactionReceipt?.status === "success") {
         toast.success("Successful Created");
-        handleRewardsModalClose();
+        const compensatorAddress =
+          await compensatorFactoryContract.getCompensator(delegateAddress);
+        await handleSetReward(compensatorAddress);
       }
-
-      // const response = await fetch("/api/createCompensator", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     delegatee: delegateAddress,
-      //     delegateeName: profileName,
-      //     rewardRate: compPerSecond.toString(),
-      //     fundingAmount: fundingAmount,
-      //   }),
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error("Failed to create Compensator contract");
-      // }
-
-      // const data = await response.json();
-      // console.log("Compensator contract created:", data);
     } catch (error) {
       console.error("Error creating compensator contract:", error);
       setIsError(true);

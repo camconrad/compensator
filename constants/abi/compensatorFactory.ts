@@ -1,0 +1,40 @@
+export const compensatorFactoryAbi = [
+  {
+    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    name: "compensators",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "delegatee", type: "address" },
+      { internalType: "string", name: "delegateeName", type: "string" },
+    ],
+    name: "createCompensator",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "delegateeToCompensator",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "delegatee", type: "address" }],
+    name: "getCompensator",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getCompensators",
+    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
