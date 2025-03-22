@@ -127,11 +127,11 @@ export default function ProfilePage() {
       await new Promise((resolve) => setTimeout(resolve, 1200))
       setProfile({
         name: "Username",
-        address: address || "0x1234...5678",
+        address: address || "0x1234..5678",
         image: "/logo.png",
         bio: "Compound governance participant",
-        votingPower: "0.00",
-        totalDelegations: 4,
+        votingPower: "0",
+        totalDelegations: 0,
         activeDelegations: 0,
         statement: "",
       })
@@ -646,7 +646,7 @@ export default function ProfilePage() {
                               {formatAddress(address || "")}
                             </h1>
                             <div className="flex items-center mt-1">
-                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{address}</p>
+                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{formatAddress(address || "")}</p>
                               <button
                                 onClick={() => copyToClipboard(address || "")}
                                 className="ml-2 text-[#6D7C8D] hover:text-[#030303] dark:hover:text-gray-300"
@@ -657,12 +657,12 @@ export default function ProfilePage() {
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <Button
+                          <button
                             onClick={handleRewardsButtonClick}
-                            className="bg-[#10b981] font-semibold text-sm rounded-full text-white hover:bg-emerald-600"
+                            className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center"
                           >
                             Create Compensator
-                          </Button>
+                          </button>
                         </div>
                       </div>
 
@@ -677,26 +677,31 @@ export default function ProfilePage() {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                          <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Vote Power (% of Quorum)
-                          </h3>
-                          <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                            {profile?.votingPower || "0"}
-                          </p>
+                        <div className="flex items-center justify-start gap-[6px]">
+                        <img
+                            src="/logo.png"
+                            alt=""
+                            className="h-5 w-5 rounded-full"
+                          />
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {profile?.votingPower || "0"}
+                        </p>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Vote Power</h3>
                         </div>
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                            {profile?.totalDelegations || 0}
+                          </p>
                           <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
                             Delegations
                           </h3>
-                          <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                            {profile?.totalDelegations || 0}
-                          </p>
                         </div>
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">0</p>
                           <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
                             Proposals
                           </h3>
-                          <p className="text-2xl font-bold text-[#030303] dark:text-white">0</p>
                         </div>
                       </div>
                     </>
@@ -1201,4 +1206,3 @@ export default function ProfilePage() {
     </>
   )
 }
-

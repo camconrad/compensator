@@ -6,7 +6,7 @@ import Header from "@/components/MainLayout/Header"
 import Footer from "@/components/Footer"
 import { useSettingTheme } from "@/store/setting/selector"
 import Headroom from "react-headroom"
-import { AlertCircle, TrendingUp, Users } from "lucide-react"
+import { AlertCircle, TrendingUp, Users, Copy } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -167,6 +167,23 @@ export default function DelegatePage() {
     }, 2000)
   }
 
+  // Copy address to clipboard
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success("Address copied to clipboard", {
+      position: "bottom-center",
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+      iconTheme: {
+        primary: "#10B981",
+        secondary: "#FFFFFF",
+      },
+    })
+  }
+
   return (
     <>
       <Head>
@@ -229,63 +246,94 @@ export default function DelegatePage() {
           <div className="mx-auto max-w-[1100px] w-full p-4 mt-4">
             {/* Delegate Profile Section */}
             <motion.div
-              className="mb-8 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm"
+              className="mb-6 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
               {isDelegateLoading ? (
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
-                  <div className="flex-1">
-                    <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                    <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-3"></div>
-                    <div className="h-3 w-20 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse mb-3"></div>
-                  </div>
-                  <div className="h-10 w-32 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
-                </div>
-              ) : delegate ? (
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                  <div className="w-20 h-20 rounded-full overflow-hidden">
-                    <Image
-                      src={delegate.image || "/placeholder.svg"}
-                      alt={delegate.name}
-                      width={80}
-                      height={80}
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h1 className="text-xl font-bold text-[#030303] dark:text-white">{delegate.name}</h1>
-                    <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{delegate.address}</p>
-                    <div className="inline-flex items-center px-2 py-1 mt-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-medium">
-                      {delegate.status}
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                      <div className="flex-1">
+                        <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                        <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="hidden md:block">
+                      <div className="h-10 w-40 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-4 mt-4">
-                          <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
-                            Vote Power
-                            <span className="text-[#030303] dark:text-white">
-                              N/A
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
-                            Delegators:
-                            <span className="text-[#030303] dark:text-white">
-                              N/A
-                            </span>
-                          </div>
-                        </div>
-                  <div className="h-full flex items-center">
-                    <button
-                      className="bg-[#EFF2F5] text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
-                      onClick={() => setIsModalOpen(true)}
-                    >
-                      Delegate
-                    </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+                    <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+                    <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
                   </div>
                 </div>
+              ) : delegate ? (
+                <>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center">
+                        <Image
+                          src={delegate.image || "/logo.png"}
+                          alt="Profile"
+                          width={64}
+                          height={64}
+                          className="rounded-full"
+                        />
+                      </div>
+                      <div>
+                        <h1 className="text-2xl font-bold text-[#030303] dark:text-white">{delegate.name}</h1>
+                        <div className="flex items-center mt-1">
+                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{delegate.address}</p>
+                          <button
+                            onClick={() => copyToClipboard(delegate.address || "")}
+                            className="ml-2 text-[#6D7C8D] hover:text-[#030303] dark:hover:text-gray-300"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center"
+                      >
+                        Delegate
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="flex items-center justify-start gap-[6px]">
+                        <img
+                            src="/logo.png"
+                            alt=""
+                            className="h-5 w-5 rounded-full"
+                          />
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {delegate.votingPower || "0"}
+                        </p>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Vote Power</h3>
+                    </div>
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                        {delegate.totalDelegations || 0}
+                      </p>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Delegations</h3>
+                    </div>
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <p className="text-2xl font-bold text-[#030303] dark:text-white">0</p>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Proposals</h3>
+                    </div>
+                  </div>
+                </>
               ) : (
                 <div className="flex items-center justify-center p-8">
                   <p className="text-[#6D7C8D] dark:text-gray-400">No delegate data available</p>
