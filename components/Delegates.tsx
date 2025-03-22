@@ -16,6 +16,7 @@ import { useAccount, useWriteContract, useReadContract } from "wagmi"
 import { compoundTokenContractInfo } from "@/constants"
 import { formatUnits } from "ethers"
 import toast from "react-hot-toast"
+import { isAddress } from "ethers";
 
 const Delegates = () => {
   const [sortBy, setSortBy] = useState("rank")
@@ -77,32 +78,35 @@ const Delegates = () => {
   }
 
   const handleDelegateSubmit = async () => {
-    setLoading(true)
-
+    setLoading(true);
+  
     try {
       if (!selectedDelegate || !amount || Number.parseFloat(amount) <= 0) {
-        throw new Error("Invalid amount or delegate")
+        throw new Error("Invalid amount or delegate");
       }
-
-      if (!selectedDelegate.address) {
-        throw new Error("Delegate address is missing")
+  
+      if (!selectedDelegate.address || !isAddress(selectedDelegate.address)) {
+        throw new Error("Invalid delegate address");
       }
-
+  
+      // Ensure selectedDelegate.address is of type `0x${string}`
+      const delegateAddress = selectedDelegate.address as `0x${string}`;
+  
       await writeContractAsync({
         address: compoundTokenContractInfo.address,
         abi: compoundTokenContractInfo.abi,
         functionName: "delegate",
-        args: [selectedDelegate.address],
-      })
-
-      toast.success("Delegation successful!")
-      handleModalClose()
-      refetchCompBalance()
+        args: [delegateAddress],
+      });
+  
+      toast.success("Delegation successful!");
+      handleModalClose();
+      refetchCompBalance();
     } catch (error) {
-      console.error("Error delegating COMP:", error)
-      toast.error("Failed to delegate COMP. Please try again.")
+      console.error("Error delegating COMP:", error);
+      toast.error("Failed to delegate COMP. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
