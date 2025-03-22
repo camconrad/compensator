@@ -88,8 +88,7 @@ const Delegates = () => {
       if (!selectedDelegate.address || !isAddress(selectedDelegate.address)) {
         throw new Error("Invalid delegate address");
       }
-  
-      // Ensure selectedDelegate.address is of type `0x${string}`
+      
       const delegateAddress = selectedDelegate.address as `0x${string}`;
   
       await writeContractAsync({
@@ -108,7 +107,7 @@ const Delegates = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-[1100px] mx-auto font-sans">
