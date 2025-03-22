@@ -949,17 +949,16 @@ export default function ProfilePage() {
                             <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
                           </div>
                           <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Voting History</h2>
-                          <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-sm mx-auto">
+                          <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-sm mx-auto">
                             Voting history is currently untracked
                           </p>
                           <a
-                            href="https://www.tally.xyz"
+                            href="hhttps://www.tally.xyz/gov/compound/proposals"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="bg-[#10b981] transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold inline-flex items-center"
                           >
-                            View on Tally
-                            <ExternalLink className="ml-1 h-4 w-4" />
+                            View Proposals
                           </a>
                         </div>
                       )}
@@ -1033,7 +1032,7 @@ export default function ProfilePage() {
                             <Users className="h-6 w-6 text-[#030303] dark:text-white" />
                           </div>
                           <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Delegations</h2>
-                          <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-sm mx-auto">
+                          <p className="text-[#6D7C8D] dark:text-gray-400 mb-4 max-w-sm mx-auto">
                             Delegations are currently untracked
                           </p>
                           <Link
