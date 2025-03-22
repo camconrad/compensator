@@ -386,9 +386,7 @@ export default function DelegatePage() {
                   </p>
                   {delegate?.externalLink && (
                     <button
-                      href={delegate.externalLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => window.open(delegate.externalLink, '_blank', 'noopener,noreferrer')}
                       className="bg-[#EFF2F5] text-sm mb-2 transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-3 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
                     >
                       View Proposals

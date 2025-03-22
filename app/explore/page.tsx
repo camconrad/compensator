@@ -290,7 +290,7 @@ const ExplorePage = () => {
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Active Prop.</span>
-                          <span className="sm:hidden">Active Prop.</span>
+                          <span className="sm:hidden">Propos.</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
@@ -301,7 +301,7 @@ const ExplorePage = () => {
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Delegations</span>
-                          <span className="sm:hidden">Delegations</span>
+                          <span className="sm:hidden">Delegat.</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
