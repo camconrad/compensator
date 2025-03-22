@@ -34,8 +34,8 @@ const Delegates = () => {
     address: compoundTokenContractInfo.address,
     abi: compoundTokenContractInfo.abi,
     functionName: "balanceOf",
-    args: [address],
-  })
+    args: address ? [address as `0x${string}`] : undefined,
+  });
 
   const formattedCompBalance = compBalance ? parseFloat(formatUnits(compBalance, 18)).toFixed(4) : "0.0000"
 
