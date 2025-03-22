@@ -171,7 +171,7 @@ export default function ProfilePage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1800))
       // Generate more proposals for pagination demonstration
-      const proposalData = [
+      const proposalData: Proposal[] = [
         {
           id: "1",
           title: "Initialize cWETHv3 on Ronin",
