@@ -117,26 +117,7 @@ export default function DelegatePage() {
       await new Promise((resolve) => setTimeout(resolve, 1800))
 
       // Mock data
-      setProposals([
-        {
-          title: "Add wasperOETHb as collateral into cWETHv3 on Base",
-          status: "Active",
-          date: "Mar 14th, 2025",
-          votesFor: 573.63,
-          votesAgainst: 0.04,
-          voted: true,
-          voteDirection: "for",
-        },
-        {
-          title: "Add tETH as collateral into cWETHv3 on Mainnet",
-          status: "Active",
-          date: "Mar 14th, 2025",
-          votesFor: 703.99,
-          votesAgainst: 0.29,
-          voted: true,
-          voteDirection: "against",
-        },
-      ])
+      setProposals([]) // Empty array to simulate no proposals
       setIsProposalsLoading(false)
     } catch (error) {
       setIsError(true)
@@ -153,23 +134,7 @@ export default function DelegatePage() {
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       // Mock data
-      setDelegations([
-        {
-          delegator: "0x1234...5678",
-          amount: "500 COMP",
-          date: "Feb 28th, 2025",
-        },
-        {
-          delegator: "0x5678...1234",
-          amount: "300 COMP",
-          date: "Mar 5th, 2025",
-        },
-        {
-          delegator: "0xabcd...ef01",
-          amount: "750 COMP",
-          date: "Mar 12th, 2025",
-        },
-      ])
+      setDelegations([]) // Empty array to simulate no delegations
       setIsDelegationsLoading(false)
     } catch (error) {
       setIsError(true)
@@ -300,7 +265,7 @@ export default function DelegatePage() {
                   </div>
                   <div className="h-full flex items-center">
                     <button
-                      className="bg-[#EFF2F5] transition-all text-sm duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
+                      className="bg-[#EFF2F5] text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"
                       onClick={() => setIsModalOpen(true)}
                     >
                       Delegate
@@ -402,9 +367,19 @@ export default function DelegatePage() {
                     <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
                   </div>
                   <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Voting History</h2>
-                  <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    This delegate hasn't voted on any proposals yet.
+                  <p className="text-[#6D7C8D] text-medium dark:text-gray-400 mb-4 max-w-md mx-auto">
+                    Voting history is currently untracked
                   </p>
+                  {delegate?.externalLink && (
+                    <Link
+                      href={delegate.externalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#EFF2F5] text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-3 mb-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
+                    >
+                      View Proposals
+                    </Link>
+                  )}
                 </div>
               )}
             </motion.div>
@@ -466,9 +441,15 @@ export default function DelegatePage() {
                     <Users className="h-6 w-6 text-[#030303] dark:text-white" />
                   </div>
                   <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Delegations</h2>
-                  <p className="text-[#6D7C8D] dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    This delegate hasn't received any delegations yet.
+                  <p className="text-[#6D7C8D] text-medium dark:text-gray-400 mb-4 max-w-md mx-auto">
+                    Delegations are currently untracked
                   </p>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="bg-[#EFF2F5] text-sm mb-2 transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-3 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
+                  >
+                    Delegate COMP
+                  </button>
                 </div>
               )}
             </motion.div>
@@ -557,6 +538,10 @@ export default function DelegatePage() {
                 "Delegate COMP"
               )}
             </button>
+            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
+              <div className="">Reward APR</div>
+              <div className="">0.00%</div>
+            </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Delegated votes</div>
               <div className="">0.00 COMP</div>
