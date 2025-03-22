@@ -10,11 +10,12 @@ import Image from "next/image"
 import type { MouseEvent } from "react"
 import { createPortal } from "react-dom"
 
-const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
+const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000", isMobile = false }) => {
   const { openConnectModal } = useConnectModal()
   const { address } = useAccount()
   const { disconnectAsync } = useDisconnect()
   const [isLoading, setIsLoading] = useState(false)
+  const [isClaimLoading, setIsClaimLoading] = useState(false)
   const [showPopover, setShowPopover] = useState(false)
   const [copied, setCopied] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -23,6 +24,10 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
   const compPopoverRef = useRef<HTMLDivElement>(null)
   const compButtonRef = useRef<HTMLButtonElement>(null)
   const [isEthereumExpanded, setIsEthereumExpanded] = useState(true)
+  const [claimSuccess, setClaimSuccess] = useState(false)
+
+  // Placeholder implementation
+  const amount = unclaimedComp
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -58,6 +63,12 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
     }
   }, [])
 
+  useEffect(() => {
+    if (!showCompPopover) {
+      setClaimSuccess(false)
+    }
+  }, [showCompPopover])
+
   const handleConnectWallet = async () => {
     setIsLoading(true)
     try {
@@ -84,6 +95,24 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
   const handleChangeWallet = () => {
     openConnectModal && openConnectModal()
     setShowPopover(false)
+  }
+
+  const handleClaimCOMP = async () => {
+    if (!address || Number.parseFloat(amount) <= 0) return
+
+    setIsClaimLoading(true)
+    try {
+      // Simulate a delay for the transaction
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      setClaimSuccess(true)
+
+      console.log(`Successfully claimed ${amount} COMP tokens`)
+    } catch (error) {
+      console.error("Error claiming COMP:", error)
+    } finally {
+      setIsClaimLoading(false)
+    }
   }
 
   const copyToClipboard = () => {
@@ -141,6 +170,8 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
   const toggleEthereumExpanded = () => {
     setIsEthereumExpanded(!isEthereumExpanded)
   }
+
+  const isClaimDisabled = Number.parseFloat(amount) <= 0 || isClaimLoading || claimSuccess
 
   if (!address) {
     if (isMobile) {
@@ -348,12 +379,72 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
                   transition={{ duration: 0.2 }}
                   className="mt-3 pl-7"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold">Wallet Balance</span>
                     <span className="text-[#030303] dark:text-white text-sm font-semibold">
                       0<span className="text-gray-400">.0000</span>
                     </span>
                   </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold">Unclaimed</span>
+                    <span className="text-[#030303] dark:text-white text-sm font-semibold">
+                      0<span className="text-gray-400">.0000</span>
+                    </span>
+                  </div>
+                  <motion.button
+                    onClick={handleClaimCOMP}
+                    disabled={isClaimDisabled}
+                    className={`
+                      w-full py-3 px-4 text-xs font-semibold rounded-full transition-colors
+                      ${
+                        isClaimDisabled
+                          ? "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                          : "bg-[#D7DFE4] dark:bg-[#2B3947] hover:bg-[#c7d1d6] dark:hover:bg-[#2F3E4D] text-[#030303] dark:text-white"
+                      }
+                    `}
+                    whileHover={!isClaimDisabled ? { scale: 1.02 } : {}}
+                    whileTap={!isClaimDisabled ? { scale: 0.98 } : {}}
+                  >
+                    {isClaimLoading ? (
+                      <div className="flex items-center justify-center">
+                        <svg
+                          className="animate-spin h-4 w-4 mr-2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Claiming...
+                      </div>
+                    ) : claimSuccess ? (
+                      <div className="flex items-center justify-center">
+                        <svg
+                          className="h-4 w-4 mr-2 text-green-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Claimed Successfully
+                      </div>
+                    ) : (
+                      `Claim ${amount} COMP`
+                    )}
+                  </motion.button>
                 </motion.div>
               )}
             </AnimatePresence>
