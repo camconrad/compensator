@@ -263,6 +263,20 @@ export default function DelegatePage() {
                       {delegate.status}
                     </div>
                   </div>
+                  <div className="flex flex-wrap items-center gap-4 mt-4">
+                          <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
+                            Vote Power
+                            <span className="text-[#030303] dark:text-white">
+                              N/A
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
+                            Delegators:
+                            <span className="text-[#030303] dark:text-white">
+                              N/A
+                            </span>
+                          </div>
+                        </div>
                   <div className="h-full flex items-center">
                     <button
                       className="bg-[#EFF2F5] text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-2 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-[#0D131A] font-semibold"

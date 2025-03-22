@@ -449,13 +449,15 @@ export default function ProfilePage() {
                           <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
                             Vote Power
                             <span className="text-[#030303] dark:text-white">
-                              {profile?.votingPower || "0.00 COMP"}
+                              {/* {profile?.votingPower || "0.00 COMP"} */}
+                              N/A
                             </span>
                           </div>
                           <div className="flex items-center gap-1 text-sm text-[#6D7C8D] dark:text-gray-400">
                             Delegators:
                             <span className="text-[#030303] dark:text-white">
-                              {profile?.activeDelegations || 0}
+                              {/* {profile?.activeDelegations || 0} */}
+                              N/A
                             </span>
                           </div>
                         </div>
