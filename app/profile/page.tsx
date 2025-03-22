@@ -580,12 +580,17 @@ export default function ProfilePage() {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                        <div className="flex items-center justify-start gap-[6px]">
+                        <img
+                            src="/logo.png"
+                            alt=""
+                            className="h-5 w-5 rounded-full"
+                          />
                         <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                            {profile?.votingPower || "0"} COMP
-                          </p>
-                          <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Vote Power
-                          </h3>
+                          {profile?.votingPower || "0"}
+                        </p>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Vote Power</h3>
                         </div>
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                         <p className="text-2xl font-bold text-[#030303] dark:text-white">
