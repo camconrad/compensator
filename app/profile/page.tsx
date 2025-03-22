@@ -81,11 +81,9 @@ export default function ProfilePage() {
   const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true)
   const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true)
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState<boolean>(false)
-  const [isStatementModalOpen, setIsStatementModalOpen] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [profileName, setProfileName] = useState<string>("")
   const [delegateAddress, setDelegateAddress] = useState<string>("")
-  const [delegateStatement, setDelegateStatement] = useState<string>("")
   const [apr, setApr] = useState<string>("")
   const [fundingAmount, setFundingAmount] = useState<string>("")
   const [isFocused, setIsFocused] = useState(false)
@@ -148,14 +146,14 @@ export default function ProfilePage() {
       await new Promise((resolve) => setTimeout(resolve, 1500))
       setDelegations([
         {
-          delegate: "Geoffrey Hayes",
-          delegateImage: "/delegates/geoffrey-hayes.jpg",
+          delegate: "@example 1",
+          delegateImage: "/logo.png",
           amount: "500 COMP",
           date: "Feb 28th, 2025",
         },
         {
-          delegate: "a16z",
-          delegateImage: "/delegates/a16z.jpg",
+          delegate: "@example 2",
+          delegateImage: "/logo.png",
           amount: "300 COMP",
           date: "Mar 5th, 2025",
         },
@@ -303,33 +301,12 @@ export default function ProfilePage() {
     setModalKey(Date.now())
   }
 
-  const handleStatementButtonClick = () => {
-    setIsStatementModalOpen(true)
-    setDelegateStatement(profile?.statement || "")
-    setModalKey(Date.now())
-  }
-
   const handleRewardsModalClose = () => {
     setIsRewardsModalOpen(false)
     setProfileName("")
     setDelegateAddress("")
     setApr("")
     setFundingAmount("")
-  }
-
-  const handleStatementModalClose = () => {
-    setIsStatementModalOpen(false)
-  }
-
-  const handleStatementSubmit = () => {
-    if (profile) {
-      setProfile({
-        ...profile,
-        statement: delegateStatement,
-      })
-      toast.success("Delegation statement updated")
-      setIsStatementModalOpen(false)
-    }
   }
 
   const handleSetReward = async (compensatorAddress: string) => {
@@ -472,7 +449,7 @@ export default function ProfilePage() {
         </div>
 
         <motion.main
-          className="flex flex-col items-center justify-center min-h-screen pt-20"
+          className="flex flex-col items-center justify-center min-h-screen"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
@@ -507,7 +484,7 @@ export default function ProfilePage() {
           <div className="mx-auto max-w-[1100px] w-full px-4 py-6">
             {!isConnected ? (
               <motion.div
-                className="mb-8 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
+                className="mb-8 bg-white dark:bg-[#1D2833] p-6 mt-[-120px] rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.2 }}
@@ -535,24 +512,35 @@ export default function ProfilePage() {
                 >
                   {isProfileLoading ? (
                     <div className="flex flex-col space-y-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
-                        <div className="flex-1">
-                          <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                          <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                          <div className="flex-1">
+                            <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                            <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                          </div>
                         </div>
+                        <div className="hidden md:block">
+                          <div className="h-10 w-40 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+                        <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+                        <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
                       </div>
                     </div>
                   ) : (
                     <>
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full flex items-center justify-center">
+                          <div className="w-16 h-16rounded-full flex items-center justify-center">
                             <Image
                               src={profile?.image || "/logo.png"}
                               alt="Profile"
-                              width={48}
-                              height={48}
+                              width={64}
+                              height={64}
                               className="rounded-full"
                             />
                           </div>
@@ -573,15 +561,8 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <Button
-                            onClick={handleStatementButtonClick}
-                            variant="outline"
-                            className="bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#232F3B] text-[#030303] dark:text-white hover:bg-[#f9f9f9] dark:hover:bg-[#24313d]"
-                          >
-                            Edit Profile
-                          </Button>
-                          <Button
                             onClick={handleRewardsButtonClick}
-                            className="bg-[#10b981] text-white hover:bg-emerald-600"
+                            className="bg-[#10b981] font-semibold text-sm rounded-full text-white hover:bg-emerald-600"
                           >
                             Create Compensator
                           </Button>
@@ -600,7 +581,7 @@ export default function ProfilePage() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                           <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Voting Power (% of Quorum)
+                            Vote Power (% of Quorum)
                           </h3>
                           <p className="text-2xl font-bold text-[#030303] dark:text-white">
                             {profile?.votingPower || "0"}
@@ -608,7 +589,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                           <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Received Delegations
+                            Delegations
                           </h3>
                           <p className="text-2xl font-bold text-[#030303] dark:text-white">
                             {profile?.totalDelegations || 0}
@@ -616,7 +597,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                           <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Proposals created
+                            Proposals
                           </h3>
                           <p className="text-2xl font-bold text-[#030303] dark:text-white">0</p>
                         </div>
@@ -632,17 +613,18 @@ export default function ProfilePage() {
                   transition={{ duration: 0.2, delay: 0.1 }}
                 >
                   <Tabs defaultValue="proposals" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-[-6px]">Activity</h2>
                       <TabsList className="bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#232F3B] p-1 rounded-full">
                         <TabsTrigger
                           value="proposals"
-                          className="rounded-full data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+                          className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
                         >
                           Proposals
                         </TabsTrigger>
                         <TabsTrigger
                           value="delegations"
-                          className="rounded-full data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+                          className="rounded-full  text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
                         >
                           Delegations
                         </TabsTrigger>
@@ -660,43 +642,60 @@ export default function ProfilePage() {
                                     scope="col"
                                     className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                   >
-                                    Proposal
+                                    <div className="flex items-center justify-start">
+                                      Proposal
+                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                    </div>
                                   </th>
                                   <th
                                     scope="col"
                                     className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                   >
-                                    Votes for
+                                    <div className="flex items-center justify-start">
+                                      For
+                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                    </div>
                                   </th>
                                   <th
                                     scope="col"
                                     className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                   >
-                                    Votes against
+                                    <div className="flex items-center justify-start">
+                                      Against
+                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                    </div>
                                   </th>
                                   <th
                                     scope="col"
                                     className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                   >
-                                    Voted?
+                                    <div className="flex items-center justify-start">
+                                      Vote
+                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                    </div>
                                   </th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {[1, 2, 3].map((_, index) => (
                                   <tr key={index} className="border-b dark:border-b-[#232F3B] border-b-[#efefef]">
-                                    <td className="px-6 py-4 animate-pulse">
-                                      <div className="h-5 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
-                                      <div className="h-4 w-1/2 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                                    <td className="px-6 py-4">
+                                      <div className="flex flex-col">
+                                        <div className="h-5 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                                        <div className="flex items-center mt-1 space-x-2">
+                                          <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                                          <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                                        </div>
+                                      </div>
                                     </td>
-                                    <td className="px-6 py-4 animate-pulse">
-                                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                                    <td className="px-6 py-4">
+                                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                                     </td>
-                                    <td className="px-6 py-4 animate-pulse">
-                                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                                    <td className="px-6 py-4">
+                                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                                     </td>
-                                    <td className="px-6 py-4 animate-pulse">
-                                      <div className="h-4 w-12 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                                    <td className="px-6 py-4">
+                                      <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
                                     </td>
                                   </tr>
                                 ))}
@@ -725,7 +724,7 @@ export default function ProfilePage() {
                                       className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                     >
                                       <div className="flex items-center justify-start cursor-pointer">
-                                        Votes for
+                                        For
                                         <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                                       </div>
                                     </th>
@@ -734,7 +733,7 @@ export default function ProfilePage() {
                                       className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                     >
                                       <div className="flex items-center justify-start cursor-pointer">
-                                        Votes against
+                                        Against
                                         <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                                       </div>
                                     </th>
@@ -743,7 +742,7 @@ export default function ProfilePage() {
                                       className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                     >
                                       <div className="flex items-center justify-start cursor-pointer">
-                                        Voted?
+                                        Vote
                                         <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                                       </div>
                                     </th>
@@ -760,7 +759,7 @@ export default function ProfilePage() {
                                     >
                                       <td className="px-6 py-4">
                                         <div className="flex flex-col">
-                                          <div className="text-sm font-medium text-[#030303] dark:text-white">
+                                          <div className="text-sm font-semibold text-[#030303] dark:text-white">
                                             {proposal.title}
                                           </div>
                                           <div className="flex items-center mt-1 space-x-2">
@@ -852,12 +851,12 @@ export default function ProfilePage() {
                             Voting history is currently untracked
                           </p>
                           <a
-                            href="https://www.tally.xyz/gov/compound/proposals"
+                            href="https://www.tally.xyz"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="bg-[#10b981] transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold inline-flex items-center"
                           >
-                            View Proposals
+                            View on Tally
                             <ExternalLink className="ml-1 h-4 w-4" />
                           </a>
                         </div>
@@ -870,15 +869,15 @@ export default function ProfilePage() {
                           {[1, 2].map((_, index) => (
                             <div
                               key={index}
-                              className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse border border-[#efefef] dark:border-[#232F3B]"
+                              className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
                             >
                               <div className="flex items-center gap-3">
-                                <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
-                                <div>
-                                  <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
-                                  <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                                <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                                <div className="flex-1">
+                                  <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                                  <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                                 </div>
-                                <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                                <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                               </div>
                             </div>
                           ))}
@@ -899,6 +898,9 @@ export default function ProfilePage() {
                                     src={
                                       delegation.delegateImage ||
                                       "/placeholder.svg?height=48&width=48" ||
+                                      "/placeholder.svg" ||
+                                      "/placeholder.svg" ||
+                                      "/placeholder.svg" ||
                                       "/placeholder.svg" ||
                                       "/placeholder.svg"
                                     }
@@ -1093,31 +1095,6 @@ export default function ProfilePage() {
                     </div>
                   </Modal>
                 )}
-
-                {isStatementModalOpen && (
-                  <Modal handleClose={handleStatementModalClose} open={isStatementModalOpen} key={modalKey}>
-                    <div className="">
-                      <h2 className="text-xl font-semibold mb-4 dark:text-white">Edit Delegation Statement</h2>
-                      <div className="space-y-4">
-                        <div className="relative">
-                          <textarea
-                            id="delegateStatement"
-                            value={delegateStatement}
-                            onChange={(e) => setDelegateStatement(e.target.value)}
-                            className="w-full h-40 p-3 rounded-lg bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
-                            placeholder="Write your delegation statement here..."
-                          />
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleStatementSubmit}
-                        className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] hover:bg-emerald-600 text-white py-3 text-center rounded-full mt-4"
-                      >
-                        Save Statement
-                      </button>
-                    </div>
-                  </Modal>
-                )}
               </>
             )}
           </div>
@@ -1127,3 +1104,4 @@ export default function ProfilePage() {
     </>
   )
 }
+
