@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import { useAccount, useWriteContract, useReadContract } from "wagmi";
 import { compoundTokenContractInfo } from "@/constants";
 import { formatUnits } from 'ethers';
+import { isAddress } from 'ethers';
 
 interface Proposal {
   title: string;
@@ -186,27 +187,28 @@ export default function DelegatePage() {
   // Handle delegate submit
   const handleDelegateSubmit = async () => {
     setLoading(true);
-
+  
     try {
       if (!delegate || !amount || Number.parseFloat(amount) <= 0) {
         throw new Error("Invalid amount or delegate");
       }
-
-      if (!delegate.address) {
-        throw new Error("Delegate address is missing");
+  
+      if (!delegate.address || !isAddress(delegate.address)) {
+        throw new Error("Invalid delegate address");
       }
-
-      // Call the `delegate` function on the COMP token contract
+  
+      const delegateAddress = delegate.address as `0x${string}`;
+  
       await writeContractAsync({
         address: compoundTokenContractInfo.address,
         abi: compoundTokenContractInfo.abi,
         functionName: "delegate",
-        args: [delegate.address],
+        args: [delegateAddress],
       });
-
+  
       toast.success("Delegation successful!");
       handleModalClose();
-      refetchCompBalance(); // Refresh COMP balance after delegation
+      refetchCompBalance();
     } catch (error) {
       console.error("Error delegating COMP:", error);
       toast.error("Failed to delegate COMP. Please try again.");
