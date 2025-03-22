@@ -13,6 +13,7 @@ import Image from "next/image"
 import { useParams } from "next/navigation"
 import Modal from "@/components/common/Modal"
 import { findDelegateBySlug, formatNameForDisplay, type Delegate } from "@/lib/delegate-data"
+import toast from "react-hot-toast"
 
 interface Proposal {
   title: string

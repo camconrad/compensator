@@ -2,6 +2,7 @@ import AppProvider from "../providers/AppProvider";
 import ThemeProvider from "../providers/ThemeProvider";
 import "./globals.css";
 import { Metadata } from "next";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: 'Home | Compensator',
@@ -19,6 +20,7 @@ export default function RootLayout({
         <ThemeProvider />
         <AppProvider>
           {children}
+          <Toaster />
         </AppProvider>
       </body>
     </html>
