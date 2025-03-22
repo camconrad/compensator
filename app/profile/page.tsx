@@ -34,10 +34,12 @@ import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider"
 import { waitForTransactionReceipt } from "@wagmi/core"
 import toast from "react-hot-toast"
 import { mainnet } from "wagmi/chains"
-import { useGetCompensatorContract } from "@/hooks/useGetCompensator"
+import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract"
 import { ethers } from "ethers"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
+import { useGetCompoundContract } from "@/hooks/useGetCompContract"
+import BigNumber from 'bignumber.js'
 
 interface UserProfile {
   name: string
@@ -94,6 +96,7 @@ export default function ProfilePage() {
   const { compensatorFactoryContract } = useGetCompensatorFactoryContract()
   const { switchChainAsync } = useSwitchChain()
   const { handleSetCompensatorContract } = useGetCompensatorContract()
+  const {compoundContract} = useGetCompoundContract()
 
   const loadAllData = useCallback(async () => {
     try {
@@ -243,7 +246,7 @@ export default function ProfilePage() {
           voteDirection: "for",
         },
       ]
-      setProposals(proposalData)
+      setProposals(proposalData as any)
       setIsProposalsLoading(false)
     } catch (error) {
       setIsError(true)
@@ -313,28 +316,121 @@ export default function ProfilePage() {
     try {
       const compensatorContract = await handleSetCompensatorContract(compensatorAddress)
       if (!compensatorContract) {
-        throw new Error("Compensator contract not found")
+        return toast.error("Compensator contract not found");
       }
 
-      const { provider } = await getEthersSigner(wagmiConfig)
-      const feeData = await provider.getFeeData()
-      const gas = await compensatorFactoryContract.setRewardRate.estimateGas(ethers.formatUnits(apr, 18).toString())
-      const receipt = await compensatorFactoryContract.setRewardRate(ethers.formatUnits(apr, 18).toString(), {
-        gasLimit: gas,
-        maxFeePerGas: feeData.maxFeePerGas,
-        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-      })
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+      console.log("apr :>> ", apr);
+      console.log(ethers.parseUnits((apr || 0).toString(), 18).toString());
+      const gas = await compensatorContract.setRewardRate.estimateGas(
+        ethers.parseUnits(apr, 18).toString()
+      );
+      const receipt = await compensatorContract.setRewardRate(
+        ethers.parseUnits(apr, 18).toString(),
+        {
+          gasLimit: gas,
+          maxFeePerGas: feeData.maxFeePerGas,
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+        }
+      );
       const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
         hash: receipt?.hash,
       })
       if (transactionReceipt?.status === "success") {
-        toast.success("Set reward successfully")
+        toast.success("Set reward successfully");
+        await handleSetFundingAmount(compensatorAddress);
       }
     } catch (error) {
-      console.log("error :>> ", error)
-      toast.error("Failed to set reward rate")
+      console.log("error :>> ", error);
+      setLoading(false);
+    } finally {
     }
   }
+
+  const handleSetFundingAmount = async (compensatorAddress: string) => {
+    try {
+      const compensatorContract = await handleSetCompensatorContract(
+        compensatorAddress
+      );
+      if (!compensatorContract) {
+        throw new Error("Compensator contract not found");
+      }
+
+      if (!compoundContract) {
+        return toast.error("Compound contract not found");
+      }
+      const decimals = await compoundContract.decimals();
+      const convertAmount = ethers
+        .parseUnits(fundingAmount ? fundingAmount?.toString() : "0", decimals)
+        .toString();
+      console.log("convertAmount :>> ", convertAmount);
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+
+      // allowance
+      const allowance = await compoundContract.allowance(
+        address,
+        compensatorAddress
+      );
+      if (new BigNumber(allowance).lt(new BigNumber(convertAmount))) {
+        const gas = await compoundContract.approve.estimateGas(
+          compensatorAddress,
+          convertAmount
+        );
+        const approveReceipt = await compoundContract?.approve(
+          compensatorAddress,
+          convertAmount,
+          {
+            gasLimit: gas,
+            maxFeePerGas: feeData.maxFeePerGas,
+            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+          }
+        );
+        const transactionApproveReceipt = await waitForTransactionReceipt(
+          wagmiConfig,
+          {
+            hash: approveReceipt?.hash,
+          }
+        );
+        console.log(
+          "transactionApproveReceipt :>> ",
+          transactionApproveReceipt
+        );
+
+        if (transactionApproveReceipt?.status === "success") {
+          toast.success("Successful Approved");
+        }
+      }
+
+      const gas = await compensatorContract.delegateDeposit.estimateGas(
+        convertAmount
+      );
+      const delegatedReceipt = await compensatorContract.delegateDeposit(
+        convertAmount,
+        {
+          gasLimit: gas,
+          maxFeePerGas: feeData.maxFeePerGas,
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+        }
+      );
+      const transactionDelegatorReceipt = await waitForTransactionReceipt(
+        wagmiConfig,
+        {
+          hash: delegatedReceipt?.hash,
+        }
+      );
+      if (transactionDelegatorReceipt?.status === "success") {
+        toast.success("Set Funding Successfully");
+        handleRewardsModalClose();
+      }
+    } catch (error) {
+      console.log("error :>> ", error);
+      toast.error("Failed to set Funding");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRewardsSubmit = async () => {
     setLoading(true)
@@ -379,11 +475,12 @@ export default function ProfilePage() {
         handleRewardsModalClose()
       }
     } catch (error) {
-      console.error("Error creating compensator contract:", error)
-      setIsError(true)
-      setErrorMessage("Failed to create Compensator contract. Please try again.")
-    } finally {
-      setLoading(false)
+      setLoading(false);
+      console.error("Error creating compensator contract:", error);
+      setIsError(true);
+      setErrorMessage(
+        "Failed to create Compensator contract. Please try again."
+      );
     }
   }
 
