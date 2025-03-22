@@ -4,10 +4,10 @@ import { useConnectModal } from "@rainbow-me/rainbowkit"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useRef, useEffect } from "react"
 import { useAccount, useDisconnect } from "wagmi"
-import { Copy, Check, ChevronDown } from "lucide-react"
+import { Copy, ChevronDown, ChevronUp } from "lucide-react"
 import { FaWallet } from "react-icons/fa"
 import Image from "next/image"
-import { MouseEvent } from "react"
+import type { MouseEvent } from "react"
 import { createPortal } from "react-dom"
 
 const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
@@ -19,16 +19,37 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
   const [copied, setCopied] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const [showCompPopover, setShowCompPopover] = useState(false)
+  const compPopoverRef = useRef<HTMLDivElement>(null)
+  const compButtonRef = useRef<HTMLButtonElement>(null)
+  const [isEthereumExpanded, setIsEthereumExpanded] = useState(true)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        popoverRef.current && 
-        !popoverRef.current.contains(event.target as Node) && 
-        buttonRef.current && 
+        popoverRef.current &&
+        !popoverRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
         setShowPopover(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside as unknown as EventListener)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside as unknown as EventListener)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        compPopoverRef.current &&
+        !compPopoverRef.current.contains(event.target as Node) &&
+        compButtonRef.current &&
+        !compButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowCompPopover(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside as unknown as EventListener)
@@ -92,7 +113,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
       transition: {
         duration: 0.1,
         ease: [0.4, 0.0, 0.2, 1],
-      }
+      },
     },
     visible: {
       opacity: 1,
@@ -103,14 +124,22 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
         stiffness: 500,
         damping: 30,
         mass: 0.5,
-        velocity: 5
-      }
-    }
+        velocity: 5,
+      },
+    },
   }
 
   // Toggle popover function
   const togglePopover = () => {
     setShowPopover(!showPopover)
+  }
+
+  const toggleCompPopover = () => {
+    setShowCompPopover(!showCompPopover)
+  }
+
+  const toggleEthereumExpanded = () => {
+    setIsEthereumExpanded(!isEthereumExpanded)
   }
 
   if (!address) {
@@ -131,7 +160,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
         </motion.button>
       )
     }
-    
+
     return (
       <motion.button
         data-connect-wallet
@@ -166,7 +195,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
     )
   }
 
-  // Connected state 
+  // Connected state
   if (isMobile) {
     return (
       <div className="relative">
@@ -199,10 +228,10 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
         initial="hidden"
         animate="visible"
         exit="hidden"
-        style={{ 
+        style={{
           top: buttonRef.current?.getBoundingClientRect().bottom,
           left: buttonRef.current?.getBoundingClientRect().left,
-          transformOrigin: "top right"
+          transformOrigin: "top right",
         }}
       >
         <div className="p-4">
@@ -212,8 +241,8 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
               <span className="h-2 w-2 rounded-full bg-green-500"></span>
               <span className="text-[#030303] dark:text-white text-xs font-semibold">{formatAddress(address)}</span>
             </div>
-            <motion.button 
-              onClick={copyToClipboard} 
+            <motion.button
+              onClick={copyToClipboard}
               className="text-[#030303] dark:text-white p-1 hover:text-[#030303]/80 hover:dark:text-white/80 transition-colors"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -239,7 +268,99 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
           </motion.button>
         </div>
       </motion.div>,
-      document.body
+      document.body,
+    )
+  }
+
+  function renderCompPopover() {
+    return createPortal(
+      <motion.div
+        ref={compPopoverRef}
+        className="fixed font-medium mt-5 ml-[-227px] md:ml-[-132px] w-[320px] min-w-[310px] bg-white dark:bg-[#1D2833] rounded-xl shadow-lg z-50 border border-[#efefef] dark:border-[#28303E] overflow-hidden"
+        variants={popoverVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        style={{
+          top: compButtonRef.current?.getBoundingClientRect().bottom,
+          left: compButtonRef.current?.getBoundingClientRect().left,
+          transformOrigin: "top right",
+        }}
+      >
+        <div className="p-4">
+          <h3 className="text-[#030303] dark:text-gray-400 font-semibold text-xs mb-3">Total COMP</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <Image src="/logo.png" alt="COMP Logo" width={24} height={24} className="rounded-full" />
+            <span className="text-[#030303] dark:text-white text-2xl font-semibold">
+              0<span className="text-gray-400">.0000</span>
+            </span>
+          </div>
+
+          {/* Apple-style divider that doesn't reach the far left */}
+          <div className="border-t border-[#efefef] dark:border-[#28303E] ml-8 mb-3"></div>
+
+          <div className="px-1">
+            <div className="flex items-center justify-between cursor-pointer" onClick={toggleEthereumExpanded}>
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/ethereum.svg"
+                  alt="Ethereum Logo"
+                  width={20}
+                  height={20}
+                  className="rounded-full dark:hidden"
+                />
+                <Image
+                  src="/eth-dark.svg"
+                  alt="Ethereum Logo"
+                  width={20}
+                  height={20}
+                  className="rounded-full hidden dark:block"
+                />
+                <span className="text-[#030303] dark:text-white text-sm font-semibold">Ethereum</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <AnimatePresence>
+                  {!isEthereumExpanded && (
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="text-sm font-semibold"
+                    >
+                      0<span className="text-gray-400">.0000</span>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {isEthereumExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                )}
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {isEthereumExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-3 pl-7"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold">Wallet Balance</span>
+                    <span className="text-[#030303] dark:text-white text-sm font-semibold">
+                      0<span className="text-gray-400">.0000</span>
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>,
+      document.body,
     )
   }
 
@@ -247,16 +368,18 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
     <div className="relative">
       <div className="flex items-center gap-2 bg-[#F9FAFB] dark:bg-[#17212B] border border-[#efefef] dark:border-[#28303e] shadow-sm pl-3 rounded-full">
         {/* COMP Rewards Display */}
-        <div className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="COMP Logo"
-            width={20}
-            height={20}
-            className="mx-auto rounded-full"
-          />
+        <motion.button
+          ref={compButtonRef}
+          onClick={toggleCompPopover}
+          variants={buttonVariants}
+          initial="initial"
+          whileHover="hover"
+          whileTap="tap"
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          <Image src="/logo.png" alt="COMP Logo" width={20} height={20} className="mx-auto rounded-full" />
           <span className="text-[#030303] dark:text-white font-semibold text-xs">{compRewards}</span>
-        </div>
+        </motion.button>
 
         {/* Connected Wallet Button */}
         <motion.button
@@ -282,6 +405,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", isMobile = false }) => {
       </div>
 
       {showPopover && renderPopover()}
+      {showCompPopover && renderCompPopover()}
     </div>
   )
 }
