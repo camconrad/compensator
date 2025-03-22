@@ -18,9 +18,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <ThemeProvider />
+        <Toaster />
         <AppProvider>
           {children}
-          <Toaster />
         </AppProvider>
       </body>
     </html>
