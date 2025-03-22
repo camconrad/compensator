@@ -411,7 +411,7 @@ export default function ProfilePage() {
                 >
                   {isProfileLoading ? (
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                      <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
+                      <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
                       <div className="flex-1">
                         <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
                         <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-3"></div>
@@ -420,12 +420,12 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                      <div className="w-24 h-24 rounded-full overflow-hidden">
+                      <div className="w-20 h-20 rounded-full overflow-hidden">
                         <Image
                           src={profile?.image || "/logo.png"}
                           alt="Your Profile"
-                          width={96}
-                          height={96}
+                          width={80}
+                          height={80}
                           className="w-full h-full object-cover"
                         />
                       </div>
