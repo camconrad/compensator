@@ -88,7 +88,10 @@ export default function ProfilePage() {
   const [delegateAddress, setDelegateAddress] = useState<string>("")
   const [apr, setApr] = useState<string>("")
   const [fundingAmount, setFundingAmount] = useState<string>("")
-  const [isFocused, setIsFocused] = useState(false)
+  const [isProfileNameFocused, setIsProfileNameFocused] = useState(false);
+  const [isDelegateAddressFocused, setIsDelegateAddressFocused] = useState(false);
+  const [isAprFocused, setIsAprFocused] = useState(false);
+  const [isFundingAmountFocused, setIsFundingAmountFocused] = useState(false);
   const [modalKey, setModalKey] = useState<number>(Date.now())
   const [activeTab, setActiveTab] = useState<string>("proposals")
   const [currentPage, setCurrentPage] = useState(1)
@@ -1060,15 +1063,15 @@ export default function ProfilePage() {
                               type="text"
                               value={profileName}
                               onChange={(e) => setProfileName(e.target.value)}
-                              onFocus={() => setIsFocused(true)}
-                              onBlur={() => setIsFocused(false)}
+                              onFocus={() => setIsProfileNameFocused(true)}
+                              onBlur={() => setIsProfileNameFocused(false)}
                               className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                               autoFocus
                             />
                             <label
                               htmlFor="profileName"
                               className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isFocused || profileName
+                                isProfileNameFocused || profileName
                                   ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
                                   : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
                               }`}
@@ -1086,14 +1089,14 @@ export default function ProfilePage() {
                               type="text"
                               value={delegateAddress}
                               onChange={(e) => setDelegateAddress(e.target.value)}
-                              onFocus={() => setIsFocused(true)}
-                              onBlur={() => setIsFocused(false)}
+                              onFocus={() => setIsDelegateAddressFocused(true)}
+                              onBlur={() => setIsDelegateAddressFocused(false)}
                               className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                             />
                             <label
                               htmlFor="delegateAddress"
                               className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isFocused || delegateAddress
+                                isDelegateAddressFocused || delegateAddress
                                   ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
                                   : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
                               }`}
@@ -1117,14 +1120,14 @@ export default function ProfilePage() {
                               type="number"
                               value={apr}
                               onChange={(e) => setApr(e.target.value)}
-                              onFocus={() => setIsFocused(true)}
-                              onBlur={() => setIsFocused(false)}
+                              onFocus={() => setIsAprFocused(true)}
+                              onBlur={() => setIsAprFocused(false)}
                               className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                             />
                             <label
                               htmlFor="apr"
                               className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isFocused || apr
+                                isAprFocused || apr
                                   ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
                                   : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
                               }`}
@@ -1142,14 +1145,14 @@ export default function ProfilePage() {
                               type="number"
                               value={fundingAmount}
                               onChange={(e) => setFundingAmount(e.target.value)}
-                              onFocus={() => setIsFocused(true)}
-                              onBlur={() => setIsFocused(false)}
+                              onFocus={() => setIsFundingAmountFocused(true)}
+                              onBlur={() => setIsFundingAmountFocused(false)}
                               className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                             />
                             <label
                               htmlFor="fundingAmount"
                               className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isFocused || fundingAmount
+                                isFundingAmountFocused || fundingAmount
                                   ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
                                   : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
                               }`}

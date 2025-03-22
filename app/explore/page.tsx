@@ -72,6 +72,16 @@ const ExplorePage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
 
+  const truncateAddressMiddle = (address, startChars = 6, endChars = 4) => {
+    if (!address) return '';
+    if (address.length <= startChars + endChars) return address;
+    
+    const start = address.substring(0, startChars);
+    const end = address.substring(address.length - endChars);
+    
+    return `${start}..${end}`;
+  };
+
   useEffect(() => {
     const loadDelegates = async () => {
       setLoading(true)
@@ -243,7 +253,7 @@ const ExplorePage = () => {
                     <tr role="row">
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "80px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
@@ -253,7 +263,7 @@ const ExplorePage = () => {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "180px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
@@ -263,7 +273,7 @@ const ExplorePage = () => {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
@@ -274,7 +284,7 @@ const ExplorePage = () => {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
@@ -285,7 +295,7 @@ const ExplorePage = () => {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
@@ -296,7 +306,7 @@ const ExplorePage = () => {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
@@ -307,7 +317,7 @@ const ExplorePage = () => {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D] whitespace-nowrap"
+                        className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] whitespace-nowrap"
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
@@ -380,7 +390,7 @@ const ExplorePage = () => {
                                 <span className="text-[#030303] text-sm font-semibold truncate dark:text-white block mb-[-3px]">
                                   {delegate.name}
                                 </span>
-                                <span className="text-xs text-[#6D7C8D] dark:text-[#ccd8e8]">{delegate.address}</span>
+                                <span className="text-xs text-[#6D7C8D] dark:text-[#ccd8e8]">{truncateAddressMiddle(delegate.address)}</span>
                               </div>
                             </td>
                             <td
@@ -419,7 +429,7 @@ const ExplorePage = () => {
                               </div>
                             </td>
                             <td
-                              className={`px-6 py-4 text-sm ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#5fe7b9]" : "text-[#f54a4a] dark:text-[#d67979]"}`}
+                              className={`px-6 py-4 text-sm font-medium ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#5fe7b9]" : "text-[#f54a4a] dark:text-[#d67979]"}`}
                               style={{ width: "120px" }}
                             >
                               <div className="flex items-center">

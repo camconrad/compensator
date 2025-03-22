@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef } from "react"
 import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react"
 import { Navigation, FreeMode } from "swiper/modules"
@@ -13,6 +12,10 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 import Modal from "@/components/common/Modal"
 import Link from "next/link"
 import { delegatesData, formatNameForURL, formatNameForDisplay, type Delegate } from "@/lib/delegate-data"
+import { useAccount, useWriteContract, useReadContract } from "wagmi"
+import { compoundTokenContractInfo } from "@/constants"
+import { formatUnits } from "ethers"
+import toast from "react-hot-toast"
 
 const Delegates = () => {
   const [sortBy, setSortBy] = useState("rank")
@@ -24,7 +27,28 @@ const Delegates = () => {
   const navigationPrevRef = useRef(null)
   const navigationNextRef = useRef(null)
 
-  const userBalance = 0.0
+  const { address } = useAccount()
+
+  const { data: compBalance, refetch: refetchCompBalance } = useReadContract({
+    address: compoundTokenContractInfo.address,
+    abi: compoundTokenContractInfo.abi,
+    functionName: "balanceOf",
+    args: [address],
+  })
+
+  const formattedCompBalance = compBalance ? parseFloat(formatUnits(compBalance, 18)).toFixed(4) : "0.0000"
+
+  const { writeContractAsync } = useWriteContract()
+
+  const truncateAddressMiddle = (address, startChars = 6, endChars = 4) => {
+    if (!address) return ''
+    if (address.length <= startChars + endChars) return address
+    
+    const start = address.substring(0, startChars)
+    const end = address.substring(address.length - endChars)
+    
+    return `${start}..${end}`
+  }
 
   const sortedDelegates = [...delegatesData].sort((a, b) => {
     if (sortBy === "apr") {
@@ -52,11 +76,34 @@ const Delegates = () => {
     setAmount("")
   }
 
-  const handleDelegateSubmit = () => {
+  const handleDelegateSubmit = async () => {
     setLoading(true)
-    setTimeout(() => {
+
+    try {
+      if (!selectedDelegate || !amount || Number.parseFloat(amount) <= 0) {
+        throw new Error("Invalid amount or delegate")
+      }
+
+      if (!selectedDelegate.address) {
+        throw new Error("Delegate address is missing")
+      }
+
+      await writeContractAsync({
+        address: compoundTokenContractInfo.address,
+        abi: compoundTokenContractInfo.abi,
+        functionName: "delegate",
+        args: [selectedDelegate.address],
+      })
+
+      toast.success("Delegation successful!")
+      handleModalClose()
+      refetchCompBalance()
+    } catch (error) {
+      console.error("Error delegating COMP:", error)
+      toast.error("Failed to delegate COMP. Please try again.")
+    } finally {
       setLoading(false)
-    }, 2000)
+    }
   }
 
   return (
@@ -134,7 +181,7 @@ const Delegates = () => {
                   </div>
                   <div className="truncate">
                     <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">{delegate.name}</h3>
-                    <p className="text-sm font-medium text-[#6D7C8D]">{delegate.address}</p>
+                    <p className="text-sm font-medium truncate text-[#6D7C8D]">{truncateAddressMiddle(delegate.address)}</p>
                   </div>
                 </div>
                 <div className="flex justify-between items-end mt-2 transition-transform duration-200 group-hover:-translate-y-12">
@@ -201,7 +248,7 @@ const Delegates = () => {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-xs font-medium text-[#6D7C8D]">$0.00</p>
-                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: {userBalance.toFixed(2)}</p>
+                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: {formattedCompBalance}</p>
                   </div>
                 </div>
               </div>
@@ -210,7 +257,11 @@ const Delegates = () => {
               {[25, 50, 75, 100].map((percent) => (
                 <button
                   key={percent}
-                  onClick={() => setAmount(((percent / 100) * userBalance).toString())}
+                  onClick={() => {
+                    const balance = Number(formatUnits(compBalance || "0", 18)); // Convert balance to a number
+                    const selectedAmount = (percent / 100) * balance; // Calculate the selected amount
+                    setAmount(selectedAmount.toFixed(4)); // Set the amount with 4 decimal places
+                  }}
                   className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-[#EFF2F5] dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   {percent}%
@@ -219,13 +270,13 @@ const Delegates = () => {
             </div>
             <button
               onClick={handleDelegateSubmit}
-              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > userBalance || loading}
+              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0) || loading}
               className={`${
-                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > userBalance
+                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0)
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
               } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                Number.parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
+                Number.parseFloat(amount) > Number(compBalance || 0) ? "bg-red-500 hover:bg-red-600" : ""
               }`}
             >
               {loading ? (
@@ -242,7 +293,7 @@ const Delegates = () => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : Number.parseFloat(amount) > userBalance ? (
+              ) : Number.parseFloat(amount) > Number(compBalance || 0) ? (
                 "Insufficient Balance"
               ) : (
                 "Delegate COMP"

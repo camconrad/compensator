@@ -1,74 +1,97 @@
-"use client"
+"use client";
 
-import Head from "next/head"
-import { motion, AnimatePresence } from "framer-motion"
-import Header from "@/components/MainLayout/Header"
-import Footer from "@/components/Footer"
-import { useSettingTheme } from "@/store/setting/selector"
-import Headroom from "react-headroom"
-import { AlertCircle, TrendingUp, Users, Copy } from "lucide-react"
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { useParams } from "next/navigation"
-import Modal from "@/components/common/Modal"
-import { findDelegateBySlug, formatNameForDisplay, type Delegate } from "@/lib/delegate-data"
-import toast from "react-hot-toast"
+import Head from "next/head";
+import { motion, AnimatePresence } from "framer-motion";
+import Header from "@/components/MainLayout/Header";
+import Footer from "@/components/Footer";
+import { useSettingTheme } from "@/store/setting/selector";
+import Headroom from "react-headroom";
+import { AlertCircle, TrendingUp, Users, Copy } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import Modal from "@/components/common/Modal";
+import { findDelegateBySlug, formatNameForDisplay, type Delegate } from "@/lib/delegate-data";
+import toast from "react-hot-toast";
+import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { compoundTokenContractInfo } from "@/constants";
+import { formatUnits } from 'ethers';
 
 interface Proposal {
-  title: string
-  status: string
-  date: string
-  votesFor: number
-  votesAgainst: number
-  voted?: boolean
-  voteDirection?: "for" | "against" | null
+  title: string;
+  status: string;
+  date: string;
+  votesFor: number;
+  votesAgainst: number;
+  voted?: boolean;
+  voteDirection?: "for" | "against" | null;
 }
 
 interface Delegation {
-  delegator: string
-  amount: string
-  date: string
+  delegator: string;
+  amount: string;
+  date: string;
 }
 
 export default function DelegatePage() {
-  const theme = useSettingTheme()
-  const params = useParams()
-  const delegateSlug = params.slug as string
+  const theme = useSettingTheme();
+  const params = useParams();
+  const delegateSlug = params.slug as string;
 
-  // State management
-  const [isError, setIsError] = useState<boolean>(false)
-  const [errorMessage, setErrorMessage] = useState<string>("")
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [amount, setAmount] = useState<string>("")
+  const [isError, setIsError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [amount, setAmount] = useState<string>("");
 
-  // Data states with proper typing
-  const [delegate, setDelegate] = useState<Delegate | null>(null)
-  const [proposals, setProposals] = useState<Proposal[]>([])
-  const [delegations, setDelegations] = useState<Delegation[]>([])
+  const [delegate, setDelegate] = useState<Delegate | null>(null);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [delegations, setDelegations] = useState<Delegation[]>([]);
 
-  // Loading states for different sections
-  const [isDelegateLoading, setIsDelegateLoading] = useState<boolean>(true)
-  const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true)
-  const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true)
+  const [isDelegateLoading, setIsDelegateLoading] = useState<boolean>(true);
+  const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true);
+  const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true);
+
+  const { address } = useAccount();
+
+  const { data: compBalance, refetch: refetchCompBalance } = useReadContract({
+    address: compoundTokenContractInfo.address,
+    abi: compoundTokenContractInfo.abi,
+    functionName: "balanceOf",
+    args: [address],
+  });
+
+  const formattedCompBalance = compBalance ? parseFloat(formatUnits(compBalance, 18)).toFixed(4) : "0.0000";
+
+  const { writeContractAsync } = useWriteContract();
+
+  const truncateAddressMiddle = (address, startChars = 6, endChars = 4) => {
+    if (!address) return '';
+    if (address.length <= startChars + endChars) return address;
+    
+    const start = address.substring(0, startChars);
+    const end = address.substring(address.length - endChars);
+    
+    return `${start}..${end}`;
+  };
 
   // Mock data fetching
   useEffect(() => {
-    fetchDelegateData()
-    fetchProposals()
-    fetchDelegations()
-  }, [delegateSlug])
+    fetchDelegateData();
+    fetchProposals();
+    fetchDelegations();
+  }, [delegateSlug]);
 
   // Simulate fetching delegate data
   const fetchDelegateData = async () => {
-    setIsDelegateLoading(true)
+    setIsDelegateLoading(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+      await new Promise((resolve) => setTimeout(resolve, 1200));
 
       // Find the delegate from our shared data
-      const foundDelegate = findDelegateBySlug(delegateSlug)
+      const foundDelegate = findDelegateBySlug(delegateSlug);
 
       if (foundDelegate) {
         setDelegate({
@@ -79,13 +102,13 @@ export default function DelegatePage() {
           totalDelegations: 0,
           activeProposals: 0,
           rating: 0,
-        })
+        });
       } else {
         // Fallback if delegate not found
         const delegateName = delegateSlug
           .split("-")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")
+          .join(" ");
 
         setDelegate({
           id: 0,
@@ -99,91 +122,115 @@ export default function DelegatePage() {
           totalDelegations: 0,
           activeProposals: 0,
           rating: 0,
-        })
+        });
       }
 
-      setIsDelegateLoading(false)
+      setIsDelegateLoading(false);
     } catch (error) {
-      setIsError(true)
-      setErrorMessage("Failed to load delegate data. Please try again.")
-      setIsDelegateLoading(false)
+      setIsError(true);
+      setErrorMessage("Failed to load delegate data. Please try again.");
+      setIsDelegateLoading(false);
     }
-  }
+  };
 
   // Simulate fetching proposals
   const fetchProposals = async () => {
-    setIsProposalsLoading(true)
+    setIsProposalsLoading(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1800))
+      await new Promise((resolve) => setTimeout(resolve, 1800));
 
       // Mock data
-      setProposals([]) // Empty array to simulate no proposals
-      setIsProposalsLoading(false)
+      setProposals([]); // Empty array to simulate no proposals
+      setIsProposalsLoading(false);
     } catch (error) {
-      setIsError(true)
-      setErrorMessage("Failed to load proposals. Please try again.")
-      setIsProposalsLoading(false)
+      setIsError(true);
+      setErrorMessage("Failed to load proposals. Please try again.");
+      setIsProposalsLoading(false);
     }
-  }
+  };
 
   // Simulate fetching delegations
   const fetchDelegations = async () => {
-    setIsDelegationsLoading(true)
+    setIsDelegationsLoading(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Mock data
-      setDelegations([]) // Empty array to simulate no delegations
-      setIsDelegationsLoading(false)
+      setDelegations([]); // Empty array to simulate no delegations
+      setIsDelegationsLoading(false);
     } catch (error) {
-      setIsError(true)
-      setErrorMessage("Failed to load delegations. Please try again.")
-      setIsDelegationsLoading(false)
+      setIsError(true);
+      setErrorMessage("Failed to load delegations. Please try again.");
+      setIsDelegationsLoading(false);
     }
-  }
+  };
 
   // Handle retry on error
   const handleRetry = () => {
-    setIsError(false)
-    setErrorMessage("")
+    setIsError(false);
+    setErrorMessage("");
 
-    if (isDelegateLoading || !delegate) fetchDelegateData()
-    if (isProposalsLoading || proposals.length === 0) fetchProposals()
-    if (isDelegationsLoading || delegations.length === 0) fetchDelegations()
-  }
+    if (isDelegateLoading || !delegate) fetchDelegateData();
+    if (isProposalsLoading || proposals.length === 0) fetchProposals();
+    if (isDelegationsLoading || delegations.length === 0) fetchDelegations();
+  };
 
   // Handle modal close
   const handleModalClose = () => {
-    setIsModalOpen(false)
-    setAmount("")
-  }
+    setIsModalOpen(false);
+    setAmount("");
+  };
 
   // Handle delegate submit
-  const handleDelegateSubmit = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-    }, 2000)
-  }
+  const handleDelegateSubmit = async () => {
+    setLoading(true);
+
+    try {
+      if (!delegate || !amount || Number.parseFloat(amount) <= 0) {
+        throw new Error("Invalid amount or delegate");
+      }
+
+      if (!delegate.address) {
+        throw new Error("Delegate address is missing");
+      }
+
+      // Call the `delegate` function on the COMP token contract
+      await writeContractAsync({
+        address: compoundTokenContractInfo.address,
+        abi: compoundTokenContractInfo.abi,
+        functionName: "delegate",
+        args: [delegate.address],
+      });
+
+      toast.success("Delegation successful!");
+      handleModalClose();
+      refetchCompBalance(); // Refresh COMP balance after delegation
+    } catch (error) {
+      console.error("Error delegating COMP:", error);
+      toast.error("Failed to delegate COMP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Copy address to clipboard
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text);
     toast.success("Address copied to clipboard", {
-      position: "bottom-center",
+      position: "top-center",
       style: {
         borderRadius: "10px",
-        background: "#333",
-        color: "#fff",
+        background: "#ffffff",
+        color: "#030303",
       },
       iconTheme: {
-        primary: "#10B981",
-        secondary: "#FFFFFF",
+        primary: "#ffffff",
+        secondary: "#10B981",
       },
-    })
-  }
+    });
+  };
 
   return (
     <>
@@ -289,7 +336,7 @@ export default function DelegatePage() {
                       <div>
                         <h1 className="text-2xl font-bold text-[#030303] dark:text-white">{delegate.name}</h1>
                         <div className="flex items-center mt-1">
-                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{delegate.address}</p>
+                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{truncateAddressMiddle(delegate.address)}</p>
                           <button
                             onClick={() => copyToClipboard(delegate.address || "")}
                             className="ml-2 text-[#6D7C8D] hover:text-[#030303] dark:hover:text-gray-300"
@@ -552,7 +599,7 @@ export default function DelegatePage() {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-xs font-medium text-[#6D7C8D]">$0.00</p>
-                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: 0.00</p>
+                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: {formattedCompBalance}</p>
                   </div>
                 </div>
               </div>
@@ -561,7 +608,11 @@ export default function DelegatePage() {
               {[25, 50, 75, 100].map((percent) => (
                 <button
                   key={percent}
-                  onClick={() => setAmount(((percent / 100) * 0).toString())}
+                  onClick={() => {
+                    const balance = Number(formatUnits(compBalance || "0", 18)); // Convert balance to a number
+                    const selectedAmount = (percent / 100) * balance; // Calculate the selected amount
+                    setAmount(selectedAmount.toFixed(4)); // Set the amount with 4 decimal places
+                  }}
                   className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-[#EFF2F5] dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
                 >
                   {percent}%
@@ -570,13 +621,13 @@ export default function DelegatePage() {
             </div>
             <button
               onClick={handleDelegateSubmit}
-              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > 0 || loading}
+              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0) || loading}
               className={`${
-                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > 0
+                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0)
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
               } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                Number.parseFloat(amount) > 0 ? "bg-red-500 hover:bg-red-600" : ""
+                Number.parseFloat(amount) > Number(compBalance || 0) ? "bg-red-500 hover:bg-red-600" : ""
               }`}
             >
               {loading ? (
@@ -593,7 +644,7 @@ export default function DelegatePage() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : Number.parseFloat(amount) > 0 ? (
+              ) : Number.parseFloat(amount) > Number(compBalance || 0) ? (
                 "Insufficient Balance"
               ) : (
                 "Delegate COMP"
@@ -624,5 +675,5 @@ export default function DelegatePage() {
         </Modal>
       )}
     </>
-  )
+  );
 }
