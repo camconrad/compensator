@@ -72,7 +72,7 @@ const ExplorePage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
 
-  const truncateAddressMiddle = (address, startChars = 6, endChars = 4) => {
+  const truncateAddressMiddle = (address: string, startChars = 6, endChars = 4) => {
     if (!address) return '';
     if (address.length <= startChars + endChars) return address;
     

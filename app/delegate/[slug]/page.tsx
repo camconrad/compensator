@@ -57,17 +57,17 @@ export default function DelegatePage() {
   const { address } = useAccount();
 
   const { data: compBalance, refetch: refetchCompBalance } = useReadContract({
-    address: compoundTokenContractInfo.address,
+    address: compoundTokenContractInfo.address as `0x${string}`,
     abi: compoundTokenContractInfo.abi,
     functionName: "balanceOf",
     args: address ? [address as `0x${string}`] : undefined,
   });
 
-  const formattedCompBalance = compBalance ? parseFloat(formatUnits(compBalance, 18)).toFixed(4) : "0.0000";
+  const formattedCompBalance = compBalance ? parseFloat(formatUnits((compBalance || '0').toString(), 18)).toFixed(4) : "0.0000";
 
   const { writeContractAsync } = useWriteContract();
 
-  const truncateAddressMiddle = (address, startChars = 6, endChars = 4) => {
+  const truncateAddressMiddle = (address: string, startChars = 6, endChars = 4) => {
     if (!address) return '';
     if (address.length <= startChars + endChars) return address;
     
@@ -200,7 +200,7 @@ export default function DelegatePage() {
       const delegateAddress = delegate.address as `0x${string}`;
   
       await writeContractAsync({
-        address: compoundTokenContractInfo.address,
+        address: compoundTokenContractInfo.address as `0x${string}`,
         abi: compoundTokenContractInfo.abi,
         functionName: "delegate",
         args: [delegateAddress],
@@ -611,7 +611,7 @@ export default function DelegatePage() {
                 <button
                   key={percent}
                   onClick={() => {
-                    const balance = Number(formatUnits(compBalance || "0", 18)); // Convert balance to a number
+                    const balance = Number(formatUnits((compBalance || "0").toString(), 18)); // Convert balance to a number
                     const selectedAmount = (percent / 100) * balance; // Calculate the selected amount
                     setAmount(selectedAmount.toFixed(4)); // Set the amount with 4 decimal places
                   }}
