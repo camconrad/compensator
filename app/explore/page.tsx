@@ -1,22 +1,34 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState, useRef } from "react"
-import Head from "next/head"
-import Image from "next/image"
-import { TrendingUp, TrendingDown, Users, ChevronLeft, ChevronRight, Search, Filter, ChevronsUpDown, X } from 'lucide-react'
-import toast from "react-hot-toast"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import Header from "@/components/MainLayout/Header"
-import Footer from "@/components/Footer"
-import { useSettingTheme } from "@/store/setting/selector"
-import Headroom from "react-headroom"
-import { delegatesData, formatNameForURL } from "@/lib/delegate-data"
+import Footer from "@/components/Footer";
+import Header from "@/components/MainLayout/Header";
+import { Button } from "@/components/ui/button";
+import { delegatesData, formatNameForURL } from "@/lib/delegate-data";
+import compensatorServices from "@/services/compensator";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  Filter,
+  Search,
+  TrendingDown,
+  TrendingUp,
+  Users,
+  X,
+} from "lucide-react";
+import Head from "next/head";
+import Image from "next/image";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import Headroom from "react-headroom";
+import toast from "react-hot-toast";
+import blockies from 'ethereum-blockies-png'
 
 const fetchDelegates = async () => {
-  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-  await delay(1500)
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+  await delay(1500);
 
   return delegatesData.map((delegate) => ({
     ...delegate,
@@ -27,12 +39,12 @@ const fetchDelegates = async () => {
     rewardAPR: "0.00%",
     imageUrl: delegate.image,
     tags: [],
-  }))
-}
+  }));
+};
 
 const handleCopyClick = (e: React.MouseEvent, address: string) => {
-  e.preventDefault()
-  e.stopPropagation()
+  e.preventDefault();
+  e.stopPropagation();
   navigator.clipboard
     .writeText(address)
     .then(() => {
@@ -47,7 +59,7 @@ const handleCopyClick = (e: React.MouseEvent, address: string) => {
           primary: "#10B981",
           secondary: "#FFFFFF",
         },
-      })
+      });
     })
     .catch(() => {
       toast.error("Failed to copy address.", {
@@ -57,100 +69,138 @@ const handleCopyClick = (e: React.MouseEvent, address: string) => {
           background: "#333",
           color: "#fff",
         },
-      })
-    })
-}
+      });
+    });
+};
 
 const ExplorePage = () => {
-  const theme = useSettingTheme()
-  const [tableData, setTableData] = useState<any[]>([])
-  const [filteredDelegates, setFilteredDelegates] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const filterRef = useRef<HTMLDivElement>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10)
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [filteredDelegates, setFilteredDelegates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
 
-  const truncateAddressMiddle = (address: string, startChars = 6, endChars = 4) => {
-    if (!address) return '';
+  const truncateAddressMiddle = (
+    address: string,
+    startChars = 6,
+    endChars = 4
+  ) => {
+    if (!address) return "";
     if (address.length <= startChars + endChars) return address;
-    
+
     const start = address.substring(0, startChars);
     const end = address.substring(address.length - endChars);
-    
+
     return `${start}..${end}`;
+  };
+
+  const handleGetDelegatesFromServer = async () => {
+    try {
+      const response = await compensatorServices.getListCompensators();
+      const data = response.data || [];
+      const delegates = data.map((delegate: any) => {
+        const dataURL = blockies.createDataURL({ seed: delegate?.compensatorAddress || delegate?.delegate })
+        return {
+          name: delegate?.name,
+          address: delegate?.compensatorAddress,
+          votingPower: Number(delegate?.votingPower || 0),
+          distributed: delegate?.totalDelegatedCOMP || 0,
+          totalDelegations: delegate?.totalDelegations || 0,
+          performance7D: delegate?.performance7D || 0,
+          rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
+          image: delegate?.image || dataURL,
+        };
+      });
+      setListDelegatesFromServer(delegates);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
   };
 
   useEffect(() => {
     const loadDelegates = async () => {
-      setLoading(true)
-      const delegates = await fetchDelegates()
-      setTableData(delegates)
-      setFilteredDelegates(delegates)
-      setLoading(false)
-    }
-    loadDelegates()
-  }, [])
+      setLoading(true);
+      const delegates = await fetchDelegates();
+      setTableData(delegates);
+      setFilteredDelegates(delegates);
+      setLoading(false);
+    };
+    loadDelegates();
+    handleGetDelegatesFromServer();
+  }, []);
+  console.log("tableData :>> ", tableData);
 
   useEffect(() => {
-    let filtered = tableData
+    let filtered = [...tableData, ...listDelegatesFormFactory];
 
     if (searchQuery) {
       filtered = filtered.filter(
         (delegate) =>
           delegate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          delegate.address.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+          delegate.address.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
 
     if (activeTab === "positive") {
-      filtered = filtered.filter((delegate) => delegate.performance7D >= 0)
+      filtered = filtered.filter((delegate) => delegate.performance7D >= 0);
     } else if (activeTab === "negative") {
-      filtered = filtered.filter((delegate) => delegate.performance7D < 0)
+      filtered = filtered.filter((delegate) => delegate.performance7D < 0);
     }
 
-    setFilteredDelegates(filtered)
-    setCurrentPage(1)
-  }, [searchQuery, activeTab, tableData])
+    setFilteredDelegates(filtered);
+    setCurrentPage(1);
+  }, [searchQuery, activeTab, tableData, listDelegatesFormFactory]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
-        setIsFilterOpen(false)
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target as Node)
+      ) {
+        setIsFilterOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleFilter = () => {
-    setIsFilterOpen(!isFilterOpen)
-  }
+    setIsFilterOpen(!isFilterOpen);
+  };
 
   const handleFilterSelect = (filter: string) => {
-    setActiveTab(filter)
-    setIsFilterOpen(false)
-  }
+    setActiveTab(filter);
+    setIsFilterOpen(false);
+  };
 
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredDelegates.slice(indexOfFirstItem, indexOfLastItem)
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredDelegates.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber)
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <>
       <Head>
         <title>Explore Delegates | Compensator</title>
-        <meta name="description" content="Explore and discover delegates on the Compound delegate marketplace." />
+        <meta
+          name="description"
+          content="Explore and discover delegates on the Compound delegate marketplace."
+        />
       </Head>
 
       <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
@@ -173,7 +223,9 @@ const ExplorePage = () => {
           {/* Table Section */}
           <section>
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-1">Explore Delegates</h2>
+              <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-1">
+                Explore Delegates
+              </h2>
               <div className="relative mb-3" ref={filterRef}>
                 <Button
                   variant="outline"
@@ -196,7 +248,9 @@ const ExplorePage = () => {
                       className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#1D2833] rounded-lg shadow-lg border border-gray-200 dark:border-[#232F3B] z-10"
                     >
                       <div className="p-2 border-b border-gray-200 dark:border-[#232F3B] flex justify-between items-center">
-                        <span className="text-sm font-medium text-[#030303] dark:text-white">Filter Delegates</span>
+                        <span className="text-sm font-medium text-[#030303] dark:text-white">
+                          Filter Delegates
+                        </span>
                         <button
                           onClick={() => setIsFilterOpen(false)}
                           className="text-gray-500 hover:text-gray-700 dark:text-[#ccd8e8] dark:hover:text-gray-200"
@@ -249,8 +303,15 @@ const ExplorePage = () => {
               className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden"
             >
               <div className="overflow-x-auto">
-                <table className="w-full mx-auto" role="table" style={{ tableLayout: "fixed" }}>
-                  <thead className="bg-[#F9FAFB] dark:bg-[#17212B]" role="rowgroup">
+                <table
+                  className="w-full mx-auto"
+                  role="table"
+                  style={{ tableLayout: "fixed" }}
+                >
+                  <thead
+                    className="bg-[#F9FAFB] dark:bg-[#17212B]"
+                    role="rowgroup"
+                  >
                     <tr role="row">
                       <th
                         scope="col"
@@ -332,29 +393,53 @@ const ExplorePage = () => {
                   <tbody>
                     {loading
                       ? Array.from({ length: 10 }).map((_, index) => (
-                          <tr key={index} className="border-b dark:border-b-[#232F3B] border-b-[#efefef]">
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "80px" }}>
+                          <tr
+                            key={index}
+                            className="border-b dark:border-b-[#232F3B] border-b-[#efefef]"
+                          >
+                            <td
+                              className="px-6 py-4 animate-pulse"
+                              style={{ width: "80px" }}
+                            >
                               <div className="w-5 h-5 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "180px" }}>
+                            <td
+                              className="px-6 py-4 animate-pulse"
+                              style={{ width: "180px" }}
+                            >
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 bg-gray-300 dark:bg-[#33475b] rounded-full"></div>
                                 <div className="w-24 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+                            <td
+                              className="px-6 py-4 animate-pulse"
+                              style={{ width: "120px" }}
+                            >
                               <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+                            <td
+                              className="px-6 py-4 animate-pulse"
+                              style={{ width: "120px" }}
+                            >
                               <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+                            <td
+                              className="px-6 py-4 animate-pulse"
+                              style={{ width: "120px" }}
+                            >
                               <div className="w-16 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+                            <td
+                              className="px-6 py-4 animate-pulse"
+                              style={{ width: "120px" }}
+                            >
                               <div className="w-12 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
-                            <td className="px-6 py-4 animate-pulse" style={{ width: "120px" }}>
+                            <td
+                              className="px-6 py-4 animate-pulse"
+                              style={{ width: "120px" }}
+                            >
                               <div className="w-10 h-4 bg-gray-300 dark:bg-[#33475b] rounded-md"></div>
                             </td>
                           </tr>
@@ -367,7 +452,9 @@ const ExplorePage = () => {
                             key={delegate.id}
                             className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
                             onClick={() => {
-                              window.location.href = `/delegate/${formatNameForURL(delegate.name)}`
+                              window.location.href = `/delegate/${formatNameForURL(
+                                delegate.name
+                              )}`;
                             }}
                           >
                             <td
@@ -376,7 +463,10 @@ const ExplorePage = () => {
                             >
                               #{index + 1 + (currentPage - 1) * itemsPerPage}
                             </td>
-                            <td className="flex items-center py-3 gap-3 px-6" style={{ width: "180px" }}>
+                            <td
+                              className="flex items-center py-3 gap-3 px-6"
+                              style={{ width: "180px" }}
+                            >
                               <div className="relative overflow-hidden rounded-full min-w-[36px] min-h-[36px] w-[36px] h-[36px]">
                                 <Image
                                   src={delegate.image || "/placeholder.svg"}
@@ -391,7 +481,9 @@ const ExplorePage = () => {
                                 <span className="text-[#030303] text-sm font-semibold truncate dark:text-white block mb-[-3px]">
                                   {delegate.name}
                                 </span>
-                                <span className="text-xs text-[#6D7C8D] dark:text-[#ccd8e8]">{truncateAddressMiddle(delegate.address)}</span>
+                                <span className="text-xs text-[#6D7C8D] dark:text-[#ccd8e8]">
+                                  {truncateAddressMiddle(delegate.address)}
+                                </span>
                               </div>
                             </td>
                             <td
@@ -414,7 +506,9 @@ const ExplorePage = () => {
                                 <div className="w-16 bg-gray-200 dark:bg-[#425365] rounded-full h-1.5 mr-2">
                                   <div
                                     className="bg-emerald-500 h-1.5 rounded-full"
-                                    style={{ width: `${delegate.votingPower}%` }}
+                                    style={{
+                                      width: `${delegate.votingPower}%`,
+                                    }}
                                   ></div>
                                 </div>
                                 <span>{delegate.votingPower}%</span>
@@ -430,7 +524,11 @@ const ExplorePage = () => {
                               </div>
                             </td>
                             <td
-                              className={`px-6 py-4 text-sm font-medium ${delegate.performance7D >= 0 ? "text-[#3ec89a] dark:text-[#5fe7b9]" : "text-[#f54a4a] dark:text-[#d67979]"}`}
+                              className={`px-6 py-4 text-sm font-medium ${
+                                delegate.performance7D >= 0
+                                  ? "text-[#3ec89a] dark:text-[#5fe7b9]"
+                                  : "text-[#f54a4a] dark:text-[#d67979]"
+                              }`}
                               style={{ width: "120px" }}
                             >
                               <div className="flex items-center">
@@ -463,7 +561,9 @@ const ExplorePage = () => {
                     <ChevronLeft className="h-4 w-4 mr-1" />
                     Previous
                   </Button>
-                  {Array.from({ length: Math.ceil(filteredDelegates.length / itemsPerPage) }).map((_, index) => (
+                  {Array.from({
+                    length: Math.ceil(filteredDelegates.length / itemsPerPage),
+                  }).map((_, index) => (
                     <Button
                       key={index + 1}
                       variant="outline"
@@ -482,7 +582,10 @@ const ExplorePage = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === Math.ceil(filteredDelegates.length / itemsPerPage)}
+                    disabled={
+                      currentPage ===
+                      Math.ceil(filteredDelegates.length / itemsPerPage)
+                    }
                     className="bg-white dark:bg-[#1D2833] border-gray-200 dark:border-[#232F3B]"
                   >
                     Next
@@ -498,12 +601,16 @@ const ExplorePage = () => {
                 <div className="mx-auto h-12 w-12 text-[#6D7C8D] mb-4">
                   <Search className="h-12 w-12" />
                 </div>
-                <h3 className="text-lg font-medium text-[#030303] dark:text-white mb-2">No delegates found</h3>
-                <p className="text-[#6D7C8D] dark:text-[#ccd8e8] mb-4">Try adjusting your search or filter criteria</p>
+                <h3 className="text-lg font-medium text-[#030303] dark:text-white mb-2">
+                  No delegates found
+                </h3>
+                <p className="text-[#6D7C8D] dark:text-[#ccd8e8] mb-4">
+                  Try adjusting your search or filter criteria
+                </p>
                 <Button
                   onClick={() => {
-                    setSearchQuery("")
-                    setActiveTab("all")
+                    setSearchQuery("");
+                    setActiveTab("all");
                   }}
                   className="bg-[#10b981] text-white hover:bg-emerald-600"
                 >
@@ -516,7 +623,7 @@ const ExplorePage = () => {
         <Footer />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ExplorePage
+export default ExplorePage;

@@ -1,34 +1,72 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useRef } from "react"
-import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react"
-import { Navigation, FreeMode } from "swiper/modules"
-import "swiper/css"
-import "swiper/css/free-mode"
-import "swiper/css/navigation"
-import Image from "next/image"
-import { ArrowLeft, ArrowRight } from "lucide-react"
-import Modal from "@/components/common/Modal"
-import Link from "next/link"
-import { delegatesData, formatNameForURL, formatNameForDisplay, type Delegate } from "@/lib/delegate-data"
-import { useAccount, useWriteContract, useReadContract } from "wagmi"
-import { compoundTokenContractInfo } from "@/constants"
-import { formatUnits } from "ethers"
-import toast from "react-hot-toast"
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
+import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
+import { Navigation, FreeMode } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
+import Image from "next/image";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import Modal from "@/components/common/Modal";
+import Link from "next/link";
+import {
+  delegatesData,
+  formatNameForURL,
+  formatNameForDisplay,
+  type Delegate,
+} from "@/lib/delegate-data";
+import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { compoundTokenContractInfo } from "@/constants";
+import { formatUnits } from "ethers";
+import toast from "react-hot-toast";
 import { isAddress } from "ethers";
+import compensatorServices from "@/services/compensator";
+import blockies from "ethereum-blockies-png";
 
 const Delegates = () => {
-  const [sortBy, setSortBy] = useState("rank")
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [amount, setAmount] = useState("")
-  const swiperRef = useRef<SwiperRef | null>(null)
-  const navigationPrevRef = useRef(null)
-  const navigationNextRef = useRef(null)
+  const [sortBy, setSortBy] = useState("rank");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(
+    null
+  );
+  const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState("");
+  const swiperRef = useRef<SwiperRef | null>(null);
+  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
 
-  const { address } = useAccount()
+  const handleGetDelegatesFromServer = async () => {
+    try {
+      const response = await compensatorServices.getListCompensators();
+      const data = response.data || [];
+      const delegates = data.map((delegate: any) => {
+        const dataURL = blockies.createDataURL({
+          seed: delegate?.compensatorAddress || delegate?.delegate,
+        });
+        return {
+          name: delegate?.name,
+          address: delegate?.compensatorAddress,
+          votingPower: Number(delegate?.votingPower || 0),
+          distributed: delegate?.totalDelegatedCOMP || 0,
+          totalDelegations: delegate?.totalDelegations || 0,
+          performance7D: delegate?.performance7D || 0,
+          rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
+          image: delegate?.image || dataURL,
+          isServer: true
+        };
+      });
+      setListDelegatesFromServer(delegates);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetDelegatesFromServer();
+  }, []);
+
+  const { address } = useAccount();
 
   const { data: compBalance, refetch: refetchCompBalance } = useReadContract({
     address: compoundTokenContractInfo.address as `0x${string}`,
@@ -37,67 +75,75 @@ const Delegates = () => {
     args: address ? [address as `0x${string}`] : undefined,
   });
 
-  const formattedCompBalance = compBalance ? parseFloat(formatUnits((compBalance || '0').toString(), 18)).toFixed(4) : "0.0000"
+  const formattedCompBalance = compBalance
+    ? parseFloat(formatUnits((compBalance || "0").toString(), 18)).toFixed(4)
+    : "0.0000";
 
-  const { writeContractAsync } = useWriteContract()
+  const { writeContractAsync } = useWriteContract();
 
-  const truncateAddressMiddle = (address: string, startChars = 6, endChars = 4) => {
-    if (!address) return ''
-    if (address.length <= startChars + endChars) return address
-    
-    const start = address.substring(0, startChars)
-    const end = address.substring(address.length - endChars)
-    
-    return `${start}..${end}`
-  }
+  const truncateAddressMiddle = (
+    address: string,
+    startChars = 6,
+    endChars = 4
+  ) => {
+    if (!address) return "";
+    if (address.length <= startChars + endChars) return address;
 
-  const sortedDelegates = [...delegatesData].sort((a, b) => {
-    if (sortBy === "apr") {
-      const aprA = Number.parseFloat(a.rewardAPR)
-      const aprB = Number.parseFloat(b.rewardAPR)
-      return aprB - aprA
+    const start = address.substring(0, startChars);
+    const end = address.substring(address.length - endChars);
+
+    return `${start}..${end}`;
+  };
+
+  const sortedDelegates = [...delegatesData, ...listDelegatesFormFactory].sort(
+    (a, b) => {
+      if (sortBy === "apr") {
+        const aprA = Number.parseFloat(a.rewardAPR);
+        const aprB = Number.parseFloat(b.rewardAPR);
+        return aprB - aprA;
+      }
+      return a.id - b.id;
     }
-    return a.id - b.id
-  })
+  );
 
   const handleCardClick = (delegate: Delegate) => {
-    setSelectedDelegate(delegate)
-    setIsModalOpen(true)
-  }
+    setSelectedDelegate(delegate);
+    setIsModalOpen(true);
+  };
 
   const handleButtonClick = (event: React.MouseEvent, delegate: Delegate) => {
-    event.stopPropagation()
-    setSelectedDelegate(delegate)
-    setIsModalOpen(true)
-  }
+    event.stopPropagation();
+    setSelectedDelegate(delegate);
+    setIsModalOpen(true);
+  };
 
   const handleModalClose = () => {
-    setIsModalOpen(false)
-    setSelectedDelegate(null)
-    setAmount("")
-  }
+    setIsModalOpen(false);
+    setSelectedDelegate(null);
+    setAmount("");
+  };
 
   const handleDelegateSubmit = async () => {
     setLoading(true);
-  
+
     try {
       if (!selectedDelegate || !amount || Number.parseFloat(amount) <= 0) {
         throw new Error("Invalid amount or delegate");
       }
-  
+
       if (!selectedDelegate.address || !isAddress(selectedDelegate.address)) {
         throw new Error("Invalid delegate address");
       }
-      
+
       const delegateAddress = selectedDelegate.address as `0x${string}`;
-  
+
       await writeContractAsync({
         address: compoundTokenContractInfo.address as `0x${string}`,
         abi: compoundTokenContractInfo.abi,
         functionName: "delegate",
         args: [delegateAddress],
       });
-  
+
       toast.success("Delegation successful!");
       handleModalClose();
       refetchCompBalance();
@@ -166,8 +212,8 @@ const Delegates = () => {
           }}
           onInit={(swiper) => {}}
         >
-          {sortedDelegates.map((delegate, index) => (
-            <SwiperSlide key={delegate.id} className="">
+          {sortedDelegates.map((delegate: any, index) => (
+            <SwiperSlide key={delegate.id || index} className="">
               <div
                 onClick={() => handleCardClick(delegate)}
                 className="group bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between min-h-[206px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5 duration-200 relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
@@ -183,20 +229,28 @@ const Delegates = () => {
                     />
                   </div>
                   <div className="truncate">
-                    <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">{delegate.name}</h3>
-                    <p className="text-sm font-medium truncate text-[#6D7C8D]">{truncateAddressMiddle(delegate.address)}</p>
+                    <h3 className="text-lg font-semibold text-[#030303] dark:text-white truncate">
+                      {delegate.name}
+                    </h3>
+                    <p className="text-sm font-medium truncate text-[#6D7C8D]">
+                      {truncateAddressMiddle(delegate.address)}
+                    </p>
                   </div>
                 </div>
                 <div className="flex justify-between items-end mt-2 transition-transform duration-200 group-hover:-translate-y-12">
                   <div>
                     <p className="text-xl font-bold text-[#030303] dark:text-white">
-                      #{sortBy === "apr" ? index + 1 : delegate.id}
+                      #{sortBy === "apr" || delegate?.isServer ? index + 1 : delegate.id}
                     </p>
                     <p className="text-sm font-medium text-[#6D7C8D]">Rank</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-[#030303] dark:text-white">{delegate.rewardAPR}</p>
-                    <p className="text-sm font-medium text-[#6D7C8D]">Reward APR</p>
+                    <p className="text-xl font-bold text-[#030303] dark:text-white">
+                      {delegate.rewardAPR}
+                    </p>
+                    <p className="text-sm font-medium text-[#6D7C8D]">
+                      Reward APR
+                    </p>
                   </div>
                 </div>
                 <button
@@ -232,7 +286,9 @@ const Delegates = () => {
                 unoptimized
               />
             </div>
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">Delegate COMP to {selectedDelegate.name}</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">
+              Delegate COMP to {selectedDelegate.name}
+            </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
                 <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#28303e] rounded-lg h-20 p-3">
@@ -245,13 +301,23 @@ const Delegates = () => {
                       className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
                     />
                     <div className="flex items-center mr-3 ml-2">
-                      <Image src="/logo.png" alt="COMP Logo" width={20} height={20} className="mx-auto rounded-full" />
-                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">COMP</span>
+                      <Image
+                        src="/logo.png"
+                        alt="COMP Logo"
+                        width={20}
+                        height={20}
+                        className="mx-auto rounded-full"
+                      />
+                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">
+                        COMP
+                      </span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-xs font-medium text-[#6D7C8D]">$0.00</p>
-                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: {formattedCompBalance}</p>
+                    <p className="text-xs font-medium text-[#6D7C8D]">
+                      Balance: {formattedCompBalance}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -261,7 +327,9 @@ const Delegates = () => {
                 <button
                   key={percent}
                   onClick={() => {
-                    const balance = Number(formatUnits((compBalance || "0").toString(), 18)); // Convert balance to a number
+                    const balance = Number(
+                      formatUnits((compBalance || "0").toString(), 18)
+                    ); // Convert balance to a number
                     const selectedAmount = (percent / 100) * balance; // Calculate the selected amount
                     setAmount(selectedAmount.toFixed(4)); // Set the amount with 4 decimal places
                   }}
@@ -273,13 +341,23 @@ const Delegates = () => {
             </div>
             <button
               onClick={handleDelegateSubmit}
-              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0) || loading}
+              disabled={
+                !amount ||
+                Number.parseFloat(amount) <= 0 ||
+                Number.parseFloat(amount) > Number(compBalance || 0) ||
+                loading
+              }
               className={`${
-                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0)
+                loading ||
+                !amount ||
+                Number.parseFloat(amount) <= 0 ||
+                Number.parseFloat(amount) > Number(compBalance || 0)
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
               } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                Number.parseFloat(amount) > Number(compBalance || 0) ? "bg-red-500 hover:bg-red-600" : ""
+                Number.parseFloat(amount) > Number(compBalance || 0)
+                  ? "bg-red-500 hover:bg-red-600"
+                  : ""
               }`}
             >
               {loading ? (
@@ -289,7 +367,14 @@ const Delegates = () => {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -327,7 +412,7 @@ const Delegates = () => {
         </Modal>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Delegates
+export default Delegates;

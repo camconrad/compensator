@@ -10,6 +10,7 @@ export type ApiParamsProps = Record<
 
 export enum API_SERVICES {
   AUTH_SERVICE = "auth",
+  COMPENSATOR = 'compensator'
 }
 
 export const getApiEndpoint = (service?: API_SERVICES): string => {
@@ -77,8 +78,10 @@ export class ApiService {
 
 // Export API endpoints
 export const AUTH_SERVICE_ENDPOINT = getApiEndpoint(API_SERVICES.AUTH_SERVICE);
+export const COMPENSATOR_SERVICE_ENDPOINT = getApiEndpoint(API_SERVICES.COMPENSATOR);
 export const DEFAULT_ENDPOINT = getApiEndpoint();
 
 // Export API client methods
 export const AuthService = new ApiService(AUTH_SERVICE_ENDPOINT);
+export const CompensatorService = new ApiService(COMPENSATOR_SERVICE_ENDPOINT);
 export const DefaultService = new ApiService(DEFAULT_ENDPOINT);
