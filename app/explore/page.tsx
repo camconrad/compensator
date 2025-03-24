@@ -18,14 +18,15 @@ const fetchDelegates = async () => {
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
   await delay(1500)
 
-  return delegatesData.map((delegate, index) => ({
+  return delegatesData.map((delegate) => ({
     ...delegate,
-    votingPower: Math.floor(Math.random() * 100),
-    activeProposals: Math.floor(Math.random() * 10),
-    totalDelegations: Math.floor(Math.random() * 100),
-    performance7D: Math.random() * 20 - 10, // Random -10% to +10%
+    votingPower: 0,
+    distributed: 0,
+    totalDelegations: 0,
+    performance7D: 0,
+    rewardAPR: "0.00%",
     imageUrl: delegate.image,
-    tags: ["Active", "Verified"].slice(0, Math.floor(Math.random() * 2) + 1),
+    tags: [],
   }))
 }
 
@@ -288,8 +289,8 @@ const ExplorePage = () => {
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
-                          <span className="hidden sm:inline">Vote Power</span>
-                          <span className="sm:hidden">Vote Po.</span>
+                          <span className="hidden sm:inline">Distributed</span>
+                          <span className="sm:hidden">Dist.</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
@@ -299,8 +300,8 @@ const ExplorePage = () => {
                         style={{ width: "120px" }}
                       >
                         <div className="flex items-center justify-start cursor-pointer">
-                          <span className="hidden sm:inline">Active Prop.</span>
-                          <span className="sm:hidden">Propos.</span>
+                          <span className="hidden sm:inline">Vote Power</span>
+                          <span className="sm:hidden">Vote Po.</span>
                           <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
@@ -403,6 +404,12 @@ const ExplorePage = () => {
                               className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
+                              ${delegate.distributed.toLocaleString()}
+                            </td>
+                            <td
+                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
+                              style={{ width: "120px" }}
+                            >
                               <div className="flex items-center">
                                 <div className="w-16 bg-gray-200 dark:bg-[#425365] rounded-full h-1.5 mr-2">
                                   <div
@@ -412,12 +419,6 @@ const ExplorePage = () => {
                                 </div>
                                 <span>{delegate.votingPower}%</span>
                               </div>
-                            </td>
-                            <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
-                              style={{ width: "120px" }}
-                            >
-                              {delegate.activeProposals}
                             </td>
                             <td
                               className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
