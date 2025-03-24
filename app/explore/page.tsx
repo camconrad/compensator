@@ -404,7 +404,7 @@ const ExplorePage = () => {
                               className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
-                              ${delegate.distributed.toLocaleString()}
+                              {parseFloat(delegate.distributed).toFixed(2)} COMP
                             </td>
                             <td
                               className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
