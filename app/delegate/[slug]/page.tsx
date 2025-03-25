@@ -12,12 +12,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import Modal from "@/components/common/Modal";
-import { findDelegateBySlug, formatNameForDisplay, type Delegate } from "@/lib/delegate-data";
+import {
+  delegatesData,
+  findDelegateBySlug,
+  formatNameForDisplay,
+  type Delegate,
+} from "@/lib/delegate-data";
 import toast from "react-hot-toast";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import {
+  useAccount,
+  useWriteContract,
+  useReadContract,
+  useSwitchChain,
+} from "wagmi";
 import { compoundTokenContractInfo } from "@/constants";
-import { formatUnits } from 'ethers';
-import { isAddress } from 'ethers';
+import { ethers, formatUnits } from "ethers";
+import { isAddress } from "ethers";
+import compensatorServices from "@/services/compensator";
+import { useGetCompoundContract } from "@/hooks/useGetCompContract";
+import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
+import blockies from "ethereum-blockies-png";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { mainnet } from "wagmi/chains";
+import { getEthersSigner } from "@/hooks/useEtherProvider";
+import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
+import BigNumber from "bignumber.js";
+import { waitForTransactionReceipt } from "@wagmi/core";
 
 interface Proposal {
   title: string;
@@ -39,6 +59,8 @@ export default function DelegatePage() {
   const theme = useSettingTheme();
   const params = useParams();
   const delegateSlug = params.slug as string;
+  const { openConnectModal } = useConnectModal();
+  const { switchChainAsync } = useSwitchChain();
 
   const [isError, setIsError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -52,9 +74,50 @@ export default function DelegatePage() {
 
   const [isDelegateLoading, setIsDelegateLoading] = useState<boolean>(true);
   const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true);
-  const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true);
+  const [isDelegationsLoading, setIsDelegationsLoading] =
+    useState<boolean>(true);
+  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
+  const { compoundContract } = useGetCompoundContract();
+
+  const { handleSetCompensatorContract } = useGetCompensatorContract();
+
+  const handleGetDelegatesFromServer = async () => {
+    try {
+      const response = await compensatorServices.getListCompensators();
+      const data = response.data || [];
+      const delegates = data.map((delegate: any) => {
+        const dataURL = blockies.createDataURL({
+          seed: delegate?.compensatorAddress || delegate?.delegate,
+        });
+        return {
+          name: delegate?.name,
+          address: delegate?.compensatorAddress,
+          votingPower: Number(delegate?.votingPower || 0),
+          distributed: delegate?.totalDelegatedCOMP || 0,
+          totalDelegations: delegate?.totalDelegations || 0,
+          performance7D: delegate?.performance7D || 0,
+          rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
+          image: delegate?.image || dataURL,
+          isServer: true,
+          id: delegate?.id,
+        };
+      });
+      setListDelegatesFromServer(delegates);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetDelegatesFromServer();
+  }, []);
 
   const { address } = useAccount();
+
+  const currentDelegate: any = [
+    ...delegatesData,
+    ...listDelegatesFormFactory,
+  ].find((item) => item.address === delegateSlug);
 
   const { data: compBalance, refetch: refetchCompBalance } = useReadContract({
     address: compoundTokenContractInfo.address as `0x${string}`,
@@ -63,17 +126,23 @@ export default function DelegatePage() {
     args: address ? [address as `0x${string}`] : undefined,
   });
 
-  const formattedCompBalance = compBalance ? parseFloat(formatUnits((compBalance || '0').toString(), 18)).toFixed(4) : "0.0000";
+  const formattedCompBalance = compBalance
+    ? parseFloat(formatUnits((compBalance || "0").toString(), 18)).toFixed(4)
+    : "0.0000";
 
   const { writeContractAsync } = useWriteContract();
 
-  const truncateAddressMiddle = (address: string, startChars = 6, endChars = 4) => {
-    if (!address) return '';
+  const truncateAddressMiddle = (
+    address: string,
+    startChars = 6,
+    endChars = 4
+  ) => {
+    if (!address) return "";
     if (address.length <= startChars + endChars) return address;
-    
+
     const start = address.substring(0, startChars);
     const end = address.substring(address.length - endChars);
-    
+
     return `${start}..${end}`;
   };
 
@@ -187,28 +256,98 @@ export default function DelegatePage() {
   // Handle delegate submit
   const handleDelegateSubmit = async () => {
     setLoading(true);
-  
+
     try {
-      if (!delegate || !amount || Number.parseFloat(amount) <= 0) {
+      if (!address) {
+        openConnectModal?.();
+        return;
+      }
+
+      if (!currentDelegate || !amount || Number.parseFloat(amount) <= 0) {
         throw new Error("Invalid amount or delegate");
       }
-  
-      if (!delegate.address || !isAddress(delegate.address)) {
+
+      if (!currentDelegate?.address || !isAddress(currentDelegate?.address)) {
         throw new Error("Invalid delegate address");
       }
-  
-      const delegateAddress = delegate.address as `0x${string}`;
-  
-      await writeContractAsync({
-        address: compoundTokenContractInfo.address as `0x${string}`,
-        abi: compoundTokenContractInfo.abi,
-        functionName: "delegate",
-        args: [delegateAddress],
-      });
-  
-      toast.success("Delegation successful!");
-      handleModalClose();
-      refetchCompBalance();
+
+      await switchChainAsync({ chainId: mainnet.id });
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+      const delegateAddress = currentDelegate?.address as `0x${string}`;
+      const compensatorContract = await handleSetCompensatorContract(
+        delegateAddress
+      );
+
+      if (!compensatorContract) {
+        return toast.error("Compensator contract not found");
+      }
+
+      if (!compoundContract) {
+        return toast.error("Compound contract not found");
+      }
+      const decimals = await compoundContract.decimals();
+      const convertAmount = ethers
+        .parseUnits(amount ? amount?.toString() : "0", decimals)
+        .toString();
+
+      const allowance = await compoundContract.allowance(
+        address,
+        delegateAddress
+      );
+
+      if (new BigNumber(allowance).lt(new BigNumber(convertAmount))) {
+        const gas = await compoundContract.approve.estimateGas(
+          delegateAddress,
+          convertAmount
+        );
+        const approveReceipt = await compoundContract?.approve(
+          delegateAddress,
+          convertAmount,
+          {
+            gasLimit: gas,
+            maxFeePerGas: feeData.maxFeePerGas,
+            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+          }
+        );
+        const transactionApproveReceipt = await waitForTransactionReceipt(
+          wagmiConfig,
+          {
+            hash: approveReceipt?.hash,
+          }
+        );
+        console.log(
+          "transactionApproveReceipt :>> ",
+          transactionApproveReceipt
+        );
+
+        if (transactionApproveReceipt?.status === "success") {
+          toast.success("Successful Approved");
+        }
+      }
+
+      const gas = await compensatorContract.delegateDeposit.estimateGas(
+        convertAmount
+      );
+      const delegatedReceipt = await compensatorContract.delegateDeposit(
+        convertAmount,
+        {
+          gasLimit: gas,
+          maxFeePerGas: feeData.maxFeePerGas,
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+        }
+      );
+      const transactionDelegatorReceipt = await waitForTransactionReceipt(
+        wagmiConfig,
+        {
+          hash: delegatedReceipt?.hash,
+        }
+      );
+      if (transactionDelegatorReceipt?.status === "success") {
+        toast.success("Delegation successful!");
+        handleModalClose();
+        refetchCompBalance();
+      }
     } catch (error) {
       console.error("Error delegating COMP:", error);
       toast.error("Failed to delegate COMP. Please try again.");
@@ -237,12 +376,14 @@ export default function DelegatePage() {
   return (
     <>
       <Head>
-        <title>{delegate ? delegate.name : "Loading Delegate"} | Compensator</title>
+        <title>
+          {delegate ? currentDelegate?.name : "Loading Delegate"} | Compensator
+        </title>
         <meta
           name="description"
           content={
             delegate
-              ? `Profile page for ${delegate.name}, a Compound delegate on the Compensator marketplace.`
+              ? `Profile page for ${currentDelegate?.name}, a Compound delegate on the Compensator marketplace.`
               : "Loading delegate profile..."
           }
         />
@@ -328,7 +469,7 @@ export default function DelegatePage() {
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-full flex items-center justify-center">
                         <Image
-                          src={delegate.image || "/logo.png"}
+                          src={currentDelegate?.image || "/logo.png"}
                           alt="Profile"
                           width={64}
                           height={64}
@@ -336,11 +477,17 @@ export default function DelegatePage() {
                         />
                       </div>
                       <div>
-                        <h1 className="text-2xl font-bold text-[#030303] dark:text-white">{delegate.name}</h1>
+                        <h1 className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {currentDelegate?.name}
+                        </h1>
                         <div className="flex items-center mt-1">
-                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">{truncateAddressMiddle(delegate.address)}</p>
+                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                            {truncateAddressMiddle(currentDelegate?.address)}
+                          </p>
                           <button
-                            onClick={() => copyToClipboard(delegate.address || "")}
+                            onClick={() =>
+                              copyToClipboard(delegate.address || "")
+                            }
                             className="ml-2 text-[#6D7C8D] hover:text-[#030303] dark:hover:text-gray-300"
                           >
                             <Copy className="h-4 w-4" />
@@ -362,31 +509,41 @@ export default function DelegatePage() {
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                       <div className="flex items-center justify-start gap-[6px]">
                         <img
-                            src="/logo.png"
-                            alt=""
-                            className="h-5 w-5 rounded-full"
-                          />
+                          src="/logo.png"
+                          alt=""
+                          className="h-5 w-5 rounded-full"
+                        />
                         <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                          {delegate.votingPower || "0"}
+                          {currentDelegate?.votingPower || "0"}
                         </p>
                       </div>
-                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Vote Power</h3>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Vote Power
+                      </h3>
                     </div>
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                       <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                        {delegate.totalDelegations || 0}
+                        {currentDelegate?.totalDelegations || 0}
                       </p>
-                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Delegations</h3>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Delegations
+                      </h3>
                     </div>
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                      <p className="text-2xl font-bold text-[#030303] dark:text-white">0</p>
-                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">Proposals</h3>
+                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                        0
+                      </p>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Proposals
+                      </h3>
                     </div>
                   </div>
                 </>
               ) : (
                 <div className="flex items-center justify-center p-8">
-                  <p className="text-[#6D7C8D] dark:text-gray-400">No delegate data available</p>
+                  <p className="text-[#6D7C8D] dark:text-gray-400">
+                    No delegate data available
+                  </p>
                 </div>
               )}
             </motion.div>
@@ -398,12 +555,17 @@ export default function DelegatePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.1 }}
             >
-              <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">History</h2>
+              <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">
+                History
+              </h2>
 
               {isProposalsLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[1, 2].map((_, index) => (
-                    <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
+                    <div
+                      key={index}
+                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
+                    >
                       <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md mb-3"></div>
                       <div className="flex items-center gap-2 mb-3">
                         <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
@@ -421,8 +583,13 @@ export default function DelegatePage() {
               ) : proposals.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {proposals.map((proposal, index) => (
-                    <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer">
-                      <h3 className="text-lg font-semibold text-[#030303] dark:text-white">{proposal.title}</h3>
+                    <div
+                      key={index}
+                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
+                    >
+                      <h3 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        {proposal.title}
+                      </h3>
                       <div className="flex items-center mt-2">
                         <span
                           className={`px-2 py-0.5 text-xs font-medium rounded-full ${
@@ -439,22 +606,35 @@ export default function DelegatePage() {
                       </div>
                       <div className="mt-3">
                         <div className="flex justify-between mb-1">
-                          <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">Votes</p>
                           <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
-                            {(proposal.votesFor + proposal.votesAgainst).toFixed(2)}K
+                            Votes
+                          </p>
+                          <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
+                            {(
+                              proposal.votesFor + proposal.votesAgainst
+                            ).toFixed(2)}
+                            K
                           </p>
                         </div>
                         <div className="w-full bg-gray-200 dark:bg-[#33475b] rounded-full h-1.5">
                           <div
                             className="bg-emerald-500 h-1.5 rounded-full"
                             style={{
-                              width: `${(proposal.votesFor / (proposal.votesFor + proposal.votesAgainst)) * 100}%`,
+                              width: `${
+                                (proposal.votesFor /
+                                  (proposal.votesFor + proposal.votesAgainst)) *
+                                100
+                              }%`,
                             }}
                           ></div>
                         </div>
                         <div className="flex justify-between mt-2">
-                          <p className="text-sm font-medium text-green-600 dark:text-green-400">{proposal.votesFor}K</p>
-                          <p className="text-sm font-medium text-red-600 dark:text-red-400">{proposal.votesAgainst}K</p>
+                          <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                            {proposal.votesFor}K
+                          </p>
+                          <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                            {proposal.votesAgainst}K
+                          </p>
                         </div>
                       </div>
                       {proposal.voted && (
@@ -466,7 +646,10 @@ export default function DelegatePage() {
                                 : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                             }`}
                           >
-                            Voted {proposal.voteDirection === "for" ? "For" : "Against"}
+                            Voted{" "}
+                            {proposal.voteDirection === "for"
+                              ? "For"
+                              : "Against"}
                           </span>
                         </div>
                       )}
@@ -478,13 +661,21 @@ export default function DelegatePage() {
                   <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
                     <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Voting History</h2>
+                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                    No Voting History
+                  </h2>
                   <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-3 max-w-md mx-auto">
                     Voting history is currently untracked
                   </p>
                   {delegate?.externalLink && (
                     <button
-                      onClick={() => window.open(delegate.externalLink, '_blank', 'noopener,noreferrer')}
+                      onClick={() =>
+                        window.open(
+                          delegate.externalLink,
+                          "_blank",
+                          "noopener,noreferrer"
+                        )
+                      }
                       className="bg-[#EFF2F5] text-sm mb-2 transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-3 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
                     >
                       View Proposals
@@ -501,12 +692,17 @@ export default function DelegatePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.2 }}
             >
-              <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">Delegations</h2>
+              <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">
+                Delegations
+              </h2>
 
               {isDelegationsLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3].map((_, index) => (
-                    <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse">
+                    <div
+                      key={index}
+                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
                         <div>
@@ -521,7 +717,10 @@ export default function DelegatePage() {
               ) : delegations.length > 0 ? (
                 <div className="space-y-4">
                   {delegations.map((delegation, index) => (
-                    <div key={index} className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm">
+                    <div
+                      key={index}
+                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="relative h-12 w-12 flex-shrink-0 rounded-full overflow-hidden">
                           <Image
@@ -536,7 +735,9 @@ export default function DelegatePage() {
                           <p className="text-base font-semibold text-[#030303] dark:text-white">
                             {delegation.delegator}
                           </p>
-                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">Amount: {delegation.amount}</p>
+                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                            Amount: {delegation.amount}
+                          </p>
                         </div>
                         <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
                           {delegation.date}
@@ -550,7 +751,9 @@ export default function DelegatePage() {
                   <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
                     <Users className="h-6 w-6 text-[#030303] dark:text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">No Delegations</h2>
+                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                    No Delegations
+                  </h2>
                   <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-3 max-w-md mx-auto">
                     Delegations are currently untracked
                   </p>
@@ -582,7 +785,9 @@ export default function DelegatePage() {
                 unoptimized
               />
             </div>
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">Delegate COMP to {delegate.name}</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">
+              Delegate COMP to {currentDelegate?.name}
+            </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
                 <div className="flex flex-col border bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#2e3746] rounded-lg h-20 p-3">
@@ -595,13 +800,23 @@ export default function DelegatePage() {
                       className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
                     />
                     <div className="flex items-center mr-3 ml-2">
-                      <Image src="/logo.png" alt="COMP Logo" width={20} height={20} className="mx-auto rounded-full" />
-                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">COMP</span>
+                      <Image
+                        src="/logo.png"
+                        alt="COMP Logo"
+                        width={20}
+                        height={20}
+                        className="mx-auto rounded-full"
+                      />
+                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">
+                        COMP
+                      </span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-xs font-medium text-[#6D7C8D]">$0.00</p>
-                    <p className="text-xs font-medium text-[#6D7C8D]">Balance: {formattedCompBalance}</p>
+                    <p className="text-xs font-medium text-[#6D7C8D]">
+                      Balance: {formattedCompBalance}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -611,7 +826,9 @@ export default function DelegatePage() {
                 <button
                   key={percent}
                   onClick={() => {
-                    const balance = Number(formatUnits((compBalance || "0").toString(), 18)); // Convert balance to a number
+                    const balance = Number(
+                      formatUnits((compBalance || "0").toString(), 18)
+                    ); // Convert balance to a number
                     const selectedAmount = (percent / 100) * balance; // Calculate the selected amount
                     setAmount(selectedAmount.toFixed(4)); // Set the amount with 4 decimal places
                   }}
@@ -623,13 +840,23 @@ export default function DelegatePage() {
             </div>
             <button
               onClick={handleDelegateSubmit}
-              disabled={!amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0) || loading}
+              disabled={
+                !amount ||
+                Number.parseFloat(amount) <= 0 ||
+                Number.parseFloat(amount) > Number(compBalance || 0) ||
+                loading
+              }
               className={`${
-                loading || !amount || Number.parseFloat(amount) <= 0 || Number.parseFloat(amount) > Number(compBalance || 0)
+                loading ||
+                !amount ||
+                Number.parseFloat(amount) <= 0 ||
+                Number.parseFloat(amount) > Number(compBalance || 0)
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
               } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                Number.parseFloat(amount) > Number(compBalance || 0) ? "bg-red-500 hover:bg-red-600" : ""
+                Number.parseFloat(amount) > Number(compBalance || 0)
+                  ? "bg-red-500 hover:bg-red-600"
+                  : ""
               }`}
             >
               {loading ? (
@@ -639,7 +866,14 @@ export default function DelegatePage() {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -654,11 +888,13 @@ export default function DelegatePage() {
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Reward APR</div>
-              <div className="">0.00%</div>
+              <div className="">{currentDelegate?.rewardAPR}</div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Delegated votes</div>
-              <div className="">0.00 COMP</div>
+              <div className="">
+                {Number(currentDelegate?.distributed || "0").toFixed(1)} COMP
+              </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Last active</div>
@@ -670,7 +906,7 @@ export default function DelegatePage() {
                 href={`/delegate/${delegateSlug}`}
                 className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none"
               >
-                @{formatNameForDisplay(delegate.name)}
+                @{formatNameForDisplay(currentDelegate?.name)}
               </Link>
             </div>
           </div>

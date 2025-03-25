@@ -24,6 +24,7 @@ import { useEffect, useRef, useState } from "react";
 import Headroom from "react-headroom";
 import toast from "react-hot-toast";
 import blockies from 'ethereum-blockies-png'
+import { useRouter } from "next/navigation";
 
 const fetchDelegates = async () => {
   const delay = (ms: number) =>
@@ -74,6 +75,7 @@ const handleCopyClick = (e: React.MouseEvent, address: string) => {
 };
 
 const ExplorePage = () => {
+  const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
   const [filteredDelegates, setFilteredDelegates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,7 +135,6 @@ const ExplorePage = () => {
     loadDelegates();
     handleGetDelegatesFromServer();
   }, []);
-  console.log("tableData :>> ", tableData);
 
   useEffect(() => {
     let filtered = [...tableData, ...listDelegatesFormFactory];
@@ -452,9 +453,7 @@ const ExplorePage = () => {
                             key={delegate.id}
                             className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
                             onClick={() => {
-                              window.location.href = `/delegate/${formatNameForURL(
-                                delegate.name
-                              )}`;
+                              router.push(`/delegate/${delegate.address}`);
                             }}
                           >
                             <td
