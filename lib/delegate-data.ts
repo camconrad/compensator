@@ -13,6 +13,7 @@ export interface Delegate {
   status?: string;
   rating?: number;
   externalLink?: string;
+  distributed?: string;
 }
 
 export const delegatesData: Delegate[] = [
