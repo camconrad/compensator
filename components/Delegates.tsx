@@ -17,24 +17,57 @@ import {
   formatNameForDisplay,
   type Delegate,
 } from "@/lib/delegate-data";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import {
+  useAccount,
+  useWriteContract,
+  useReadContract,
+  useSwitchChain,
+} from "wagmi";
 import { compoundTokenContractInfo } from "@/constants";
-import { formatUnits } from "ethers";
+import { ethers, formatUnits } from "ethers";
 import toast from "react-hot-toast";
 import { isAddress } from "ethers";
 import compensatorServices from "@/services/compensator";
 import blockies from "ethereum-blockies-png";
+import { getEthersSigner } from "@/hooks/useEtherProvider";
+import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
+import { mainnet } from "wagmi/chains";
+import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useGetCompoundContract } from "@/hooks/useGetCompContract";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import BigNumber from "bignumber.js";
+
+const truncateAddressMiddle = (
+  address: string,
+  startChars = 6,
+  endChars = 4
+) => {
+  if (!address) return "";
+  if (address.length <= startChars + endChars) return address;
+
+  const start = address.substring(0, startChars);
+  const end = address.substring(address.length - endChars);
+
+  return `${start}..${end}`;
+};
 
 const Delegates = () => {
+  const { openConnectModal } = useConnectModal();
+  const { switchChainAsync } = useSwitchChain();
   const [sortBy, setSortBy] = useState("rank");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(
     null
   );
+  const { address } = useAccount();
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const swiperRef = useRef<SwiperRef | null>(null);
   const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
+  const { compoundContract } = useGetCompoundContract();
+
+  const { handleSetCompensatorContract } = useGetCompensatorContract();
 
   const handleGetDelegatesFromServer = async () => {
     try {
@@ -53,7 +86,8 @@ const Delegates = () => {
           performance7D: delegate?.performance7D || 0,
           rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
           image: delegate?.image || dataURL,
-          isServer: true
+          isServer: true,
+          id: delegate?.id,
         };
       });
       setListDelegatesFromServer(delegates);
@@ -66,8 +100,6 @@ const Delegates = () => {
     handleGetDelegatesFromServer();
   }, []);
 
-  const { address } = useAccount();
-
   const { data: compBalance, refetch: refetchCompBalance } = useReadContract({
     address: compoundTokenContractInfo.address as `0x${string}`,
     abi: compoundTokenContractInfo.abi,
@@ -78,22 +110,6 @@ const Delegates = () => {
   const formattedCompBalance = compBalance
     ? parseFloat(formatUnits((compBalance || "0").toString(), 18)).toFixed(4)
     : "0.0000";
-
-  const { writeContractAsync } = useWriteContract();
-
-  const truncateAddressMiddle = (
-    address: string,
-    startChars = 6,
-    endChars = 4
-  ) => {
-    if (!address) return "";
-    if (address.length <= startChars + endChars) return address;
-
-    const start = address.substring(0, startChars);
-    const end = address.substring(address.length - endChars);
-
-    return `${start}..${end}`;
-  };
 
   const sortedDelegates = [...delegatesData, ...listDelegatesFormFactory].sort(
     (a, b) => {
@@ -127,6 +143,11 @@ const Delegates = () => {
     setLoading(true);
 
     try {
+      if (!address) {
+        openConnectModal?.();
+        return;
+      }
+
       if (!selectedDelegate || !amount || Number.parseFloat(amount) <= 0) {
         throw new Error("Invalid amount or delegate");
       }
@@ -135,18 +156,83 @@ const Delegates = () => {
         throw new Error("Invalid delegate address");
       }
 
+      await switchChainAsync({ chainId: mainnet.id });
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
       const delegateAddress = selectedDelegate.address as `0x${string}`;
+      const compensatorContract = await handleSetCompensatorContract(
+        delegateAddress
+      );
 
-      await writeContractAsync({
-        address: compoundTokenContractInfo.address as `0x${string}`,
-        abi: compoundTokenContractInfo.abi,
-        functionName: "delegate",
-        args: [delegateAddress],
-      });
+      if (!compensatorContract) {
+        return toast.error("Compensator contract not found");
+      }
 
-      toast.success("Delegation successful!");
-      handleModalClose();
-      refetchCompBalance();
+      if (!compoundContract) {
+        return toast.error("Compound contract not found");
+      }
+      const decimals = await compoundContract.decimals();
+      const convertAmount = ethers
+        .parseUnits(amount ? amount?.toString() : "0", decimals)
+        .toString();
+
+      const allowance = await compoundContract.allowance(
+        address,
+        delegateAddress
+      );
+
+      if (new BigNumber(allowance).lt(new BigNumber(convertAmount))) {
+        const gas = await compoundContract.approve.estimateGas(
+          delegateAddress,
+          convertAmount
+        );
+        const approveReceipt = await compoundContract?.approve(
+          delegateAddress,
+          convertAmount,
+          {
+            gasLimit: gas,
+            maxFeePerGas: feeData.maxFeePerGas,
+            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+          }
+        );
+        const transactionApproveReceipt = await waitForTransactionReceipt(
+          wagmiConfig,
+          {
+            hash: approveReceipt?.hash,
+          }
+        );
+        console.log(
+          "transactionApproveReceipt :>> ",
+          transactionApproveReceipt
+        );
+
+        if (transactionApproveReceipt?.status === "success") {
+          toast.success("Successful Approved");
+        }
+      }
+
+      const gas = await compensatorContract.delegateDeposit.estimateGas(
+        convertAmount
+      );
+      const delegatedReceipt = await compensatorContract.delegateDeposit(
+        convertAmount,
+        {
+          gasLimit: gas,
+          maxFeePerGas: feeData.maxFeePerGas,
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+        }
+      );
+      const transactionDelegatorReceipt = await waitForTransactionReceipt(
+        wagmiConfig,
+        {
+          hash: delegatedReceipt?.hash,
+        }
+      );
+      if (transactionDelegatorReceipt?.status === "success") {
+        toast.success("Delegation successful!");
+        handleModalClose();
+        refetchCompBalance();
+      }
     } catch (error) {
       console.error("Error delegating COMP:", error);
       toast.error("Failed to delegate COMP. Please try again.");
@@ -240,7 +326,10 @@ const Delegates = () => {
                 <div className="flex justify-between items-end mt-2 transition-transform duration-200 group-hover:-translate-y-12">
                   <div>
                     <p className="text-xl font-bold text-[#030303] dark:text-white">
-                      #{sortBy === "apr" || delegate?.isServer ? index + 1 : delegate.id}
+                      #
+                      {sortBy === "apr" || delegate?.isServer
+                        ? index + 1
+                        : delegate.id}
                     </p>
                     <p className="text-sm font-medium text-[#6D7C8D]">Rank</p>
                   </div>
@@ -389,11 +478,13 @@ const Delegates = () => {
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Reward APR</div>
-              <div className="">0.00%</div>
+              <div className="">{selectedDelegate?.rewardAPR}</div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Delegated votes</div>
-              <div className="">0.00 COMP</div>
+              <div className="">
+                {Number(selectedDelegate?.distributed || "0").toFixed(1)} COMP
+              </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Last active</div>

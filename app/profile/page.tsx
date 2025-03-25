@@ -324,8 +324,6 @@ export default function ProfilePage() {
 
       const { provider } = await getEthersSigner(wagmiConfig);
       const feeData = await provider.getFeeData();
-      console.log("apr :>> ", apr);
-      console.log(ethers.parseUnits((apr || 0).toString(), 18).toString());
       const gas = await compensatorContract.setRewardRate.estimateGas(
         ethers.parseUnits(apr, 18).toString()
       );
