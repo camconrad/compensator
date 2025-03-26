@@ -5,6 +5,7 @@ import { compoundTokenContractInfo } from "@/constants";
 import { getEthersSigner } from "@/hooks/useEtherProvider";
 import { useGetCompoundContract } from "@/hooks/useGetCompContract";
 import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
+import { useGetCompensatorFactoryContract } from "@/hooks/useGetCompensatorFactoryContract";
 import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import BigNumber from "bignumber.js";
@@ -90,6 +91,7 @@ const Proposals = () => {
   const { handleSetCompensatorContract } = useGetCompensatorContract();
   const [stakedAgainst, setStakedAgainst] = useState(0.0);
   const { compoundContract } = useGetCompoundContract();
+  const { compensatorFactoryContract } = useGetCompensatorFactoryContract()
 
   const { data: userBalance, refetch: refetchCompBalance } = useReadContract({
     address: compoundTokenContractInfo.address as `0x${string}`,
@@ -121,8 +123,7 @@ const Proposals = () => {
 
   const handleSubmitStake = async (amount: number) => {
     setLoading(true);
-    const delegateAddress = "0x2b10334c135c8866b4022857d299138588c6ed22";
-    // setTimeout(() => {
+
     console.log(
       `Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`
     );
@@ -132,12 +133,12 @@ const Proposals = () => {
       setStakedAgainst((prev) => prev + amount);
     }
 
-    //   setIsModalOpen(false);
-    //   setLoading(false);
-    // }, 2000);
 
+    try {
+         
+    const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
     const compensatorContract = await handleSetCompensatorContract(
-      delegateAddress
+      compensatorAddress
     );
     if (!compensatorContract) {
       throw new Error("Compensator contract not found");
@@ -146,8 +147,6 @@ const Proposals = () => {
     if (!compoundContract) {
       return toast.error("Compound contract not found");
     }
-
-    try {
       const decimals = await compoundContract.decimals();
       const convertAmount = ethers
         .parseUnits(amount ? amount?.toString() : "0", decimals)
@@ -159,15 +158,15 @@ const Proposals = () => {
       // allowance
       const allowance = await compoundContract.allowance(
         address,
-        delegateAddress
+        compensatorAddress
       );
       if (new BigNumber(allowance).lt(new BigNumber(convertAmount))) {
         const gas = await compoundContract.approve.estimateGas(
-          delegateAddress,
+          compensatorAddress,
           convertAmount
         );
         const approveReceipt = await compoundContract?.approve(
-          delegateAddress,
+          compensatorAddress,
           convertAmount,
           {
             gasLimit: gas,
