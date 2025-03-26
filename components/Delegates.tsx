@@ -65,9 +65,7 @@ const Delegates = () => {
   const [amount, setAmount] = useState("");
   const swiperRef = useRef<SwiperRef | null>(null);
   const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
-  const { compoundContract } = useGetCompoundContract();
-
-  const { handleSetCompensatorContract } = useGetCompensatorContract();
+  const { writeContractAsync } = useWriteContract();
 
   const handleGetDelegatesFromServer = async () => {
     try {
@@ -157,82 +155,19 @@ const Delegates = () => {
       }
 
       await switchChainAsync({ chainId: mainnet.id });
-      const { provider } = await getEthersSigner(wagmiConfig);
-      const feeData = await provider.getFeeData();
+
       const delegateAddress = selectedDelegate.address as `0x${string}`;
-      const compensatorContract = await handleSetCompensatorContract(
-        delegateAddress
-      );
+      
+      await writeContractAsync({
+        address: compoundTokenContractInfo.address as `0x${string}`,
+        abi: compoundTokenContractInfo.abi,
+        functionName: "delegate",
+        args: [delegateAddress],
+      });
 
-      if (!compensatorContract) {
-        return toast.error("Compensator contract not found");
-      }
-
-      if (!compoundContract) {
-        return toast.error("Compound contract not found");
-      }
-      const decimals = await compoundContract.decimals();
-      const convertAmount = ethers
-        .parseUnits(amount ? amount?.toString() : "0", decimals)
-        .toString();
-
-      const allowance = await compoundContract.allowance(
-        address,
-        delegateAddress
-      );
-
-      if (new BigNumber(allowance).lt(new BigNumber(convertAmount))) {
-        const gas = await compoundContract.approve.estimateGas(
-          delegateAddress,
-          convertAmount
-        );
-        const approveReceipt = await compoundContract?.approve(
-          delegateAddress,
-          convertAmount,
-          {
-            gasLimit: gas,
-            maxFeePerGas: feeData.maxFeePerGas,
-            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-          }
-        );
-        const transactionApproveReceipt = await waitForTransactionReceipt(
-          wagmiConfig,
-          {
-            hash: approveReceipt?.hash,
-          }
-        );
-        console.log(
-          "transactionApproveReceipt :>> ",
-          transactionApproveReceipt
-        );
-
-        if (transactionApproveReceipt?.status === "success") {
-          toast.success("Successful Approved");
-        }
-      }
-
-      const gas = await compensatorContract.delegateDeposit.estimateGas(
-        convertAmount
-      );
-      const delegatedReceipt = await compensatorContract.delegateDeposit(
-        convertAmount,
-        {
-          gasLimit: gas,
-          maxFeePerGas: feeData.maxFeePerGas,
-          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-        }
-      );
-      const transactionDelegatorReceipt = await waitForTransactionReceipt(
-        wagmiConfig,
-        {
-          hash: delegatedReceipt?.hash,
-        }
-      );
-      if (transactionDelegatorReceipt?.status === "success") {
-        toast.success("Delegation successful!");
-        handleModalClose();
-        refetchCompBalance();
-      }
+      toast.success("Delegation successful!");
+      handleModalClose();
+      refetchCompBalance();
     } catch (error) {
       console.error("Error delegating COMP:", error);
       toast.error("Failed to delegate COMP. Please try again.");

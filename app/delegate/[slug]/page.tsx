@@ -1,43 +1,36 @@
 "use client";
 
-import Head from "next/head";
-import { motion, AnimatePresence } from "framer-motion";
-import Header from "@/components/MainLayout/Header";
-import Footer from "@/components/Footer";
-import { useSettingTheme } from "@/store/setting/selector";
-import Headroom from "react-headroom";
-import { AlertCircle, TrendingUp, Users, Copy } from "lucide-react";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useParams } from "next/navigation";
 import Modal from "@/components/common/Modal";
+import Footer from "@/components/Footer";
+import Header from "@/components/MainLayout/Header";
+import { compoundTokenContractInfo } from "@/constants";
 import {
   delegatesData,
   findDelegateBySlug,
   formatNameForDisplay,
   type Delegate,
 } from "@/lib/delegate-data";
+import compensatorServices from "@/services/compensator";
+import { useSettingTheme } from "@/store/setting/selector";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import blockies from "ethereum-blockies-png";
+import { formatUnits, isAddress } from "ethers";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, Copy, TrendingUp, Users } from "lucide-react";
+import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import Headroom from "react-headroom";
 import toast from "react-hot-toast";
 import {
   useAccount,
-  useWriteContract,
   useReadContract,
   useSwitchChain,
+  useWriteContract,
 } from "wagmi";
-import { compoundTokenContractInfo } from "@/constants";
-import { ethers, formatUnits } from "ethers";
-import { isAddress } from "ethers";
-import compensatorServices from "@/services/compensator";
-import { useGetCompoundContract } from "@/hooks/useGetCompContract";
-import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
-import blockies from "ethereum-blockies-png";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { mainnet } from "wagmi/chains";
-import { getEthersSigner } from "@/hooks/useEtherProvider";
-import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
-import BigNumber from "bignumber.js";
-import { waitForTransactionReceipt } from "@wagmi/core";
 
 interface Proposal {
   title: string;
@@ -77,9 +70,6 @@ export default function DelegatePage() {
   const [isDelegationsLoading, setIsDelegationsLoading] =
     useState<boolean>(true);
   const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
-  const { compoundContract } = useGetCompoundContract();
-
-  const { handleSetCompensatorContract } = useGetCompensatorContract();
 
   const handleGetDelegatesFromServer = async () => {
     try {
@@ -272,82 +262,18 @@ export default function DelegatePage() {
       }
 
       await switchChainAsync({ chainId: mainnet.id });
-      const { provider } = await getEthersSigner(wagmiConfig);
-      const feeData = await provider.getFeeData();
       const delegateAddress = currentDelegate?.address as `0x${string}`;
-      const compensatorContract = await handleSetCompensatorContract(
-        delegateAddress
-      );
 
-      if (!compensatorContract) {
-        return toast.error("Compensator contract not found");
-      }
+      await writeContractAsync({
+        address: compoundTokenContractInfo.address as `0x${string}`,
+        abi: compoundTokenContractInfo.abi,
+        functionName: "delegate",
+        args: [delegateAddress],
+      });
 
-      if (!compoundContract) {
-        return toast.error("Compound contract not found");
-      }
-      const decimals = await compoundContract.decimals();
-      const convertAmount = ethers
-        .parseUnits(amount ? amount?.toString() : "0", decimals)
-        .toString();
-
-      const allowance = await compoundContract.allowance(
-        address,
-        delegateAddress
-      );
-
-      if (new BigNumber(allowance).lt(new BigNumber(convertAmount))) {
-        const gas = await compoundContract.approve.estimateGas(
-          delegateAddress,
-          convertAmount
-        );
-        const approveReceipt = await compoundContract?.approve(
-          delegateAddress,
-          convertAmount,
-          {
-            gasLimit: gas,
-            maxFeePerGas: feeData.maxFeePerGas,
-            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-          }
-        );
-        const transactionApproveReceipt = await waitForTransactionReceipt(
-          wagmiConfig,
-          {
-            hash: approveReceipt?.hash,
-          }
-        );
-        console.log(
-          "transactionApproveReceipt :>> ",
-          transactionApproveReceipt
-        );
-
-        if (transactionApproveReceipt?.status === "success") {
-          toast.success("Successful Approved");
-        }
-      }
-
-      const gas = await compensatorContract.delegateDeposit.estimateGas(
-        convertAmount
-      );
-      const delegatedReceipt = await compensatorContract.delegateDeposit(
-        convertAmount,
-        {
-          gasLimit: gas,
-          maxFeePerGas: feeData.maxFeePerGas,
-          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-        }
-      );
-      const transactionDelegatorReceipt = await waitForTransactionReceipt(
-        wagmiConfig,
-        {
-          hash: delegatedReceipt?.hash,
-        }
-      );
-      if (transactionDelegatorReceipt?.status === "success") {
-        toast.success("Delegation successful!");
-        handleModalClose();
-        refetchCompBalance();
-      }
+      toast.success("Delegation successful!");
+      handleModalClose();
+      refetchCompBalance();
     } catch (error) {
       console.error("Error delegating COMP:", error);
       toast.error("Failed to delegate COMP. Please try again.");
