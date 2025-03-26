@@ -263,7 +263,7 @@ const Delegates = () => {
                     <p className="text-xl font-bold text-[#030303] dark:text-white">
                       #
                       {sortBy === "apr" || delegate?.isServer
-                        ? index + 1
+                        ? delegate.id
                         : delegate.id}
                     </p>
                     <p className="text-sm font-medium text-[#6D7C8D]">Rank</p>
