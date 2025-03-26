@@ -9,8 +9,15 @@ import { FaWallet } from "react-icons/fa"
 import Image from "next/image"
 import type { MouseEvent } from "react"
 import { createPortal } from "react-dom"
+import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract"
+import { useGetCompensatorFactoryContract } from "@/hooks/useGetCompensatorFactoryContract"
+import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider"
+import { waitForTransactionReceipt } from "@wagmi/core"
+import { ethers, formatUnits } from "ethers"
+import { getEthersSigner } from "@/hooks/useEtherProvider"
+import toast from "react-hot-toast"
 
-const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000", isMobile = false }) => {
+const ConnectWalletButton = ({ isMobile = false }) => {
   const { openConnectModal } = useConnectModal()
   const { address } = useAccount()
   const { disconnectAsync } = useDisconnect()
@@ -25,9 +32,35 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
   const compButtonRef = useRef<HTMLButtonElement>(null)
   const [isEthereumExpanded, setIsEthereumExpanded] = useState(true)
   const [claimSuccess, setClaimSuccess] = useState(false)
+  const [pendingRewards, setPendingRewards] = useState("0.0000")
+  const [walletBalance, setWalletBalance] = useState("0.0000")
 
-  // Placeholder implementation
-  const amount = unclaimedComp
+  const { handleSetCompensatorContract } = useGetCompensatorContract()
+  const { compensatorFactoryContract } = useGetCompensatorFactoryContract()
+
+  useEffect(() => {
+    const fetchPendingRewards = async () => {
+      if (!address || !compensatorFactoryContract) return
+      
+      try {
+        const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
+        const compensatorContract = await handleSetCompensatorContract(compensatorAddress)
+        
+        if (!compensatorContract) {
+          throw new Error("Compensator contract not found")
+        }
+
+        const rewards = await compensatorContract.getPendingRewards(address)
+        const formattedRewards = parseFloat(formatUnits(rewards.toString(), 18)).toFixed(4)
+        setPendingRewards(formattedRewards)
+      } catch (error) {
+        console.error("Error fetching pending rewards:", error)
+        setPendingRewards("0.0000")
+      }
+    }
+
+    fetchPendingRewards()
+  }, [address, compensatorFactoryContract, handleSetCompensatorContract, showCompPopover])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -98,18 +131,43 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
   }
 
   const handleClaimCOMP = async () => {
-    if (!address || Number.parseFloat(amount) <= 0) return
+    if (!address || Number.parseFloat(pendingRewards) <= 0) return
 
     setIsClaimLoading(true)
     try {
-      // Simulate a delay for the transaction
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
+      const compensatorContract = await handleSetCompensatorContract(compensatorAddress)
+      
+      if (!compensatorContract) {
+        throw new Error("Compensator contract not found")
+      }
 
-      setClaimSuccess(true)
+      const { provider } = await getEthersSigner(wagmiConfig)
+      const feeData = await provider.getFeeData()
 
-      console.log(`Successfully claimed ${amount} COMP tokens`)
+      const gas = await compensatorContract.claimRewards.estimateGas({
+        maxFeePerGas: feeData.maxFeePerGas,
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+      })
+
+      const claimReceipt = await compensatorContract.claimRewards({
+        gasLimit: gas,
+        maxFeePerGas: feeData.maxFeePerGas,
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+      })
+
+      const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+        hash: claimReceipt?.hash,
+      })
+
+      if (transactionReceipt?.status === "success") {
+        setClaimSuccess(true)
+        setPendingRewards("0.0000")
+        toast.success(`Successfully claimed ${pendingRewards} COMP tokens`)
+      }
     } catch (error) {
       console.error("Error claiming COMP:", error)
+      toast.error("Failed to claim COMP rewards")
     } finally {
       setIsClaimLoading(false)
     }
@@ -158,7 +216,6 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
     },
   }
 
-  // Toggle popover function
   const togglePopover = () => {
     setShowPopover(!showPopover)
   }
@@ -171,7 +228,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
     setIsEthereumExpanded(!isEthereumExpanded)
   }
 
-  const isClaimDisabled = Number.parseFloat(amount) <= 0 || isClaimLoading || claimSuccess
+  const isClaimDisabled = Number.parseFloat(pendingRewards) <= 0 || isClaimLoading || claimSuccess
 
   if (!address) {
     if (isMobile) {
@@ -249,7 +306,6 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
     )
   }
 
-  // Helper function to render popover
   function renderPopover() {
     return createPortal(
       <motion.div
@@ -304,6 +360,8 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
   }
 
   function renderCompPopover() {
+    const [integerPart, decimalPart] = pendingRewards.split('.')
+    
     return createPortal(
       <motion.div
         ref={compPopoverRef}
@@ -323,11 +381,10 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
           <div className="flex items-center gap-2 mb-4">
             <Image src="/logo.png" alt="COMP Logo" width={24} height={24} className="rounded-full" />
             <span className="text-[#030303] dark:text-white text-2xl font-semibold">
-              0<span className="text-gray-400">.0000</span>
+              {integerPart}<span className="text-gray-400">.{decimalPart}</span>
             </span>
           </div>
 
-          {/* Apple-style divider that doesn't reach the far left */}
           <div className="border-t border-[#efefef] dark:border-[#28303E] ml-8 mb-3"></div>
 
           <div className="px-1">
@@ -358,7 +415,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
                       exit={{ opacity: 0 }}
                       className="text-sm font-semibold"
                     >
-                      0<span className="text-gray-400">.0000</span>
+                      {integerPart}<span className="text-gray-400">.{decimalPart}</span>
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -382,13 +439,13 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold">Wallet Balance</span>
                     <span className="text-[#030303] dark:text-white text-sm font-semibold">
-                      0<span className="text-gray-400">.0000</span>
+                      {walletBalance.split('.')[0]}<span className="text-gray-400">.{walletBalance.split('.')[1]}</span>
                     </span>
                   </div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold">Unclaimed</span>
                     <span className="text-[#030303] dark:text-white text-sm font-semibold">
-                      0<span className="text-gray-400">.0000</span>
+                      {integerPart}<span className="text-gray-400">.{decimalPart}</span>
                     </span>
                   </div>
                   <motion.button
@@ -442,7 +499,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
                         Claimed Successfully
                       </div>
                     ) : (
-                      `Claim ${amount} COMP`
+                      `Claim ${pendingRewards} COMP`
                     )}
                   </motion.button>
                 </motion.div>
@@ -469,7 +526,7 @@ const ConnectWalletButton = ({ compRewards = "0.0000", unclaimedComp = "0.0000",
           className="flex items-center gap-2 cursor-pointer"
         >
           <Image src="/logo.png" alt="COMP Logo" width={20} height={20} className="mx-auto rounded-full" />
-          <span className="text-[#030303] dark:text-white font-semibold text-xs">{compRewards}</span>
+          <span className="text-[#030303] dark:text-white font-semibold text-xs">{pendingRewards}</span>
         </motion.button>
 
         {/* Connected Wallet Button */}
