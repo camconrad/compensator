@@ -893,7 +893,7 @@ export default function DelegatePage() {
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Delegated votes</div>
               <div className="">
-                {Number(currentDelegate?.distributed || "0").toFixed(1)} COMP
+                {Number(currentDelegate?.distributed || "0").toFixed(2)} COMP
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">

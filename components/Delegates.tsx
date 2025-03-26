@@ -483,7 +483,7 @@ const Delegates = () => {
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Delegated votes</div>
               <div className="">
-                {Number(selectedDelegate?.distributed || "0").toFixed(1)} COMP
+                {Number(selectedDelegate?.distributed || "0").toFixed(2)} COMP
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
