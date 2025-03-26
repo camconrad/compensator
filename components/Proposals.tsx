@@ -23,58 +23,77 @@ import { useAccount, useReadContract } from "wagmi";
 const proposals = [
   {
     id: 1,
-    title: "Initialize cWETHv3 on Ronin",
+    proposalId: 422,
+    title: "[Gauntlet] - Interest Rate Curve Recommendations (03/25)",
     status: "Pending",
-    createdAt: "2025-03-18",
+    createdAt: "2025-03-25",
     popularity: 120,
   },
   {
     id: 2,
-    title: "Add wsuperOETHb as collateral into cWETHv3 on Base",
-    status: "Pending",
-    createdAt: "2025-03-14",
-    popularity: 80,
+    proposalId: 421,
+    title: "[Gauntlet] - Cap recommendations (03/24/25)",
+    status: "Active",
+    createdAt: "2025-03-24",
+    popularity: 120,
   },
   {
     id: 3,
-    title: "Add tETH as collateral into cWETHv3 on Mainnet",
+    proposalId: 420, 
+    title: "Initialize cWETHv3 on Ronin",
+    status: "Pending",
+    createdAt: "2025-03-18",
+    popularity: 80,
+  },
+  {
+    id: 4,
+    proposalId: 419, 
+    title: "Add wsuperOETHb as collateral into cWETHv3 on Base",
     status: "Pending",
     createdAt: "2025-03-14",
     popularity: 150,
   },
   {
-    id: 4,
-    title: "[Gauntlet] - Rewards Top Up for Ethereum, Base and Optimism..",
+    id: 5,
+    proposalId: 418, 
+    title: "Add tETH as collateral into cWETHv3 on Mainnet",
     status: "Executed",
     createdAt: "2025-03-10",
     popularity: 60,
   },
   {
-    id: 5,
-    title: "Add weETH as collateral into cUSDTv3 on Mainnet",
-    status: "Executed",
-    createdAt: "2025-03-06",
-    popularity: 200,
-  },
-  {
     id: 6,
-    title: "Compound <> Morpho <> Polygon Collaboration",
+    proposalId: 423, 
+    title: "Renew Proposal Guardian Role for the Community Multisig",
     status: "Executed",
-    createdAt: "2025-03-04",
+    createdAt: "2025-03-11",
     popularity: 200,
   },
   {
     id: 7,
-    title: "Initialize cUSDCv3 on Unichain",
+    proposalId: 417, 
+    title: "[Gauntlet] - Rewards Top Up for Ethereum, Base and Optimism (10/3/25)",
     status: "Executed",
-    createdAt: "2025-02-27",
+    createdAt: "2025-03-10",
+    popularity: 200,
+  },
+  {
+    id: 8,
+    proposalId: 415, 
+    title: "Add weETH as collateral into cUSDTv3 on Mainnet",
+    status: "Executed",
+    createdAt: "2025-03-06",
     popularity: 200,
   },
 ];
 
 const Proposals = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
+  const [selectedProposal, setSelectedProposal] = useState<{
+    displayId: number;
+    proposalId: number;
+    title: string;
+  } | null>(null);
   const [selectedOutcome, setSelectedOutcome] = useState<
     "For" | "Against" | null
   >(null);
@@ -115,43 +134,51 @@ const Proposals = () => {
     return 0;
   });
 
-  const handleStakeClick = (proposalId: number, outcome: "For" | "Against") => {
-    setSelectedProposal(proposalId);
+  const handleStakeClick = (proposal: typeof proposals[0], outcome: "For" | "Against") => {
+    setSelectedProposal({
+      displayId: proposal.id,
+      proposalId: proposal.proposalId,
+      title: proposal.title
+    });
     setSelectedOutcome(outcome);
     setIsModalOpen(true);
   };
 
   const handleSubmitStake = async (amount: number) => {
+    if (!selectedProposal) {
+      return toast.error("No proposal selected");
+    }
+
     setLoading(true);
 
     console.log(
-      `Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`
+      `Staking ${amount} COMP for proposal ${selectedProposal.displayId} (ID: ${selectedProposal.proposalId}) (${selectedOutcome})`
     );
+    
     if (selectedOutcome === "For") {
       setStakedFor((prev) => prev + amount);
     } else if (selectedOutcome === "Against") {
       setStakedAgainst((prev) => prev + amount);
     }
 
-
     try {
-         
-    const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
-    const compensatorContract = await handleSetCompensatorContract(
-      compensatorAddress
-    );
-    if (!compensatorContract) {
-      throw new Error("Compensator contract not found");
-    }
+      const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
+      const compensatorContract = await handleSetCompensatorContract(
+        compensatorAddress
+      );
+      if (!compensatorContract) {
+        throw new Error("Compensator contract not found");
+      }
 
-    if (!compoundContract) {
-      return toast.error("Compound contract not found");
-    }
+      if (!compoundContract) {
+        return toast.error("Compound contract not found");
+      }
+      
       const decimals = await compoundContract.decimals();
       const convertAmount = ethers
         .parseUnits(amount ? amount?.toString() : "0", decimals)
         .toString();
-      console.log("convertAmount :>> ", convertAmount);
+      
       const { provider } = await getEthersSigner(wagmiConfig);
       const feeData = await provider.getFeeData();
 
@@ -180,10 +207,6 @@ const Proposals = () => {
             hash: approveReceipt?.hash,
           }
         );
-        console.log(
-          "transactionApproveReceipt :>> ",
-          transactionApproveReceipt
-        );
 
         if (transactionApproveReceipt?.status === "success") {
           toast.success("Successful Approved");
@@ -191,12 +214,12 @@ const Proposals = () => {
       }
 
       const gas = await compensatorContract.stakeForProposal.estimateGas(
-        selectedProposal,
+        selectedProposal.proposalId,
         selectedOutcome === "For" ? 1 : 0,
         convertAmount
       );
       const delegatedReceipt = await compensatorContract.stakeForProposal(
-        selectedProposal,
+        selectedProposal.proposalId,
         selectedOutcome === "For" ? 1 : 0,
         convertAmount,
         {
@@ -294,13 +317,13 @@ const Proposals = () => {
                   </h3>
                   <div className="flex flex-col gap-2 font-medium text-xs">
                     <button
-                      onClick={() => handleStakeClick(proposal.id, "For")}
+                      onClick={() => handleStakeClick(proposal, "For")}
                       className="flex-1 py-3 px-4 bg-transparent border border-[#10b981] uppercase text-[#10b981e0] rounded-full hover:bg-[#10b981e0] hover:text-white transition-all duration-200 transform hover:scale-105 active:scale-95"
                     >
                       <ThumbsUp className="inline-block w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleStakeClick(proposal.id, "Against")}
+                      onClick={() => handleStakeClick(proposal, "Against")}
                       className="flex-1 py-3 px-4 bg-transparent border border-[#f54a4a] uppercase text-[#f54a4a] rounded-full hover:bg-[#f54a4a] hover:text-white transition-all duration-200 transform hover:scale-105 active:scale-95"
                     >
                       <ThumbsDown className="inline-block w-4 h-4" />
@@ -322,11 +345,11 @@ const Proposals = () => {
         </div>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && selectedProposal && (
         <Modal handleClose={() => setIsModalOpen(false)} open={isModalOpen}>
           <div className="">
             <h2 className="text-xl font-semibold mb-4 dark:text-white">
-              Stake COMP for Proposal {selectedProposal} ({selectedOutcome})
+              Stake COMP {selectedOutcome} {selectedProposal?.title}
             </h2>
             <div className="relative mb-4">
               <div className="flex flex-col space-y-2">
@@ -385,10 +408,8 @@ const Proposals = () => {
                 <button
                   key={percent}
                   onClick={() => {
-                    // Convert balance to a number
                     const selectedAmount =
-                      (percent / 100) * formattedCompBalance; // Calculate the selected amount
-
+                      (percent / 100) * formattedCompBalance;
                     setAmount(selectedAmount.toFixed(4).toString());
                     setHasSelectedPercentage(true);
                   }}
@@ -449,14 +470,12 @@ const Proposals = () => {
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Staked Against</div>
               <div className="flex items-center">
-                {/* <ThumbsDown className="w-4 h-4 mr-1 text-red-500" /> */}
                 {stakedAgainst.toFixed(2)} COMP
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Staked For</div>
               <div className="flex items-center">
-                {/* <ThumbsUp className="w-4 h-4 mr-1 text-green-500" /> */}
                 {stakedFor.toFixed(2)} COMP
               </div>
             </div>
