@@ -1,13 +1,24 @@
 "use client";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, FreeMode } from "swiper/modules";
+import Modal from "@/components/common/Modal";
+import { compoundTokenContractInfo } from "@/constants";
+import { getEthersSigner } from "@/hooks/useEtherProvider";
+import { useGetCompoundContract } from "@/hooks/useGetCompContract";
+import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
+import { useGetCompensatorFactoryContract } from "@/hooks/useGetCompensatorFactoryContract";
+import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import BigNumber from "bignumber.js";
+import { ethers, formatUnits } from "ethers";
+import { ArrowLeft, ArrowRight, ThumbsDown, ThumbsUp } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import "swiper/css";
 import "swiper/css/free-mode";
-import { useState, useRef, useEffect } from "react";
-import Modal from "@/components/common/Modal";
-import Image from "next/image";
-import { ArrowLeft, ArrowRight, ThumbsUp, ThumbsDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { FreeMode, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { useAccount, useReadContract } from "wagmi";
 
 const proposals = [
   {
@@ -64,19 +75,35 @@ const proposals = [
 const Proposals = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
-  const [selectedOutcome, setSelectedOutcome] = useState<"For" | "Against" | null>(null);
+  const [selectedOutcome, setSelectedOutcome] = useState<
+    "For" | "Against" | null
+  >(null);
   const [sortBy, setSortBy] = useState<"latest" | "popularity">("latest");
   const [loading, setLoading] = useState(false);
   const navigationPrevRef = useRef(null);
   const navigationNextRef = useRef(null);
+  const { address } = useAccount();
 
   const [amount, setAmount] = useState("");
   const [hasSelectedPercentage, setHasSelectedPercentage] = useState(false);
 
-  const [stakedFor, setStakedFor] = useState(0.00);
-  const [stakedAgainst, setStakedAgainst] = useState(0.00);
+  const [stakedFor, setStakedFor] = useState(0.0);
+  const { handleSetCompensatorContract } = useGetCompensatorContract();
+  const [stakedAgainst, setStakedAgainst] = useState(0.0);
+  const { compoundContract } = useGetCompoundContract();
+  const { compensatorFactoryContract } = useGetCompensatorFactoryContract()
 
-  const userBalance = 0.00;
+  const { data: userBalance, refetch: refetchCompBalance } = useReadContract({
+    address: compoundTokenContractInfo.address as `0x${string}`,
+    abi: compoundTokenContractInfo.abi,
+    functionName: "balanceOf",
+    args: address ? [address as `0x${string}`] : undefined,
+  });
+
+  const formattedCompBalance = parseFloat(
+    formatUnits((userBalance || "0").toString(), 18)
+  );
+
   const compPrice = 41.44;
 
   const sortedProposals = [...proposals].sort((a, b) => {
@@ -94,18 +121,106 @@ const Proposals = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmitStake = (amount: number) => {
+  const handleSubmitStake = async (amount: number) => {
     setLoading(true);
-    setTimeout(() => {
-      console.log(`Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`);
-      if (selectedOutcome === "For") {
-        setStakedFor(prev => prev + amount);
-      } else if (selectedOutcome === "Against") {
-        setStakedAgainst(prev => prev + amount);
+
+    console.log(
+      `Staking ${amount} COMP for proposal ${selectedProposal} (${selectedOutcome})`
+    );
+    if (selectedOutcome === "For") {
+      setStakedFor((prev) => prev + amount);
+    } else if (selectedOutcome === "Against") {
+      setStakedAgainst((prev) => prev + amount);
+    }
+
+
+    try {
+         
+    const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
+    const compensatorContract = await handleSetCompensatorContract(
+      compensatorAddress
+    );
+    if (!compensatorContract) {
+      throw new Error("Compensator contract not found");
+    }
+
+    if (!compoundContract) {
+      return toast.error("Compound contract not found");
+    }
+      const decimals = await compoundContract.decimals();
+      const convertAmount = ethers
+        .parseUnits(amount ? amount?.toString() : "0", decimals)
+        .toString();
+      console.log("convertAmount :>> ", convertAmount);
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+
+      // allowance
+      const allowance = await compoundContract.allowance(
+        address,
+        compensatorAddress
+      );
+      if (new BigNumber(allowance).lt(new BigNumber(convertAmount))) {
+        const gas = await compoundContract.approve.estimateGas(
+          compensatorAddress,
+          convertAmount
+        );
+        const approveReceipt = await compoundContract?.approve(
+          compensatorAddress,
+          convertAmount,
+          {
+            gasLimit: gas,
+            maxFeePerGas: feeData.maxFeePerGas,
+            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+          }
+        );
+        const transactionApproveReceipt = await waitForTransactionReceipt(
+          wagmiConfig,
+          {
+            hash: approveReceipt?.hash,
+          }
+        );
+        console.log(
+          "transactionApproveReceipt :>> ",
+          transactionApproveReceipt
+        );
+
+        if (transactionApproveReceipt?.status === "success") {
+          toast.success("Successful Approved");
+        }
       }
-      setIsModalOpen(false);
+
+      const gas = await compensatorContract.stakeForProposal.estimateGas(
+        selectedProposal,
+        selectedOutcome === "For" ? 1 : 0,
+        convertAmount
+      );
+      const delegatedReceipt = await compensatorContract.stakeForProposal(
+        selectedProposal,
+        selectedOutcome === "For" ? 1 : 0,
+        convertAmount,
+        {
+          gasLimit: gas,
+          maxFeePerGas: feeData.maxFeePerGas,
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+        }
+      );
+      const transactionDelegatorReceipt = await waitForTransactionReceipt(
+        wagmiConfig,
+        {
+          hash: delegatedReceipt?.hash,
+        }
+      );
+      if (transactionDelegatorReceipt?.status === "success") {
+        setIsModalOpen(false);
+        toast.success("Stake Successfully");
+      }
+    } catch (error) {
+      console.log("error :>> ", error);
+      toast.error("Failed to stake");
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   useEffect(() => {
@@ -153,8 +268,8 @@ const Proposals = () => {
             spaceBetween={16}
             freeMode={true}
             navigation={{
-              prevEl: '.swiper-prev-btn-proposals',
-              nextEl: '.swiper-next-btn-proposals',
+              prevEl: ".swiper-prev-btn-proposals",
+              nextEl: ".swiper-next-btn-proposals",
             }}
             breakpoints={{
               0: {
@@ -164,7 +279,7 @@ const Proposals = () => {
                 slidesPerView: 2,
               },
               768: {
-                slidesPerView: 3
+                slidesPerView: 3,
               },
               1024: {
                 slidesPerView: 4,
@@ -198,14 +313,10 @@ const Proposals = () => {
         </div>
 
         <div className="flex justify-center items-center gap-2 mt-8">
-          <button
-            className="swiper-prev-btn-proposals p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
-          >
+          <button className="swiper-prev-btn-proposals p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
-          <button
-            className="p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors"
-          >
+          <button className="p-2 border border-[#dde0e0] dark:border-[#232F3B] rounded-full hover:bg-white dark:hover:bg-[#1D2833] transition-colors">
             <ArrowRight className="swiper-next-btn-proposals w-6 h-6 text-gray-700 dark:text-gray-300" />
           </button>
         </div>
@@ -248,14 +359,16 @@ const Proposals = () => {
                         : "$0.00"}
                     </p>
                     <p className="text-xs text-[#6D7C8D]">
-                      Balance: {userBalance.toFixed(2)}
+                      Balance: {formattedCompBalance.toFixed(4)}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
             <div
-              className={`grid ${hasSelectedPercentage ? "grid-cols-5" : "grid-cols-4"} gap-2 mb-4`}
+              className={`grid ${
+                hasSelectedPercentage ? "grid-cols-5" : "grid-cols-4"
+              } gap-2 mb-4`}
             >
               {hasSelectedPercentage && (
                 <button
@@ -272,8 +385,11 @@ const Proposals = () => {
                 <button
                   key={percent}
                   onClick={() => {
-                    const value = (userBalance * (percent / 100)).toFixed(2);
-                    setAmount(value.toString());
+                    // Convert balance to a number
+                    const selectedAmount =
+                      (percent / 100) * formattedCompBalance; // Calculate the selected amount
+
+                    setAmount(selectedAmount.toFixed(4).toString());
                     setHasSelectedPercentage(true);
                   }}
                   className="py-[4px] border font-medium border-[#efefef] dark:border-[#2e3746] rounded-full text-sm hover:bg-[#EFF2F5] dark:hover:bg-gray-800 dark:text-gray-200 transition-colors"
@@ -284,13 +400,23 @@ const Proposals = () => {
             </div>
             <button
               onClick={() => handleSubmitStake(parseFloat(amount))}
-              disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance || loading}
+              disabled={
+                !amount ||
+                parseFloat(amount) <= 0 ||
+                parseFloat(amount) > formattedCompBalance ||
+                loading
+              }
               className={`${
-                loading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > userBalance
+                loading ||
+                !amount ||
+                parseFloat(amount) <= 0 ||
+                parseFloat(amount) > formattedCompBalance
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-emerald-600"
               } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                parseFloat(amount) > userBalance ? "bg-red-500 hover:bg-red-600" : ""
+                parseFloat(amount) > formattedCompBalance
+                  ? "bg-red-500 hover:bg-red-600"
+                  : ""
               }`}
             >
               {loading ? (
@@ -314,27 +440,23 @@ const Proposals = () => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : parseFloat(amount) > userBalance ? (
+              ) : parseFloat(amount) > formattedCompBalance ? (
                 "Insufficient Balance"
               ) : (
                 "Submit Stake"
               )}
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Staked Against
-              </div>
+              <div className="">Staked Against</div>
               <div className="flex items-center">
-              {/* <ThumbsDown className="w-4 h-4 mr-1 text-red-500" /> */}
+                {/* <ThumbsDown className="w-4 h-4 mr-1 text-red-500" /> */}
                 {stakedAgainst.toFixed(2)} COMP
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">
-                Staked For
-              </div>
+              <div className="">Staked For</div>
               <div className="flex items-center">
-              {/* <ThumbsUp className="w-4 h-4 mr-1 text-green-500" /> */}
+                {/* <ThumbsUp className="w-4 h-4 mr-1 text-green-500" /> */}
                 {stakedFor.toFixed(2)} COMP
               </div>
             </div>
@@ -345,4 +467,4 @@ const Proposals = () => {
   );
 };
 
-export default Proposals
+export default Proposals;
