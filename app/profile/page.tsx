@@ -356,14 +356,6 @@ export default function ProfilePage() {
       const { provider } = await getEthersSigner(wagmiConfig);
       const feeData = await provider.getFeeData();
 
-      // First check if proposal is ready for distribution
-      const canDistribute = await compensatorContract.canDistributeStakes(
-        selectedProposalId
-      );
-      if (!canDistribute) {
-        throw new Error("This proposal is not ready for distribution yet");
-      }
-
       // Estimate gas with error handling
       let gasEstimate;
       try {
@@ -797,7 +789,7 @@ export default function ProfilePage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="">
                           <button
                             onClick={handleRewardsButtonClick}
                             className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center"
@@ -806,7 +798,7 @@ export default function ProfilePage() {
                           </button>
                           <button
                             onClick={() => setIsDistributeModalOpen(true)}
-                            className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#3b82f6] text-white px-4 py-[9px] text-center rounded-full flex justify-center items-center"
+                            className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#3b82f6] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center mt-3"
                           >
                             Distribute Stakes
                           </button>
