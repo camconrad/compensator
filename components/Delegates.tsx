@@ -1,42 +1,35 @@
 "use client";
 
+import Modal from "@/components/common/Modal";
+import { compoundTokenContractInfo } from "@/constants";
+import {
+  delegatesData,
+  formatNameForDisplay,
+  formatNameForURL,
+  type Delegate,
+} from "@/lib/delegate-data";
+import compensatorServices from "@/services/compensator";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import blockies from "ethereum-blockies-png";
+import { formatUnits, isAddress } from "ethers";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import type React from "react";
-import { useState, useRef, useEffect } from "react";
-import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
-import { Navigation, FreeMode } from "swiper/modules";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
-import Image from "next/image";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import Modal from "@/components/common/Modal";
-import Link from "next/link";
-import {
-  delegatesData,
-  formatNameForURL,
-  formatNameForDisplay,
-  type Delegate,
-} from "@/lib/delegate-data";
+import { FreeMode, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide, type SwiperRef } from "swiper/react";
 import {
   useAccount,
-  useWriteContract,
   useReadContract,
   useSwitchChain,
+  useWriteContract,
 } from "wagmi";
-import { compoundTokenContractInfo } from "@/constants";
-import { ethers, formatUnits } from "ethers";
-import toast from "react-hot-toast";
-import { isAddress } from "ethers";
-import compensatorServices from "@/services/compensator";
-import blockies from "ethereum-blockies-png";
-import { getEthersSigner } from "@/hooks/useEtherProvider";
-import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
 import { mainnet } from "wagmi/chains";
-import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { useGetCompoundContract } from "@/hooks/useGetCompContract";
-import { waitForTransactionReceipt } from "@wagmi/core";
-import BigNumber from "bignumber.js";
 
 const truncateAddressMiddle = (
   address: string,
@@ -71,7 +64,7 @@ const Delegates = () => {
     try {
       const response = await compensatorServices.getListCompensators();
       const data = response.data || [];
-      const delegates = data.map((delegate: any) => {
+      const delegates = data.map((delegate: any, index: number) => {
         const dataURL = blockies.createDataURL({
           seed: delegate?.compensatorAddress || delegate?.delegate,
         });
@@ -85,7 +78,7 @@ const Delegates = () => {
           rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
           image: delegate?.image || dataURL,
           isServer: true,
-          id: delegate?.id,
+          id: delegatesData.length + index + 1,
         };
       });
       setListDelegatesFromServer(delegates);
@@ -93,6 +86,8 @@ const Delegates = () => {
       console.log("error :>> ", error);
     }
   };
+
+  console.log("listDelegatesFormFactory :>> ", listDelegatesFormFactory);
 
   useEffect(() => {
     handleGetDelegatesFromServer();
@@ -157,7 +152,7 @@ const Delegates = () => {
       await switchChainAsync({ chainId: mainnet.id });
 
       const delegateAddress = selectedDelegate.address as `0x${string}`;
-      
+
       await writeContractAsync({
         address: compoundTokenContractInfo.address as `0x${string}`,
         abi: compoundTokenContractInfo.abi,
@@ -262,7 +257,7 @@ const Delegates = () => {
                   <div>
                     <p className="text-xl font-bold text-[#030303] dark:text-white">
                       #
-                      {sortBy === "apr" || delegate?.isServer
+                      {delegate?.isServer || sortBy === "apr"
                         ? delegate.id
                         : delegate.id}
                     </p>
