@@ -593,11 +593,11 @@ export default function DelegatePage() {
                   <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-3 max-w-md mx-auto">
                     Voting history is currently untracked
                   </p>
-                  {delegate?.externalLink && (
+                  {currentDelegate?.externalLink && (
                     <button
                       onClick={() =>
                         window.open(
-                          delegate.externalLink,
+                          currentDelegate.externalLink,
                           "_blank",
                           "noopener,noreferrer"
                         )
