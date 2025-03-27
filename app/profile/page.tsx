@@ -94,6 +94,7 @@ export default function ProfilePage() {
     useState(false);
   const [isAprFocused, setIsAprFocused] = useState(false);
   const [isFundingAmountFocused, setIsFundingAmountFocused] = useState(false);
+  const [isProposalFocused, setIsProposalFocused] = useState(false);
   const [modalKey, setModalKey] = useState<number>(Date.now());
   const [activeTab, setActiveTab] = useState<string>("proposals");
   const [currentPage, setCurrentPage] = useState(1);
@@ -1414,22 +1415,34 @@ export default function ProfilePage() {
                         Distribute Stakes
                       </h2>
                       <div className="space-y-4">
-                        {/* Proposal ID Input */}
-                        <div className="relative">
+                        <motion.div
+                          className="relative"
+                          variants={itemVariants}
+                        >
                           <div className="relative h-14">
                             <input
-                              type="text"
+                              id="selectedProposalId"
                               value={selectedProposalId}
                               onChange={(e) =>
                                 setSelectedProposalId(e.target.value)
                               }
-                              placeholder="Enter Proposal ID"
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-blue-300 dark:focus:border-blue-700"
+                              onFocus={() => setIsProposalFocused(true)}
+                              onBlur={() => setIsProposalFocused(false)}
+                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
                             />
+                            <label
+                              htmlFor="selectedProposalId"
+                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                                isProposalFocused || selectedProposalId
+                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                              }`}
+                            >
+                              Proposal Id
+                            </label>
                           </div>
-                        </div>
+                        </motion.div>
 
-                        {/* Winning Support Selection */}
                         <div className="flex gap-2">
                           <button
                             onClick={() => setSelectedWinningSupport(0)}
@@ -1460,8 +1473,8 @@ export default function ProfilePage() {
                             distributeLoading || !selectedProposalId
                               ? "opacity-50 cursor-not-allowed"
                               : "hover:bg-emerald-600"
-                            } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
-                          >
+                          } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
+                        >
                           {distributeLoading ? (
                             <svg
                               className="animate-spin h-4 w-4 text-white"

@@ -11,13 +11,13 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { PropsWithChildren } from "react";
 import { mainnet } from "wagmi/chains";
 import { WagmiProvider } from "wagmi";
-import { metaMask, walletConnect, coinbaseWallet } from "wagmi/connectors";
+import { useQuery } from "@tanstack/react-query";
+import { ChainType, EVM, config, createConfig, getChains } from "@lifi/sdk";
+import { CreateConnectorFn, getWalletClient, switchChain } from "@wagmi/core";
+import { metaMask } from "wagmi/connectors";
+import { useSyncWagmiConfig } from "@lifi/wallet-management";
 
-const connectors = [
-  metaMask(),
-  walletConnect({ projectId: "02a231b2406ed316c861abefc95c5e59" }),
-  coinbaseWallet({ appName: "Compensator" }),
-];
+const connectors: CreateConnectorFn[] = [metaMask()];
 
 export const wagmiConfig = getDefaultConfig({
   appName: "Compensator",
@@ -26,8 +26,40 @@ export const wagmiConfig = getDefaultConfig({
   ssr: true,
 });
 
+// createConfig({
+//   integrator: "bot",
+//   apiKey: process.env.NEXT_PUBLIC_LIFI_KEY,
+//   routeOptions: {
+//     fee: 0.0099,
+//   },
+//   providers: [
+//     EVM({
+//       getWalletClient: () => getWalletClient(wagmiConfig),
+//       switchChain: async (chainId) => {
+//         const chain = await switchChain(wagmiConfig, { chainId: chainId as any });
+//         return getWalletClient(wagmiConfig, { chainId: chain.id });
+//       },
+//     }),
+//   ],
+//   preloadChains: false,
+// });
+
 const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   const theme = useSettingTheme();
+
+  const { data: chains } = useQuery({
+    queryKey: ["chains"] as const,
+    queryFn: async () => {
+      const chains = await getChains({
+        chainTypes: [ChainType.EVM],
+      });
+      config.setChains(chains);
+      return chains;
+    },
+  });
+
+  // useSyncWagmiConfig(wagmiConfig, connectors, chains);
+
 
   return (
     <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
