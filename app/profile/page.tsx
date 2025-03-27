@@ -1435,8 +1435,8 @@ export default function ProfilePage() {
                             onClick={() => setSelectedWinningSupport(0)}
                             className={`flex-1 py-2 px-4 rounded-lg border ${
                               selectedWinningSupport === 0
-                                ? "bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-400"
-                                : "bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#28303e] text-[#6D7C8D] dark:text-gray-400"
+                                ? "bg-[#f54a4a] text-white"
+                                : "border-[#f54a4a] text-[#f54a4a]"
                             }`}
                           >
                             Against (0)
@@ -1445,8 +1445,8 @@ export default function ProfilePage() {
                             onClick={() => setSelectedWinningSupport(1)}
                             className={`flex-1 py-2 px-4 rounded-lg border ${
                               selectedWinningSupport === 1
-                                ? "bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-400"
-                                : "bg-[#EFF2F5] dark:bg-[#1D2833] border-[#efefef] dark:border-[#28303e] text-[#6D7C8D] dark:text-gray-400"
+                                ? "bg-[#10b981] text-white"
+                                : "border-[#10b981] text-[#10b981e0]"
                             }`}
                           >
                             For (1)
@@ -1459,9 +1459,9 @@ export default function ProfilePage() {
                           className={`${
                             distributeLoading || !selectedProposalId
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-blue-600"
-                          } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-blue-500 text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
-                        >
+                              : "hover:bg-emerald-600"
+                            } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
+                          >
                           {distributeLoading ? (
                             <svg
                               className="animate-spin h-4 w-4 text-white"
