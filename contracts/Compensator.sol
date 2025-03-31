@@ -377,15 +377,26 @@ contract Compensator is ERC20, Initializable {
      * @dev Handles cases where available rewards are insufficient for pending rewards
      */
     function _updateRewardsIndex() internal {
+        uint256 supply = totalSupply();
+        
+        // Early return if no delegators exist
+        if (supply == 0) {
+            lastRewarded = block.timestamp;
+            return;
+        }
+
+        // Existing insufficient rewards check
         if (availableRewards <= totalPendingRewards) {
             lastRewarded = block.timestamp;
             return;
         }
         
+        // Calculate new rewards
         uint256 timeDelta = block.timestamp - lastRewarded;
         uint256 rewards = timeDelta * rewardRate;
         uint256 availableForNewRewards = availableRewards - totalPendingRewards;
         
+        // Handle potential overflow
         if (rewards > availableForNewRewards) {
             rewards = availableForNewRewards;
             availableRewards = totalPendingRewards;
@@ -393,12 +404,9 @@ contract Compensator is ERC20, Initializable {
             availableRewards -= rewards;
         }
 
-        uint256 supply = totalSupply();
-        if (supply > 0) {
-            rewardIndex += rewards * 1e18 / supply;
-            totalPendingRewards += rewards;
-        }
-
+        // Distribute rewards (supply > 0 guaranteed by first check)
+        rewardIndex += rewards * 1e18 / supply;
+        totalPendingRewards += rewards;
         lastRewarded = block.timestamp;
     }
 
