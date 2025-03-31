@@ -2,7 +2,6 @@
 pragma solidity ^0.8.21;
 
 import "./Compensator.sol";
-import "@openzeppelin/contracts/proxy/Clones.sol";
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
@@ -40,6 +39,9 @@ contract CompensatorFactory {
      * @return The address of the newly created Compensator contract
      */
     function createCompensator(address delegatee, string memory delegateeName) external returns (address) {
+        // Check if contract has already been created
+        require(delegateeToCompensator[delegatee] == address(0), "Delegatee already has a Compensator");
+
         // Deploy a new Compensator contract
         Compensator compensator = new Compensator();
 
