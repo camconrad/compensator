@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  const factoryAddress = "0xE76632FF20e31ac970CEBA307375C5A4f89a32fC";
+  const factoryAddress = "0x9015934EC9149c41f6B8d9D8Ea2358181Ba48Ff3";
   const factory = await ethers.getContractAt("CompensatorFactory", factoryAddress);
   
   const deployedInstances = await factory.getCompensators();

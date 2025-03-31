@@ -10,7 +10,7 @@ export interface IContractInfo {
 
 export const compensatorFactoryContractInfo: IContractInfo = {
   abi: compensatorFactoryAbi,
-  address: "0xE76632FF20e31ac970CEBA307375C5A4f89a32fC",
+  address: "0x9015934EC9149c41f6B8d9D8Ea2358181Ba48Ff3",
 };
 
 export const compensatorContractInfo: IContractInfo = {
