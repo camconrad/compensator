@@ -412,7 +412,7 @@ contract Compensator is ERC20, Initializable {
 
     /**
     * @notice Returns the current rewards index, adjusted for time since last rewarded
-    * @dev Used for view functions to calculate pending rewards. Now capped by availableRewards.
+    * @dev Used for view functions to calculate pending rewards. Now capped by availableRewards
     * and returns current reward index including unaccrued rewards (never exceeding available)
     */
     function _getCurrentRewardsIndex() internal view returns (uint256) {
