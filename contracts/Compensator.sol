@@ -411,20 +411,27 @@ contract Compensator is ERC20, Initializable {
     }
 
     /**
-     * @notice Returns the current rewards index, adjusted for time since last rewarded
-     * @dev Used for view functions to calculate pending rewards
-     * @return The current reward index including unaccrued rewards
-     */
+    * @notice Returns the current rewards index, adjusted for time since last rewarded
+    * @dev Used for view functions to calculate pending rewards. Now capped by availableRewards.
+    * and returns current reward index including unaccrued rewards (never exceeding available)
+    */
     function _getCurrentRewardsIndex() internal view returns (uint256) {
         if (availableRewards <= totalPendingRewards) {
             return rewardIndex;
         }
         
         uint256 timeDelta = block.timestamp - lastRewarded;
-        uint256 rewards = timeDelta * rewardRate;
+        uint256 potentialRewards = timeDelta * rewardRate;
         uint256 supply = totalSupply();
+        
+        // Cap rewards to remaining available funds
+        uint256 remainingRewards = availableRewards - totalPendingRewards;
+        uint256 actualRewards = potentialRewards > remainingRewards 
+            ? remainingRewards 
+            : potentialRewards;
+
         if (supply > 0) {
-            return rewardIndex + rewards * 1e18 / supply;
+            return rewardIndex + (actualRewards * 1e18) / supply;
         }
         return rewardIndex;
     }
