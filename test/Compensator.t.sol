@@ -65,10 +65,29 @@ contract CompensatorViewsTest is CompensatorTest {
         assertEq(compensator.getPendingRewards(delegator1), 10 ether);
     }
 
+    function test_NoRewardsWhenNoDelegators() public {
+        vm.prank(delegate);
+        compensator.setRewardRate(1 ether);
+        vm.warp(block.timestamp + 100);
+        
+        assertEq(compensator.availableRewards(), 0); // No rewards deducted
+    }
+
+    function test_RewardsCappedToAvailable() public {
+        vm.prank(delegate);
+        compensator.delegateDeposit(100 ether); // Limited funds
+        compensator.setRewardRate(1 ether);
+        
+        vm.prank(delegator1);
+        compensator.delegatorDeposit(100 ether);
+        vm.warp(block.timestamp + 200); // Would be 200 ether uncapped
+        
+        uint pending = compensator.getPendingRewards(delegator1);
+        assertEq(pending, 100 ether); // Capped to available
+    }
 }
 
 contract CompensatorDelegateTest is CompensatorTest {
-
     function test_setRewardRate() public {
         vm.prank(delegate);
         compensator.setRewardRate(100 ether);
@@ -110,10 +129,20 @@ contract CompensatorDelegateTest is CompensatorTest {
         assertEq(finalBalanceCompensator, initialBalanceCompensator - 100 ether);
         assertEq(finalBalanceDelegate, initialBalanceDelegate + 100 ether);
     }
+
+    function test_RevertWhenWithdrawingTooMuch() public {
+        vm.startPrank(delegate);
+        compToken.approve(address(compensator), 100 ether);
+        compensator.delegateDeposit(100 ether);
+        vm.stopPrank();
+
+        vm.prank(delegate);
+        vm.expectRevert("Amount exceeds available rewards");
+        compensator.delegateWithdraw(101 ether);
+    }
 }
 
 contract CompensatorDelegatorTest is CompensatorTest {
-
     function test_delegatorDeposit() public {
         uint initialBalanceCompensator = compToken.balanceOf(address(compensator));
         uint initialBalanceDelegator = compToken.balanceOf(delegator1);
@@ -225,7 +254,7 @@ contract CompensatorDelegatorTest is CompensatorTest {
         vm.stopPrank();
 
         // Advance 1 day
-        vm.warp(block.timestamp + 1 days); // minus 2 seconds to account two txns
+        vm.warp(block.timestamp + 1 days);
 
         uint initialBalanceCompensator = compToken.balanceOf(address(compensator));
         uint initialBalanceDelegator1 = compToken.balanceOf(delegator1);
@@ -256,5 +285,60 @@ contract CompensatorDelegatorTest is CompensatorTest {
         assertEq(finalBalanceDelegator2, initialBalanceDelegator2 + delegator2ExpectedRewards);
         assertEq(finalBalanceDelegator3, initialBalanceDelegator3 + delegator3ExpectedRewards);
         assertEq(finalBalanceCompensator, initialBalanceCompensator - 3 * oneDayReward);
+    }
+
+    function test_RevertWhenExceedingDelegationCap() public {
+        uint cap = compensator.delegationCap();
+        vm.prank(delegator1);
+        compToken.approve(address(compensator), cap + 1);
+        
+        vm.expectRevert("Delegation cap exceeded");
+        compensator.delegatorDeposit(cap + 1);
+    }
+
+    function testFuzz_RewardDistribution(uint128 timeElapsed) public {
+        vm.assume(timeElapsed > 0 && timeElapsed < 365 days);
+        
+        vm.prank(delegate);
+        compensator.delegateDeposit(1000 ether);
+        compensator.setRewardRate(1 ether);
+        
+        vm.prank(delegator1);
+        compensator.delegatorDeposit(100 ether);
+        
+        vm.warp(block.timestamp + timeElapsed);
+        uint expected = (1 ether * timeElapsed) * 100 ether / 100 ether;
+        assertEq(compensator.getPendingRewards(delegator1), expected);
+    }
+}
+
+contract CompensatorStakingTest is CompensatorTest {
+    function test_stakeForProposal() public {
+        uint256 proposalId = 1;
+        vm.prank(delegator1);
+        compToken.approve(address(compensator), 100 ether);
+        
+        vm.prank(delegator1);
+        compensator.stakeForProposal(proposalId, 1, 50 ether);
+        
+        assertEq(compensator.proposalStakes(proposalId, delegator1).forStake, 50 ether);
+        assertEq(compensator.totalStakesFor(proposalId), 50 ether);
+    }
+
+    function test_reclaimLosingStake() public {
+        uint256 proposalId = 1;
+        vm.prank(delegator1);
+        compToken.approve(address(compensator), 100 ether);
+        compensator.stakeForProposal(proposalId, 1, 50 ether);
+        
+        vm.prank(delegate);
+        compensator.distributeStakes(proposalId, 0); // Against won
+        
+        uint initialBalance = compToken.balanceOf(delegator1);
+        vm.prank(delegator1);
+        compensator.reclaimLosingStake(proposalId);
+        
+        assertEq(compToken.balanceOf(delegator1), initialBalance + 50 ether);
+        assertEq(compensator.proposalStakes(proposalId, delegator1).forStake, 0);
     }
 }
