@@ -13,9 +13,7 @@ import "./Compensator.sol";
 
 /**
  * @title CompensatorFactory
- * @notice A factory contract for deploying and managing instances of the Compensator contract.
- * This contract allows users to create new Compensator contracts for delegates and retrieve
- * existing ones.
+ * @notice A factory contract for deploying and retrieving Compensator instances.
  */
 contract CompensatorFactory {
     //////////////////////////
@@ -27,6 +25,13 @@ contract CompensatorFactory {
 
     /// @notice Mapping from delegatee addresses to their corresponding Compensator contract addresses
     mapping(address => address) public delegateeToCompensator;
+
+    //////////////////////////
+    // Events
+    //////////////////////////
+
+    /// @notice Emitted when a new Compensator contract is created
+    event CompensatorCreated(address indexed delegatee, address indexed compensator);
 
     //////////////////////////
     // Functions
@@ -53,6 +58,9 @@ contract CompensatorFactory {
 
         // Map the delegatee to their Compensator contract address
         delegateeToCompensator[delegatee] = address(compensator);
+
+        // Emit the CompensatorCreated event
+        emit CompensatorCreated(delegatee, address(compensator));
 
         // Return the address of the newly created Compensator contract
         return address(compensator);

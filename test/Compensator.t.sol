@@ -4,6 +4,8 @@ pragma solidity ^0.8.21;
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Contract, Signer } from "ethers";
+import "../contracts/IComp.sol";
+import "../contracts/IGovernorBravo.sol";
 
 describe("Compensator", function () {
   let compToken: Contract;
@@ -11,29 +13,23 @@ describe("Compensator", function () {
   let compensator: Contract;
   let delegate: Signer, delegator1: Signer, delegator2: Signer, delegator3: Signer;
   
-  // Constants for mainnet addresses
   const COMP_TOKEN_ADDRESS = "0xc00e94Cb662C3520282E6f5717214004A7f26888";
   const GOVERNOR_BRAVO_ADDRESS = "0x309a862bbC1A00e45506cB8A802D1ff10004c8C0";
 
   before(async function () {
-    // Get signers
     [delegate, delegator1, delegator2, delegator3] = await ethers.getSigners();
     
-    // Attach to mainnet contracts (for fork testing)
     compToken = await ethers.getContractAt("IComp", COMP_TOKEN_ADDRESS);
     governorBravo = await ethers.getContractAt("IGovernorBravo", GOVERNOR_BRAVO_ADDRESS);
     
-    // Deploy Compensator
     const Compensator = await ethers.getContractFactory("Compensator");
     compensator = await Compensator.deploy();
     
-    // Initialize
     await compensator.initialize(await delegate.getAddress(), "Test Delegate");
   });
 
   describe("Views", function () {
     beforeEach(async function () {
-      // Setup common test state
       await compToken.connect(delegate).approve(compensator.target, ethers.parseEther("100"));
       await compensator.connect(delegate).delegateDeposit(ethers.parseEther("100"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
@@ -46,11 +42,9 @@ describe("Compensator", function () {
     });
 
     it("should calculate pending rewards correctly", async function () {
-      // Delegator deposits
       await compToken.connect(delegator1).approve(compensator.target, ethers.parseEther("100"));
       await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
       
-      // Advance time
       await ethers.provider.send("evm_increaseTime", [10]);
       await ethers.provider.send("evm_mine", []);
       
@@ -84,7 +78,6 @@ describe("Compensator", function () {
 
   describe("Delegator Functions", function () {
     beforeEach(async function () {
-      // Setup delegate funds
       await compToken.connect(delegate).approve(compensator.target, ethers.parseEther("1000"));
       await compensator.connect(delegate).delegateDeposit(ethers.parseEther("1000"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
@@ -101,21 +94,18 @@ describe("Compensator", function () {
     });
 
     it("should distribute rewards correctly", async function () {
-      // Setup
       await compToken.connect(delegator1).approve(compensator.target, ethers.parseEther("100"));
       await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
       
-      // Advance time
-      await ethers.provider.send("evm_increaseTime", [86400]); // 1 day
+      await ethers.provider.send("evm_increaseTime", [86400]);
       await ethers.provider.send("evm_mine", []);
       
-      // Test
       await expect(
         compensator.connect(delegator1).claimRewards()
       ).to.changeTokenBalance(
         compToken,
         delegator1,
-        ethers.parseEther("100").div(365) // 100 COMP/year
+        ethers.parseEther("100").div(365)
       );
     });
   });
@@ -127,7 +117,7 @@ describe("Compensator", function () {
       
       await expect(
         compensator.connect(delegator1).stakeForProposal(proposalId, 1, ethers.parseEther("50"))
-      ).to.emit(compensator, "StakeDeposited");
+      ).to.emit(compensator, "ProposalStaked");
     });
   });
 });
