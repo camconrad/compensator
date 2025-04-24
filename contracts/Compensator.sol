@@ -17,9 +17,9 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title Compensator
- * @notice A contract that allows COMP token holders to delegate their voting power
+ * @notice A contract that allows COMP holders to delegate their voting power
  * and earn rewards. The delegate can deposit COMP to distribute rewards to delegators.
- * The contract enforces a 5% cap on the total COMP that can be delegated to a single delegate.
+ * COMP holders may also stake COMP for or against proposals once delegated.
  */
 contract Compensator is ERC20, Initializable {
     using SafeERC20 for IComp;
@@ -66,6 +66,9 @@ contract Compensator is ERC20, Initializable {
 
     /// @notice Tracks the starting reward index for each delegator to calculate pending rewards
     mapping(address => uint256) public startRewardIndex;
+
+    /// @notice Tracks previously accrued but unclaimed rewards for each delegator
+    mapping(address => uint256) public unclaimedRewards;
 
     /// @notice Tracks the outcome of each proposal (0 = not resolved, 1 = For won, 2 = Against won)
     mapping(uint256 => uint8) public proposalOutcomes;
@@ -177,11 +180,15 @@ contract Compensator is ERC20, Initializable {
      * @return The total amount of rewards available to be claimed by the delegator
      */
     function getPendingRewards(address delegator) external view returns (uint256) {
-        if (availableRewards <= totalPendingRewards) {
-            return balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
+        uint256 currentRewards = unclaimedRewards[delegator];
+        
+        // Add newly accrued rewards since last checkpoint
+        if (balanceOf(delegator) > 0) {
+            uint256 currIndex = _getCurrentRewardsIndex();
+            currentRewards += balanceOf(delegator) * (currIndex - startRewardIndex[delegator]) / 1e18;
         }
-        uint256 currIndex = _getCurrentRewardsIndex();
-        return balanceOf(delegator) * (currIndex - startRewardIndex[delegator]) / 1e18;
+        
+        return currentRewards;
     }
 
     //////////////////////////
@@ -239,20 +246,19 @@ contract Compensator is ERC20, Initializable {
     function delegatorDeposit(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
         require(totalDelegatedCOMP + amount <= delegationCap, "Delegation cap exceeded");
+        
+        // Update rewards before changing the user's balance
         _updateRewardsIndex();
-        uint256 currentBalance = balanceOf(msg.sender);
-        uint256 pendingRewards = 0;
-        if (currentBalance > 0) {
-            pendingRewards = currentBalance * (rewardIndex - startRewardIndex[msg.sender]) / 1e18;
-        }
+        _updateUserRewards(msg.sender);
+        
+        // Process the deposit
         compToken.transferFrom(msg.sender, address(this), amount);
         _mint(msg.sender, amount);
         totalDelegatedCOMP += amount;
-        if (currentBalance + amount > 0) {
-            startRewardIndex[msg.sender] = rewardIndex - (pendingRewards * 1e18 / (currentBalance + amount));
-        } else {
-            startRewardIndex[msg.sender] = rewardIndex;
-        }
+        
+        // Reset the reward index for the user
+        startRewardIndex[msg.sender] = rewardIndex;
+        
         emit DelegatorDeposit(msg.sender, amount);
     }
 
@@ -263,10 +269,15 @@ contract Compensator is ERC20, Initializable {
      */
     function delegatorWithdraw(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
-        _claimRewards(msg.sender);
+        _updateRewardsIndex();
+        _updateUserRewards(msg.sender);
+        
         _burn(msg.sender, amount);
         compToken.transfer(msg.sender, amount);
         totalDelegatedCOMP -= amount;
+        
+        startRewardIndex[msg.sender] = rewardIndex;
+        
         emit DelegatorWithdraw(msg.sender, amount);
     }
 
@@ -275,7 +286,17 @@ contract Compensator is ERC20, Initializable {
      * @dev Transfers accumulated COMP rewards to the delegator
      */
     function claimRewards() external {
-        _claimRewards(msg.sender);
+        _updateRewardsIndex();
+        _updateUserRewards(msg.sender);
+        
+        uint256 rewardsToSend = unclaimedRewards[msg.sender];
+        require(rewardsToSend > 0, "No rewards to claim");
+        
+        unclaimedRewards[msg.sender] = 0;
+        startRewardIndex[msg.sender] = rewardIndex;
+        
+        compToken.transfer(msg.sender, rewardsToSend);
+        emit ClaimRewards(msg.sender, rewardsToSend);
     }
 
     /**
@@ -360,16 +381,17 @@ contract Compensator is ERC20, Initializable {
     //////////////////////////
 
     /**
-     * @notice Internal function to claim rewards for a delegator
-     * @dev Updates reward index and transfers COMP to delegator
-     * @param delegator The address of the delegator claiming rewards
+     * @notice Internal function to update a user's rewards without claiming
+     * @dev Updates the user's unclaimed rewards and sets a new checkpoint
+     * @param delegator The address of the delegator to update rewards for
      */
-    function _claimRewards(address delegator) internal {
-        _updateRewardsIndex();
-        uint256 pendingRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
-        startRewardIndex[delegator] = rewardIndex;
-        compToken.transfer(delegator, pendingRewards);
-        emit ClaimRewards(delegator, pendingRewards);
+    function _updateUserRewards(address delegator) internal {
+        if (balanceOf(delegator) > 0) {
+            uint256 newRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
+            if (newRewards > 0) {
+                unclaimedRewards[delegator] += newRewards;
+            }
+        }
     }
 
     /**
