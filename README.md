@@ -51,7 +51,7 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 ├── contracts/
 │   ├── Compensator.sol       # Main contract
 │   ├── IComp.sol             # COMP token interface
-│   ├── IGovernorBravo.sol    # Governor Bravo interface
+│   ├── IGovernor.sol         # Governor interface
 │   └── ... other contracts
 ├── test/
 │   └── Compensator.test.ts   # Tests for Compensator contract
@@ -79,7 +79,7 @@ This will compile all contracts in the `contracts/` directory and generate artif
 ## Running Tests
 
 Before running tests, make sure you have:
-1. Set up a local Ethereum fork of mainnet (for interacting with existing COMP and Governor Bravo contracts)
+1. Set up a local Ethereum fork of mainnet (for interacting with existing COMP and Compound Governor contracts)
 
 To run the tests:
 

@@ -5,22 +5,22 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Contract, Signer } from "ethers";
 import "../contracts/IComp.sol";
-import "../contracts/IGovernorBravo.sol";
+import "../contracts/IGovernor.sol";
 
 describe("Compensator", function () {
   let compToken: Contract;
-  let governorBravo: Contract;
+  let compoundGovernor: Contract;
   let compensator: Contract;
   let delegate: Signer, delegator1: Signer, delegator2: Signer, delegator3: Signer;
   
   const COMP_TOKEN_ADDRESS = "0xc00e94Cb662C3520282E6f5717214004A7f26888";
-  const GOVERNOR_BRAVO_ADDRESS = "0x309a862bbC1A00e45506cB8A802D1ff10004c8C0";
+  const GOVERNOR_ADDRESS = "0x309a862bbC1A00e45506cB8A802D1ff10004c8C0";
 
   before(async function () {
     [delegate, delegator1, delegator2, delegator3] = await ethers.getSigners();
     
     compToken = await ethers.getContractAt("IComp", COMP_TOKEN_ADDRESS);
-    governorBravo = await ethers.getContractAt("IGovernorBravo", GOVERNOR_BRAVO_ADDRESS);
+    compoundGovernor = await ethers.getContractAt("IGovernor", GOVERNOR_ADDRESS);
     
     const Compensator = await ethers.getContractFactory("Compensator");
     compensator = await Compensator.deploy();

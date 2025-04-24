@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-interface IGovernorBravo {
+interface IGovernor {
     enum ProposalState {
         Pending, Active, Canceled, Defeated, Succeeded, Queued, Expired, Executed
     }

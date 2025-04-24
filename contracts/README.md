@@ -118,7 +118,7 @@
   - Requires support to be 0 (Against) or 1 (For).
   - Requires amount to be greater than 0.
   - Requires the proposal to not already be resolved.
-  - Requires the proposal to be in an Active state in the GovernorBravo contract.
+  - Requires the proposal to be in an Active state in the Governor contract.
   - Transfers COMP from the delegator to the contract.
   - Updates the delegator's proposal stakes and total stakes.
   - Emits a `ProposalStaked` event.

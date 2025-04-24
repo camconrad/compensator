@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 import "./IComp.sol";
-import "./IGovernorBravo.sol";
+import "./IGovernor.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
@@ -31,8 +31,8 @@ contract Compensator is ERC20, Initializable {
     /// @notice The COMP governance token contract
     IComp public constant compToken = IComp(0xc00e94Cb662C3520282E6f5717214004A7f26888);
 
-    /// @notice The Governor Bravo contract for COMP governance
-    IGovernorBravo public constant governorBravo = IGovernorBravo(0x309a862bbC1A00e45506cB8A802D1ff10004c8C0);
+    /// @notice The Compound Governor contract
+    IGovernor public constant compoundGovernor = IGovernor(0x309a862bbC1A00e45506cB8A802D1ff10004c8C0);
 
     /// @notice The address of the delegate receiving voting power
     address public delegate;
@@ -311,8 +311,8 @@ contract Compensator is ERC20, Initializable {
         require(amount > 0, "Amount must be greater than 0");
         require(proposalOutcomes[proposalId] == 0, "Proposal already resolved");
 
-        IGovernorBravo.ProposalState state = governorBravo.state(proposalId);
-        require(state == IGovernorBravo.ProposalState.Active, "Staking only allowed for active proposals");
+        IGovernor.ProposalState state = compoundGovernor.state(proposalId);
+        require(state == IGovernor.ProposalState.Active, "Staking only allowed for active proposals");
 
         compToken.transferFrom(msg.sender, address(this), amount);
 
