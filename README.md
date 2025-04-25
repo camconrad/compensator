@@ -54,7 +54,7 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 │   ├── IGovernor.sol         # Governor interface
 │   └── ... other contracts
 ├── test/
-│   └── Compensator.test.ts   # Tests for Compensator contract
+│   └── Compensator.test.js   # Tests for Compensator contract
 └── ... other files
 ```
 
