@@ -14,6 +14,7 @@ import NetworkDropdown from "./NetworkDropdown";
 import { usePathname } from "next/navigation";
 import { FaHome, FaCompass, FaUser, FaFileAlt } from "react-icons/fa";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Header = () => {
   const [isAtTop, setIsAtTop] = useState(true);
@@ -276,7 +277,6 @@ const MobileNavigation = ({
 
   return (
     <div className="relative">
-      {/* Mobile Menu Button with animation */}
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
@@ -304,40 +304,44 @@ const MobileNavigation = ({
       {isOpen &&
         createPortal(
           <div
-            ref={dropdownRef}
-            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm z-40"
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           >
-            <div
-              className="absolute pt-24 pl-2 w-full h-full bg-[#EFF2F5] dark:bg-[#1D2833] rounded-md shadow-lg py-1 z-50"
+            <motion.div
+              ref={dropdownRef}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-[#EFF2F5] dark:bg-[#0D131A] z-50"
               onClick={(e) => e.stopPropagation()}
             >
-              {navItems.map((item) =>
-                item.external ? (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? " text-white dark:text-white" : "text-[#17212B] dark:text-white"}`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {/* {item.icon} */}
-                    {item.name}
-                  </a>
-                ) : (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? "text-[#10B981] dark:text-white" : "text-[#17212B] dark:text-white"}`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {/* {item.icon} */}
-                    {item.name}
-                  </Link>
-                ),
-              )}
-            </div>
+              <div className="flex flex-col gap-4 p-4 pt-20">
+                {navItems.map((item) =>
+                  item.external ? (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? " text-white dark:text-white" : "text-[#17212B] dark:text-white"}`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`flex items-center px-2 py-1 text-3xl font-semibold ${currentPath === item.href ? "text-[#10B981] dark:text-white" : "text-[#17212B] dark:text-white"}`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ),
+                )}
+              </div>
+            </motion.div>
           </div>,
           document.body,
         )}

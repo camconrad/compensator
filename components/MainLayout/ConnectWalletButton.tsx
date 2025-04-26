@@ -244,7 +244,7 @@ const ConnectWalletButton = ({ isMobile = false }) => {
           className="p-2 rounded-full bg-[#D8DFE5] dark:bg-[#1D2833] text-[#17212B] dark:text-white flex items-center justify-center w-10 h-10"
           aria-label="Connect Wallet"
         >
-          <FaWallet className="h-5 w-5" />
+          <FaWallet className="h-4 w-4" />
         </motion.button>
       )
     }
