@@ -396,7 +396,7 @@ export default function DelegatePage() {
                       <div className="w-16 h-16 rounded-full flex items-center justify-center">
                         <Image
                           src={currentDelegate?.image || "/logo.png"}
-                          alt="Profile"
+                          alt={currentDelegate?.name || "Delegate"}
                           width={64}
                           height={64}
                           className="rounded-full"
@@ -412,7 +412,7 @@ export default function DelegatePage() {
                           </p>
                           <button
                             onClick={() =>
-                              copyToClipboard(delegate.address || "")
+                              copyToClipboard(currentDelegate?.address || "")
                             }
                             className="ml-2 text-[#6D7C8D] hover:text-[#030303] dark:hover:text-gray-300"
                           >
@@ -594,18 +594,14 @@ export default function DelegatePage() {
                     Voting history is currently untracked
                   </p>
                   {currentDelegate?.externalLink && (
-                    <button
-                      onClick={() =>
-                        window.open(
-                          currentDelegate.externalLink,
-                          "_blank",
-                          "noopener,noreferrer"
-                        )
-                      }
-                      className="bg-[#EFF2F5] text-sm mb-2 transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-3 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
+                    <a
+                      href={currentDelegate.externalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
                     >
                       View Proposals
-                    </button>
+                    </a>
                   )}
                 </div>
               )}
@@ -685,7 +681,7 @@ export default function DelegatePage() {
                   </p>
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-[#EFF2F5] text-sm mb-2 transition-all duration-200 transform hover:scale-105 active:scale-95 dark:bg-white text-[#0D131A] px-6 py-3 rounded-full hover:bg-emerald-600 hover:text-white dark:hover:text-white font-semibold"
+                    className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
                   >
                     Delegate COMP
                   </button>
