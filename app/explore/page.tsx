@@ -84,7 +84,12 @@ const ExplorePage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState({
+    sm: 6,    // Small screens
+    md: 10,   // Medium screens
+    lg: 14,   // Large screens
+    xl: 20    // Extra large screens
+  });
   const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
 
   const truncateAddressMiddle = (
@@ -182,8 +187,18 @@ const ExplorePage = () => {
     setIsFilterOpen(false);
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const getItemsPerPage = () => {
+    if (typeof window === 'undefined') return itemsPerPage.sm;
+    const width = window.innerWidth;
+    if (width >= 1280) return itemsPerPage.xl;
+    if (width >= 1024) return itemsPerPage.lg;
+    if (width >= 768) return itemsPerPage.md;
+    return itemsPerPage.sm;
+  };
+
+  const currentItemsPerPage = getItemsPerPage();
+  const indexOfLastItem = currentPage * currentItemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - currentItemsPerPage;
   const currentItems = filteredDelegates.slice(
     indexOfFirstItem,
     indexOfLastItem
@@ -460,7 +475,7 @@ const ExplorePage = () => {
                               className="px-6 text-[#030303] py-4 dark:text-[#ccd8e8] text-sm"
                               style={{ width: "80px" }}
                             >
-                              #{index + 1 + (currentPage - 1) * itemsPerPage}
+                              #{index + 1 + (currentPage - 1) * currentItemsPerPage}
                             </td>
                             <td
                               className="flex items-center py-3 gap-3 px-6"
@@ -561,7 +576,7 @@ const ExplorePage = () => {
                     Previous
                   </Button>
                   {Array.from({
-                    length: Math.ceil(filteredDelegates.length / itemsPerPage),
+                    length: Math.ceil(filteredDelegates.length / currentItemsPerPage),
                   }).map((_, index) => (
                     <Button
                       key={index + 1}
@@ -583,7 +598,7 @@ const ExplorePage = () => {
                     onClick={() => paginate(currentPage + 1)}
                     disabled={
                       currentPage ===
-                      Math.ceil(filteredDelegates.length / itemsPerPage)
+                      Math.ceil(filteredDelegates.length / currentItemsPerPage)
                     }
                     className="bg-white dark:bg-[#1D2833] border-gray-200 dark:border-[#232F3B]"
                   >
