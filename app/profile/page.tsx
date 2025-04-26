@@ -676,7 +676,7 @@ export default function ProfilePage() {
         </div>
 
         <motion.main
-          className="flex flex-col items-center justify-center min-h-screen"
+          className="flex flex-col items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
@@ -708,76 +708,54 @@ export default function ProfilePage() {
             )}
           </AnimatePresence>
 
-          <div className="mx-auto max-w-[1100px] w-full px-4 py-6">
-            {!isConnected ? (
-              <motion.div
-                className="mb-8 bg-white dark:bg-[#1D2833] p-6 mt-[-120px] rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                  <div className="p-3 bg-[#F9FAFB] dark:bg-[#293846] rounded-full mb-3">
-                    <Wallet className="h-6 w-6 text-[#030303] dark:text-white" />
-                  </div>
-                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
-                    Disconnected
-                  </h2>
-                  <p className="text-[#6D7C8D] mt-1 font-medium dark:text-gray-400 mb-4 max-w-md mx-auto">
-                    Connect a web3 wallet to view your profile
-                  </p>
-                  <div className="w-auto">
-                    <ConnectWalletButton isMobile={false} />
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <>
-                <motion.div
-                  className="mb-6 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {isProfileLoading ? (
-                    <div className="flex flex-col space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
-                          <div className="flex-1">
-                            <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                            <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                          </div>
-                        </div>
-                        <div className="hidden md:block">
-                          <div className="h-10 w-40 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                        <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
-                        <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
-                        <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+          <div className="mx-auto max-w-[1100px] w-full p-4 pt-8">
+            <motion.div
+              className="mb-4 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {isProfileLoading ? (
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                      <div className="flex-1">
+                        <div className="h-6 w-48 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                        <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                       </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16rounded-full flex items-center justify-center">
-                            <Image
-                              src={profile?.image || "/logo.png"}
-                              alt="Profile"
-                              width={64}
-                              height={64}
-                              className="rounded-full"
-                            />
-                          </div>
-                          <div>
-                            <h1 className="text-2xl font-bold text-[#030303] dark:text-white">
-                              {formatAddress(address || "")}
-                            </h1>
-                            <div className="flex items-center mt-1">
+                    <div className="hidden md:block">
+                      <div className="h-10 w-40 rounded-full bg-gray-200 dark:bg-[#33475b] animate-pulse"></div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+                    <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+                    <div className="h-24 bg-gray-200 dark:bg-[#33475b] rounded-lg animate-pulse"></div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center">
+                        <Image
+                          src={profile?.image || "/logo.png"}
+                          alt="Profile"
+                          width={64}
+                          height={64}
+                          className="rounded-full"
+                        />
+                      </div>
+                      <div>
+                        <h1 className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {isConnected ? formatAddress(address || "") : "My Profile"}
+                        </h1>
+                        <div className="flex items-center mt-1">
+                          {isConnected ? (
+                            <>
                               <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
                                 {formatAddress(address || "")}
                               </p>
@@ -787,724 +765,728 @@ export default function ProfilePage() {
                               >
                                 <Copy className="h-4 w-4" />
                               </button>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="">
-                          <button
-                            onClick={handleRewardsButtonClick}
-                            className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center"
-                          >
-                            Create Compensator
-                          </button>
-                          <button
-                            onClick={() => setIsDistributeModalOpen(true)}
-                            className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#3b82f6] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center mt-3"
-                          >
-                            Distribute Stakes
-                          </button>
-                        </div>
-                      </div>
-
-                      {profile?.statement && (
-                        <div className="mt-4 p-4 bg-[#F9FAFB] dark:bg-[#17212B] rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                          <h3 className="text-sm font-medium text-[#030303] dark:text-white mb-2">
-                            Delegation Statement
-                          </h3>
-                          <p className="text-[#6D7C8D] dark:text-gray-400 text-sm">
-                            {profile.statement}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                        <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                          <div className="flex items-center justify-start gap-[6px]">
-                            <img
-                              src="/logo.png"
-                              alt=""
-                              className="h-5 w-5 rounded-full"
-                            />
-                            <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                              {profile?.votingPower || "0"}
+                            </>
+                          ) : (
+                            <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                              Connect your wallet to view your profile
                             </p>
-                          </div>
-                          <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Vote Power
-                          </h3>
-                        </div>
-                        <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                          <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                            {profile?.totalDelegations || 0}
-                          </p>
-                          <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Delegations
-                          </h3>
-                        </div>
-                        <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                          <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                            0
-                          </p>
-                          <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                            Proposals
-                          </h3>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </motion.div>
-
-                <motion.div
-                  className="mb-8"
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.2, delay: 0.1 }}
-                >
-                  <Tabs
-                    defaultValue="proposals"
-                    value={activeTab}
-                    onValueChange={setActiveTab}
-                    className="w-full"
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-[-6px]">
-                        Activity
-                      </h2>
-                      <TabsList className="bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#232F3B] p-1 rounded-full">
-                        <TabsTrigger
-                          value="proposals"
-                          className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
-                        >
-                          Proposals
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="delegations"
-                          className="rounded-full  text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
-                        >
-                          Delegations
-                        </TabsTrigger>
-                      </TabsList>
-                    </div>
-
-                    <TabsContent value="proposals" className="space-y-4">
-                      {isProposalsLoading ? (
-                        <div className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden">
-                          <div className="overflow-x-auto">
-                            <table className="w-full" role="table">
-                              <thead
-                                className="bg-[#F9FAFB] dark:bg-[#17212B]"
-                                role="rowgroup"
-                              >
-                                <tr role="row">
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                  >
-                                    <div className="flex items-center justify-start">
-                                      Proposal
-                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                    </div>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                  >
-                                    <div className="flex items-center justify-start">
-                                      For
-                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                    </div>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                  >
-                                    <div className="flex items-center justify-start">
-                                      Against
-                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                    </div>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                  >
-                                    <div className="flex items-center justify-start">
-                                      Vote
-                                      <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                    </div>
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {[1, 2, 3].map((_, index) => (
-                                  <tr
-                                    key={index}
-                                    className="border-b dark:border-b-[#232F3B] border-b-[#efefef]"
-                                  >
-                                    <td className="px-6 py-4">
-                                      <div className="flex flex-col">
-                                        <div className="h-5 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                                        <div className="flex items-center mt-1 space-x-2">
-                                          <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
-                                          <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                      <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      ) : proposals.length > 0 ? (
-                        <>
-                          <div className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden">
-                            <div className="overflow-x-auto">
-                              <table className="w-full" role="table">
-                                <thead
-                                  className="bg-[#F9FAFB] dark:bg-[#17212B]"
-                                  role="rowgroup"
-                                >
-                                  <tr role="row">
-                                    <th
-                                      scope="col"
-                                      className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                    >
-                                      <div className="flex items-center justify-start cursor-pointer">
-                                        Proposal
-                                        <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                      </div>
-                                    </th>
-                                    <th
-                                      scope="col"
-                                      className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                    >
-                                      <div className="flex items-center justify-start cursor-pointer">
-                                        For
-                                        <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                      </div>
-                                    </th>
-                                    <th
-                                      scope="col"
-                                      className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                    >
-                                      <div className="flex items-center justify-start cursor-pointer">
-                                        Against
-                                        <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                      </div>
-                                    </th>
-                                    <th
-                                      scope="col"
-                                      className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
-                                    >
-                                      <div className="flex items-center justify-start cursor-pointer">
-                                        Vote
-                                        <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
-                                      </div>
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {currentProposals.map((proposal, index) => (
-                                    <motion.tr
-                                      initial={{ opacity: 0, y: 10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      transition={{
-                                        duration: 0.3,
-                                        delay: index * 0.05,
-                                      }}
-                                      key={proposal.id}
-                                      className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
-                                    >
-                                      <td className="px-6 py-4">
-                                        <div className="flex flex-col">
-                                          <div className="text-sm font-semibold text-[#030303] dark:text-white">
-                                            {proposal.title}
-                                          </div>
-                                          <div className="flex items-center mt-1 space-x-2">
-                                            {getStatusBadge(proposal.status)}
-                                            <span className="text-xs text-[#6D7C8D] dark:text-gray-400">
-                                              {proposal.date}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </td>
-                                      <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-green-600 dark:text-green-400 font-medium">
-                                          {proposal.votesFor.toLocaleString()}
-                                        </span>
-                                      </td>
-                                      <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                          {proposal.votesAgainst.toLocaleString()}
-                                        </span>
-                                      </td>
-                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#6D7C8D] dark:text-gray-400">
-                                        {proposal.voted ? (
-                                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                            Yes
-                                          </span>
-                                        ) : (
-                                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
-                                            No vote
-                                          </span>
-                                        )}
-                                      </td>
-                                    </motion.tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-
-                          {/* Pagination */}
-                          {proposals.length > itemsPerPage && (
-                            <div className="flex justify-center mt-6">
-                              <div className="flex items-center space-x-[6px]">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => paginate(currentPage - 1)}
-                                  disabled={currentPage === 1}
-                                  className="bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#232F3B]"
-                                >
-                                  <ChevronLeft className="h-4 w-4 mr-1" />
-                                  Previous
-                                </Button>
-                                {Array.from({
-                                  length: Math.ceil(
-                                    proposals.length / itemsPerPage
-                                  ),
-                                }).map((_, index) => (
-                                  <Button
-                                    key={index + 1}
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => paginate(index + 1)}
-                                    className={`px-3 py-1 ${
-                                      currentPage === index + 1
-                                        ? "bg-[#10b981] font-semibold text-white dark:text-white hover:bg-emerald-600 hover:text-white"
-                                        : "bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#232F3B]"
-                                    }`}
-                                  >
-                                    {index + 1}
-                                  </Button>
-                                ))}
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => paginate(currentPage + 1)}
-                                  disabled={
-                                    currentPage ===
-                                    Math.ceil(proposals.length / itemsPerPage)
-                                  }
-                                  className="bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#232F3B]"
-                                >
-                                  Next
-                                  <ChevronRight className="h-4 w-4 ml-1" />
-                                </Button>
-                              </div>
-                            </div>
                           )}
-                        </>
-                      ) : (
-                        <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center border border-[#efefef] dark:border-[#232F3B]">
-                          <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
-                            <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
-                          </div>
-                          <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
-                            No Voting History
-                          </h2>
-                          <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-sm mx-auto">
-                            Voting history is currently untracked
-                          </p>
-                          <a
-                            href="hhttps://www.tally.xyz/gov/compound/proposals"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-[#10b981] transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold inline-flex items-center"
-                          >
-                            View Proposals
-                          </a>
                         </div>
-                      )}
-                    </TabsContent>
-
-                    <TabsContent value="delegations" className="space-y-4">
-                      {isDelegationsLoading ? (
-                        <div className="space-y-4">
-                          {[1, 2].map((_, index) => (
-                            <div
-                              key={index}
-                              className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
-                                <div className="flex-1">
-                                  <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                                  <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                                </div>
-                                <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : delegations.length > 0 ? (
-                        <div className="space-y-4">
-                          {delegations.map((delegation, index) => (
-                            <div
-                              key={index}
-                              className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150 border border-[#efefef] dark:border-[#232F3B]"
-                              onClick={() =>
-                                (window.location.href = `/delegate/${formatNameForURL(
-                                  delegation.delegate
-                                )}`)
-                              }
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="relative h-12 w-12 flex-shrink-0">
-                                  <Image
-                                    src={
-                                      delegation.delegateImage ||
-                                      "/placeholder.svg?height=48&width=48" ||
-                                      "/placeholder.svg" ||
-                                      "/placeholder.svg" ||
-                                      "/placeholder.svg" ||
-                                      "/placeholder.svg" ||
-                                      "/placeholder.svg"
-                                    }
-                                    alt={delegation.delegate}
-                                    width={48}
-                                    height={48}
-                                    className="object-cover rounded-full"
-                                  />
-                                </div>
-                                <div className="">
-                                  <p className="text-base font-semibold text-[#030303] dark:text-white">
-                                    {delegation.delegate}
-                                  </p>
-                                  <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
-                                    Amount: {delegation.amount}
-                                  </p>
-                                </div>
-                                <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
-                                  {delegation.date}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center border border-[#efefef] dark:border-[#232F3B]">
-                          <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
-                            <Users className="h-6 w-6 text-[#030303] dark:text-white" />
-                          </div>
-                          <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
-                            No Delegations
-                          </h2>
-                          <p className="text-[#6D7C8D] dark:text-gray-400 mb-4 max-w-sm mx-auto">
-                            Delegations are currently untracked
-                          </p>
-                          <Link
-                            href="/explore"
-                            className="bg-[#10b981] transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold inline-flex items-center"
-                          >
-                            Find Delegates
-                          </Link>
-                        </div>
-                      )}
-                    </TabsContent>
-                  </Tabs>
-                </motion.div>
-
-                {isRewardsModalOpen && (
-                  <Modal
-                    handleClose={handleRewardsModalClose}
-                    open={isRewardsModalOpen}
-                    key={modalKey}
-                  >
-                    <div className="">
-                      <h2 className="text-xl font-semibold mb-4 dark:text-white">
-                        Create Compensator
-                      </h2>
-                      <div className="space-y-4">
-                        {/* Profile Name Input */}
-                        <motion.div
-                          className="relative"
-                          variants={itemVariants}
-                        >
-                          <div className="relative h-14">
-                            <input
-                              id="profileName"
-                              type="text"
-                              value={profileName}
-                              onChange={(e) => setProfileName(e.target.value)}
-                              onFocus={() => setIsProfileNameFocused(true)}
-                              onBlur={() => setIsProfileNameFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
-                              autoFocus
-                            />
-                            <label
-                              htmlFor="profileName"
-                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isProfileNameFocused || profileName
-                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
-                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
-                              }`}
-                            >
-                              Profile Name
-                            </label>
-                          </div>
-                        </motion.div>
-
-                        {/* Delegate Address Input */}
-                        <motion.div
-                          className="relative"
-                          variants={itemVariants}
-                        >
-                          <div className="relative h-14">
-                            <input
-                              id="delegateAddress"
-                              type="text"
-                              value={delegateAddress}
-                              onChange={(e) =>
-                                setDelegateAddress(e.target.value)
-                              }
-                              onFocus={() => setIsDelegateAddressFocused(true)}
-                              onBlur={() => setIsDelegateAddressFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
-                            />
-                            <label
-                              htmlFor="delegateAddress"
-                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isDelegateAddressFocused || delegateAddress
-                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
-                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
-                              }`}
-                            >
-                              Delegate Address
-                            </label>
-                            <button
-                              onClick={() => setDelegateAddress(address || "")}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-[#EFF2F5] dark:bg-[#2e3746] transition-colors"
-                            >
-                              <WandSparkles className="h-4 w-4 text-[#6D7C8D] dark:text-gray-400" />
-                            </button>
-                          </div>
-                        </motion.div>
-
-                        {/* APR Input */}
-                        <motion.div
-                          className="relative"
-                          variants={itemVariants}
-                        >
-                          <div className="relative h-14">
-                            <input
-                              id="apr"
-                              type="number"
-                              value={apr}
-                              onChange={(e) => setApr(e.target.value)}
-                              onFocus={() => setIsAprFocused(true)}
-                              onBlur={() => setIsAprFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
-                            />
-                            <label
-                              htmlFor="apr"
-                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isAprFocused || apr
-                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
-                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
-                              }`}
-                            >
-                              Reward Rate (APR %)
-                            </label>
-                          </div>
-                        </motion.div>
-
-                        {/* Funding Amount Input */}
-                        <motion.div
-                          className="relative"
-                          variants={itemVariants}
-                        >
-                          <div className="relative h-14">
-                            <input
-                              id="fundingAmount"
-                              type="number"
-                              value={fundingAmount}
-                              onChange={(e) => setFundingAmount(e.target.value)}
-                              onFocus={() => setIsFundingAmountFocused(true)}
-                              onBlur={() => setIsFundingAmountFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
-                            />
-                            <label
-                              htmlFor="fundingAmount"
-                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isFundingAmountFocused || fundingAmount
-                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
-                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
-                              }`}
-                            >
-                              Funding Amount (COMP)
-                            </label>
-                          </div>
-                        </motion.div>
                       </div>
+                    </div>
+                    <div className="">
                       <button
-                        onClick={handleRewardsSubmit}
-                        disabled={
-                          !profileName ||
-                          !delegateAddress ||
-                          !apr ||
-                          !fundingAmount ||
-                          loading
-                        }
-                        className={`${
-                          loading ||
-                          !profileName ||
-                          !delegateAddress ||
-                          !apr ||
-                          !fundingAmount
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-emerald-600"
-                        } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
+                        onClick={handleRewardsButtonClick}
+                        className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center"
                       >
-                        {loading ? (
-                          <svg
-                            className="animate-spin h-4 w-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                        ) : (
-                          "Create Compensator"
-                        )}
+                        Create Compensator
+                      </button>
+                      <button
+                        onClick={() => setIsDistributeModalOpen(true)}
+                        className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#E8F5E9] dark:bg-[#1B3A1F] text-[#10b981] dark:text-[#4CAF50] px-4 py-[9px] text-center rounded-full flex justify-center items-center mt-3"
+                      >
+                        Distribute Stakes
                       </button>
                     </div>
-                  </Modal>
-                )}
+                  </div>
 
-                {isDistributeModalOpen && (
-                  <Modal
-                    handleClose={() => setIsDistributeModalOpen(false)}
-                    open={isDistributeModalOpen}
-                  >
-                    <div className="">
-                      <h2 className="text-xl font-semibold mb-4 dark:text-white">
-                        Distribute Stakes
-                      </h2>
-                      <div className="space-y-4">
-                        <motion.div
-                          className="relative"
-                          variants={itemVariants}
-                        >
-                          <div className="relative h-14">
-                            <input
-                              id="selectedProposalId"
-                              value={selectedProposalId}
-                              onChange={(e) =>
-                                setSelectedProposalId(e.target.value)
-                              }
-                              onFocus={() => setIsProposalFocused(true)}
-                              onBlur={() => setIsProposalFocused(false)}
-                              className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
-                            />
-                            <label
-                              htmlFor="selectedProposalId"
-                              className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                                isProposalFocused || selectedProposalId
-                                  ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
-                                  : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
-                              }`}
-                            >
-                              Proposal Id
-                            </label>
-                          </div>
-                        </motion.div>
+                  {profile?.statement && (
+                    <div className="mt-4 p-4 bg-[#F9FAFB] dark:bg-[#17212B] rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <h3 className="text-sm font-medium text-[#030303] dark:text-white mb-2">
+                        Delegation Statement
+                      </h3>
+                      <p className="text-[#6D7C8D] dark:text-gray-400 text-sm">
+                        {profile.statement}
+                      </p>
+                    </div>
+                  )}
 
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setSelectedWinningSupport(0)}
-                            className={`flex-1 py-2 px-4 rounded-lg border ${
-                              selectedWinningSupport === 0
-                                ? "bg-[#f54a4a] text-white"
-                                : "border-[#f54a4a] text-[#f54a4a]"
-                            }`}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="flex items-center justify-start gap-[6px]">
+                        <img
+                          src="/logo.png"
+                          alt=""
+                          className="h-5 w-5 rounded-full"
+                        />
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {profile?.votingPower || "0"}
+                        </p>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Vote Power
+                      </h3>
+                    </div>
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                        {profile?.totalDelegations || 0}
+                      </p>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Delegations
+                      </h3>
+                    </div>
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                        0
+                      </p>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Proposals
+                      </h3>
+                    </div>
+                  </div>
+                </>
+              )}
+            </motion.div>
+
+            <motion.div
+              className="mb-4"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.2, delay: 0.1 }}
+            >
+              <Tabs
+                defaultValue="proposals"
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-[-6px]">
+                    Activity
+                  </h2>
+                  <TabsList className="bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#232F3B] p-1 rounded-full">
+                    <TabsTrigger
+                      value="proposals"
+                      className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+                    >
+                      Proposals
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="delegations"
+                      className="rounded-full  text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+                    >
+                      Delegations
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="proposals" className="space-y-4">
+                  {isProposalsLoading ? (
+                    <div className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full" role="table">
+                          <thead
+                            className="bg-[#F9FAFB] dark:bg-[#17212B]"
+                            role="rowgroup"
                           >
-                            Against (0)
-                          </button>
-                          <button
-                            onClick={() => setSelectedWinningSupport(1)}
-                            className={`flex-1 py-2 px-4 rounded-lg border ${
-                              selectedWinningSupport === 1
-                                ? "bg-[#10b981] text-white"
-                                : "border-[#10b981] text-[#10b981e0]"
-                            }`}
-                          >
-                            For (1)
-                          </button>
-                        </div>
-
-                        <button
-                          onClick={handleDistributeStakes}
-                          disabled={!selectedProposalId || distributeLoading}
-                          className={`${
-                            distributeLoading || !selectedProposalId
-                              ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-emerald-600"
-                          } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
-                        >
-                          {distributeLoading ? (
-                            <svg
-                              className="animate-spin h-4 w-4 text-white"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                          ) : (
-                            "Distribute Stakes"
-                          )}
-                        </button>
+                            <tr role="row">
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  Proposal
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  For
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  Against
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  Vote
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[1, 2, 3].map((_, index) => (
+                              <tr
+                                key={index}
+                                className="border-b dark:border-b-[#232F3B] border-b-[#efefef]"
+                              >
+                                <td className="px-6 py-4">
+                                  <div className="flex flex-col">
+                                    <div className="h-5 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                                    <div className="flex items-center mt-1 space-x-2">
+                                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                                      <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  </Modal>
-                )}
-              </>
+                  ) : proposals.length > 0 ? (
+                    <>
+                      <div className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full" role="table">
+                            <thead
+                              className="bg-[#F9FAFB] dark:bg-[#17212B]"
+                              role="rowgroup"
+                            >
+                              <tr role="row">
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                                >
+                                  <div className="flex items-center justify-start cursor-pointer">
+                                    Proposal
+                                    <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                  </div>
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                                >
+                                  <div className="flex items-center justify-start cursor-pointer">
+                                    For
+                                    <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                  </div>
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                                >
+                                  <div className="flex items-center justify-start cursor-pointer">
+                                    Against
+                                    <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                  </div>
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                                >
+                                  <div className="flex items-center justify-start cursor-pointer">
+                                    Vote
+                                    <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                  </div>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {currentProposals.map((proposal, index) => (
+                                <motion.tr
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{
+                                    duration: 0.3,
+                                    delay: index * 0.05,
+                                  }}
+                                  key={proposal.id}
+                                  className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
+                                >
+                                  <td className="px-6 py-4">
+                                    <div className="flex flex-col">
+                                      <div className="text-sm font-semibold text-[#030303] dark:text-white">
+                                        {proposal.title}
+                                      </div>
+                                      <div className="flex items-center mt-1 space-x-2">
+                                        {getStatusBadge(proposal.status)}
+                                        <span className="text-xs text-[#6D7C8D] dark:text-gray-400">
+                                          {proposal.date}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                                      {proposal.votesFor.toLocaleString()}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm text-red-600 dark:text-red-400 font-medium">
+                                      {proposal.votesAgainst.toLocaleString()}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#6D7C8D] dark:text-gray-400">
+                                    {proposal.voted ? (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                        Yes
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
+                                        No vote
+                                      </span>
+                                    )}
+                                  </td>
+                                </motion.tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Pagination */}
+                      {proposals.length > itemsPerPage && (
+                        <div className="flex justify-center mt-6">
+                          <div className="flex items-center space-x-[6px]">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => paginate(currentPage - 1)}
+                              disabled={currentPage === 1}
+                              className="bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#232F3B]"
+                            >
+                              <ChevronLeft className="h-4 w-4 mr-1" />
+                              Previous
+                            </Button>
+                            {Array.from({
+                              length: Math.ceil(
+                                proposals.length / itemsPerPage
+                              ),
+                            }).map((_, index) => (
+                              <Button
+                                key={index + 1}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => paginate(index + 1)}
+                                className={`px-3 py-1 ${
+                                  currentPage === index + 1
+                                    ? "bg-[#10b981] font-semibold text-white dark:text-white hover:bg-emerald-600 hover:text-white"
+                                    : "bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#232F3B]"
+                                }`}
+                              >
+                                {index + 1}
+                              </Button>
+                            ))}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => paginate(currentPage + 1)}
+                              disabled={
+                                currentPage ===
+                                Math.ceil(proposals.length / itemsPerPage)
+                              }
+                              className="bg-white dark:bg-[#1D2833] border-[#efefef] dark:border-[#232F3B]"
+                            >
+                              Next
+                              <ChevronRight className="h-4 w-4 ml-1" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        No Voting History
+                      </h2>
+                      <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-sm mx-auto">
+                        Voting history is currently untracked
+                      </p>
+                      <a
+                        href="https://www.tally.xyz/gov/compound/proposals"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center"
+                      >
+                        View Proposals
+                      </a>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="delegations" className="space-y-4">
+                  {isDelegationsLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2].map((_, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                            <div className="flex-1">
+                              <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                              <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                            </div>
+                            <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : delegations.length > 0 ? (
+                    <div className="space-y-4">
+                      {delegations.map((delegation, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150 border border-[#efefef] dark:border-[#232F3B]"
+                          onClick={() =>
+                            (window.location.href = `/delegate/${formatNameForURL(
+                              delegation.delegate
+                            )}`)
+                          }
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-12 flex-shrink-0">
+                              <Image
+                                src={
+                                  delegation.delegateImage ||
+                                  "/placeholder.svg?height=48&width=48" ||
+                                  "/placeholder.svg" ||
+                                  "/placeholder.svg" ||
+                                  "/placeholder.svg" ||
+                                  "/placeholder.svg" ||
+                                  "/placeholder.svg"
+                                }
+                                alt={delegation.delegate}
+                                width={48}
+                                height={48}
+                                className="object-cover rounded-full"
+                              />
+                            </div>
+                            <div className="">
+                              <p className="text-base font-semibold text-[#030303] dark:text-white">
+                                {delegation.delegate}
+                              </p>
+                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                                Amount: {delegation.amount}
+                              </p>
+                            </div>
+                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
+                              {delegation.date}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <Users className="h-6 w-6 text-[#030303] dark:text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        No Delegations
+                      </h2>
+                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-4 max-w-sm mx-auto">
+                        Delegations are currently untracked
+                      </p>
+                      <Link
+                        href="/explore"
+                        className="bg-[#10b981] transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold inline-flex items-center"
+                      >
+                        Find Delegates
+                      </Link>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </motion.div>
+
+            {isRewardsModalOpen && (
+              <Modal
+                handleClose={handleRewardsModalClose}
+                open={isRewardsModalOpen}
+                key={modalKey}
+              >
+                <div className="">
+                  <h2 className="text-xl font-semibold mb-4 dark:text-white">
+                    Create Compensator
+                  </h2>
+                  <div className="space-y-4">
+                    {/* Profile Name Input */}
+                    <motion.div
+                      className="relative"
+                      variants={itemVariants}
+                    >
+                      <div className="relative h-14">
+                        <input
+                          id="profileName"
+                          type="text"
+                          value={profileName}
+                          onChange={(e) => setProfileName(e.target.value)}
+                          onFocus={() => setIsProfileNameFocused(true)}
+                          onBlur={() => setIsProfileNameFocused(false)}
+                          className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                          autoFocus
+                        />
+                        <label
+                          htmlFor="profileName"
+                          className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                            isProfileNameFocused || profileName
+                              ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                              : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                          }`}
+                        >
+                          Profile Name
+                        </label>
+                      </div>
+                    </motion.div>
+
+                    {/* Delegate Address Input */}
+                    <motion.div
+                      className="relative"
+                      variants={itemVariants}
+                    >
+                      <div className="relative h-14">
+                        <input
+                          id="delegateAddress"
+                          type="text"
+                          value={delegateAddress}
+                          onChange={(e) =>
+                            setDelegateAddress(e.target.value)
+                          }
+                          onFocus={() => setIsDelegateAddressFocused(true)}
+                          onBlur={() => setIsDelegateAddressFocused(false)}
+                          className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                        />
+                        <label
+                          htmlFor="delegateAddress"
+                          className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                            isDelegateAddressFocused || delegateAddress
+                              ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                              : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                          }`}
+                        >
+                          Delegate Address
+                        </label>
+                        <button
+                          onClick={() => setDelegateAddress(address || "")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-[#EFF2F5] dark:bg-[#2e3746] transition-colors"
+                        >
+                          <WandSparkles className="h-4 w-4 text-[#6D7C8D] dark:text-gray-400" />
+                        </button>
+                      </div>
+                    </motion.div>
+
+                    {/* APR Input */}
+                    <motion.div
+                      className="relative"
+                      variants={itemVariants}
+                    >
+                      <div className="relative h-14">
+                        <input
+                          id="apr"
+                          type="number"
+                          value={apr}
+                          onChange={(e) => setApr(e.target.value)}
+                          onFocus={() => setIsAprFocused(true)}
+                          onBlur={() => setIsAprFocused(false)}
+                          className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                        />
+                        <label
+                          htmlFor="apr"
+                          className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                            isAprFocused || apr
+                              ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                              : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                          }`}
+                        >
+                          Reward Rate (APR %)
+                        </label>
+                      </div>
+                    </motion.div>
+
+                    {/* Funding Amount Input */}
+                    <motion.div
+                      className="relative"
+                      variants={itemVariants}
+                    >
+                      <div className="relative h-14">
+                        <input
+                          id="fundingAmount"
+                          type="number"
+                          value={fundingAmount}
+                          onChange={(e) => setFundingAmount(e.target.value)}
+                          onFocus={() => setIsFundingAmountFocused(true)}
+                          onBlur={() => setIsFundingAmountFocused(false)}
+                          className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                        />
+                        <label
+                          htmlFor="fundingAmount"
+                          className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                            isFundingAmountFocused || fundingAmount
+                              ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                              : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                          }`}
+                        >
+                          Funding Amount (COMP)
+                        </label>
+                      </div>
+                    </motion.div>
+                  </div>
+                  <button
+                    onClick={handleRewardsSubmit}
+                    disabled={
+                      !profileName ||
+                      !delegateAddress ||
+                      !apr ||
+                      !fundingAmount ||
+                      loading
+                    }
+                    className={`${
+                      loading ||
+                      !profileName ||
+                      !delegateAddress ||
+                      !apr ||
+                      !fundingAmount
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-emerald-600"
+                    } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
+                  >
+                    {loading ? (
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                    ) : (
+                      "Create Compensator"
+                    )}
+                  </button>
+                </div>
+              </Modal>
+            )}
+
+            {isDistributeModalOpen && (
+              <Modal
+                handleClose={() => setIsDistributeModalOpen(false)}
+                open={isDistributeModalOpen}
+              >
+                <div className="">
+                  <h2 className="text-xl font-semibold mb-4 dark:text-white">
+                    Distribute Stakes
+                  </h2>
+                  <div className="space-y-4">
+                    <motion.div
+                      className="relative"
+                      variants={itemVariants}
+                    >
+                      <div className="relative h-14">
+                        <input
+                          id="selectedProposalId"
+                          value={selectedProposalId}
+                          onChange={(e) =>
+                            setSelectedProposalId(e.target.value)
+                          }
+                          onFocus={() => setIsProposalFocused(true)}
+                          onBlur={() => setIsProposalFocused(false)}
+                          className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+                        />
+                        <label
+                          htmlFor="selectedProposalId"
+                          className={`absolute left-4 pointer-events-none transition-all duration-200 ${
+                            isProposalFocused || selectedProposalId
+                              ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
+                              : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
+                          }`}
+                        >
+                          Proposal Id
+                        </label>
+                      </div>
+                    </motion.div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setSelectedWinningSupport(0)}
+                        className={`flex-1 py-2 px-4 rounded-lg border ${
+                          selectedWinningSupport === 0
+                            ? "bg-[#f54a4a] text-white"
+                            : "border-[#f54a4a] text-[#f54a4a]"
+                        }`}
+                      >
+                        Against (0)
+                      </button>
+                      <button
+                        onClick={() => setSelectedWinningSupport(1)}
+                        className={`flex-1 py-2 px-4 rounded-lg border ${
+                          selectedWinningSupport === 1
+                            ? "bg-[#10b981] text-white"
+                            : "border-[#10b981] text-[#10b981e0]"
+                        }`}
+                      >
+                        For (1)
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={handleDistributeStakes}
+                      disabled={!selectedProposalId || distributeLoading}
+                      className={`${
+                        distributeLoading || !selectedProposalId
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-emerald-600"
+                      } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
+                    >
+                      {distributeLoading ? (
+                        <svg
+                          className="animate-spin h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      ) : (
+                        "Distribute Stakes"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </Modal>
             )}
           </div>
         </motion.main>

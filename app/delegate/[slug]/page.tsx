@@ -327,7 +327,7 @@ export default function DelegatePage() {
         </div>
 
         <motion.main
-          className="flex flex-col items-center justify-center min-h-screen"
+          className="flex flex-col items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
@@ -360,10 +360,10 @@ export default function DelegatePage() {
             )}
           </AnimatePresence>
 
-          <div className="mx-auto max-w-[1100px] w-full p-4 mt-4">
+          <div className="mx-auto max-w-[1100px] w-full p-4 pt-8">
             {/* Delegate Profile Section */}
             <motion.div
-              className="mb-6 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
+              className="mb-4 bg-white dark:bg-[#1D2833] p-6 rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2 }}
@@ -426,7 +426,7 @@ export default function DelegatePage() {
                         onClick={() => setIsModalOpen(true)}
                         className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center"
                       >
-                        Delegate
+                        Delegate COMP
                       </button>
                     </div>
                   </div>
@@ -476,7 +476,7 @@ export default function DelegatePage() {
 
             {/* Proposals Section */}
             <motion.div
-              className="mb-8"
+              className="mb-4"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.1 }}
@@ -613,7 +613,7 @@ export default function DelegatePage() {
 
             {/* Delegations Section */}
             <motion.div
-              className="mb-8"
+              className="mb-4"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.2 }}
