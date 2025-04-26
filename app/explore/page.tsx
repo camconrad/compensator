@@ -25,6 +25,7 @@ import Headroom from "react-headroom";
 import toast from "react-hot-toast";
 import blockies from 'ethereum-blockies-png'
 import { useRouter } from "next/navigation";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const fetchDelegates = async () => {
   const delay = (ms: number) =>
@@ -79,7 +80,6 @@ const ExplorePage = () => {
   const [tableData, setTableData] = useState<any[]>([]);
   const [filteredDelegates, setFilteredDelegates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
@@ -144,14 +144,6 @@ const ExplorePage = () => {
   useEffect(() => {
     let filtered = [...tableData, ...listDelegatesFormFactory];
 
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (delegate) =>
-          delegate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          delegate.address.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
     if (activeTab === "positive") {
       filtered = filtered.filter((delegate) => delegate.performance7D >= 0);
     } else if (activeTab === "negative") {
@@ -160,7 +152,7 @@ const ExplorePage = () => {
 
     setFilteredDelegates(filtered);
     setCurrentPage(1);
-  }, [searchQuery, activeTab, tableData, listDelegatesFormFactory]);
+  }, [activeTab, tableData, listDelegatesFormFactory]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -234,81 +226,41 @@ const ExplorePage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="max-w-[1100px] mx-auto p-4"
+          className="max-w-[1100px] mx-auto p-4 mt-4"
         >
           {/* Table Section */}
           <section>
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-1">
-                Explore Delegates
-              </h2>
-              <div className="relative mb-3" ref={filterRef}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={toggleFilter}
-                  className={`p-2 rounded-full bg-white dark:bg-[#1D2833] border-gray-200 dark:border-[#232F3B] ${
-                    isFilterOpen ? "bg-[#EFF2F5] dark:bg-[#2d3d4d]" : ""
-                  }`}
-                >
-                  <Filter className="mt-[2px] h-4 w-4" />
-                </Button>
+            <div className="flex flex-col gap-4 mb-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-[-10px] md:mb-[-12px]">
+                  Explore Delegates
+                </h2>
 
-                <AnimatePresence>
-                  {isFilterOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#1D2833] rounded-lg shadow-lg border border-gray-200 dark:border-[#232F3B] z-10"
+                {/* Filter Tabs */}
+                <Tabs defaultValue="all" value={activeTab} onValueChange={handleFilterSelect}>
+                  <TabsList className="flex mb-[-6px] font-semibold md:mb-[0px] bg-white dark:bg-[#1D2833] rounded-full p-1 transition-all duration-100 ease-linear">
+                    <TabsTrigger
+                      value="all"
+                      className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors data-[state=active]:bg-[#EFF2F5] data-[state=active]:dark:bg-[#2d3d4d] data-[state=active]:text-[#030303] data-[state=active]:dark:text-white data-[state=active]:shadow-sm ${
+                        activeTab === "all"
+                          ? ""
+                          : "text-[#6D7C8D] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
+                      }`}
                     >
-                      <div className="p-2 border-b border-gray-200 dark:border-[#232F3B] flex justify-between items-center">
-                        <span className="text-sm font-medium text-[#030303] dark:text-white">
-                          Filter Delegates
-                        </span>
-                        <button
-                          onClick={() => setIsFilterOpen(false)}
-                          className="text-gray-500 hover:text-gray-700 dark:text-[#ccd8e8] dark:hover:text-gray-200"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                      <div className="p-2">
-                        <button
-                          onClick={() => handleFilterSelect("all")}
-                          className={`w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${
-                            activeTab === "all"
-                              ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white"
-                              : "text-[#6D7C8D] dark:text-[#ccd8e8] hover:bg-gray-100 dark:hover:bg-[#232F3B]"
-                          }`}
-                        >
-                          All Delegates
-                        </button>
-                        <button
-                          onClick={() => handleFilterSelect("positive")}
-                          className={`w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${
-                            activeTab === "positive"
-                              ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white"
-                              : "text-[#6D7C8D] dark:text-[#ccd8e8] hover:bg-gray-100 dark:hover:bg-[#232F3B]"
-                          }`}
-                        >
-                          Positive Performance
-                        </button>
-                        <button
-                          onClick={() => handleFilterSelect("negative")}
-                          className={`w-full text-left px-4 py-2 text-sm rounded-md transition-colors ${
-                            activeTab === "negative"
-                              ? "bg-[#EFF2F5] dark:bg-[#2d3d4d] text-[#030303] dark:text-white"
-                              : "text-[#6D7C8D] dark:text-[#ccd8e8] hover:bg-gray-100 dark:hover:bg-[#232F3B]"
-                          }`}
-                        >
-                          Negative Performance
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      All Delegates
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="performance"
+                      className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors data-[state=active]:bg-[#EFF2F5] data-[state=active]:dark:bg-[#2d3d4d] data-[state=active]:text-[#030303] data-[state=active]:dark:text-white data-[state=active]:shadow-sm ${
+                        activeTab === "performance"
+                          ? ""
+                          : "text-[#6D7C8D] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
+                      }`}
+                    >
+                      Performance
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </div>
             </div>
 
@@ -316,7 +268,7 @@ const ExplorePage = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden"
+              className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden mt-4"
             >
               <div className="overflow-x-auto">
                 <table
@@ -336,7 +288,6 @@ const ExplorePage = () => {
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           Rank
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
@@ -346,7 +297,6 @@ const ExplorePage = () => {
                       >
                         <div className="flex items-center justify-start cursor-pointer">
                           Delegate
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
@@ -357,7 +307,6 @@ const ExplorePage = () => {
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">APR</span>
                           <span className="sm:hidden">APR</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
@@ -368,7 +317,6 @@ const ExplorePage = () => {
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Distributed</span>
                           <span className="sm:hidden">Dist.</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
@@ -379,7 +327,6 @@ const ExplorePage = () => {
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Vote Power</span>
                           <span className="sm:hidden">Vote Po.</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
@@ -390,7 +337,6 @@ const ExplorePage = () => {
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">Delegations</span>
                           <span className="sm:hidden">Delegat.</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                       <th
@@ -401,7 +347,6 @@ const ExplorePage = () => {
                         <div className="flex items-center justify-start cursor-pointer">
                           <span className="hidden sm:inline">7D Perf.</span>
                           <span className="sm:hidden">7D Perf.</span>
-                          <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                         </div>
                       </th>
                     </tr>
@@ -623,7 +568,6 @@ const ExplorePage = () => {
                 </p>
                 <Button
                   onClick={() => {
-                    setSearchQuery("");
                     setActiveTab("all");
                   }}
                   className="bg-[#10b981] text-white hover:bg-emerald-600"
