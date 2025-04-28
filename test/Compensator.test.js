@@ -17,7 +17,7 @@ describe("Compensator", function () {
     
     // Get contracts from mainnet
     compToken = await ethers.getContractAt("IComp", COMP_TOKEN_ADDRESS);
-    compoundGovernor = await ethers.getContractAt("IGovernorBravo", GOVERNOR_ADDRESS);
+    compoundGovernor = await ethers.getContractAt("IGovernor", GOVERNOR_ADDRESS);
     
     // Deploy Compensator contract
     const CompensatorFactory = await ethers.getContractFactory("Compensator");
