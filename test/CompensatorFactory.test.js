@@ -22,7 +22,7 @@ describe("CompensatorFactory", function () {
 
   it("should return zero address for non-existent delegatee", async function () {
     const address = await factory.getCompensator(delegatee.address);
-    expect(address).to.equal(ethers.constants.AddressZero);
+    expect(address).to.equal(ethers.ZeroAddress);  // Updated from ethers.constants.AddressZero
   });
 
   it("should create a new compensator", async function () {
@@ -31,7 +31,7 @@ describe("CompensatorFactory", function () {
     const receipt = await tx.wait();
     
     const compensatorAddress = await factory.getCompensator(delegateeAddress);
-    expect(compensatorAddress).to.not.equal(ethers.constants.AddressZero);
+    expect(compensatorAddress).to.not.equal(ethers.ZeroAddress);  // Updated
     
     const compensators = await factory.getCompensators();
     expect(compensators).to.include(compensatorAddress);
@@ -77,9 +77,9 @@ describe("CompensatorFactory", function () {
     expect(compensators.length).to.equal(3);
     
     // Check individual mappings
-    expect(await factory.getCompensator(delegatee1.address)).to.not.equal(ethers.constants.AddressZero);
-    expect(await factory.getCompensator(delegatee2.address)).to.not.equal(ethers.constants.AddressZero);
-    expect(await factory.getCompensator(delegatee3.address)).to.not.equal(ethers.constants.AddressZero);
+    expect(await factory.getCompensator(delegatee1.address)).to.not.equal(ethers.ZeroAddress);  // Updated
+    expect(await factory.getCompensator(delegatee2.address)).to.not.equal(ethers.ZeroAddress);  // Updated
+    expect(await factory.getCompensator(delegatee3.address)).to.not.equal(ethers.ZeroAddress);  // Updated
     
     // Check all addresses are different
     expect(await factory.getCompensator(delegatee1.address)).to.not.equal(await factory.getCompensator(delegatee2.address));
