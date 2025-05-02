@@ -395,9 +395,9 @@ contract Compensator is ERC20, Initializable {
     }
 
     /**
-     * @notice Updates the reward index based on elapsed time and reward rate
-     * @dev Handles cases where available rewards are insufficient for pending rewards
-     */
+    * @notice Updates the reward index based on elapsed time and reward rate
+    * @dev Tracks rewards
+    */
     function _updateRewardsIndex() internal {
         uint256 supply = totalSupply();
         
@@ -421,21 +421,17 @@ contract Compensator is ERC20, Initializable {
         // Handle potential overflow
         if (rewards > availableForNewRewards) {
             rewards = availableForNewRewards;
-            availableRewards = totalPendingRewards;
-        } else {
-            availableRewards -= rewards;
         }
-
-        // Distribute rewards (supply > 0 guaranteed by first check)
+        
+        // Update accounting
         rewardIndex += rewards * 1e18 / supply;
-        totalPendingRewards += rewards;
+        totalPendingRewards += rewards;  // Only increase pending rewards
         lastRewarded = block.timestamp;
     }
 
     /**
     * @notice Returns the current rewards index, adjusted for time since last rewarded
-    * @dev Used for view functions to calculate pending rewards. Now capped by availableRewards
-    * and returns current reward index including unaccrued rewards (never exceeding available)
+    * @dev Used for view functions to calculate pending rewards
     */
     function _getCurrentRewardsIndex() internal view returns (uint256) {
         if (availableRewards <= totalPendingRewards) {
