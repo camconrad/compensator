@@ -295,6 +295,9 @@ contract Compensator is ERC20, Initializable {
         unclaimedRewards[msg.sender] = 0;
         startRewardIndex[msg.sender] = rewardIndex;
         
+        totalPendingRewards -= rewardsToSend;
+        availableRewards -= rewardsToSend;
+        
         compToken.transfer(msg.sender, rewardsToSend);
         emit ClaimRewards(msg.sender, rewardsToSend);
     }
