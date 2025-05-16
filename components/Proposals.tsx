@@ -312,7 +312,7 @@ const Proposals = () => {
             {sortedProposals.map((proposal) => (
               <SwiperSlide key={proposal.id} className="">
                 <div className="bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between min-h-[280px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5">
-                  <h3 className="text-xl font-semibold text-[#030303] dark:text-white mb-4">
+                  <h3 className="text-xl font-semibold text-[#030303] dark:text-white mb-4 sm:line-clamp-none line-clamp-3">
                     {proposal.title}
                   </h3>
                   <div className="flex flex-col gap-2 font-medium text-xs">

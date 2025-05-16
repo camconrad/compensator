@@ -80,7 +80,7 @@ const HeroBanner = () => {
               transition={{ duration: 0.3 }}
               className="relative h-full p-8 md:p-12 overflow-hidden"
             >
-              <div className="flex flex-col justify-center max-w-[50%] z-10 relative">
+              <div className="flex flex-col justify-center max-w-[50%] z-10 relative pl-6">
                 <h1 className="text-2xl md:text-3xl font-bold text-[#030303] dark:text-white mb-1 mt-[6px]">
                   {slides[currentSlide].titlePrimary}
                 </h1>
