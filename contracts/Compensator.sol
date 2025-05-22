@@ -93,6 +93,33 @@ contract Compensator is ERC20, Initializable {
     /// @notice Tracks the total rewards deficit when availableRewards was insufficient
     uint256 public rewardsDeficit;
 
+    /// @notice Minimum lock period for delegated COMP (7 days)
+    uint256 public constant MIN_LOCK_PERIOD = 7 days;
+
+    /// @notice Tracks when each delegator's COMP will be unlocked
+    mapping(address => uint256) public unlockTime;
+
+    /// @notice Latest proposal ID that has been seen
+    uint256 public latestProposalId;
+
+    /// @notice Tracks active proposals
+    mapping(uint256 => bool) public activeProposals;
+
+    /// @notice Tracks proposals that are about to start (within 1 day)
+    mapping(uint256 => bool) public pendingProposals;
+
+    /// @notice Emitted when a delegator's COMP is locked
+    event COMPLocked(address indexed delegator, uint256 unlockTime);
+
+    /// @notice Emitted when a new proposal is detected
+    event NewProposalDetected(uint256 indexed proposalId);
+
+    /// @notice Emitted when a proposal is marked as active
+    event ProposalActivated(uint256 indexed proposalId);
+
+    /// @notice Emitted when a proposal is marked as inactive
+    event ProposalDeactivated(uint256 indexed proposalId);
+
     //////////////////////////
     // Events
     //////////////////////////
@@ -243,9 +270,9 @@ contract Compensator is ERC20, Initializable {
     //////////////////////////
 
     /**
-    * @notice Allows a delegator to delegate tokens to the delegate to receive rewards
-    * @param amount The amount of COMP to delegate
-    */
+     * @notice Allows a delegator to delegate tokens to the delegate to receive rewards
+     * @param amount The amount of COMP to delegate
+     */
     function delegatorDeposit(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
         require(totalDelegatedCOMP + amount <= delegationCap, "Delegation cap exceeded");
@@ -258,6 +285,17 @@ contract Compensator is ERC20, Initializable {
         compToken.transferFrom(msg.sender, address(this), amount);
         _mint(msg.sender, amount);
         totalDelegatedCOMP += amount;
+        
+        // Set unlock time based on active proposals
+        uint256 newUnlockTime = block.timestamp + MIN_LOCK_PERIOD;
+        if (_hasActiveOrPendingProposals()) {
+            newUnlockTime = block.timestamp + MIN_LOCK_PERIOD + 3 days;
+        }
+        
+        if (newUnlockTime > unlockTime[msg.sender]) {
+            unlockTime[msg.sender] = newUnlockTime;
+            emit COMPLocked(msg.sender, newUnlockTime);
+        }
         
         // Reset the reward index for the user
         startRewardIndex[msg.sender] = rewardIndex;
@@ -272,6 +310,9 @@ contract Compensator is ERC20, Initializable {
      */
     function delegatorWithdraw(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
+        require(block.timestamp >= unlockTime[msg.sender], "COMP is locked");
+        require(!_hasActiveOrPendingProposals(), "Cannot withdraw during active or pending proposals");
+        
         _updateRewardsIndex();
         _updateUserRewards(msg.sender);
         
@@ -320,6 +361,9 @@ contract Compensator is ERC20, Initializable {
         IGovernor.ProposalState state = compoundGovernor.state(proposalId);
         require(state == IGovernor.ProposalState.Active, "Staking only allowed for active proposals");
 
+        // Update latest proposal ID
+        _updateLatestProposalId(proposalId);
+
         compToken.transferFrom(msg.sender, address(this), amount);
 
         if (support == 1) {
@@ -342,6 +386,9 @@ contract Compensator is ERC20, Initializable {
     function distributeStakes(uint256 proposalId, uint8 winningSupport) external onlyDelegate {
         require(winningSupport == 0 || winningSupport == 1, "Invalid support value");
         require(proposalOutcomes[proposalId] == 0, "Proposal already resolved");
+        
+        // Update latest proposal ID
+        _updateLatestProposalId(proposalId);
         
         proposalOutcomes[proposalId] = winningSupport + 1;
         
@@ -380,6 +427,67 @@ contract Compensator is ERC20, Initializable {
         require(amountToReturn > 0, "No losing stake to reclaim");
         compToken.transfer(msg.sender, amountToReturn);
         emit LosingStakeReclaimed(msg.sender, proposalId, amountToReturn);
+    }
+
+    /**
+     * @notice Updates the latest proposal ID and tracks its state
+     * @param proposalId The proposal ID to check
+     */
+    function _updateLatestProposalId(uint256 proposalId) internal {
+        if (proposalId > latestProposalId) {
+            latestProposalId = proposalId;
+            emit NewProposalDetected(proposalId);
+        }
+
+        // Check and update proposal state
+        try compoundGovernor.state(proposalId) returns (IGovernor.ProposalState state) {
+            bool isActive = state == IGovernor.ProposalState.Active || 
+                           state == IGovernor.ProposalState.Pending;
+            
+            if (isActive && !activeProposals[proposalId]) {
+                activeProposals[proposalId] = true;
+                emit ProposalActivated(proposalId);
+            } else if (!isActive && activeProposals[proposalId]) {
+                activeProposals[proposalId] = false;
+                emit ProposalDeactivated(proposalId);
+            }
+
+            // Check if proposal is about to start (within 1 day)
+            try compoundGovernor.proposalSnapshot(proposalId) returns (uint256 startBlock) {
+                uint256 currentBlock = block.number;
+                if (startBlock > currentBlock && startBlock - currentBlock < 6500) { // ~1 day in blocks
+                    pendingProposals[proposalId] = true;
+                } else {
+                    pendingProposals[proposalId] = false;
+                }
+            } catch {
+                pendingProposals[proposalId] = false;
+            }
+        } catch {
+            // If proposal doesn't exist, mark it as inactive
+            if (activeProposals[proposalId]) {
+                activeProposals[proposalId] = false;
+                emit ProposalDeactivated(proposalId);
+            }
+            pendingProposals[proposalId] = false;
+        }
+    }
+
+    /**
+     * @notice Checks if there are any active or pending proposals
+     * @return bool True if there are any active or pending proposals
+     */
+    function _hasActiveOrPendingProposals() internal view returns (bool) {
+        // Check the last 10 proposals for active status
+        uint256 startId = latestProposalId;
+        uint256 endId = startId > 10 ? startId - 10 : 0;
+        
+        for (uint256 i = startId; i > endId; i--) {
+            if (activeProposals[i] || pendingProposals[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     //////////////////////////
