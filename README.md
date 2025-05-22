@@ -67,7 +67,7 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 
 1. **Local Development**:
    - Use `npx hardhat node` to start a local Ethereum network
-   - Deploy contracts using `npx hardhat run scripts/deploy.ts --network localhost`
+   - Deploy contracts using `npx hardhat run scripts/deploy.js --network localhost`
 
 2. **Testing**:
    - Write tests in the `test/` directory
@@ -75,8 +75,8 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
    - Check coverage using `npx hardhat coverage`
 
 3. **Deployment**:
-   - Deploy to testnet: `npx hardhat run scripts/deploy.ts --network goerli`
-   - Deploy to mainnet: `npx hardhat run scripts/deploy.ts --network mainnet`
+   - Deploy to testnet: `npx hardhat run scripts/deploy.js --network goerli`
+   - Deploy to mainnet: `npx hardhat run scripts/deploy.js --network mainnet`
 
 ## Common Issues and Solutions
 
