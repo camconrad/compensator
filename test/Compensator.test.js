@@ -15,17 +15,28 @@ describe("Compensator", function () {
   before(async function () {
     [delegate, delegator1, delegator2, delegator3] = await ethers.getSigners();
     
-    // Get contracts from mainnet
-    compToken = await ethers.getContractAt("IComp", COMP_TOKEN_ADDRESS);
-    compoundGovernor = await ethers.getContractAt("IGovernor", GOVERNOR_ADDRESS);
+    // Deploy mock contracts for testing
+    const MockToken = await ethers.getContractFactory("MockERC20");
+    compToken = await MockToken.deploy("COMP", "COMP");
+    await compToken.waitForDeployment();
     
-    // Deploy Compensator contract
+    const MockGovernor = await ethers.getContractFactory("MockGovernor");
+    compoundGovernor = await MockGovernor.deploy();
+    await compoundGovernor.waitForDeployment();
+    
+    // Deploy Compensator contract with mock addresses
     const CompensatorFactory = await ethers.getContractFactory("Compensator");
     compensator = await CompensatorFactory.deploy();
     await compensator.waitForDeployment();
     
     // Initialize the compensator
     await compensator.initialize(await delegate.getAddress(), "Test Delegate");
+    
+    // Fund accounts for testing
+    await compToken.mint(delegate.address, ethers.parseEther("10000"));
+    await compToken.mint(delegator1.address, ethers.parseEther("10000"));
+    await compToken.mint(delegator2.address, ethers.parseEther("10000"));
+    await compToken.mint(delegator3.address, ethers.parseEther("10000"));
   });
 
   describe("Views", function () {
@@ -264,35 +275,240 @@ describe("Compensator", function () {
     });
   });
 
-  describe("Staking Functions", function () {
-    // Mock an active proposal ID - this will need to be adjusted based on mainnet state
-    const MOCK_ACTIVE_PROPOSAL_ID = 1; 
-    
+  describe("Lock Period and Proposal State Tests", function () {
     beforeEach(async function () {
-      // We might need to mock the Governor's state function to return "Active"
-      // This is just a placeholder since we can't actually manipulate mainnet contracts
+      // Setup: Delegate deposits rewards and sets reward rate
+      const compensatorAddress = await compensator.getAddress();
+      await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
+      await compensator.connect(delegate).delegateDeposit(ethers.parseEther("1000"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
     });
-    
-    it("should handle proposal staking", async function () {
+
+    it("should enforce minimum lock period on deposit", async function () {
+      const depositAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+      
+      await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
+      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      
+      // Try to withdraw before lock period
+      await expect(
+        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+      ).to.be.revertedWith("COMP is locked");
+      
+      // Advance time to just before lock period
+      await ethers.provider.send("evm_increaseTime", [6 * 24 * 3600]); // 6 days
+      await ethers.provider.send("evm_mine");
+      
+      // Should still be locked
+      await expect(
+        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+      ).to.be.revertedWith("COMP is locked");
+      
+      // Advance time past lock period
+      await ethers.provider.send("evm_increaseTime", [2 * 24 * 3600]); // 2 more days
+      await ethers.provider.send("evm_mine");
+      
+      // Should be able to withdraw
+      await expect(
+        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+      ).to.not.be.reverted;
+    });
+
+    it("should extend lock period when active proposal exists", async function () {
+      const depositAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+      
+      // Mock an active proposal
+      const mockProposalId = 1;
+      await compoundGovernor.mock.state.returns(1); // Active state
+      await compoundGovernor.mock.proposalSnapshot.returns(block.number + 1000);
+      
+      await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
+      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      
+      // Advance time past minimum lock period
+      await ethers.provider.send("evm_increaseTime", [8 * 24 * 3600]); // 8 days
+      await ethers.provider.send("evm_mine");
+      
+      // Should still be locked due to active proposal
+      await expect(
+        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+      ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
+    });
+
+    it("should handle multiple active proposals correctly", async function () {
+      const depositAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+      
+      // Mock multiple active proposals
+      const mockProposalId1 = 1;
+      const mockProposalId2 = 2;
+      await compoundGovernor.mock.state.withArgs(mockProposalId1).returns(1); // Active
+      await compoundGovernor.mock.state.withArgs(mockProposalId2).returns(1); // Active
+      
+      await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
+      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      
+      // Advance time past minimum lock period
+      await ethers.provider.send("evm_increaseTime", [8 * 24 * 3600]); // 8 days
+      await ethers.provider.send("evm_mine");
+      
+      // Should still be locked due to active proposals
+      await expect(
+        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+      ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
+    });
+
+    it("should handle pending proposals correctly", async function () {
+      const depositAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+      
+      // Mock a pending proposal (about to start)
+      const mockProposalId = 1;
+      await compoundGovernor.mock.state.returns(0); // Pending state
+      await compoundGovernor.mock.proposalSnapshot.returns(block.number + 1000);
+      
+      await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
+      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      
+      // Advance time past minimum lock period
+      await ethers.provider.send("evm_increaseTime", [8 * 24 * 3600]); // 8 days
+      await ethers.provider.send("evm_mine");
+      
+      // Should still be locked due to pending proposal
+      await expect(
+        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+      ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
+    });
+  });
+
+  describe("Edge Cases and Error Handling", function () {
+    it("should handle zero amount deposits and withdrawals", async function () {
+      const compensatorAddress = await compensator.getAddress();
+      
+      await expect(
+        compensator.connect(delegator1).delegatorDeposit(0)
+      ).to.be.revertedWith("Amount must be greater than 0");
+      
+      await expect(
+        compensator.connect(delegator1).delegatorWithdraw(0)
+      ).to.be.revertedWith("Amount must be greater than 0");
+    });
+
+    it("should handle delegation cap correctly", async function () {
+      const compensatorAddress = await compensator.getAddress();
+      const cap = await compensator.delegationCap();
+      
+      // Try to deposit more than cap
+      await compToken.connect(delegator1).approve(compensatorAddress, cap + 1);
+      await expect(
+        compensator.connect(delegator1).delegatorDeposit(cap + 1)
+      ).to.be.revertedWith("Delegation cap exceeded");
+      
+      // Deposit up to cap
+      await compensator.connect(delegator1).delegatorDeposit(cap);
+      
+      // Try to deposit more
+      await expect(
+        compensator.connect(delegator1).delegatorDeposit(1)
+      ).to.be.revertedWith("Delegation cap exceeded");
+    });
+
+    it("should handle reward rate changes correctly", async function () {
+      const depositAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+      
+      // Setup initial deposit
+      await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
+      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      
+      // Set initial reward rate
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      
+      // Advance time
+      await ethers.provider.send("evm_increaseTime", [10]);
+      await ethers.provider.send("evm_mine");
+      
+      // Change reward rate
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("2"));
+      
+      // Advance time again
+      await ethers.provider.send("evm_increaseTime", [10]);
+      await ethers.provider.send("evm_mine");
+      
+      // Check rewards reflect both rates
+      const rewards = await compensator.getPendingRewards(delegator1.address);
+      expect(rewards).to.be.closeTo(
+        ethers.parseEther("30"), // 10 seconds at rate 1 + 10 seconds at rate 2
+        ethers.parseEther("1")
+      );
+    });
+  });
+
+  describe("Staking Functions", function () {
+    beforeEach(async function () {
+      // Setup mock governor responses
+      await compoundGovernor.mock.state.returns(1); // Active state
+      await compoundGovernor.mock.proposalSnapshot.returns(block.number + 1000);
+    });
+
+    it("should handle proposal staking correctly", async function () {
       const stakeAmount = ethers.parseEther("50");
       const compensatorAddress = await compensator.getAddress();
       
       // Fund the delegator
       await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
       
-      // This test might fail if there's no active proposal on mainnet
-      // In a real implementation, we'd mock the governor contract
-      try {
-        await expect(
-          compensator.connect(delegator1).stakeForProposal(MOCK_ACTIVE_PROPOSAL_ID, 1, stakeAmount)
-        ).to.emit(compensator, "ProposalStaked");
-      } catch (error) {
-        // Skip if no active proposals
-        this.skip();
-      }
+      // Stake for proposal
+      await expect(
+        compensator.connect(delegator1).stakeForProposal(1, 1, stakeAmount)
+      ).to.emit(compensator, "ProposalStaked")
+        .withArgs(await delegator1.getAddress(), 1, 1, stakeAmount);
+      
+      // Check stake amounts
+      const stake = await compensator.proposalStakes(1, delegator1.address);
+      expect(stake.forStake).to.equal(stakeAmount);
+      expect(stake.againstStake).to.equal(0);
+    });
+
+    it("should handle stake distribution correctly", async function () {
+      const stakeAmount = ethers.parseEther("50");
+      const compensatorAddress = await compensator.getAddress();
+      
+      // Setup stakes
+      await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
+      await compensator.connect(delegator1).stakeForProposal(1, 1, stakeAmount);
+      
+      // Distribute stakes
+      await expect(
+        compensator.connect(delegate).distributeStakes(1, 1)
+      ).to.emit(compensator, "ProposalStakeDistributed")
+        .withArgs(1, 1);
+      
+      // Check outcome
+      expect(await compensator.proposalOutcomes(1)).to.equal(2); // For won
+    });
+
+    it("should handle losing stake reclamation correctly", async function () {
+      const stakeAmount = ethers.parseEther("50");
+      const compensatorAddress = await compensator.getAddress();
+      
+      // Setup stakes
+      await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
+      await compensator.connect(delegator1).stakeForProposal(1, 0, stakeAmount); // Stake against
+      
+      // Distribute stakes (For wins)
+      await compensator.connect(delegate).distributeStakes(1, 1);
+      
+      // Reclaim losing stake
+      await expect(
+        compensator.connect(delegator1).reclaimLosingStake(1)
+      ).to.emit(compensator, "LosingStakeReclaimed")
+        .withArgs(await delegator1.getAddress(), 1, stakeAmount);
     });
   });
-  
+
   describe("Multiple Delegator Interaction", function () {
     beforeEach(async function () {
       // Setup: Delegate deposits rewards and sets reward rate

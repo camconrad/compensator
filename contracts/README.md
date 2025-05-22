@@ -31,7 +31,13 @@
 - `uint256 totalDelegatedCOMP` - Total COMP delegated to this delegate.
 - `uint256 delegationCap` - The max COMP that can be delegated to this delegate (5% of total COMP supply).
 - `uint256 totalPendingRewards` - Total pending rewards for all delegators that have been accrued but not yet claimed.
-- `mapping(address => uint256) unclaimedRewards` - Tracks the unclaimed rewards for each delegator, preserving their rewards between interactions.
+- `uint256 rewardsDeficit` - Tracks the total rewards deficit when availableRewards was insufficient.
+- `uint256 constant MIN_LOCK_PERIOD` - Minimum lock period for delegated COMP (7 days).
+- `mapping(address => uint256) unlockTime` - Tracks when each delegator's COMP will be unlocked.
+- `uint256 latestProposalId` - Latest proposal ID that has been seen.
+- `mapping(uint256 => bool) activeProposals` - Tracks active proposals.
+- `mapping(uint256 => bool) pendingProposals` - Tracks proposals that are about to start (within 1 day).
+- `mapping(address => uint256) unclaimedRewards` - Tracks the unclaimed rewards for each delegator.
 - `mapping(address => uint256) startRewardIndex` - Tracks the starting reward index for each delegator.
 - `struct ProposalStake` - Tracks stakes for proposals by delegators:
   - `uint256 forStake` - Amount staked "For" a proposal.
@@ -51,6 +57,10 @@
 - `ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport)` - Emitted when a delegate distributes stakes after a proposal resolves.
 - `ClaimRewards(address indexed delegator, uint256 amount)` - Emitted when a delegator claims their rewards.
 - `LosingStakeReclaimed(address indexed delegator, uint256 proposalId, uint256 amount)` - Emitted when a delegator reclaims their losing stake after a proposal is resolved.
+- `COMPLocked(address indexed delegator, uint256 unlockTime)` - Emitted when a delegator's COMP is locked.
+- `NewProposalDetected(uint256 indexed proposalId)` - Emitted when a new proposal is detected.
+- `ProposalActivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as active.
+- `ProposalDeactivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as inactive.
 
 ### Functions
 - **`initialize(address _delegate, string memory _delegateName)`**  
@@ -91,11 +101,17 @@
   - Mints Compensator tokens to the delegator.
   - Updates totalDelegatedCOMP.
   - Sets the user's starting reward index.
+  - Sets unlock time based on active/pending proposals:
+    - Base: current timestamp + MIN_LOCK_PERIOD
+    - If active/pending proposals exist: current timestamp + MIN_LOCK_PERIOD + 3 days
   - Emits a `DelegatorDeposit` event.
+  - Emits a `COMPLocked` event with the unlock time.
 
 - **`delegatorWithdraw(uint256 amount)`**  
   Allows a delegator to withdraw COMP from the contract.  
   - Requires amount to be greater than 0.
+  - Requires current timestamp >= unlockTime[delegator].
+  - Requires no active or pending proposals.
   - Updates the reward index.
   - Updates the user's rewards before processing the withdrawal.
   - Burns Compensator tokens from the delegator.
@@ -119,6 +135,7 @@
   - Requires amount to be greater than 0.
   - Requires the proposal to not already be resolved.
   - Requires the proposal to be in an Active state in the Governor contract.
+  - Updates latest proposal ID and tracks proposal state.
   - Transfers COMP from the delegator to the contract.
   - Updates the delegator's proposal stakes and total stakes.
   - Emits a `ProposalStaked` event.
@@ -127,6 +144,7 @@
   Allows the delegate to distribute staked COMP after a proposal resolves.  
   - Requires winningSupport to be 0 (Against) or 1 (For).
   - Requires the proposal to not already be resolved.
+  - Updates latest proposal ID and tracks proposal state.
   - Records the proposal outcome.
   - Transfers the winning stakes to the delegate.
   - Emits a `ProposalStakeDistributed` event.
@@ -151,6 +169,7 @@
   - If reward rate is 0 or there are insufficient rewards, returns the current timestamp.
   - Otherwise, calculates the timestamp based on remaining rewards and reward rate.
 
+### Internal Functions
 - **`_updateUserRewards(address delegator)`**  
   Internal function to checkpoint a user's rewards.  
   - Calculates newly accrued rewards since the last checkpoint.
@@ -163,6 +182,7 @@
   - Calculates new rewards based on time elapsed and reward rate.
   - Handles potential overflow by capping rewards to available funds.
   - Updates the global reward index, total pending rewards, and last rewarded timestamp.
+  - Tracks rewards deficit when available rewards are insufficient.
 
 - **`_getCurrentRewardsIndex()`**  
   Internal view function that returns the current rewards index.  
@@ -170,6 +190,18 @@
   - Otherwise, calculates the current reward index including unaccrued rewards.
   - Caps the rewards to the available balance.
   - Returns the calculated reward index.
+
+- **`_updateLatestProposalId(uint256 proposalId)`**  
+  Internal function to update and track proposal states.  
+  - Updates latestProposalId if new proposal is higher.
+  - Checks proposal state using Compound Governor.
+  - Updates activeProposals and pendingProposals mappings.
+  - Emits appropriate events for proposal state changes.
+
+- **`_hasActiveOrPendingProposals()`**  
+  Internal function to check for active or pending proposals.  
+  - Checks the last 10 proposals for active or pending status.
+  - Returns true if any active or pending proposals are found.
 
 ### ERC20 Overrides
 - **`transfer(address to, uint256 amount)`**  
@@ -182,11 +214,17 @@
 
 ## Additional Notes
 
+- **Lock Period Mechanism**:  
+  The contract enforces a minimum lock period of 7 days for all delegated COMP. This period is extended by 3 days if there are active or pending proposals, preventing users from gaming the reward system by withdrawing before proposals start.
+
+- **Proposal State Tracking**:  
+  The contract tracks both active and pending proposals to ensure proper lock period enforcement. It checks the last 10 proposals to determine if any are active or pending, and extends lock periods accordingly.
+
 - **Rewards Distribution Mechanism**:  
   The contract uses an index-based reward distribution mechanism that accrues rewards based on each delegator's stake proportional to the total delegated COMP. This mechanism ensures fair reward distribution and proper accounting even when delegators deposit or withdraw at different times.
 
 - **Reward Preservation During Deposits**:  
-  The updated implementation properly preserves rewards when delegators increase their deposits, fixing the H-03 issue that caused reward loss in the previous version.
+  The implementation properly preserves rewards when delegators increase their deposits, ensuring no reward loss during deposit operations.
 
 - **Separate Reward Tracking**:  
   By separating the tracking of accrued rewards (unclaimedRewards) from the reward index (startRewardIndex), the contract ensures accurate reward accounting across all user interactions.
@@ -202,3 +240,10 @@
 
 - **Gas Optimization**:  
   The contract includes early returns in the `_updateRewardsIndex` function to save gas when no action is needed (e.g., when no delegators exist or when there are insufficient rewards).
+
+- **Security Features**:  
+  - Lock periods prevent reward exploitation
+  - Proposal state tracking ensures governance participation
+  - Delegation cap prevents excessive voting power
+  - Non-transferable tokens prevent unauthorized transfers
+  - Proper reward accounting prevents double-counting

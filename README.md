@@ -60,10 +60,21 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 
 ## Setup and Installation
 
-1. Clone the repository
+1. Clone the repository:
+```bash
+git clone https://github.com/camconrad/compensator.git
+cd compensator
+```
+
 2. Install dependencies:
 ```bash
 npm install
+```
+
+3. Create a `.env` file in the root directory with the following variables:
+```env
+ALCHEMY_API_KEY=your_alchemy_api_key
+PRIVATE_KEY=your_private_key_for_testing
 ```
 
 ## Compiling Contracts
@@ -78,28 +89,53 @@ This will compile all contracts in the `contracts/` directory and generate artif
 
 ## Running Tests
 
-Before running tests, make sure you have:
-1. Set up a local Ethereum fork of mainnet (for interacting with existing COMP and Compound Governor contracts)
-
-To run the tests:
+The test suite uses mock contracts to simulate the Compound Governor and COMP token, ensuring reliable and deterministic testing. To run the tests:
 
 ```bash
+# Run all tests
 npx hardhat test
+
+# Run specific test file
+npx hardhat test test/Compensator.test.js
+
+# Run tests with gas reporting
+REPORT_GAS=true npx hardhat test
 ```
 
-For forking mainnet and running tests against it:
+The test suite includes:
+- Core functionality tests
+- Lock period and proposal state tests
+- Edge cases and error handling
+- Staking function tests
+- Multiple delegator interaction tests
+
+## Test Coverage
+
+To generate and view test coverage:
 
 ```bash
-npx hardhat test --network hardhat-fork
+# Generate coverage report
+npx hardhat coverage
+
+# View coverage report
+open coverage/index.html
 ```
 
 ## Hardhat Configuration
 
-Make sure your hardhat.config.ts includes fork configuration:
+The project uses a standard Hardhat configuration. Make sure your `hardhat.config.ts` includes:
 
 ```typescript
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-chai-matchers";
+import "@typechain/hardhat";
+import "@nomiclabs/hardhat-ethers";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -112,17 +148,73 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
-    "hardhat-fork": {
-      forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-        blockNumber: 17000000
-      }
+    hardhat: {
+      chainId: 1
     }
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD"
   }
 };
 
 export default config;
 ```
+
+## Project Structure
+
+```
+├── contracts/
+│   ├── Compensator.sol       # Main contract
+│   ├── IComp.sol            # COMP token interface
+│   ├── IGovernor.sol        # Governor interface
+│   └── mocks/               # Mock contracts for testing
+│       ├── MockERC20.sol    # Mock COMP token
+│       └── MockGovernor.sol # Mock Compound Governor
+├── test/
+│   ├── Compensator.test.js  # Main test suite
+│   └── CompensatorFactory.test.js
+└── ... other files
+```
+
+## Development Workflow
+
+1. **Local Development**:
+   - Use `npx hardhat node` to start a local Ethereum network
+   - Deploy contracts using `npx hardhat run scripts/deploy.ts --network localhost`
+
+2. **Testing**:
+   - Write tests in the `test/` directory
+   - Run tests using `npx hardhat test`
+   - Check coverage using `npx hardhat coverage`
+
+3. **Deployment**:
+   - Deploy to testnet: `npx hardhat run scripts/deploy.ts --network goerli`
+   - Deploy to mainnet: `npx hardhat run scripts/deploy.ts --network mainnet`
+
+## Common Issues and Solutions
+
+1. **Test Failures**:
+   - Ensure all dependencies are installed: `npm install`
+   - Clear Hardhat cache: `npx hardhat clean`
+   - Check test environment setup in `hardhat.config.ts`
+
+2. **Compilation Errors**:
+   - Verify Solidity version matches in all contracts
+   - Check import paths are correct
+   - Ensure all dependencies are installed
+
+3. **Gas Issues**:
+   - Run with gas reporting: `REPORT_GAS=true npx hardhat test`
+   - Check optimizer settings in `hardhat.config.ts`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m 'Add your feature'`
+4. Push to the branch: `git push origin feature/your-feature`
+5. Submit a pull request
 
 ## Security Features
 - **Delegation Cap**: A 5% cap ensures no single delegate can accumulate excessive voting power.
