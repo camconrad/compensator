@@ -90,6 +90,9 @@ contract Compensator is ERC20, Initializable {
     /// @notice Total stakes "Against" each proposal
     mapping(uint256 => uint256) public totalStakesAgainst;
 
+    /// @notice Tracks the total rewards deficit when availableRewards was insufficient
+    uint256 public rewardsDeficit;
+
     //////////////////////////
     // Events
     //////////////////////////
@@ -410,25 +413,40 @@ contract Compensator is ERC20, Initializable {
             return;
         }
 
-        // Existing insufficient rewards check
+        // Calculate new rewards
+        uint256 timeDelta = block.timestamp - lastRewarded;
+        uint256 rewards = timeDelta * rewardRate;
+        
         if (availableRewards <= totalPendingRewards) {
+            // Track the deficit in rewards
+            rewardsDeficit += rewards;
             lastRewarded = block.timestamp;
             return;
         }
         
-        // Calculate new rewards
-        uint256 timeDelta = block.timestamp - lastRewarded;
-        uint256 rewards = timeDelta * rewardRate;
         uint256 availableForNewRewards = availableRewards - totalPendingRewards;
         
-        // Handle potential overflow
+        // If we have a deficit, try to make it up first
+        if (rewardsDeficit > 0) {
+            if (availableForNewRewards >= rewardsDeficit) {
+                // We can make up the entire deficit
+                availableForNewRewards -= rewardsDeficit;
+                rewardsDeficit = 0;
+            } else {
+                // We can only make up part of the deficit
+                rewardsDeficit -= availableForNewRewards;
+                availableForNewRewards = 0;
+            }
+        }
+        
+        // Handle potential overflow for new rewards
         if (rewards > availableForNewRewards) {
             rewards = availableForNewRewards;
         }
         
         // Update accounting
         rewardIndex += rewards * 1e18 / supply;
-        totalPendingRewards += rewards;  // Only increase pending rewards
+        totalPendingRewards += rewards;
         lastRewarded = block.timestamp;
     }
 
