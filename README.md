@@ -50,122 +50,6 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 ```
 ├── contracts/
 │   ├── Compensator.sol       # Main contract
-│   ├── IComp.sol             # COMP token interface
-│   ├── IGovernor.sol         # Governor interface
-│   └── ... other contracts
-├── test/
-│   └── Compensator.test.js   # Tests for Compensator contract
-└── ... other files
-```
-
-## Setup and Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/camconrad/compensator.git
-cd compensator
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a `.env` file in the root directory with the following variables:
-```env
-ALCHEMY_API_KEY=your_alchemy_api_key
-PRIVATE_KEY=your_private_key_for_testing
-```
-
-## Compiling Contracts
-
-To compile the smart contracts:
-
-```bash
-npx hardhat compile
-```
-
-This will compile all contracts in the `contracts/` directory and generate artifacts in the `artifacts/` directory.
-
-## Running Tests
-
-The test suite uses mock contracts to simulate the Compound Governor and COMP token, ensuring reliable and deterministic testing. To run the tests:
-
-```bash
-# Run all tests
-npx hardhat test
-
-# Run specific test file
-npx hardhat test test/Compensator.test.js
-
-# Run tests with gas reporting
-REPORT_GAS=true npx hardhat test
-```
-
-The test suite includes:
-- Core functionality tests
-- Lock period and proposal state tests
-- Edge cases and error handling
-- Staking function tests
-- Multiple delegator interaction tests
-
-## Test Coverage
-
-To generate and view test coverage:
-
-```bash
-# Generate coverage report
-npx hardhat coverage
-
-# View coverage report
-open coverage/index.html
-```
-
-## Hardhat Configuration
-
-The project uses a standard Hardhat configuration. Make sure your `hardhat.config.ts` includes:
-
-```typescript
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-chai-matchers";
-import "@typechain/hardhat";
-import "@nomiclabs/hardhat-ethers";
-import "hardhat-gas-reporter";
-import "solidity-coverage";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const config: HardhatUserConfig = {
-  solidity: {
-    version: "0.8.21",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200
-      }
-    }
-  },
-  networks: {
-    hardhat: {
-      chainId: 1
-    }
-  },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD"
-  }
-};
-
-export default config;
-```
-
-## Project Structure
-
-```
-├── contracts/
-│   ├── Compensator.sol       # Main contract
 │   ├── IComp.sol            # COMP token interface
 │   ├── IGovernor.sol        # Governor interface
 │   └── mocks/               # Mock contracts for testing
@@ -174,6 +58,8 @@ export default config;
 ├── test/
 │   ├── Compensator.test.js  # Main test suite
 │   └── CompensatorFactory.test.js
+├── scripts/
+│   └── deploy.ts           # Deployment scripts
 └── ... other files
 ```
 
@@ -220,6 +106,8 @@ export default config;
 - **Delegation Cap**: A 5% cap ensures no single delegate can accumulate excessive voting power.
 - **Pending Rewards**: Delegates cannot withdraw COMP that is reserved for pending rewards.
 - **Transfer Restrictions**: The `Compensator` token cannot be transferred between users.
+- **Lock Period**: A minimum 7-day lock period prevents reward exploitation.
+- **Proposal Tracking**: Active and pending proposals are tracked to ensure governance participation.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains.
