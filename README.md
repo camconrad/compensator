@@ -55,7 +55,7 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 │   ├── Compensator.test.js  # Main test suite
 │   └── CompensatorFactory.test.js
 ├── scripts/
-│   └── deploy.ts           # Deployment scripts
+│   └── deploy.js           # Deployment scripts
 └── ... other files
 ```
 
