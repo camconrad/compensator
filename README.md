@@ -83,7 +83,7 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 1. **Test Failures**:
    - Ensure all dependencies are installed: `npm install`
    - Clear Hardhat cache: `npx hardhat clean`
-   - Check test environment setup in `hardhat.config.ts`
+   - Check test environment setup in `hardhat.config.js`
 
 2. **Compilation Errors**:
    - Verify Solidity version matches in all contracts
@@ -92,22 +92,14 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 
 3. **Gas Issues**:
    - Run with gas reporting: `REPORT_GAS=true npx hardhat test`
-   - Check optimizer settings in `hardhat.config.ts`
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m 'Add your feature'`
-4. Push to the branch: `git push origin feature/your-feature`
-5. Submit a pull request
+   - Check optimizer settings in `hardhat.config.js`
 
 ## Security Features
+- **Proposal Tracking**: Active and pending proposals are tracked to ensure participation.
 - **Delegation Cap**: A 5% cap ensures no single delegate can accumulate excessive voting power.
 - **Pending Rewards**: Delegates cannot withdraw COMP that is reserved for pending rewards.
 - **Transfer Restrictions**: The `Compensator` token cannot be transferred between users.
-- **Lock Period**: A minimum 7-day lock period prevents reward exploitation.
-- **Proposal Tracking**: Active and pending proposals are tracked to ensure governance participation.
+- **Lock Period**: A minimum 7-day lock period prevents early withdraw.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains.
