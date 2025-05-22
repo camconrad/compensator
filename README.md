@@ -11,7 +11,7 @@
 ## Overview
 Compensator is a dedicated delegate marketplace for the Compound DAO, designed to address low voter turnout and lack of incentivization in governance. It enables COMP holders to delegate voting power in exchange for transparent rewards, fostering greater participation in vote outcomes. Delegates attract voting power through competitive compensation, creating a vibrant and efficient governance ecosystem.
 
-## Features
+## Core Features
 
 ### 1. **Delegation and Rewards**
 - Delegates supply COMP into the `Compensator` contract to fund rewards for delegators.
@@ -25,13 +25,9 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
   - Delegators who staked for the winning option pass their stake to the delegate.
   - Delegators who staked for the losing option get their stake back.
 
-### 3. **Delegation Cap**
-- A 5% cap is enforced on the total COMP that can be delegated to a single delegate.
-- This ensures no single delegate can accumulate excessive or malicious voting power.
-
 See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contracts/README.md) for more detail.
 
-## Workflow
+## User Workflow
 
 ### For Delegates
 1. **Create Compensator**: The `CompensatorFactory` creates a `Compensator` contract.
