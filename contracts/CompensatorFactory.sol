@@ -28,10 +28,10 @@ contract CompensatorFactory {
     mapping(address delegatee => address compensator) public delegateeToCompensator;
 
     /// @notice The COMP governance token contract
-    address public immutable compToken;
+    address public immutable COMP_TOKEN;
 
     /// @notice The Compound Governor contract
-    address public immutable compoundGovernor;
+    address public immutable COMPOUND_GOVERNOR;
 
     //////////////////////////
     // Events
@@ -54,8 +54,8 @@ contract CompensatorFactory {
     constructor(address _compToken, address _compoundGovernor) {
         require(_compToken != address(0), "Invalid COMP token address");
         require(_compoundGovernor != address(0), "Invalid Compound Governor address");
-        compToken = _compToken;
-        compoundGovernor = _compoundGovernor;
+        COMP_TOKEN = _compToken;
+        COMPOUND_GOVERNOR = _compoundGovernor;
     }
 
     //////////////////////////
@@ -76,8 +76,8 @@ contract CompensatorFactory {
         Compensator compensator = new Compensator(
             delegatee,
             delegateeName,
-            compToken,
-            compoundGovernor
+            COMP_TOKEN,
+            COMPOUND_GOVERNOR
         );
 
         // Add the new Compensator contract address to the list of compensators

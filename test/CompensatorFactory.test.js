@@ -15,10 +15,12 @@ describe("CompensatorFactory", function () {
     const MockToken = await ethers.getContractFactory("MockERC20");
     compToken = await MockToken.deploy("COMP", "COMP");
     await compToken.waitForDeployment();
+    compTokenAddress = await compToken.getAddress();
     
     const MockGovernor = await ethers.getContractFactory("MockGovernor");
     compoundGovernor = await MockGovernor.deploy();
     await compoundGovernor.waitForDeployment();
+    compoundGovernorAddress = await compoundGovernor.getAddress();
     
     const CompensatorFactory = await ethers.getContractFactory("CompensatorFactory");
     factory = await CompensatorFactory.deploy(
@@ -76,8 +78,8 @@ describe("CompensatorFactory", function () {
     // Check initialization parameters
     expect(await compensator.delegate()).to.equal(delegateeAddress);
     expect(await compensator.delegateName()).to.equal(delegateeName);
-    expect(await compensator.compToken()).to.equal(await compToken.getAddress());
-    expect(await compensator.compoundGovernor()).to.equal(await compoundGovernor.getAddress());
+    expect(await compensator.COMP_TOKEN()).to.equal(await compToken.getAddress());
+    expect(await compensator.COMPOUND_GOVERNOR()).to.equal(await compoundGovernor.getAddress());
   });
   
   it("should allow creating multiple compensators for different delegatees", async function () {

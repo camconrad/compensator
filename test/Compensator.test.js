@@ -19,10 +19,12 @@ describe("Compensator", function () {
     const MockToken = await ethers.getContractFactory("MockERC20");
     compToken = await MockToken.deploy("COMP", "COMP");
     await compToken.waitForDeployment();
+    compTokenAddress = await compToken.getAddress();
     
     const MockGovernor = await ethers.getContractFactory("MockGovernor");
     compoundGovernor = await MockGovernor.deploy();
     await compoundGovernor.waitForDeployment();
+    compoundGovernorAddress = await compoundGovernor.getAddress();
     
     // Deploy Compensator contract with mock addresses
     const CompensatorFactory = await ethers.getContractFactory("Compensator");
@@ -749,5 +751,10 @@ describe("Compensator", function () {
       expect(delegateVotingVerifiedEvent.args.hasVoted).to.be.true;
       expect(delegateVotingVerifiedEvent.args.voteDirection).to.equal(1);
     });
+  });
+
+  it("should return correct token and governor addresses", async function () {
+    expect(await compensator.COMP_TOKEN()).to.equal(await compToken.getAddress());
+    expect(await compensator.COMPOUND_GOVERNOR()).to.equal(await compoundGovernor.getAddress());
   });
 });

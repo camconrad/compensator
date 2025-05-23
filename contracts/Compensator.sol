@@ -41,10 +41,10 @@ contract Compensator is ERC20 {
     //////////////////////////
 
     /// @notice The COMP governance token contract
-    IComp public immutable compToken;
+    IComp public immutable COMP_TOKEN;
 
     /// @notice The Compound Governor contract
-    IGovernor public immutable compoundGovernor;
+    IGovernor public immutable COMPOUND_GOVERNOR;
 
     /// @notice The address of the delegate receiving voting power
     address public immutable delegate;
@@ -235,14 +235,14 @@ contract Compensator is ERC20 {
         
         delegate = _delegate;
         delegateName = _delegateName;
-        compToken = IComp(_compToken);
-        compoundGovernor = IGovernor(_compoundGovernor);
+        COMP_TOKEN = IComp(_compToken);
+        COMPOUND_GOVERNOR = IGovernor(_compoundGovernor);
         
         rewardIndex = REWARD_PRECISION; // Initialize reward index at 1 with 18 decimals
-        compToken.delegate(delegate); // Delegate voting power to the delegate
+        COMP_TOKEN.delegate(delegate); // Delegate voting power to the delegate
 
         // Set the delegation cap to 5% of the total COMP supply
-        delegationCap = (compToken.totalSupply() * DELEGATION_CAP_PERCENT) / BASIS_POINTS;
+        delegationCap = (COMP_TOKEN.totalSupply() * DELEGATION_CAP_PERCENT) / BASIS_POINTS;
     }
 
     //////////////////////////
@@ -299,7 +299,7 @@ contract Compensator is ERC20 {
      */
     function delegateDeposit(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
-        compToken.transferFrom(delegate, address(this), amount);
+        COMP_TOKEN.transferFrom(delegate, address(this), amount);
         availableRewards += amount;
         _updateRewardsIndex();
         emit DelegateDeposit(delegate, amount);
@@ -323,7 +323,7 @@ contract Compensator is ERC20 {
         require(amount <= withdrawableAmount, "Amount exceeds available rewards");
         
         availableRewards = currentAvailableRewards - amount;
-        compToken.transfer(currentDelegate, amount);
+        COMP_TOKEN.transfer(currentDelegate, amount);
         emit DelegateWithdraw(currentDelegate, amount);
     }
 
@@ -354,7 +354,7 @@ contract Compensator is ERC20 {
         _updateUserRewards(msg.sender);
         
         // Process the deposit
-        compToken.transferFrom(msg.sender, address(this), amount);
+        COMP_TOKEN.transferFrom(msg.sender, address(this), amount);
         _mint(msg.sender, amount);
         totalDelegatedCOMP += amount;
         
@@ -389,7 +389,7 @@ contract Compensator is ERC20 {
         _updateUserRewards(msg.sender);
         
         _burn(msg.sender, amount);
-        compToken.transfer(msg.sender, amount);
+        COMP_TOKEN.transfer(msg.sender, amount);
         totalDelegatedCOMP -= amount;
         
         startRewardIndex[msg.sender] = rewardIndex;
@@ -410,7 +410,7 @@ contract Compensator is ERC20 {
         require(amount > 0, "Amount must be greater than 0");
         require(proposalOutcomes[proposalId] == 0, "Proposal already resolved");
 
-        IGovernor.ProposalState state = compoundGovernor.state(proposalId);
+        IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
         require(state == IGovernor.ProposalState.Active, "Staking only allowed for active proposals");
 
         // Update latest proposal ID and track creation time
@@ -419,7 +419,7 @@ contract Compensator is ERC20 {
             proposalCreationTime[proposalId] = block.timestamp;
         }
 
-        compToken.transferFrom(msg.sender, address(this), amount);
+        COMP_TOKEN.transferFrom(msg.sender, address(this), amount);
 
         if (support == 1) {
             proposalStakes[proposalId][msg.sender].forStake += amount;
@@ -440,7 +440,7 @@ contract Compensator is ERC20 {
     function resolveProposal(uint256 proposalId) external {
         require(proposalOutcomes[proposalId] == 0, "Proposal already resolved");
         
-        IGovernor.ProposalState state = compoundGovernor.state(proposalId);
+        IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
         require(
             state == IGovernor.ProposalState.Succeeded || 
             state == IGovernor.ProposalState.Defeated || 
@@ -452,12 +452,12 @@ contract Compensator is ERC20 {
 
         // Verify delegate voting and direction
         if (!delegateVoted[proposalId]) {
-            try compoundGovernor.hasVoted(proposalId, delegate) returns (bool hasVoted) {
+            try COMPOUND_GOVERNOR.hasVoted(proposalId, delegate) returns (bool hasVoted) {
                 delegateVoted[proposalId] = hasVoted;
                 
                 // If delegate voted, get their vote direction
                 if (hasVoted) {
-                    (uint256 againstVotes, uint256 forVotes,) = compoundGovernor.proposalVotes(proposalId);
+                    (uint256 againstVotes, uint256 forVotes,) = COMPOUND_GOVERNOR.proposalVotes(proposalId);
                     // If delegate has more for votes than against, they voted For
                     delegateVoteDirection[proposalId] = forVotes > againstVotes ? 1 : 0;
                 }
@@ -484,9 +484,9 @@ contract Compensator is ERC20 {
         // Only transfer winning stakes if delegate has voted and voted in the winning direction
         if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == winningSupport) {
             if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
-                compToken.transfer(delegate, totalStakesFor[proposalId]);
+                COMP_TOKEN.transfer(delegate, totalStakesFor[proposalId]);
             } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
-                compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+                COMP_TOKEN.transfer(delegate, totalStakesAgainst[proposalId]);
             }
         }
         
@@ -523,7 +523,7 @@ contract Compensator is ERC20 {
         }
         
         require(amountToReturn > 0, "No losing stake to reclaim");
-        compToken.transfer(msg.sender, amountToReturn);
+        COMP_TOKEN.transfer(msg.sender, amountToReturn);
         emit LosingStakeReclaimed(msg.sender, proposalId, amountToReturn);
     }
 
@@ -669,7 +669,7 @@ contract Compensator is ERC20 {
      * @param proposalId The ID of the proposal to auto-resolve
      */
     function _autoResolveProposal(uint256 proposalId) internal {
-        IGovernor.ProposalState state = compoundGovernor.state(proposalId);
+        IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
         
         // If proposal is still active/pending after timeout, consider it defeated
         if (state == IGovernor.ProposalState.Active || 
@@ -678,12 +678,12 @@ contract Compensator is ERC20 {
             
             // Verify delegate voting and direction
             if (!delegateVoted[proposalId]) {
-                try compoundGovernor.hasVoted(proposalId, delegate) returns (bool hasVoted) {
+                try COMPOUND_GOVERNOR.hasVoted(proposalId, delegate) returns (bool hasVoted) {
                     delegateVoted[proposalId] = hasVoted;
                     
                     // If delegate voted, get their vote direction
                     if (hasVoted) {
-                        (uint256 againstVotes, uint256 forVotes,) = compoundGovernor.proposalVotes(proposalId);
+                        (uint256 againstVotes, uint256 forVotes,) = COMPOUND_GOVERNOR.proposalVotes(proposalId);
                         delegateVoteDirection[proposalId] = forVotes > againstVotes ? 1 : 0;
                     }
                     
@@ -695,7 +695,7 @@ contract Compensator is ERC20 {
             }
 
             if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == 0 && totalStakesAgainst[proposalId] > 0) {
-                compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+                COMP_TOKEN.transfer(delegate, totalStakesAgainst[proposalId]);
             }
             emit ProposalAutoResolved(proposalId, 0);
         } else {
@@ -706,12 +706,12 @@ contract Compensator is ERC20 {
             
             // Verify delegate voting and direction
             if (!delegateVoted[proposalId]) {
-                try compoundGovernor.hasVoted(proposalId, delegate) returns (bool hasVoted) {
+                try COMPOUND_GOVERNOR.hasVoted(proposalId, delegate) returns (bool hasVoted) {
                     delegateVoted[proposalId] = hasVoted;
                     
                     // If delegate voted, get their vote direction
                     if (hasVoted) {
-                        (uint256 againstVotes, uint256 forVotes,) = compoundGovernor.proposalVotes(proposalId);
+                        (uint256 againstVotes, uint256 forVotes,) = COMPOUND_GOVERNOR.proposalVotes(proposalId);
                         delegateVoteDirection[proposalId] = forVotes > againstVotes ? 1 : 0;
                     }
                     
@@ -724,9 +724,9 @@ contract Compensator is ERC20 {
             
             if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == winningSupport) {
                 if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
-                    compToken.transfer(delegate, totalStakesFor[proposalId]);
+                    COMP_TOKEN.transfer(delegate, totalStakesFor[proposalId]);
                 } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
-                    compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+                    COMP_TOKEN.transfer(delegate, totalStakesAgainst[proposalId]);
                 }
             }
             
@@ -745,7 +745,7 @@ contract Compensator is ERC20 {
         }
 
         // Check and update proposal state
-        try compoundGovernor.state(proposalId) returns (IGovernor.ProposalState state) {
+        try COMPOUND_GOVERNOR.state(proposalId) returns (IGovernor.ProposalState state) {
             bool isActive = state == IGovernor.ProposalState.Active || 
                            state == IGovernor.ProposalState.Pending;
             
@@ -758,7 +758,7 @@ contract Compensator is ERC20 {
             }
 
             // Check if proposal is about to start (within 1 day)
-            try compoundGovernor.proposalSnapshot(proposalId) returns (uint256 startBlock) {
+            try COMPOUND_GOVERNOR.proposalSnapshot(proposalId) returns (uint256 startBlock) {
                 uint256 currentBlock = block.number;
                 if (startBlock > currentBlock && startBlock - currentBlock < 6500) { // ~1 day in blocks
                     pendingProposals[proposalId] = true;
