@@ -4,7 +4,7 @@
 
 ### Variables
 - `address[] public compensators` - A list of all `Compensator` contracts created by the factory.
-- `mapping(address delegatee => address compensator) public delegateeToCompensator` - A mapping of delegatees to their `Compensator` contracts.
+- `mapping(address delegate => address compensator) public delegateToCompensator` - A mapping of delegates to their `Compensator` contracts.
 - `address public immutable COMP_TOKEN` - The COMP governance token contract.
 - `address public immutable COMPOUND_GOVERNOR` - The Compound Governor contract.
 
@@ -14,10 +14,10 @@
   - Validates that both addresses are non-zero.
   - Sets the addresses as immutable variables.
 
-- **`createCompensator(address delegatee, string calldata delegateeName)`**  
-  Creates a `Compensator` contract for a delegatee.  
+- **`createCompensator(address delegate, string calldata delegateName)`**  
+  Creates a `Compensator` contract for a delegate.  
   - Adds the contract to the `compensators` list.  
-  - Maps the delegatee to their `Compensator` contract.  
+  - Maps the delegate to their `Compensator` contract.  
   - Passes the COMP token and Compound Governor addresses to the new contract.
   - Returns the address of the new `Compensator` contract.
 
@@ -30,16 +30,14 @@
 ## Compensator
 
 ### Variables
-- `address delegate` - The address of the delegate.
-- `string delegateName` - The name of the delegate.
+- `address owner` - The address of the delegate who owns the contract.
 - `uint256 availableRewards` - The amount of COMP available for rewards.
 - `uint256 rewardRate` - The reward rate in COMP/second.
 - `uint256 rewardIndex` - Tracks the distribution of rewards over time.
 - `uint256 lastRewarded` - Timestamp of the last reward distribution.
-- `uint256 totalDelegatedCOMP` - Total COMP delegated to this delegate.
-- `uint256 delegationCap` - The max COMP that can be delegated to this delegate (5% of total COMP supply).
+- `uint256 totalDelegatedCOMP` - Total COMP delegated to this contract.
+- `uint256 delegationCap` - The max COMP that can be delegated to this contract (5% of total COMP supply).
 - `uint256 totalPendingRewards` - Total pending rewards for all delegators that have been accrued but not yet claimed.
-- `uint256 rewardsDeficit` - Tracks the total rewards deficit when availableRewards was insufficient.
 - `uint256 constant MIN_LOCK_PERIOD` - Minimum lock period for delegated COMP (7 days).
 - `mapping(address delegator => uint256 timestamp) public unlockTime` - Tracks when each delegator's COMP will be unlocked.
 - `uint256 latestProposalId` - Latest proposal ID that has been seen.
@@ -49,21 +47,20 @@
 - `mapping(address delegator => uint256 index) public startRewardIndex` - Tracks the starting reward index for each delegator to calculate pending rewards.
 - `mapping(uint256 proposalId => uint256 timestamp) public proposalCreationTime` - Tracks when each proposal was created.
 - `uint256 constant MAX_PROPOSAL_RESOLUTION_TIME` - Maximum time a proposal can remain unresolved (30 days).
-- `mapping(uint256 proposalId => bool hasVoted) public delegateVoted` - Tracks whether the delegate has voted on a proposal.
-- `mapping(uint256 proposalId => uint8 direction) public delegateVoteDirection` - Tracks the delegate's vote direction on a proposal.
+- `mapping(uint256 proposalId => bool hasVoted) public contractVoted` - Tracks whether the contract has voted on a proposal.
+- `mapping(uint256 proposalId => uint8 direction) public contractVoteDirection` - Tracks the contract's vote direction on a proposal.
+- `struct VoteInfo` - Structure to track vote information:
+  - `uint8 direction` - The direction of the vote (0 = Against, 1 = For)
+  - `uint256 blockNumber` - The block number when the vote was cast
+  - `bytes32 txHash` - The transaction hash of the vote
+- `mapping(uint256 proposalId => VoteInfo voteInfo) public voteInfo` - Mapping to track vote information for each proposal.
 - `struct ProposalStake` - Gas-optimized structure to track individual delegator stakes on proposals:
   - `uint128 forStake` - Amount staked in support of a proposal (sufficient for COMP amounts)
   - `uint128 againstStake` - Amount staked against a proposal (sufficient for COMP amounts)
 - `mapping(uint256 proposalId => mapping(address delegator => ProposalStake stake)) public proposalStakes` - Mapping to track stakes for each proposal by each delegator.
 - `mapping(uint256 proposalId => uint256 amount) public totalStakesFor` - Total stakes "For" each proposal.
 - `mapping(uint256 proposalId => uint256 amount) public totalStakesAgainst` - Total stakes "Against" each proposal.
-- `mapping(uint256 proposalId => uint8 outcome) public proposalOutcomes` - Tracks the outcome of each proposal (0 = not resolved, 1 = For won, 2 = Against won).
-- `address public voteRecorder` - The address of the trusted off-chain service that can record votes.
-- `uint256 public voteRecorderLastUpdate` - Timestamp when the vote recorder was last updated.
-- `uint256 public constant VOTE_RECORDER_UPDATE_DELAY` - Minimum time between vote recorder updates (24 hours).
-- `address public pendingVoteRecorder` - Pending new vote recorder address.
-- `uint256 public voteRecorderUpdateTime` - Timestamp when the pending vote recorder can be confirmed.
-- `address public voteRecorderUpdateProposer` - Address that proposed the pending vote recorder update.
+- `mapping(uint256 proposalId => ProposalOutcome outcome) public proposalOutcomes` - Tracks the outcome of each proposal.
 - `uint256 public blocksPerDay` - Number of blocks per day for proposal timing calculations (default: 6500 for mainnet).
 - `enum ProposalOutcome` - Type-safe enum for proposal outcomes:
   - `NotResolved`
@@ -71,97 +68,67 @@
   - `ForWon`
 
 ### Events
-- `DelegateDeposit(address indexed delegate, uint256 amount)` - Emitted when the delegate deposits COMP.
-- `DelegateWithdraw(address indexed delegate, uint256 amount)` - Emitted when the delegate withdraws COMP.
-- `RewardRateUpdate(address indexed delegate, uint256 newRate)` - Emitted when the delegate updates the reward rate.
-- `DelegatorDeposit(address indexed delegator, uint256 amount)` - Emitted when a delegator deposits COMP.
-- `DelegatorWithdraw(address indexed delegator, uint256 amount)` - Emitted when a delegator withdraws COMP.
-- `ProposalStaked(address indexed staker, uint256 proposalId, uint8 support, uint256 amount)` - Emitted when a delegator stakes COMP for a proposal outcome.
+- `UserDeposit(address indexed user, uint256 amount)` - Emitted when a user deposits COMP.
+- `UserWithdraw(address indexed user, uint256 amount)` - Emitted when a user withdraws COMP.
+- `ProposalStaked(address indexed user, uint256 proposalId, uint8 support, uint256 amount)` - Emitted when a user stakes COMP for a proposal outcome.
 - `ProposalStakeDistributed(uint256 indexed proposalId, uint8 indexed winningSupport)` - Emitted when stakes are distributed after a proposal resolves.
-- `ClaimRewards(address indexed delegator, uint256 amount)` - Emitted when a delegator claims their rewards.
-- `LosingStakeReclaimed(address indexed delegator, uint256 proposalId, uint256 amount)` - Emitted when a delegator reclaims their losing stake after a proposal is resolved.
-- `COMPLocked(address indexed delegator, uint256 unlockTime)` - Emitted when a delegator's COMP is locked.
+- `ClaimRewards(address indexed user, uint256 amount)` - Emitted when a user claims their rewards.
+- `LosingStakeReclaimed(address indexed user, uint256 proposalId, uint256 amount)` - Emitted when a user reclaims their losing stake after a proposal is resolved.
+- `COMPLocked(address indexed user, uint256 unlockTime)` - Emitted when a user's COMP is locked.
 - `NewProposalDetected(uint256 indexed proposalId)` - Emitted when a new proposal is detected.
 - `ProposalActivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as active.
 - `ProposalDeactivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as inactive.
 - `ProposalAutoResolved(uint256 indexed proposalId, uint8 winningSupport)` - Emitted when a proposal is automatically resolved after timeout.
-- `DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection)` - Emitted when delegate voting status is verified.
-- `UserRewardsUpdated(address indexed delegator, uint256 newRewards, uint256 totalUnclaimed)` - Emitted when a user's rewards are updated.
+- `VoteCast(uint256 indexed proposalId, uint8 support, uint256 blockNumber, bytes32 txHash)` - Emitted when the contract casts a vote.
+- `UserRewardsUpdated(address indexed user, uint256 newRewards, uint256 totalUnclaimed)` - Emitted when a user's rewards are updated.
 - `RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued)` - Emitted when the global reward index is updated.
-  - `newRewardIndex` - The new reward index value
-  - `rewardsAccrued` - The amount of rewards accrued in this update
-- `VoteRecorderUpdateProposed(address indexed proposer, address indexed newVoteRecorder, uint256 effectiveTime)` - Emitted when a new vote recorder is proposed.
-- `VoteRecorderUpdated(address indexed oldVoteRecorder, address indexed newVoteRecorder, address indexed proposer)` - Emitted when the vote recorder is updated.
 
 ### Functions
-- **`constructor(address _delegate, string memory _delegateName, address _compToken, address _compoundGovernor)`**  
-  Initializes the contract with the delegate's address, name, and required contract addresses.  
+- **`constructor(address _compToken, address _compoundGovernor)`**  
+  Initializes the contract with the COMP token and Compound Governor addresses.  
   - Sets the delegation cap to 5% of the total COMP supply.
-  - Delegates voting power to the delegate.
   - Initializes the reward index at 1e18.
-  - Sets the delegate, delegateName, compToken, and compoundGovernor as immutable variables.
+  - Sets the compToken and compoundGovernor as immutable variables.
   - Validates that all addresses are non-zero.
 
-- **`delegateDeposit(uint256 amount)`**  
-  Allows the delegate to deposit COMP into the contract for rewards distribution.  
+- **`ownerDeposit(uint256 amount)`**  
+  Allows the owner to deposit COMP into the contract for rewards distribution.  
   - Requires amount to be greater than 0.
-  - Transfers COMP from the delegate to the contract.
+  - Transfers COMP from the owner to the contract.
   - Updates available rewards.
   - Updates the reward index.
-  - Emits a `DelegateDeposit` event.
+  - Emits an `OwnerDeposit` event.
 
-- **`delegateWithdraw(uint256 amount)`**  
-  Allows the delegate to withdraw COMP from the contract.  
+- **`ownerWithdraw(uint256 amount)`**  
+  Allows the owner to withdraw COMP from the contract.  
   - Requires amount to be greater than 0.
   - Updates the reward index before withdrawal.
   - Ensures that the withdrawable amount is sufficient (availableRewards - totalPendingRewards).
-  - Transfers COMP to the delegate.
-  - Emits a `DelegateWithdraw` event.
+  - Transfers COMP to the owner.
+  - Emits an `OwnerWithdraw` event.
 
 - **`setRewardRate(uint256 newRate)`**  
-  Allows the delegate to set the reward rate (in COMP/second).  
+  Allows the owner to set the reward rate (in COMP/second).  
   - Requires new rate to be non-negative.
   - Requires new rate to be different from current rate.
   - Updates the reward index before setting the new rate.
   - Emits a `RewardRateUpdate` event.
 
-- **`delegatorDeposit(uint256 amount)`**  
-  Allows a delegator to delegate COMP to the delegate's `Compensator` contract.  
-  - Requires amount to be greater than 0.
-  - Enforces the delegation cap (totalDelegatedCOMP + amount <= delegationCap).
-  - Updates the global reward index.
-  - Updates the user's reward state to preserve existing rewards.
-  - Transfers COMP from the delegator to the contract.
-  - Mints Compensator tokens to the delegator.
-  - Updates totalDelegatedCOMP.
-  - Sets the user's starting reward index.
-  - Sets unlock time based on active/pending proposals:
-    - Base: current timestamp + MIN_LOCK_PERIOD
-    - If active/pending proposals exist: current timestamp + MIN_LOCK_PERIOD + 3 days
-  - Emits a `DelegatorDeposit` event.
-  - Emits a `COMPLocked` event with the unlock time.
+- **`castVote(uint256 proposalId, uint8 support)`**  
+  Allows the owner to cast a vote on a proposal.  
+  - Requires caller to be the owner.
+  - Requires support to be 0 (Against) or 1 (For).
+  - Requires the proposal to be in a valid voting state.
+  - Records vote information including block number and transaction hash.
+  - Casts the vote through the Compound Governor.
+  - Emits a `VoteCast` event.
 
-- **`delegatorWithdraw(uint256 amount)`**  
-  Allows a delegator to withdraw COMP from the contract.  
-  - Requires amount to be greater than 0.
-  - Requires current timestamp >= unlockTime[delegator].
-  - Requires no active or pending proposals.
-  - Updates the reward index.
-  - Updates the user's rewards before processing the withdrawal.
-  - Burns Compensator tokens from the delegator.
-  - Transfers COMP to the delegator.
-  - Updates totalDelegatedCOMP.
-  - Updates the user's starting reward index.
-  - Emits a `DelegatorWithdraw` event.
-
-- **`claimRewards()`**  
-  Allows a delegator to claim their pending rewards.  
-  - Updates the global and user-specific reward state.
-  - Requires that the user has rewards to claim.
-  - Resets the user's unclaimed rewards to zero.
-  - Updates the user's starting reward index.
-  - Transfers rewards to the delegator.
-  - Emits a `ClaimRewards` event.
+- **`verifyVote(uint256 proposalId)`**  
+  Verifies if a vote was cast correctly.  
+  - Checks if the vote was cast in a valid state.
+  - Verifies the transaction hash matches.
+  - Verifies the contract has voted.
+  - Returns true if all verifications pass.
 
 - **`stakeForProposal(uint256 proposalId, uint8 support, uint256 amount)`**  
   Allows a delegator to stake COMP on a proposal.  
@@ -179,12 +146,12 @@
   Allows anyone to resolve a proposal and distribute stakes based on the actual outcome.  
   - Requires the proposal to not already be resolved.
   - Requires the proposal to be in a resolved state in the Compound Governor.
-  - Verifies if the delegate has voted and their vote direction.
+  - Verifies if the contract has voted and their vote direction.
   - Determines the winning support based on the proposal's actual outcome.
   - Records the proposal outcome.
-  - Transfers winning stakes to the delegate if they voted correctly.
+  - Transfers winning stakes to the contract if they voted correctly.
   - Emits a `ProposalStakeDistributed` event.
-  - Emits a `DelegateVotingVerified` event.
+  - Emits a `VoteCast` event.
 
 - **`reclaimLosingStake(uint256 proposalId)`**  
   Allows delegators to reclaim their losing stake after a proposal is resolved.  
@@ -209,46 +176,6 @@
     - Current available rewards (if any)
     - Any accumulated rewards deficit
   - Returns lastRewarded + time needed for all rewards
-
-- **`proposeVoteRecorderUpdate(address newVoteRecorder)`**  
-  Allows the delegate to propose a new vote recorder address.  
-  - Requires caller to be the owner (delegate).
-  - Requires new vote recorder to be non-zero and different from current.
-  - Requires no pending update.
-  - Sets pending vote recorder and update time.
-  - Records proposer address.
-  - Emits a `VoteRecorderUpdateProposed` event.
-
-- **`confirmVoteRecorderUpdate()`**  
-  Allows the current vote recorder to confirm the pending update.  
-  - Requires caller to be the current vote recorder.
-  - Requires update delay to have passed.
-  - Requires a pending update to exist.
-  - Updates vote recorder address.
-  - Clears pending update state.
-  - Emits a `VoteRecorderUpdated` event.
-
-- **`cancelVoteRecorderUpdate()`**  
-  Allows either the current vote recorder or proposer to cancel the pending update.  
-  - Requires caller to be either current vote recorder or proposer.
-  - Requires a pending update to exist.
-  - Clears pending update state.
-  - Emits a `VoteRecorderUpdated` event.
-
-- **`setBlocksPerDay(uint256 _blocksPerDay)`**  
-  Allows the owner to update the number of blocks per day for proposal timing calculations.  
-  - Requires caller to be the owner (delegate).
-  - Requires new value to be between 1 and 50000.
-  - Updates blocksPerDay state variable.
-  - Used for proposal timing calculations.
-
-- **`getProposalStake(uint256 proposalId, address delegator)`**  
-  External view function that returns a delegator's stakes for a specific proposal.  
-  - Returns both FOR and AGAINST stakes.
-  - Useful for frontend integration and stake tracking.
-  - Returns:
-    - `forStake`: Amount staked in support of the proposal
-    - `againstStake`: Amount staked against the proposal
 
 ### Internal Functions
 - **`_updateUserRewards(address delegator)`**  
@@ -290,9 +217,9 @@
   Internal function to automatically resolve a proposal after timeout.  
   - Called when a proposal exceeds MAX_PROPOSAL_RESOLUTION_TIME.
   - Uses ProposalOutcome enum for clear outcome states.
-  - Verifies delegate voting status and direction.
+  - Verifies contract voting status and direction.
   - Determines outcome based on proposal state.
-  - Transfers winning stakes if delegate voted correctly.
+  - Transfers winning stakes if contract voted correctly.
   - Emits appropriate events.
 
 ### ERC20 Overrides
@@ -316,8 +243,8 @@
   The contract implements a trustless proposal resolution mechanism where:
   - Anyone can trigger resolution through `resolveProposal`
   - Outcomes are determined by the Compound Governor's state
-  - Delegate voting is verified automatically
-  - Winning stakes are only transferred if the delegate voted correctly
+  - Contract voting is verified automatically
+  - Winning stakes are only transferred if the contract voted correctly
   - A 30-day timeout ensures proposals can't be stuck indefinitely
 
 - **Rewards Distribution Mechanism**:  
@@ -330,7 +257,7 @@
   By separating the tracking of accrued rewards (unclaimedRewards) from the reward index (startRewardIndex), the contract ensures accurate reward accounting across all user interactions.
 
 - **Proposal Staking Mechanism**:  
-  The contract allows delegators to stake on proposal outcomes, and these stakes can be either claimed by the delegate (if they win and voted correctly) or reclaimed by the delegator (if they lose).
+  The contract allows delegators to stake on proposal outcomes, and these stakes can be either claimed by the contract (if they win and voted correctly) or reclaimed by the delegator (if they lose).
 
 - **Dynamic Delegation Cap**:  
   The delegation cap is set to 5% of the total COMP supply during initialization. If the total COMP supply changes (e.g., due to minting or burning), the delegation cap will not be updated dynamically.
@@ -347,40 +274,104 @@
   - Delegation cap prevents excessive voting power
   - Non-transferable tokens prevent unauthorized transfers
   - Proper reward accounting prevents double-counting
-  - Trustless proposal resolution prevents delegate manipulation
+  - Trustless proposal resolution prevents contract manipulation
   - Automatic timeout mechanism prevents stuck proposals
-  - Delegate voting verification ensures proper stake distribution
+  - Contract voting verification ensures proper stake distribution
 
-- **Vote Recorder Update System**:  
-  The contract implements a secure vote recorder update mechanism where:
-  - Delegate can propose new vote recorder
-  - 24-hour delay prevents sudden changes
-  - Current vote recorder must confirm changes
-  - Either party can cancel pending updates
-  - Events track all update actions
-  - Clear state management prevents conflicts
-  - Access control ensures proper authorization
+- **Vote Verification System**:  
+  The contract implements a robust vote verification system that:
+  - Records vote direction, block number, and transaction hash in the `VoteInfo` struct
+  - Verifies votes through multiple checks:
+    1. Valid proposal state (Active or Pending)
+    2. Transaction hash validation
+    3. Contract voting status in Governor
+    4. Vote direction consistency
+  - Ensures votes were cast in valid proposal states
+  - Prevents vote manipulation through on-chain verification
+  - Uses block hash verification for transaction authenticity
 
-- **Network-Agnostic Timing**:  
-  The contract uses a configurable `blocksPerDay` parameter to handle different network block times. This allows the contract to work correctly on any EVM-compatible network by adjusting the timing calculations accordingly. The default value of 6500 blocks per day is optimized for mainnet, but can be adjusted for other networks.
+- **Proposal Tracking System**:  
+  The contract implements comprehensive proposal tracking:
+  - Monitors proposal states through the Compound Governor
+  - Tracks active and pending proposals
+  - Records proposal creation times
+  - Handles proposal timeouts (30-day maximum)
+  - Updates proposal states atomically
+  - Emits events for state changes:
+    - `NewProposalDetected`
+    - `ProposalActivated`
+    - `ProposalDeactivated`
+    - `ProposalStateChanged`
+    - `ProposalAutoResolved`
 
-- **Gas Protection**:  
-  The contract includes gas limit protection in proposal checks to prevent excessive gas usage. This is particularly important for functions that need to check multiple proposals, ensuring the contract remains usable even with a large number of proposals. The gas limit is set to 50,000 gas per check.
+- **Reward Distribution System**:  
+  The contract implements a precise reward distribution mechanism:
+  - Uses an index-based reward calculation
+  - Caches state variables to prevent reentrancy
+  - Caps rewards to available funds
+  - Handles edge cases:
+    - Zero token supply
+    - Zero reward rate
+    - Insufficient rewards
+  - Updates reward indices atomically
+  - Emits detailed events:
+    - `RewardIndexUpdated`
+    - `RewardsDistributed`
+    - `UserRewardsUpdated`
 
-- **Precision Improvements**:  
-  The contract uses consistent precision in all calculations, particularly for reward distribution and time-based calculations. This ensures accurate reward distribution and prevents precision loss in critical calculations. The `REWARD_PRECISION` constant is used throughout to maintain consistency.
+- **Key Functions**:  
+  - **Vote Verification**:
+    ```solidity
+    function verifyVote(uint256 proposalId) internal view returns (bool)
+    ```
+    - Verifies vote integrity through multiple checks
+    - Ensures vote was cast in valid state
+    - Validates transaction hash
+    - Confirms contract voting status
+    - Verifies vote direction consistency
+  - **Proposal Tracking**:
+    ```solidity
+    function _updateLatestProposalId(uint256 proposalId) internal
+    ```
+    - Updates latest proposal ID
+    - Tracks proposal states
+    - Records creation times
+    - Handles timeouts
+    - Emits state change events
+  - **Reward Distribution**:
+    ```solidity
+    function _updateRewardsIndex() private
+    function _getCurrentRewardsIndex() private view returns (uint256)
+    ```
+    - Calculates rewards based on time and rate
+    - Caps rewards to available funds
+    - Updates reward indices
+    - Handles edge cases
+    - Emits distribution events
 
-- **Proposal Outcome Handling**:  
-  The contract uses a clear enum for proposal outcomes, making the code more readable and type-safe. This helps prevent errors in outcome handling and makes the code more maintainable. The enum values are:
-  - `NotResolved`: Initial state
-  - `AgainstWon`: Proposal was defeated or timed out
-  - `ForWon`: Proposal was successful
+- **Security Features**:  
+  - **Vote Verification**: Multiple checks ensure vote integrity
+  - **Proposal Tracking**: Comprehensive state management
+  - **Reward Distribution**: Precise calculations with safety checks
+  - **Reentrancy Protection**: State variable caching
+  - **Timeout Protection**: 30-day maximum for proposals
+  - **Precision Safeguards**: High precision calculations
+  - **Event Tracking**: Detailed event emission
+  - **State Validation**: Multiple validation checks
 
 - **Gas Optimization**:  
-  The contract uses gas-optimized data structures where possible:
-  - `ProposalStake` struct uses `uint128` for stake amounts, which is sufficient for COMP token amounts while saving storage slots
-  - Events are optimized to include only necessary parameters
-  - View functions are provided for efficient frontend integration
+  - State variable caching
+  - Early returns for edge cases
+  - Efficient data structures
+  - Optimized event parameters
+  - Gas-efficient calculations
+
+- **Error Handling**:  
+  - Comprehensive try-catch blocks
+  - Clear error messages
+  - State validation checks
+  - Timeout handling
+  - Proposal state verification
 
 - **Frontend Integration**:  
   The contract includes several view functions to help with frontend development:

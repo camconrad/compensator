@@ -28,7 +28,8 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
   - If delegate didn't vote or voted wrong:
     - All delegators get their stakes back
 - The system verifies delegate voting through the Compound Governor contract:
-  - Checks if the delegate has voted on the proposal and verifies direction
+  - Checks if the delegate has voted on the proposal
+  - Verifies vote direction through on-chain transaction records
   - Only distributes winning stakes if delegate voted in the winning direction
   - Automatically resolves proposals after 30 days if not resolved
 
@@ -156,7 +157,7 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 - **Pending Rewards**: Delegates cannot withdraw COMP that is reserved for pending rewards.
 - **Transfer Restrictions**: The `Compensator` token cannot be transferred between users.
 - **Reward Preservation**: Rewards are preserved during deposits and withdrawals, ensuring fair distribution.
-- **Delegate Verification**: System verifies delegate voting through Compound Governor contract.
+- **Vote Verification**: System verifies delegate voting through on-chain transaction records.
 - **Vote Direction Check**: Ensures delegate voted in the winning direction before distributing stakes.
 - **Auto-Resolution**: Proposals automatically resolve after 30 days, preventing stuck stakes.
 - **State Tracking**: Comprehensive tracking of proposal states and delegate voting status.

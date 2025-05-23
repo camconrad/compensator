@@ -24,9 +24,8 @@ contract CompensatorFactory {
     /// @notice Array of all deployed Compensator contract addresses
     address[] public compensators;
 
-    /// @notice Mapping from delegate addresses to their corresponding Compensator contract addresses
-    /// @dev A delegate is someone who receives COMP delegations and can earn rewards
-    mapping(address delegate => address compensator) public delegateToCompensator;
+    /// @notice Mapping from owner addresses to their corresponding Compensator contract addresses
+    mapping(address owner => address compensator) public ownerToCompensator;
 
     /// @notice The COMP governance token contract
     address public immutable COMP_TOKEN;
@@ -34,21 +33,16 @@ contract CompensatorFactory {
     /// @notice The Compound Governor contract
     address public immutable COMPOUND_GOVERNOR;
 
-    /// @notice Default vote recorder address for new Compensator contracts
-    address public immutable DEFAULT_VOTE_RECORDER;
-
     //////////////////////////
     // Events
     //////////////////////////
 
     /// @notice Emitted when a new Compensator contract is created
-    /// @param delegate The address of the delegate (person who will receive COMP delegations)
+    /// @param owner The address of the owner who will control the Compensator
     /// @param compensator The address of the newly created Compensator contract
-    /// @param delegateName The name of the delegate
     event CompensatorCreated(
-        address indexed delegate, 
-        address indexed compensator, 
-        string delegateName
+        address indexed owner, 
+        address indexed compensator
     );
 
     //////////////////////////
@@ -59,20 +53,16 @@ contract CompensatorFactory {
      * @notice Constructor that initializes the factory with the COMP token and Compound Governor addresses
      * @param _compToken The address of the COMP token contract
      * @param _compoundGovernor The address of the Compound Governor contract
-     * @param _defaultVoteRecorder The default vote recorder address
      */
     constructor(
         address _compToken, 
-        address _compoundGovernor,
-        address _defaultVoteRecorder
+        address _compoundGovernor
     ) {
         require(_compToken != address(0), "Invalid COMP token address");
         require(_compoundGovernor != address(0), "Invalid Compound Governor address");
-        require(_defaultVoteRecorder != address(0), "Invalid vote recorder address");
         
         COMP_TOKEN = _compToken;
         COMPOUND_GOVERNOR = _compoundGovernor;
-        DEFAULT_VOTE_RECORDER = _defaultVoteRecorder;
     }
 
     //////////////////////////
@@ -80,16 +70,44 @@ contract CompensatorFactory {
     //////////////////////////
 
     /**
-     * @notice Creates a new Compensator contract for a delegate
-     * @param delegate The address of the delegate (person who will receive COMP delegations)
-     * @param delegateName The name of the delegate
+     * @notice Creates a new Compensator contract for an owner
+     * @param owner The address that will own and control the Compensator
      * @return The address of the newly created Compensator contract
      */
-    function createCompensator(
-        address delegate, 
-        string calldata delegateName
-    ) external returns (address) {
-        return _createCompensator(delegate, delegateName, DEFAULT_VOTE_RECORDER);
+    function createCompensator(address owner) external returns (address) {
+        // Checks
+        require(owner != address(0), "Invalid owner address");
+        require(ownerToCompensator[owner] == address(0), "Owner already has a Compensator");
+
+        // Effects & Interactions
+        // Deploy a new Compensator contract with correct parameters
+        Compensator compensator = new Compensator(
+            COMP_TOKEN,         // COMP token address
+            COMPOUND_GOVERNOR,  // Governor address  
+            owner              // Owner address
+        );
+
+        address compensatorAddress = address(compensator);
+
+        // Add the new Compensator contract address to the list
+        compensators.push(compensatorAddress);
+
+        // Map the owner to their Compensator contract address
+        ownerToCompensator[owner] = compensatorAddress;
+
+        // Emit the CompensatorCreated event
+        emit CompensatorCreated(owner, compensatorAddress);
+
+        // Return the address of the newly created Compensator contract
+        return compensatorAddress;
+    }
+
+    /**
+     * @notice Creates a new Compensator contract for the caller
+     * @return The address of the newly created Compensator contract
+     */
+    function createCompensatorForSelf() external returns (address) {
+        return createCompensator(msg.sender);
     }
 
     //////////////////////////
@@ -116,9 +134,10 @@ contract CompensatorFactory {
     ) external view returns (address[] memory) {
         // Checks
         uint256 totalCount = compensators.length;
-        require(offset < totalCount, "Offset out of bounds");
+        if (totalCount == 0 || offset >= totalCount) {
+            return new address[](0);
+        }
         
-        // Effects
         // Calculate the actual number of items to return
         uint256 itemsToReturn = limit;
         if (offset + limit > totalCount) {
@@ -136,59 +155,20 @@ contract CompensatorFactory {
     }
 
     /**
-     * @notice Checks if a delegate already has a Compensator contract
-     * @param delegate The delegate address to check
-     * @return True if the delegate has a Compensator, false otherwise
+     * @notice Checks if an owner already has a Compensator contract
+     * @param owner The owner address to check
+     * @return True if the owner has a Compensator, false otherwise
      */
-    function hasCompensator(address delegate) external view returns (bool) {
-        return delegateToCompensator[delegate] != address(0);
+    function hasCompensator(address owner) external view returns (bool) {
+        return ownerToCompensator[owner] != address(0);
     }
 
-    //////////////////////////
-    // Internal Functions
-    //////////////////////////
-
     /**
-     * @notice Internal function to create a new Compensator contract
-     * @param delegate The address of the delegate
-     * @param delegateName The name of the delegate
-     * @param voteRecorder The vote recorder address to use
-     * @return The address of the newly created Compensator contract
+     * @notice Gets the Compensator contract address for a given owner
+     * @param owner The owner address
+     * @return The Compensator contract address, or address(0) if none exists
      */
-    function _createCompensator(
-        address delegate,
-        string calldata delegateName,
-        address voteRecorder
-    ) internal returns (address) {
-        // Checks
-        require(delegate != address(0), "Invalid delegate address");
-        require(bytes(delegateName).length > 0, "Delegate name cannot be empty");
-        require(delegateToCompensator[delegate] == address(0), "Delegate already has a Compensator");
-
-        // Effects & Interactions
-        // Deploy a new Compensator contract
-        // Note: delegate becomes owner automatically in constructor
-        Compensator compensator = new Compensator(
-            delegate,           // delegate address
-            delegateName,       // delegate name
-            COMP_TOKEN,         // COMP token address
-            COMPOUND_GOVERNOR,  // Governor address
-            voteRecorder,       // vote recorder address
-            address(this)       // FACTORY address
-        );
-
-        address compensatorAddress = address(compensator);
-
-        // Add the new Compensator contract address to the list
-        compensators.push(compensatorAddress);
-
-        // Map the delegate to their Compensator contract address
-        delegateToCompensator[delegate] = compensatorAddress;
-
-        // Emit the CompensatorCreated event
-        emit CompensatorCreated(delegate, compensatorAddress, delegateName);
-
-        // Return the address of the newly created Compensator contract
-        return compensatorAddress;
+    function getCompensator(address owner) external view returns (address) {
+        return ownerToCompensator[owner];
     }
 }

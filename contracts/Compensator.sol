@@ -45,6 +45,26 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         ForWon
     }
 
+    /// @notice Structure to track vote information
+    struct VoteInfo {
+        /// @notice The direction of the vote (0 = Against, 1 = For)
+        uint8 direction;
+        /// @notice The block number when the vote was cast
+        uint256 blockNumber;
+        /// @notice The transaction hash of the vote
+        bytes32 txHash;
+    }
+
+    /// @notice Structure to track delegate performance
+    struct DelegateInfo {
+        /// @notice Number of successful votes
+        uint256 successfulVotes;
+        /// @notice Number of total votes cast
+        uint256 totalVotes;
+        /// @notice Total rewards earned from successful votes
+        uint256 totalRewardsEarned;
+    }
+
     //////////////////////////
     // State Variables
     //////////////////////////
@@ -55,14 +75,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice The Compound Governor contract
     IGovernor public immutable COMPOUND_GOVERNOR;
 
-    /// @notice The address of the delegate receiving voting power
-    /// @dev The delegate is the person who receives COMP delegations and can earn rewards
-    address public immutable delegate;
-
-    /// @notice The name selected by this delegate when they registered
-    string public immutable delegateName;
-
-    /// @notice The amount of COMP deposited by the delegate available for rewards to delegators
+    /// @notice The amount of COMP deposited by the owner available for rewards to delegators
     uint256 public availableRewards;
 
     /// @notice The rate at which COMP is distributed to delegators (COMP per second)
@@ -74,10 +87,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice Timestamp of the last time rewards were claimed (i.e. the rewardIndex was updated)
     uint256 public lastRewarded;
 
-    /// @notice Total amount of COMP delegated to this delegate through this system
+    /// @notice Total amount of COMP delegated to this contract
     uint256 public totalDelegatedCOMP;
 
-    /// @notice Cap on the amount of COMP that can be delegated to this delegate (5% of total COMP supply)
+    /// @notice Cap on the amount of COMP that can be delegated to this contract (5% of total COMP supply)
     uint256 public constant DELEGATION_CAP_PERCENT = 500; // 5% in basis points
     
     /// @notice Absolute value of the delegation cap in COMP tokens
@@ -125,11 +138,11 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice Tracks proposals that are about to start (within 1 day)
     mapping(uint256 proposalId => bool isPending) public pendingProposals;
 
-    /// @notice Tracks whether the delegate has voted on a proposal
-    mapping(uint256 proposalId => bool hasVoted) public delegateVoted;
+    /// @notice Tracks whether the contract has voted on a proposal
+    mapping(uint256 proposalId => bool hasVoted) public contractVoted;
 
-    /// @notice Tracks the delegate's vote direction on a proposal
-    mapping(uint256 proposalId => uint8 direction) public delegateVoteDirection;
+    /// @notice Tracks the contract's vote direction on a proposal
+    mapping(uint256 proposalId => uint8 direction) public contractVoteDirection;
 
     /// @notice Precision factor for reward calculations (18 decimals)
     uint256 public constant REWARD_PRECISION = 1e18;
@@ -137,30 +150,18 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice Percentage basis points (100%)
     uint256 public constant BASIS_POINTS = 10000; // 100% = 10000 basis points
 
-    /// @notice Address of the trusted off-chain service that can record votes
-    address public VOTE_RECORDER;
-
-    /// @notice Timestamp when the vote recorder was last updated
-    uint256 public voteRecorderLastUpdate;
-
-    /// @notice Minimum time between vote recorder updates (24 hours)
-    uint256 public constant VOTE_RECORDER_UPDATE_DELAY = 24 hours;
-
-    /// @notice Pending new vote recorder address
-    address public pendingVoteRecorder;
-
-    /// @notice Timestamp when the pending vote recorder can be confirmed
-    uint256 public voteRecorderUpdateTime;
-
-    /// @notice Address that proposed the pending vote recorder update
-    address public voteRecorderUpdateProposer;
-
-    /// @notice Address of the Compensator factory that can validate vote recorders
-    address public immutable factory;
-
     /// @notice Number of blocks per day for proposal timing calculations
     /// @dev Default is 6500 blocks per day (mainnet)
     uint256 public blocksPerDay = 6500;
+
+    /// @notice Mapping to track vote information for each proposal
+    mapping(uint256 proposalId => VoteInfo voteInfo) public voteInfo;
+
+    /// @notice Mapping to track delegate performance
+    DelegateInfo public delegateInfo;
+
+    /// @notice Percentage of winning stakes that go to the delegate (in basis points)
+    uint256 public constant DELEGATE_REWARD_PERCENT = 2000; // 20%
 
     //////////////////////////
     // Events
@@ -181,89 +182,64 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice Emitted when a proposal is automatically resolved
     event ProposalAutoResolved(uint256 indexed proposalId, uint8 winningSupport);
 
-    /// @notice Emitted when the delegate deposits COMP into the contract
-    /// @param delegate The address of the delegate depositing COMP
+    /// @notice Emitted when the owner deposits COMP into the contract
+    /// @param owner The address of the owner depositing COMP
     /// @param amount The amount of COMP being deposited
-    event DelegateDeposit(address indexed delegate, uint256 amount);
+    event OwnerDeposit(address indexed owner, uint256 amount);
 
-    /// @notice Emitted when the delegate withdraws COMP from the contract
-    /// @param delegate The address of the delegate withdrawing COMP
+    /// @notice Emitted when the owner withdraws COMP from the contract
+    /// @param owner The address of the owner withdrawing COMP
     /// @param amount The amount of COMP being withdrawn
-    event DelegateWithdraw(address indexed delegate, uint256 amount);
+    event OwnerWithdraw(address indexed owner, uint256 amount);
 
-    /// @notice Emitted when the delegate updates the reward rate
-    /// @param delegate The address of the delegate updating the rate
+    /// @notice Emitted when the owner updates the reward rate
+    /// @param owner The address of the owner updating the rate
     /// @param newRate The new reward rate in COMP per second
-    event RewardRateUpdate(address indexed delegate, uint256 newRate);
+    event RewardRateUpdate(address indexed owner, uint256 newRate);
 
-    /// @notice Emitted when a delegator deposits COMP into the contract
-    /// @param delegator The address of the delegator depositing COMP
-    /// @param amount The amount of COMP being deposited
-    event DelegatorDeposit(address indexed delegator, uint256 amount);
+    /// @notice Emitted when a user deposits COMP
+    event UserDeposit(address indexed user, uint256 amount);
 
-    /// @notice Emitted when a delegator withdraws COMP from the contract
-    /// @param delegator The address of the delegator withdrawing COMP
-    /// @param amount The amount of COMP being withdrawn
-    event DelegatorWithdraw(address indexed delegator, uint256 amount);
+    /// @notice Emitted when a user withdraws COMP
+    event UserWithdraw(address indexed user, uint256 amount);
 
-    /// @notice Emitted when a delegator claims their rewards
-    /// @param delegator The address of the delegator claiming rewards
-    /// @param amount The amount of COMP rewards being claimed
-    event ClaimRewards(address indexed delegator, uint256 amount);
+    /// @notice Emitted when a user stakes COMP on a proposal
+    event ProposalStaked(address indexed user, uint256 proposalId, uint8 support, uint256 amount);
 
-    /// @notice Emitted when a delegator stakes COMP on a proposal
-    /// @param staker The address of the delegator staking COMP
-    /// @param proposalId The ID of the proposal being staked on
-    /// @param support The vote option (0 = Against, 1 = For)
-    /// @param amount The amount of COMP being staked
-    event ProposalStaked(address indexed staker, uint256 proposalId, uint8 support, uint256 amount);
+    /// @notice Emitted when a user reclaims their losing stake
+    event LosingStakeReclaimed(address indexed user, uint256 proposalId, uint256 amount);
+
+    /// @notice Emitted when a user claims their rewards
+    event ClaimRewards(address indexed user, uint256 amount);
+
+    /// @notice Emitted when delegate performance is updated
+    event DelegatePerformanceUpdated(
+        uint256 successfulVotes,
+        uint256 totalVotes,
+        uint256 totalRewardsEarned
+    );
 
     /// @notice Emitted when stakes are distributed after a proposal is resolved
-    /// @param proposalId The ID of the resolved proposal
-    /// @param winningSupport The winning vote option (0 = Against, 1 = For)
     event ProposalStakeDistributed(uint256 indexed proposalId, uint8 indexed winningSupport);
 
-    /// @notice Emitted when a delegator reclaims their losing stake after a proposal is resolved
-    /// @param delegator The address of the delegator reclaiming their stake
-    /// @param proposalId The ID of the resolved proposal
-    /// @param amount The amount of COMP being reclaimed
-    event LosingStakeReclaimed(address indexed delegator, uint256 proposalId, uint256 amount);
-
-    /// @notice Emitted when delegate voting is verified
-    event DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection);
-
-    /// @notice Emitted when a delegate's vote is recorded
-    event DelegateVoteRecorded(
+    /// @notice Emitted when a vote is cast
+    event VoteCast(
         uint256 indexed proposalId,
         uint8 support,
-        uint256 timestamp,
-        address indexed recordedBy
+        uint256 blockNumber,
+        bytes32 txHash
     );
 
     /// @notice Emitted when a user's rewards are updated
-    /// @param delegator The address of the delegator whose rewards were updated
+    /// @param user The address of the user whose rewards were updated
     /// @param newRewards The amount of new rewards accrued
     /// @param totalUnclaimed The total amount of unclaimed rewards after the update
-    event UserRewardsUpdated(address indexed delegator, uint256 newRewards, uint256 totalUnclaimed);
+    event UserRewardsUpdated(address indexed user, uint256 newRewards, uint256 totalUnclaimed);
 
     /// @notice Emitted when the global reward index is updated
     /// @param newRewardIndex The new reward index value
     /// @param rewardsAccrued The amount of rewards accrued in this update
     event RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued);
-
-    /// @notice Emitted when a new vote recorder is proposed
-    event VoteRecorderUpdateProposed(
-        address indexed proposer,
-        address indexed newVoteRecorder,
-        uint256 effectiveTime
-    );
-
-    /// @notice Emitted when the vote recorder is updated
-    event VoteRecorderUpdated(
-        address indexed oldVoteRecorder,
-        address indexed newVoteRecorder,
-        address indexed proposer
-    );
 
     /// @notice Emitted when a proposal's state changes
     event ProposalStateChanged(
@@ -279,24 +255,11 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint256 totalSupply
     );
 
-    /// @notice Emitted when rewards are distributed to delegators
+    /// @notice Emitted when rewards are distributed to users
     event RewardsDistributed(
         uint256 totalRewards,
         uint256 rewardIndex,
         uint256 timestamp
-    );
-
-    /// @notice Emitted when a vote recorder update is initiated
-    event VoteRecorderUpdateInitiated(
-        address indexed proposer,
-        address indexed newVoteRecorder,
-        uint256 effectiveTime
-    );
-
-    /// @notice Emitted when a vote recorder update is cancelled
-    event VoteRecorderUpdateCancelled(
-        address indexed proposer,
-        address indexed cancelledVoteRecorder
     );
 
     //////////////////////////
@@ -304,37 +267,24 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     //////////////////////////
 
     /**
-     * @notice Constructor that initializes the contract with the delegate's address and name
-     * @param _delegate The address of the delegate
-     * @param _delegateName The name of the delegate
+     * @notice Constructor that initializes the contract
      * @param _compToken The address of the COMP token contract
      * @param _compoundGovernor The address of the Compound Governor contract
-     * @param _voteRecorder The address of the trusted vote recorder service
-     * @param _factory The address of the Compensator factory
+     * @param _owner The address of the owner for factory deployment
      */
     constructor(
-        address _delegate,
-        string memory _delegateName,
         address _compToken,
         address _compoundGovernor,
-        address _voteRecorder,
-        address _factory
-    ) ERC20("Compensator", "COMPENSATOR") Ownable(_delegate) {
-        require(_delegate != address(0), "Invalid delegate address");
+        address _owner
+    ) ERC20("Compensator", "COMPENSATOR") Ownable(_owner) {
         require(_compToken != address(0), "Invalid COMP token address");
         require(_compoundGovernor != address(0), "Invalid Compound Governor address");
-        require(_voteRecorder != address(0), "Invalid vote recorder address");
-        require(_factory != address(0), "Invalid factory address");
+        require(_owner != address(0), "Invalid owner address");
         
-        delegate = _delegate;
-        delegateName = _delegateName;
         COMP_TOKEN = IComp(_compToken);
         COMPOUND_GOVERNOR = IGovernor(_compoundGovernor);
-        VOTE_RECORDER = _voteRecorder;
-        factory = _factory;
         
         rewardIndex = REWARD_PRECISION; // Initialize reward index at 1 with 18 decimals
-        COMP_TOKEN.delegate(delegate); // Delegate voting power to the delegate
 
         // Set the delegation cap to 5% of the total COMP supply
         uint256 totalSupply = COMP_TOKEN.totalSupply();
@@ -401,15 +351,15 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         return (stake.forStake, stake.againstStake);
     }
 
-    // Delegate functions
+    // Owner functions
     /**
-     * @notice Allows the delegate to deposit COMP to be used for rewards
+     * @notice Allows the owner to deposit COMP to be used for rewards
      * @dev Updates reward index before increasing available rewards
      * @param amount The amount of COMP to deposit
      */
-    function delegateDeposit(uint256 amount) external nonReentrant {
+    function ownerDeposit(uint256 amount) external nonReentrant {
         // Checks
-        require(msg.sender == delegate, "Only delegate can deposit");
+        require(msg.sender == owner(), "Only owner can deposit");
         require(amount > 0, "Amount must be greater than 0");
         
         // Effects
@@ -417,25 +367,25 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         availableRewards += amount;
         
         // Interactions
-        COMP_TOKEN.transferFrom(delegate, address(this), amount);
+        COMP_TOKEN.transferFrom(owner(), address(this), amount);
         
-        emit DelegateDeposit(delegate, amount);
+        emit OwnerDeposit(owner(), amount);
     }
 
     /**
-     * @notice Allows the delegate to withdraw COMP from the contract
+     * @notice Allows the owner to withdraw COMP from the contract
      * @dev Ensures sufficient funds remain for pending rewards before withdrawal
      * @param amount The amount of COMP to withdraw
      */
-    function delegateWithdraw(uint256 amount) external nonReentrant {
+    function ownerWithdraw(uint256 amount) external nonReentrant {
         // Checks
-        require(msg.sender == delegate, "Only delegate can withdraw");
+        require(msg.sender == owner(), "Only owner can withdraw");
         require(amount > 0, "Amount must be greater than 0");
         
         // Cache frequently accessed storage variables
         uint256 currentAvailableRewards = availableRewards;
         uint256 currentTotalPendingRewards = totalPendingRewards;
-        address currentDelegate = delegate;
+        address currentOwner = owner();
         
         uint256 withdrawableAmount = currentAvailableRewards - currentTotalPendingRewards;
         require(amount <= withdrawableAmount, "Amount exceeds available rewards");
@@ -446,19 +396,19 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         availableRewards = currentAvailableRewards - amount;
         
         // Interactions
-        COMP_TOKEN.transfer(currentDelegate, amount);
+        COMP_TOKEN.transfer(currentOwner, amount);
         
-        emit DelegateWithdraw(currentDelegate, amount);
+        emit OwnerWithdraw(currentOwner, amount);
     }
 
     /**
-     * @notice Allows the delegate to update the reward rate
+     * @notice Allows the owner to update the reward rate
      * @dev Updates reward index before changing rate to ensure proper accounting
      * @param newRate The new reward rate in COMP per second
      */
     function setRewardRate(uint256 newRate) external nonReentrant {
         // Checks
-        require(msg.sender == delegate, "Only delegate can set reward rate");
+        require(msg.sender == owner(), "Only owner can set reward rate");
         require(newRate >= 0, "Reward rate must be non-negative");
         require(newRate != rewardRate, "New rate must be different from current rate");
         
@@ -469,17 +419,61 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // Interactions
         // No external calls
         
-        emit RewardRateUpdate(delegate, newRate);
+        emit RewardRateUpdate(owner(), newRate);
+    }
+
+    /**
+     * @notice Allows the owner to cast a vote on a proposal
+     * @dev Uses the contract's accumulated voting power
+     * @param proposalId The ID of the proposal to vote on
+     * @param support The vote direction (0 = Against, 1 = For)
+     */
+    function castVote(uint256 proposalId, uint8 support) external nonReentrant {
+        // Checks
+        require(msg.sender == owner(), "Only owner can cast votes");
+        require(support <= 1, "Invalid support value");
+        require(!contractVoted[proposalId], "Already voted on this proposal");
+        
+        // Verify proposal exists and is in a valid state
+        IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
+        require(
+            state == IGovernor.ProposalState.Active || 
+            state == IGovernor.ProposalState.Pending,
+            "Proposal not in voting period"
+        );
+
+        // Get the current vote counts before our vote
+        uint256 beforeForVotes = COMPOUND_GOVERNOR.proposalVotes(proposalId).forVotes;
+        uint256 beforeAgainstVotes = COMPOUND_GOVERNOR.proposalVotes(proposalId).againstVotes;
+
+        // Effects
+        contractVoted[proposalId] = true;
+        contractVoteDirection[proposalId] = support;
+        
+        // Store vote information
+        voteInfo[proposalId] = VoteInfo({
+            direction: support,
+            blockNumber: block.number,
+            txHash: bytes32(0) // Will be set after the vote
+        });
+        
+        // Interactions
+        // The contract's voting power is automatically used since it's delegated to itself
+        COMPOUND_GOVERNOR.castVote(proposalId, support);
+        
+        // Update the transaction hash after the vote
+        voteInfo[proposalId].txHash = blockhash(block.number - 1);
+        
+        emit VoteCast(proposalId, support, block.number, voteInfo[proposalId].txHash);
     }
 
     // Delegator functions
     /**
-     * @notice Allows a delegator to delegate tokens to the delegate to receive rewards
-     * @dev A delegator is someone who delegates their COMP to the delegate
-     * @dev Relies on Solidity 0.8.x built-in overflow protection for arithmetic operations
-     * @param amount The amount of COMP to delegate
+     * @notice Allows a user to deposit COMP into the contract
+     * @dev Delegates voting power to the contract itself
+     * @param amount The amount of COMP to deposit
      */
-    function delegatorDeposit(uint256 amount) external nonReentrant {
+    function userDeposit(uint256 amount) external nonReentrant {
         // Checks
         require(amount > 0, "Amount must be greater than 0");
         require(totalDelegatedCOMP + amount <= delegationCap, "Delegation cap exceeded");
@@ -505,17 +499,18 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         
         // Interactions
         COMP_TOKEN.transferFrom(msg.sender, address(this), amount);
+        // Delegate voting power to the contract itself
+        COMP_TOKEN.delegate(address(this));
         
-        emit DelegatorDeposit(msg.sender, amount);
+        emit UserDeposit(msg.sender, amount);
     }
 
     /**
-     * @notice Allows a delegator to withdraw tokens from the contract
+     * @notice Allows a user to withdraw COMP from the contract
      * @dev Claims pending rewards before processing withdrawal
-     * @dev Relies on Solidity 0.8.x built-in overflow protection for arithmetic operations
      * @param amount The amount of COMP to withdraw
      */
-    function delegatorWithdraw(uint256 amount) external nonReentrant {
+    function userWithdraw(uint256 amount) external nonReentrant {
         // Checks
         require(amount > 0, "Amount must be greater than 0");
         require(block.timestamp >= unlockTime[msg.sender], "COMP is locked");
@@ -533,7 +528,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // Interactions
         COMP_TOKEN.transfer(msg.sender, amount);
         
-        emit DelegatorWithdraw(msg.sender, amount);
+        emit UserWithdraw(msg.sender, amount);
     }
 
     /**
@@ -597,16 +592,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
     /**
      * @notice Resolves a proposal and distributes stakes based on the actual outcome
-     * @dev Can only be called by vote recorder or delegate
+     * @dev Can be called by anyone to resolve a proposal
      * @param proposalId The ID of the proposal to resolve
      */
     function resolveProposal(uint256 proposalId) external nonReentrant {
-        // Access control
-        require(
-            msg.sender == VOTE_RECORDER || msg.sender == delegate,
-            "Only vote recorder or delegate can resolve proposals"
-        );
-
         // Checks
         require(proposalOutcomes[proposalId] == ProposalOutcome.NotResolved, "Proposal already resolved");
         require(proposalCreationTime[proposalId] > 0, "Proposal does not exist");
@@ -633,17 +622,34 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
             proposalOutcomes[proposalId] = winningSupport == 1 ? ProposalOutcome.ForWon : ProposalOutcome.AgainstWon;
             
-            // Transfer winning stakes to the delegate if they voted correctly
-            if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == winningSupport) {
-                if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
-                    // FOR stakers win, transfer their stakes to delegate
-                    COMP_TOKEN.transfer(delegate, totalStakesFor[proposalId]);
-                } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
-                    // AGAINST stakers win, transfer their stakes to delegate
-                    COMP_TOKEN.transfer(delegate, totalStakesAgainst[proposalId]);
+            // Verify if the delegate voted correctly
+            bool delegateVotedCorrectly = contractVoted[proposalId] && 
+                                        contractVoteDirection[proposalId] == winningSupport;
+
+            if (delegateVotedCorrectly) {
+                // Delegate voted correctly
+                if (winningSupport == 1) {
+                    // FOR won
+                    if (totalStakesFor[proposalId] > 0) {
+                        // Winning FOR stakes go to the delegate
+                        COMP_TOKEN.transfer(owner(), totalStakesFor[proposalId]);
+                        delegateInfo.successfulVotes += 1;
+                        delegateInfo.totalRewardsEarned += totalStakesFor[proposalId];
+                    }
+                    // Losing AGAINST stakes are returned to delegators in reclaimStake
+                } else {
+                    // AGAINST won
+                    if (totalStakesAgainst[proposalId] > 0) {
+                        // Winning AGAINST stakes go to the delegate
+                        COMP_TOKEN.transfer(owner(), totalStakesAgainst[proposalId]);
+                        delegateInfo.successfulVotes += 1;
+                        delegateInfo.totalRewardsEarned += totalStakesAgainst[proposalId];
+                    }
+                    // Losing FOR stakes are returned to delegators in reclaimStake
                 }
             } else {
-                // If delegate didn't vote or voted wrong, return all stakes to contract for reclaiming
+                // Delegate didn't vote or voted wrong
+                // All stakes are returned to delegators in reclaimStake
                 if (totalStakesFor[proposalId] > 0) {
                     COMP_TOKEN.transfer(address(this), totalStakesFor[proposalId]);
                 }
@@ -651,7 +657,15 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
                     COMP_TOKEN.transfer(address(this), totalStakesAgainst[proposalId]);
                 }
             }
+
+            // Update delegate's total votes
+            delegateInfo.totalVotes += 1;
             
+            emit DelegatePerformanceUpdated(
+                delegateInfo.successfulVotes,
+                delegateInfo.totalVotes,
+                delegateInfo.totalRewardsEarned
+            );
             emit ProposalStakeDistributed(proposalId, winningSupport);
         } catch {
             revert("Invalid proposal ID");
@@ -712,11 +726,11 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             state == IGovernor.ProposalState.Pending) {
             proposalOutcomes[proposalId] = ProposalOutcome.AgainstWon;
             
-            // Transfer winning stakes to the delegate if they voted correctly
-            if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == 0) {
+            // Transfer winning stakes to the contract if it voted correctly
+            if (contractVoted[proposalId] && contractVoteDirection[proposalId] == 0) {
                 if (totalStakesAgainst[proposalId] > 0) {
-                    // AGAINST stakers win, transfer their stakes to delegate
-                    COMP_TOKEN.transfer(delegate, totalStakesAgainst[proposalId]);
+                    // AGAINST stakers win, transfer their stakes to contract
+                    COMP_TOKEN.transfer(address(this), totalStakesAgainst[proposalId]);
                 }
             }
             
@@ -727,14 +741,14 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
                                   state == IGovernor.ProposalState.Executed) ? 1 : 0;
             proposalOutcomes[proposalId] = winningSupport == 1 ? ProposalOutcome.ForWon : ProposalOutcome.AgainstWon;
             
-            // Transfer winning stakes to the delegate if they voted correctly
-            if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == winningSupport) {
+            // Transfer winning stakes to the contract if it voted correctly
+            if (contractVoted[proposalId] && contractVoteDirection[proposalId] == winningSupport) {
                 if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
-                    // FOR stakers win, transfer their stakes to delegate
-                    COMP_TOKEN.transfer(delegate, totalStakesFor[proposalId]);
+                    // FOR stakers win, transfer their stakes to contract
+                    COMP_TOKEN.transfer(address(this), totalStakesFor[proposalId]);
                 } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
-                    // AGAINST stakers win, transfer their stakes to delegate
-                    COMP_TOKEN.transfer(delegate, totalStakesAgainst[proposalId]);
+                    // AGAINST stakers win, transfer their stakes to contract
+                    COMP_TOKEN.transfer(address(this), totalStakesAgainst[proposalId]);
                 }
             }
             
@@ -778,6 +792,11 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             } catch {
                 pendingProposals[proposalId] = false;
             }
+
+            // Set proposal creation time if not set
+            if (proposalCreationTime[proposalId] == 0) {
+                proposalCreationTime[proposalId] = block.timestamp;
+            }
         } catch {
             // If proposal doesn't exist, mark it as inactive
             if (activeProposals[proposalId]) {
@@ -813,98 +832,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Proposes a new vote recorder address
-     * @dev Can be called by the owner (delegate) to suggest a new vote recorder
-     * @param newVoteRecorder The address of the new vote recorder
-     */
-    function proposeVoteRecorderUpdate(address newVoteRecorder) external onlyOwner {
-        require(newVoteRecorder != address(0), "Invalid vote recorder address");
-        require(newVoteRecorder != VOTE_RECORDER, "New vote recorder must be different");
-        require(block.timestamp >= voteRecorderLastUpdate + VOTE_RECORDER_UPDATE_DELAY, "Too soon to update");
-        
-        pendingVoteRecorder = newVoteRecorder;
-        voteRecorderUpdateTime = block.timestamp + VOTE_RECORDER_UPDATE_DELAY;
-        voteRecorderUpdateProposer = msg.sender;
-        
-        emit VoteRecorderUpdateInitiated(msg.sender, newVoteRecorder, voteRecorderUpdateTime);
-    }
-
-    function confirmVoteRecorderUpdate() external onlyOwner {
-        require(pendingVoteRecorder != address(0), "No pending update");
-        require(block.timestamp >= voteRecorderUpdateTime, "Update not ready");
-        
-        address oldRecorder = VOTE_RECORDER;
-        VOTE_RECORDER = pendingVoteRecorder;
-        voteRecorderLastUpdate = block.timestamp;
-        pendingVoteRecorder = address(0);
-        voteRecorderUpdateTime = 0;
-        voteRecorderUpdateProposer = address(0);
-        
-        emit VoteRecorderUpdated(oldRecorder, VOTE_RECORDER, msg.sender);
-    }
-
-    function cancelVoteRecorderUpdate() external onlyOwner {
-        require(pendingVoteRecorder != address(0), "No pending update");
-        
-        address cancelledRecorder = pendingVoteRecorder;
-        pendingVoteRecorder = address(0);
-        voteRecorderUpdateTime = 0;
-        voteRecorderUpdateProposer = address(0);
-        
-        emit VoteRecorderUpdateCancelled(msg.sender, cancelledRecorder);
-    }
-
-    /**
-     * @notice Records the delegate's vote direction for a proposal
-     * @dev Called by off-chain service that monitors VoteCast events
-     * @param proposalId The ID of the proposal
-     * @param support The vote direction (0 = Against, 1 = For, 2 = Abstain)
-     * @param voteBlock The block number when the vote was cast
-     * @param voteTransactionHash The transaction hash of the vote
-     */
-    function recordDelegateVote(
-        uint256 proposalId,
-        uint8 support,
-        uint256 voteBlock,
-        bytes32 voteTransactionHash
-    ) external {
-        // Access control
-        require(msg.sender == VOTE_RECORDER, "Only vote recorder can record votes");
-
-        // Basic checks
-        require(support <= 2, "Invalid support value");
-        require(!delegateVoted[proposalId], "Vote already recorded");
-        require(voteBlock > 0, "Invalid vote block");
-        require(voteBlock <= block.number, "Vote block cannot be in future");
-        require(block.number - voteBlock <= 100, "Vote too old");
-        require(voteTransactionHash != bytes32(0), "Invalid transaction hash");
-        
-        // Verify proposal exists and is in a valid state
-        IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
-        require(
-            state == IGovernor.ProposalState.Active || 
-            state == IGovernor.ProposalState.Succeeded || 
-            state == IGovernor.ProposalState.Defeated || 
-            state == IGovernor.ProposalState.Expired ||
-            state == IGovernor.ProposalState.Canceled ||
-            state == IGovernor.ProposalState.Executed,
-            "Invalid proposal state"
-        );
-
-        // Verify delegate has voted
-        bool hasVoted = COMPOUND_GOVERNOR.hasVoted(proposalId, delegate);
-        require(hasVoted, "Delegate has not voted");
-
-        // Record the vote
-        delegateVoted[proposalId] = true;
-        delegateVoteDirection[proposalId] = support;
-        
-        // Emit events
-        emit DelegateVotingVerified(proposalId, true, support);
-        emit DelegateVoteRecorded(proposalId, support, block.timestamp, msg.sender);
-    }
-
-    /**
      * @notice Updates the number of blocks per day for proposal timing calculations
      * @dev Can be called by owner to adjust for different networks
      * @param _blocksPerDay The new number of blocks per day
@@ -922,13 +849,13 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /**
      * @notice Internal function to update a user's rewards without claiming
      * @dev Updates the user's unclaimed rewards and sets a new checkpoint
-     * @param delegator The address of the delegator to update rewards for
+     * @param user The address of the user to update rewards for
      */
-    function _updateUserRewards(address delegator) private {
+    function _updateUserRewards(address user) private {
         // Cache state variables to prevent reentrancy
-        uint256 userBalance = balanceOf(delegator);
+        uint256 userBalance = balanceOf(user);
         uint256 currentRewardIndex = rewardIndex;
-        uint256 userStartIndex = startRewardIndex[delegator];
+        uint256 userStartIndex = startRewardIndex[user];
         
         if (userBalance > 0) {
             // Calculate new rewards using cached values
@@ -936,10 +863,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             
             if (newRewards > 0) {
                 // Update state before any potential external calls
-                unclaimedRewards[delegator] += newRewards;
-                startRewardIndex[delegator] = currentRewardIndex;
+                unclaimedRewards[user] += newRewards;
+                startRewardIndex[user] = currentRewardIndex;
                 
-                emit UserRewardsUpdated(delegator, newRewards, unclaimedRewards[delegator]);
+                emit UserRewardsUpdated(user, newRewards, unclaimedRewards[user]);
             }
         }
     }
@@ -1026,5 +953,39 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             return currentRewardIndex + (actualRewards * REWARD_PRECISION) / supply;
         }
         return currentRewardIndex;
+    }
+
+    /**
+     * @notice Verifies if a vote was cast correctly
+     * @param proposalId The ID of the proposal to verify
+     * @return bool True if the vote was cast correctly
+     */
+    function verifyVote(uint256 proposalId) internal view returns (bool) {
+        VoteInfo memory info = voteInfo[proposalId];
+        if (info.blockNumber == 0) return false;
+
+        // Verify the vote was cast in a valid state
+        IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
+        if (state != IGovernor.ProposalState.Active && 
+            state != IGovernor.ProposalState.Pending) {
+            return false;
+        }
+
+        // Verify the transaction hash matches
+        if (info.txHash != blockhash(info.blockNumber - 1)) {
+            return false;
+        }
+
+        // Verify the contract has voted
+        if (!COMPOUND_GOVERNOR.hasVoted(proposalId, address(this))) {
+            return false;
+        }
+
+        // Verify the vote direction matches
+        if (info.direction != contractVoteDirection[proposalId]) {
+            return false;
+        }
+
+        return true;
     }
 }

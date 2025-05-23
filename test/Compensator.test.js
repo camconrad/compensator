@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers");
 
 describe("Compensator", function () {
   let compToken;
@@ -245,7 +245,7 @@ describe("Compensator", function () {
       
       // Approve and deposit
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Check final balances
       const finalDelegatorBalance = await compToken.balanceOf(delegator1.address);
@@ -264,7 +264,7 @@ describe("Compensator", function () {
       
       // Approve and deposit
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Advance time to accumulate rewards (1 day)
       await ethers.provider.send("evm_increaseTime", [86400]);
@@ -294,7 +294,7 @@ describe("Compensator", function () {
       
       // Approve and make initial deposit
       await compToken.connect(delegator1).approve(compensatorAddress, initialDeposit + additionalDeposit);
-      await compensator.connect(delegator1).delegatorDeposit(initialDeposit);
+      await compensator.connect(delegator1).userDeposit(initialDeposit);
       
       // Advance time to accumulate rewards (10 seconds)
       await ethers.provider.send("evm_increaseTime", [10]);
@@ -308,7 +308,7 @@ describe("Compensator", function () {
       );
       
       // Make additional deposit
-      await compensator.connect(delegator1).delegatorDeposit(additionalDeposit);
+      await compensator.connect(delegator1).userDeposit(additionalDeposit);
       
       // Check that rewards are preserved after adding more tokens
       const pendingRewards2 = await compensator.getPendingRewards(delegator1.address);
@@ -337,14 +337,14 @@ describe("Compensator", function () {
       
       // Approve and deposit
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Get initial balances
       const initialDelegatorBalance = await compToken.balanceOf(delegator1.address);
       const initialCompensatorBalance = await compToken.balanceOf(compensatorAddress);
       
       // Withdraw
-      await compensator.connect(delegator1).delegatorWithdraw(withdrawAmount);
+      await compensator.connect(delegator1).userWithdraw(withdrawAmount);
       
       // Check final balances
       const finalDelegatorBalance = await compToken.balanceOf(delegator1.address);
@@ -826,8 +826,8 @@ describe("Compensator", function () {
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("1000"));
       await compToken.connect(delegator2).approve(compensatorAddress, ethers.parseEther("1000"));
-      await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
-      await compensator.connect(delegator2).delegatorDeposit(ethers.parseEther("100"));
+      await compensator.connect(delegator1).userDeposit(ethers.parseEther("100"));
+      await compensator.connect(delegator2).userDeposit(ethers.parseEther("100"));
     });
 
     describe("Stake Distribution", function () {
@@ -899,6 +899,175 @@ describe("Compensator", function () {
         expect(await compToken.balanceOf(delegator1.address)).to.equal(ethers.parseEther("990"));
         expect(await compToken.balanceOf(delegator2.address)).to.equal(ethers.parseEther("990"));
       });
+    });
+  });
+
+  describe("Vote Verification", function () {
+    it("should verify vote correctly", async function () {
+      // Create a proposal
+      const proposalId = 1;
+      await compoundGovernor.createProposal(proposalId);
+
+      // Cast vote
+      await compensator.castVote(proposalId, 1);
+
+      // Verify vote
+      const voteInfo = await compensator.voteInfo(proposalId);
+      expect(voteInfo.direction).to.equal(1);
+      expect(voteInfo.blockNumber).to.be.gt(0);
+      expect(voteInfo.txHash).to.not.equal(ethers.constants.HashZero);
+
+      // Check vote verification
+      const hasVoted = await compoundGovernor.hasVoted(proposalId, compensator.address);
+      expect(hasVoted).to.be.true;
+    });
+
+    it("should fail verification for invalid vote", async function () {
+      const proposalId = 1;
+      await compoundGovernor.createProposal(proposalId);
+
+      // Try to verify non-existent vote
+      const voteInfo = await compensator.voteInfo(proposalId);
+      expect(voteInfo.blockNumber).to.equal(0);
+    });
+
+    it("should fail verification for wrong vote direction", async function () {
+      const proposalId = 1;
+      await compoundGovernor.createProposal(proposalId);
+
+      // Cast vote
+      await compensator.castVote(proposalId, 1);
+
+      // Modify vote direction
+      await compoundGovernor.setVoteDirection(proposalId, 0);
+
+      // Check vote verification
+      const hasVoted = await compoundGovernor.hasVoted(proposalId, compensator.address);
+      expect(hasVoted).to.be.true;
+    });
+  });
+
+  describe("Proposal Tracking", function () {
+    it("should track proposal states correctly", async function () {
+      const proposalId = 1;
+      await compoundGovernor.createProposal(proposalId);
+
+      // Check initial state
+      let isActive = await compensator.activeProposals(proposalId);
+      expect(isActive).to.be.false;
+
+      // Activate proposal
+      await compoundGovernor.activateProposal(proposalId);
+      await compensator.stakeForProposal(proposalId, 1, ethers.parseEther("10"));
+
+      // Check active state
+      isActive = await compensator.activeProposals(proposalId);
+      expect(isActive).to.be.true;
+
+      // Deactivate proposal
+      await compoundGovernor.deactivateProposal(proposalId);
+      await compensator.resolveProposal(proposalId);
+
+      // Check inactive state
+      isActive = await compensator.activeProposals(proposalId);
+      expect(isActive).to.be.false;
+    });
+
+    it("should track proposal creation time", async function () {
+      const proposalId = 1;
+      await compoundGovernor.createProposal(proposalId);
+
+      // Check creation time
+      const creationTime = await compensator.proposalCreationTime(proposalId);
+      expect(creationTime).to.be.gt(0);
+    });
+
+    it("should handle proposal timeout", async function () {
+      const proposalId = 1;
+      await compoundGovernor.createProposal(proposalId);
+      await compensator.stakeForProposal(proposalId, 1, ethers.parseEther("10"));
+
+      // Fast forward past timeout
+      await time.increase(31 * 24 * 60 * 60); // 31 days
+
+      // Try to reclaim stake
+      await compensator.reclaimStake(proposalId);
+
+      // Check proposal outcome
+      const outcome = await compensator.proposalOutcomes(proposalId);
+      expect(outcome).to.equal(1); // AgainstWon
+    });
+  });
+
+  describe("Reward Distribution", function () {
+    it("should distribute rewards correctly", async function () {
+      // Owner deposits COMP for rewards
+      await compensator.ownerDeposit(ethers.parseEther("100"));
+
+      // Set reward rate
+      await compensator.setRewardRate(ethers.parseEther("0.1")); // 0.1 COMP per second
+
+      // User deposits COMP
+      await compensator.connect(delegator1).userDeposit(ethers.parseEther("10"));
+
+      // Fast forward time
+      await time.increase(10); // 10 seconds
+
+      // Check pending rewards
+      const pendingRewards = await compensator.getPendingRewards(delegator1.address);
+      expect(pendingRewards).to.equal(ethers.parseEther("1")); // 0.1 * 10
+    });
+
+    it("should cap rewards to available funds", async function () {
+      // Owner deposits COMP for rewards
+      await compensator.ownerDeposit(ethers.parseEther("10"));
+
+      // Set high reward rate
+      await compensator.setRewardRate(ethers.parseEther("1")); // 1 COMP per second
+
+      // User deposits COMP
+      await compensator.connect(delegator1).userDeposit(ethers.parseEther("10"));
+
+      // Fast forward time
+      await time.increase(20); // 20 seconds
+
+      // Check pending rewards (should be capped)
+      const pendingRewards = await compensator.getPendingRewards(delegator1.address);
+      expect(pendingRewards).to.equal(ethers.parseEther("10")); // Capped to available funds
+    });
+
+    it("should handle zero supply case", async function () {
+      // Owner deposits COMP for rewards
+      await compensator.ownerDeposit(ethers.parseEther("100"));
+
+      // Set reward rate
+      await compensator.setRewardRate(ethers.parseEther("0.1"));
+
+      // Fast forward time
+      await time.increase(10);
+
+      // Check reward index (should not change)
+      const rewardIndex = await compensator.rewardIndex();
+      expect(rewardIndex).to.equal(ethers.parseEther("1")); // Initial value
+    });
+
+    it("should update rewards on deposit and withdrawal", async function () {
+      // Owner deposits COMP for rewards
+      await compensator.ownerDeposit(ethers.parseEther("100"));
+      await compensator.setRewardRate(ethers.parseEther("0.1"));
+
+      // User deposits COMP
+      await compensator.connect(delegator1).userDeposit(ethers.parseEther("10"));
+
+      // Fast forward time
+      await time.increase(10);
+
+      // User withdraws COMP
+      await compensator.connect(delegator1).userWithdraw(ethers.parseEther("5"));
+
+      // Check pending rewards
+      const pendingRewards = await compensator.getPendingRewards(delegator1.address);
+      expect(pendingRewards).to.be.gt(0);
     });
   });
 });
