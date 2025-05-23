@@ -76,10 +76,39 @@ contract CompensatorFactory {
     }
 
     /**
-     * @notice Retrieves the list of all deployed Compensator contract addresses
-     * @return An array of all Compensator contract addresses
+     * @notice Retrieves the total number of deployed Compensator contracts
+     * @return The total count of Compensator contracts
      */
-    function getCompensators() public view returns (address[] memory) {
-        return compensators;
+    function getCompensatorsCount() public view returns (uint256) {
+        return compensators.length;
+    }
+
+    /**
+     * @notice Retrieves a paginated list of Compensator contract addresses
+     * @param offset The starting index for the pagination
+     * @param limit The maximum number of addresses to return
+     * @return An array of Compensator contract addresses for the requested page
+     */
+    function getCompensators(uint256 offset, uint256 limit) public view returns (address[] memory) {
+        uint256 totalCount = compensators.length;
+        
+        // Validate pagination parameters
+        require(offset < totalCount, "Offset out of bounds");
+        
+        // Calculate the actual number of items to return
+        uint256 itemsToReturn = limit;
+        if (offset + limit > totalCount) {
+            itemsToReturn = totalCount - offset;
+        }
+        
+        // Create the result array
+        address[] memory result = new address[](itemsToReturn);
+        
+        // Copy the requested items
+        for (uint256 i = 0; i < itemsToReturn; i++) {
+            result[i] = compensators[offset + i];
+        }
+        
+        return result;
     }
 }

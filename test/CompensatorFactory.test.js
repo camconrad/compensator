@@ -87,4 +87,61 @@ describe("CompensatorFactory", function () {
     expect(await factory.getCompensator(delegatee1.address)).to.not.equal(await factory.getCompensator(delegatee3.address));
     expect(await factory.getCompensator(delegatee2.address)).to.not.equal(await factory.getCompensator(delegatee3.address));
   });
+
+  describe("Pagination", function () {
+    let delegatees;
+    const PAGE_SIZE = 2;
+
+    beforeEach(async function () {
+      // Create multiple delegatees for testing pagination
+      delegatees = await ethers.getSigners();
+      for (let i = 1; i <= 5; i++) {
+        await factory.createCompensator(delegatees[i].address, `Delegatee ${i}`);
+      }
+    });
+
+    it("should return correct total count", async function () {
+      const count = await factory.getCompensatorsCount();
+      expect(count).to.equal(5);
+    });
+
+    it("should return first page correctly", async function () {
+      const page = await factory.getCompensators(0, PAGE_SIZE);
+      expect(page.length).to.equal(PAGE_SIZE);
+      expect(page[0]).to.equal(await factory.getCompensator(delegatees[1].address));
+      expect(page[1]).to.equal(await factory.getCompensator(delegatees[2].address));
+    });
+
+    it("should return middle page correctly", async function () {
+      const page = await factory.getCompensators(2, PAGE_SIZE);
+      expect(page.length).to.equal(PAGE_SIZE);
+      expect(page[0]).to.equal(await factory.getCompensator(delegatees[3].address));
+      expect(page[1]).to.equal(await factory.getCompensator(delegatees[4].address));
+    });
+
+    it("should return last page correctly", async function () {
+      const page = await factory.getCompensators(4, PAGE_SIZE);
+      expect(page.length).to.equal(1);
+      expect(page[0]).to.equal(await factory.getCompensator(delegatees[5].address));
+    });
+
+    it("should handle out of bounds offset", async function () {
+      await expect(
+        factory.getCompensators(10, PAGE_SIZE)
+      ).to.be.revertedWith("Offset out of bounds");
+    });
+
+    it("should handle empty result set", async function () {
+      const emptyFactory = await ethers.deployContract("CompensatorFactory");
+      const page = await emptyFactory.getCompensators(0, PAGE_SIZE);
+      expect(page.length).to.equal(0);
+    });
+
+    it("should handle limit larger than remaining items", async function () {
+      const page = await factory.getCompensators(3, PAGE_SIZE * 2);
+      expect(page.length).to.equal(2); // Should only return remaining items
+      expect(page[0]).to.equal(await factory.getCompensator(delegatees[4].address));
+      expect(page[1]).to.equal(await factory.getCompensator(delegatees[5].address));
+    });
+  });
 });
