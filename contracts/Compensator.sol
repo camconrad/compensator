@@ -183,6 +183,18 @@ contract Compensator is ERC20 {
     /// @notice Emitted when delegate voting is verified
     event DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection);
 
+    /// @notice Emitted when a user's rewards are updated
+    /// @param delegator The address of the delegator whose rewards were updated
+    /// @param newRewards The amount of new rewards accrued
+    /// @param totalUnclaimed The total amount of unclaimed rewards after the update
+    event UserRewardsUpdated(address indexed delegator, uint256 newRewards, uint256 totalUnclaimed);
+
+    /// @notice Emitted when the global reward index is updated
+    /// @param newRewardIndex The new reward index value
+    /// @param rewardsAccrued The amount of rewards accrued in this update
+    /// @param rewardsDeficit The current rewards deficit after the update
+    event RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued, uint256 rewardsDeficit);
+
     //////////////////////////
     // Constructor & Initialization
     //////////////////////////
@@ -628,6 +640,7 @@ contract Compensator is ERC20 {
             uint256 newRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
             if (newRewards > 0) {
                 unclaimedRewards[delegator] += newRewards;
+                emit UserRewardsUpdated(delegator, newRewards, unclaimedRewards[delegator]);
             }
         }
     }
@@ -653,6 +666,7 @@ contract Compensator is ERC20 {
             // Track the deficit in rewards
             rewardsDeficit += rewards;
             lastRewarded = block.timestamp;
+            emit RewardIndexUpdated(rewardIndex, 0, rewardsDeficit);
             return;
         }
         
@@ -680,6 +694,8 @@ contract Compensator is ERC20 {
         rewardIndex += rewards * 1e18 / supply;
         totalPendingRewards += rewards;
         lastRewarded = block.timestamp;
+        
+        emit RewardIndexUpdated(rewardIndex, rewards, rewardsDeficit);
     }
 
     /**

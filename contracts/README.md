@@ -67,6 +67,8 @@
 - `ProposalDeactivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as inactive.
 - `ProposalAutoResolved(uint256 indexed proposalId, uint8 winningSupport)` - Emitted when a proposal is automatically resolved after timeout.
 - `DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection)` - Emitted when delegate voting status is verified.
+- `UserRewardsUpdated(address indexed delegator, uint256 newRewards, uint256 totalUnclaimed)` - Emitted when a user's rewards are updated.
+- `RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued, uint256 rewardsDeficit)` - Emitted when the global reward index is updated.
 
 ### Functions
 - **`constructor(address _delegate, string memory _delegateName)`**  
