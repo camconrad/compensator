@@ -173,7 +173,7 @@ contract Compensator is ERC20 {
     /// @notice Emitted when stakes are distributed after a proposal is resolved
     /// @param proposalId The ID of the resolved proposal
     /// @param winningSupport The winning vote option (0 = Against, 1 = For)
-    event ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport);
+    event ProposalStakeDistributed(uint256 indexed proposalId, uint8 indexed winningSupport);
 
     /// @notice Emitted when a delegator reclaims their losing stake after a proposal is resolved
     /// @param delegator The address of the delegator reclaiming their stake

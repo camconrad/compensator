@@ -58,7 +58,7 @@
 - `DelegatorDeposit(address indexed delegator, uint256 amount)` - Emitted when a delegator deposits COMP.
 - `DelegatorWithdraw(address indexed delegator, uint256 amount)` - Emitted when a delegator withdraws COMP.
 - `ProposalStaked(address indexed staker, uint256 proposalId, uint8 support, uint256 amount)` - Emitted when a delegator stakes COMP for a proposal outcome.
-- `ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport)` - Emitted when stakes are distributed after a proposal resolves.
+- `ProposalStakeDistributed(uint256 indexed proposalId, uint8 indexed winningSupport)` - Emitted when stakes are distributed after a proposal resolves.
 - `ClaimRewards(address indexed delegator, uint256 amount)` - Emitted when a delegator claims their rewards.
 - `LosingStakeReclaimed(address indexed delegator, uint256 proposalId, uint256 amount)` - Emitted when a delegator reclaims their losing stake after a proposal is resolved.
 - `COMPLocked(address indexed delegator, uint256 unlockTime)` - Emitted when a delegator's COMP is locked.
