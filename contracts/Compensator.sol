@@ -306,18 +306,25 @@ contract Compensator is ERC20 {
     }
 
     /**
-     * @notice Allows the delegate to withdraw COMP that is not used for rewards
+     * @notice Allows the delegate to withdraw COMP from the contract
      * @dev Ensures sufficient funds remain for pending rewards before withdrawal
      * @param amount The amount of COMP to withdraw
      */
     function delegateWithdraw(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
         _updateRewardsIndex();
-        uint256 withdrawableAmount = availableRewards - totalPendingRewards;
+        
+        // Cache frequently accessed storage variables
+        uint256 currentAvailableRewards = availableRewards;
+        uint256 currentTotalPendingRewards = totalPendingRewards;
+        address currentDelegate = delegate;
+        
+        uint256 withdrawableAmount = currentAvailableRewards - currentTotalPendingRewards;
         require(amount <= withdrawableAmount, "Amount exceeds available rewards");
-        availableRewards -= amount;
-        compToken.transfer(delegate, amount);
-        emit DelegateWithdraw(delegate, amount);
+        
+        availableRewards = currentAvailableRewards - amount;
+        compToken.transfer(currentDelegate, amount);
+        emit DelegateWithdraw(currentDelegate, amount);
     }
 
     /**
@@ -574,19 +581,25 @@ contract Compensator is ERC20 {
             return;
         }
 
+        // Cache frequently accessed storage variables
+        uint256 currentRewardRate = rewardRate;
+        uint256 currentAvailableRewards = availableRewards;
+        uint256 currentTotalPendingRewards = totalPendingRewards;
+        uint256 currentRewardIndex = rewardIndex;
+
         // Calculate new rewards
         uint256 timeDelta = block.timestamp - lastRewarded;
-        uint256 rewards = timeDelta * rewardRate;
+        uint256 rewards = timeDelta * currentRewardRate;
         
-        if (availableRewards <= totalPendingRewards) {
+        if (currentAvailableRewards <= currentTotalPendingRewards) {
             // Track the deficit in rewards
             rewardsDeficit += rewards;
             lastRewarded = block.timestamp;
-            emit RewardIndexUpdated(rewardIndex, 0, rewardsDeficit);
+            emit RewardIndexUpdated(currentRewardIndex, 0, rewardsDeficit);
             return;
         }
         
-        uint256 availableForNewRewards = availableRewards - totalPendingRewards;
+        uint256 availableForNewRewards = currentAvailableRewards - currentTotalPendingRewards;
         
         // If we have a deficit, try to make it up first
         if (rewardsDeficit > 0) {
@@ -607,11 +620,15 @@ contract Compensator is ERC20 {
         }
         
         // Update accounting
-        rewardIndex += rewards * REWARD_PRECISION / supply;
-        totalPendingRewards += rewards;
+        currentRewardIndex += rewards * REWARD_PRECISION / supply;
+        currentTotalPendingRewards += rewards;
         lastRewarded = block.timestamp;
         
-        emit RewardIndexUpdated(rewardIndex, rewards, rewardsDeficit);
+        // Update storage variables
+        rewardIndex = currentRewardIndex;
+        totalPendingRewards = currentTotalPendingRewards;
+        
+        emit RewardIndexUpdated(currentRewardIndex, rewards, rewardsDeficit);
     }
 
     /**
@@ -619,24 +636,30 @@ contract Compensator is ERC20 {
      * @dev Used for view functions to calculate pending rewards
      */
     function _getCurrentRewardsIndex() private view returns (uint256) {
-        if (availableRewards <= totalPendingRewards) {
-            return rewardIndex;
+        // Cache frequently accessed storage variables
+        uint256 currentAvailableRewards = availableRewards;
+        uint256 currentTotalPendingRewards = totalPendingRewards;
+        uint256 currentRewardIndex = rewardIndex;
+        uint256 currentRewardRate = rewardRate;
+        
+        if (currentAvailableRewards <= currentTotalPendingRewards) {
+            return currentRewardIndex;
         }
         
         uint256 timeDelta = block.timestamp - lastRewarded;
-        uint256 potentialRewards = timeDelta * rewardRate;
+        uint256 potentialRewards = timeDelta * currentRewardRate;
         uint256 supply = totalSupply();
         
         // Cap rewards to remaining available funds
-        uint256 remainingRewards = availableRewards - totalPendingRewards;
+        uint256 remainingRewards = currentAvailableRewards - currentTotalPendingRewards;
         uint256 actualRewards = potentialRewards > remainingRewards 
             ? remainingRewards 
             : potentialRewards;
 
         if (supply > 0) {
-            return rewardIndex + (actualRewards * REWARD_PRECISION) / supply;
+            return currentRewardIndex + (actualRewards * REWARD_PRECISION) / supply;
         }
-        return rewardIndex;
+        return currentRewardIndex;
     }
 
     // Proposal-related functions
