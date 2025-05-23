@@ -5,8 +5,8 @@
 ### Variables
 - `address[] public compensators` - A list of all `Compensator` contracts created by the factory.
 - `mapping(address delegatee => address compensator) public delegateeToCompensator` - A mapping of delegatees to their `Compensator` contracts.
-- `address public immutable compToken` - The COMP governance token contract.
-- `address public immutable compoundGovernor` - The Compound Governor contract.
+- `address public immutable COMP_TOKEN` - The COMP governance token contract.
+- `address public immutable COMPOUND_GOVERNOR` - The Compound Governor contract.
 
 ### Functions
 - **`constructor(address _compToken, address _compoundGovernor)`**  
@@ -14,7 +14,7 @@
   - Validates that both addresses are non-zero.
   - Sets the addresses as immutable variables.
 
-- **`createCompensator(address delegatee, string memory delegateeName)`**  
+- **`createCompensator(address delegatee, string calldata delegateeName)`**  
   Creates a `Compensator` contract for a delegatee.  
   - Adds the contract to the `compensators` list.  
   - Maps the delegatee to their `Compensator` contract.  
