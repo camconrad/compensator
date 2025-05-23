@@ -134,30 +134,51 @@ contract Compensator is ERC20, Initializable {
     //////////////////////////
 
     /// @notice Emitted when the delegate deposits COMP into the contract
+    /// @param delegate The address of the delegate depositing COMP
+    /// @param amount The amount of COMP being deposited
     event DelegateDeposit(address indexed delegate, uint256 amount);
 
     /// @notice Emitted when the delegate withdraws COMP from the contract
+    /// @param delegate The address of the delegate withdrawing COMP
+    /// @param amount The amount of COMP being withdrawn
     event DelegateWithdraw(address indexed delegate, uint256 amount);
 
     /// @notice Emitted when the delegate updates the reward rate
+    /// @param delegate The address of the delegate updating the rate
+    /// @param newRate The new reward rate in COMP per second
     event RewardRateUpdate(address indexed delegate, uint256 newRate);
 
     /// @notice Emitted when a delegator deposits COMP into the contract
+    /// @param delegator The address of the delegator depositing COMP
+    /// @param amount The amount of COMP being deposited
     event DelegatorDeposit(address indexed delegator, uint256 amount);
 
     /// @notice Emitted when a delegator withdraws COMP from the contract
+    /// @param delegator The address of the delegator withdrawing COMP
+    /// @param amount The amount of COMP being withdrawn
     event DelegatorWithdraw(address indexed delegator, uint256 amount);
 
     /// @notice Emitted when a delegator claims their rewards
+    /// @param delegator The address of the delegator claiming rewards
+    /// @param amount The amount of COMP rewards being claimed
     event ClaimRewards(address indexed delegator, uint256 amount);
 
     /// @notice Emitted when a delegator stakes COMP on a proposal
+    /// @param staker The address of the delegator staking COMP
+    /// @param proposalId The ID of the proposal being staked on
+    /// @param support The vote option (0 = Against, 1 = For)
+    /// @param amount The amount of COMP being staked
     event ProposalStaked(address indexed staker, uint256 proposalId, uint8 support, uint256 amount);
 
     /// @notice Emitted when stakes are distributed after a proposal is resolved
+    /// @param proposalId The ID of the resolved proposal
+    /// @param winningSupport The winning vote option (0 = Against, 1 = For)
     event ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport);
 
     /// @notice Emitted when a delegator reclaims their losing stake after a proposal is resolved
+    /// @param delegator The address of the delegator reclaiming their stake
+    /// @param proposalId The ID of the resolved proposal
+    /// @param amount The amount of COMP being reclaimed
     event LosingStakeReclaimed(address indexed delegator, uint256 proposalId, uint256 amount);
 
     /// @notice Emitted when delegate voting is verified

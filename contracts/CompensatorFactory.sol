@@ -31,6 +31,8 @@ contract CompensatorFactory {
     //////////////////////////
 
     /// @notice Emitted when a new Compensator contract is created
+    /// @param delegatee The address of the delegatee for whom the Compensator is created
+    /// @param compensator The address of the newly created Compensator contract
     event CompensatorCreated(address indexed delegatee, address indexed compensator);
 
     //////////////////////////
