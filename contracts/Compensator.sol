@@ -551,7 +551,7 @@ contract Compensator is ERC20 {
      * @dev Updates the user's unclaimed rewards and sets a new checkpoint
      * @param delegator The address of the delegator to update rewards for
      */
-    function _updateUserRewards(address delegator) internal {
+    function _updateUserRewards(address delegator) private {
         if (balanceOf(delegator) > 0) {
             uint256 newRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / REWARD_PRECISION;
             if (newRewards > 0) {
@@ -565,7 +565,7 @@ contract Compensator is ERC20 {
      * @notice Updates the reward index based on elapsed time and reward rate
      * @dev Tracks rewards
      */
-    function _updateRewardsIndex() internal {
+    function _updateRewardsIndex() private {
         uint256 supply = totalSupply();
         
         // Early return if no delegators exist
@@ -618,7 +618,7 @@ contract Compensator is ERC20 {
      * @notice Returns the current rewards index, adjusted for time since last rewarded
      * @dev Used for view functions to calculate pending rewards
      */
-    function _getCurrentRewardsIndex() internal view returns (uint256) {
+    function _getCurrentRewardsIndex() private view returns (uint256) {
         if (availableRewards <= totalPendingRewards) {
             return rewardIndex;
         }

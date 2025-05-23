@@ -111,7 +111,7 @@ contract CompensatorFactory {
      * @param limit The maximum number of addresses to return
      * @return An array of Compensator contract addresses for the requested page
      */
-    function getCompensators(uint256 offset, uint256 limit) public view returns (address[] memory) {
+    function getCompensators(uint256 offset, uint256 limit) external view returns (address[] memory) {
         uint256 totalCount = compensators.length;
         
         // Validate pagination parameters
