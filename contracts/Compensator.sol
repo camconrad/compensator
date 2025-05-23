@@ -124,6 +124,12 @@ contract Compensator is ERC20 {
     /// @notice Tracks the delegate's vote direction on a proposal
     mapping(uint256 proposalId => uint8 direction) public delegateVoteDirection;
 
+    /// @notice Precision factor for reward calculations (18 decimals)
+    uint256 public constant REWARD_PRECISION = 1e18;
+
+    /// @notice Percentage basis points (100%)
+    uint256 public constant BASIS_POINTS = 100;
+
     //////////////////////////
     // Events
     //////////////////////////
@@ -232,11 +238,11 @@ contract Compensator is ERC20 {
         compToken = IComp(_compToken);
         compoundGovernor = IGovernor(_compoundGovernor);
         
-        rewardIndex = 1e18; // Initialize reward index at 1 with 18 decimals
+        rewardIndex = REWARD_PRECISION; // Initialize reward index at 1 with 18 decimals
         compToken.delegate(delegate); // Delegate voting power to the delegate
 
         // Set the delegation cap to 5% of the total COMP supply
-        delegationCap = (compToken.totalSupply() * DELEGATION_CAP_PERCENT) / 100;
+        delegationCap = (compToken.totalSupply() * DELEGATION_CAP_PERCENT) / BASIS_POINTS;
     }
 
     //////////////////////////
@@ -279,7 +285,7 @@ contract Compensator is ERC20 {
         // Add newly accrued rewards since last checkpoint
         if (balanceOf(delegator) > 0) {
             uint256 currIndex = _getCurrentRewardsIndex();
-            currentRewards += balanceOf(delegator) * (currIndex - startRewardIndex[delegator]) / 1e18;
+            currentRewards += balanceOf(delegator) * (currIndex - startRewardIndex[delegator]) / REWARD_PRECISION;
         }
         
         return currentRewards;
@@ -547,7 +553,7 @@ contract Compensator is ERC20 {
      */
     function _updateUserRewards(address delegator) internal {
         if (balanceOf(delegator) > 0) {
-            uint256 newRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
+            uint256 newRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / REWARD_PRECISION;
             if (newRewards > 0) {
                 unclaimedRewards[delegator] += newRewards;
                 emit UserRewardsUpdated(delegator, newRewards, unclaimedRewards[delegator]);
@@ -601,7 +607,7 @@ contract Compensator is ERC20 {
         }
         
         // Update accounting
-        rewardIndex += rewards * 1e18 / supply;
+        rewardIndex += rewards * REWARD_PRECISION / supply;
         totalPendingRewards += rewards;
         lastRewarded = block.timestamp;
         
@@ -628,7 +634,7 @@ contract Compensator is ERC20 {
             : potentialRewards;
 
         if (supply > 0) {
-            return rewardIndex + (actualRewards * 1e18) / supply;
+            return rewardIndex + (actualRewards * REWARD_PRECISION) / supply;
         }
         return rewardIndex;
     }
