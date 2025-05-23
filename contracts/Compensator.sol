@@ -25,7 +25,19 @@ contract Compensator is ERC20 {
     using SafeERC20 for IComp;
 
     //////////////////////////
-    // Variables
+    // Type Declarations
+    //////////////////////////
+
+    /// @notice Structure to track individual delegator stakes on proposals
+    struct ProposalStake {
+        /// @notice Amount staked in support of a proposal
+        uint256 forStake;
+        /// @notice Amount staked against a proposal
+        uint256 againstStake;
+    }
+
+    //////////////////////////
+    // State Variables
     //////////////////////////
 
     /// @notice The COMP governance token contract
@@ -79,14 +91,6 @@ contract Compensator is ERC20 {
     /// @notice Maximum time a proposal can remain unresolved (30 days)
     uint256 public constant MAX_PROPOSAL_RESOLUTION_TIME = 30 days;
 
-    /// @notice Structure to track individual delegator stakes on proposals
-    struct ProposalStake {
-        /// @notice Amount staked in support of a proposal
-        uint256 forStake;
-        /// @notice Amount staked against a proposal
-        uint256 againstStake;
-    }
-
     /// @notice Mapping to track stakes for each proposal by each delegator
     mapping(uint256 proposalId => mapping(address delegator => ProposalStake stake)) public proposalStakes;
 
@@ -114,6 +118,16 @@ contract Compensator is ERC20 {
     /// @notice Tracks proposals that are about to start (within 1 day)
     mapping(uint256 proposalId => bool isPending) public pendingProposals;
 
+    /// @notice Tracks whether the delegate has voted on a proposal
+    mapping(uint256 proposalId => bool hasVoted) public delegateVoted;
+
+    /// @notice Tracks the delegate's vote direction on a proposal
+    mapping(uint256 proposalId => uint8 direction) public delegateVoteDirection;
+
+    //////////////////////////
+    // Events
+    //////////////////////////
+
     /// @notice Emitted when a delegator's COMP is locked
     event COMPLocked(address indexed delegator, uint256 unlockTime);
 
@@ -128,10 +142,6 @@ contract Compensator is ERC20 {
 
     /// @notice Emitted when a proposal is automatically resolved
     event ProposalAutoResolved(uint256 indexed proposalId, uint8 winningSupport);
-
-    //////////////////////////
-    // Events
-    //////////////////////////
 
     /// @notice Emitted when the delegate deposits COMP into the contract
     /// @param delegate The address of the delegate depositing COMP
@@ -197,7 +207,7 @@ contract Compensator is ERC20 {
     event RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued, uint256 rewardsDeficit);
 
     //////////////////////////
-    // Constructor & Initialization
+    // Constructor
     //////////////////////////
 
     /**
@@ -217,9 +227,10 @@ contract Compensator is ERC20 {
     }
 
     //////////////////////////
-    // View Methods
+    // External Functions
     //////////////////////////
 
+    // View functions
     /**
      * @notice Calculates the timestamp until which rewards will be distributed
      * @dev Returns lastRewarded timestamp if no rewards are being distributed
@@ -261,10 +272,7 @@ contract Compensator is ERC20 {
         return currentRewards;
     }
 
-    //////////////////////////
-    // Delegate Methods
-    //////////////////////////
-
+    // Delegate functions
     /**
      * @notice Allows the delegate to deposit COMP to be used for rewards
      * @dev Updates reward index before increasing available rewards
@@ -306,10 +314,7 @@ contract Compensator is ERC20 {
         emit RewardRateUpdate(delegate, newRate);
     }
 
-    //////////////////////////
-    // Delegator Methods
-    //////////////////////////
-
+    // Delegator functions
     /**
      * @notice Allows a delegator to delegate tokens to the delegate to receive rewards
      * @param amount The amount of COMP to delegate
@@ -366,6 +371,7 @@ contract Compensator is ERC20 {
         emit DelegatorWithdraw(msg.sender, amount);
     }
 
+    // Proposal functions
     /**
      * @notice Allows a delegator to stake COMP on a proposal
      * @dev Only active proposals can be staked on
@@ -495,6 +501,126 @@ contract Compensator is ERC20 {
         emit LosingStakeReclaimed(msg.sender, proposalId, amountToReturn);
     }
 
+    //////////////////////////
+    // Public Functions
+    //////////////////////////
+
+    // ERC20 overrides
+    /**
+     * @notice Overrides the transfer function to block transfers
+     * @dev Compensator tokens are non-transferrable
+     */
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        revert("Transfers are disabled");
+    }
+
+    /**
+     * @notice Overrides the transferFrom function to block transfers
+     * @dev Compensator tokens are non-transferrable
+     */
+    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
+        revert("Transfers are disabled");
+    }
+
+    //////////////////////////
+    // Internal Functions
+    //////////////////////////
+
+    // Reward-related functions
+    /**
+     * @notice Internal function to update a user's rewards without claiming
+     * @dev Updates the user's unclaimed rewards and sets a new checkpoint
+     * @param delegator The address of the delegator to update rewards for
+     */
+    function _updateUserRewards(address delegator) internal {
+        if (balanceOf(delegator) > 0) {
+            uint256 newRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
+            if (newRewards > 0) {
+                unclaimedRewards[delegator] += newRewards;
+                emit UserRewardsUpdated(delegator, newRewards, unclaimedRewards[delegator]);
+            }
+        }
+    }
+
+    /**
+     * @notice Updates the reward index based on elapsed time and reward rate
+     * @dev Tracks rewards
+     */
+    function _updateRewardsIndex() internal {
+        uint256 supply = totalSupply();
+        
+        // Early return if no delegators exist
+        if (supply == 0) {
+            lastRewarded = block.timestamp;
+            return;
+        }
+
+        // Calculate new rewards
+        uint256 timeDelta = block.timestamp - lastRewarded;
+        uint256 rewards = timeDelta * rewardRate;
+        
+        if (availableRewards <= totalPendingRewards) {
+            // Track the deficit in rewards
+            rewardsDeficit += rewards;
+            lastRewarded = block.timestamp;
+            emit RewardIndexUpdated(rewardIndex, 0, rewardsDeficit);
+            return;
+        }
+        
+        uint256 availableForNewRewards = availableRewards - totalPendingRewards;
+        
+        // If we have a deficit, try to make it up first
+        if (rewardsDeficit > 0) {
+            if (availableForNewRewards >= rewardsDeficit) {
+                // We can make up the entire deficit
+                availableForNewRewards -= rewardsDeficit;
+                rewardsDeficit = 0;
+            } else {
+                // We can only make up part of the deficit
+                rewardsDeficit -= availableForNewRewards;
+                availableForNewRewards = 0;
+            }
+        }
+        
+        // Handle potential overflow for new rewards
+        if (rewards > availableForNewRewards) {
+            rewards = availableForNewRewards;
+        }
+        
+        // Update accounting
+        rewardIndex += rewards * 1e18 / supply;
+        totalPendingRewards += rewards;
+        lastRewarded = block.timestamp;
+        
+        emit RewardIndexUpdated(rewardIndex, rewards, rewardsDeficit);
+    }
+
+    /**
+     * @notice Returns the current rewards index, adjusted for time since last rewarded
+     * @dev Used for view functions to calculate pending rewards
+     */
+    function _getCurrentRewardsIndex() internal view returns (uint256) {
+        if (availableRewards <= totalPendingRewards) {
+            return rewardIndex;
+        }
+        
+        uint256 timeDelta = block.timestamp - lastRewarded;
+        uint256 potentialRewards = timeDelta * rewardRate;
+        uint256 supply = totalSupply();
+        
+        // Cap rewards to remaining available funds
+        uint256 remainingRewards = availableRewards - totalPendingRewards;
+        uint256 actualRewards = potentialRewards > remainingRewards 
+            ? remainingRewards 
+            : potentialRewards;
+
+        if (supply > 0) {
+            return rewardIndex + (actualRewards * 1e18) / supply;
+        }
+        return rewardIndex;
+    }
+
+    // Proposal-related functions
     /**
      * @notice Automatically resolves a proposal that has exceeded the maximum resolution time
      * @dev Internal function called by reclaimLosingStake when timeout is reached
@@ -625,122 +751,5 @@ contract Compensator is ERC20 {
             }
         }
         return false;
-    }
-
-    //////////////////////////
-    // Internal Functions
-    //////////////////////////
-
-    /**
-     * @notice Internal function to update a user's rewards without claiming
-     * @dev Updates the user's unclaimed rewards and sets a new checkpoint
-     * @param delegator The address of the delegator to update rewards for
-     */
-    function _updateUserRewards(address delegator) internal {
-        if (balanceOf(delegator) > 0) {
-            uint256 newRewards = balanceOf(delegator) * (rewardIndex - startRewardIndex[delegator]) / 1e18;
-            if (newRewards > 0) {
-                unclaimedRewards[delegator] += newRewards;
-                emit UserRewardsUpdated(delegator, newRewards, unclaimedRewards[delegator]);
-            }
-        }
-    }
-
-    /**
-    * @notice Updates the reward index based on elapsed time and reward rate
-    * @dev Tracks rewards
-    */
-    function _updateRewardsIndex() internal {
-        uint256 supply = totalSupply();
-        
-        // Early return if no delegators exist
-        if (supply == 0) {
-            lastRewarded = block.timestamp;
-            return;
-        }
-
-        // Calculate new rewards
-        uint256 timeDelta = block.timestamp - lastRewarded;
-        uint256 rewards = timeDelta * rewardRate;
-        
-        if (availableRewards <= totalPendingRewards) {
-            // Track the deficit in rewards
-            rewardsDeficit += rewards;
-            lastRewarded = block.timestamp;
-            emit RewardIndexUpdated(rewardIndex, 0, rewardsDeficit);
-            return;
-        }
-        
-        uint256 availableForNewRewards = availableRewards - totalPendingRewards;
-        
-        // If we have a deficit, try to make it up first
-        if (rewardsDeficit > 0) {
-            if (availableForNewRewards >= rewardsDeficit) {
-                // We can make up the entire deficit
-                availableForNewRewards -= rewardsDeficit;
-                rewardsDeficit = 0;
-            } else {
-                // We can only make up part of the deficit
-                rewardsDeficit -= availableForNewRewards;
-                availableForNewRewards = 0;
-            }
-        }
-        
-        // Handle potential overflow for new rewards
-        if (rewards > availableForNewRewards) {
-            rewards = availableForNewRewards;
-        }
-        
-        // Update accounting
-        rewardIndex += rewards * 1e18 / supply;
-        totalPendingRewards += rewards;
-        lastRewarded = block.timestamp;
-        
-        emit RewardIndexUpdated(rewardIndex, rewards, rewardsDeficit);
-    }
-
-    /**
-    * @notice Returns the current rewards index, adjusted for time since last rewarded
-    * @dev Used for view functions to calculate pending rewards
-    */
-    function _getCurrentRewardsIndex() internal view returns (uint256) {
-        if (availableRewards <= totalPendingRewards) {
-            return rewardIndex;
-        }
-        
-        uint256 timeDelta = block.timestamp - lastRewarded;
-        uint256 potentialRewards = timeDelta * rewardRate;
-        uint256 supply = totalSupply();
-        
-        // Cap rewards to remaining available funds
-        uint256 remainingRewards = availableRewards - totalPendingRewards;
-        uint256 actualRewards = potentialRewards > remainingRewards 
-            ? remainingRewards 
-            : potentialRewards;
-
-        if (supply > 0) {
-            return rewardIndex + (actualRewards * 1e18) / supply;
-        }
-        return rewardIndex;
-    }
-
-    //////////////////////////
-    // ERC20 Overrides
-    //////////////////////////
-
-    /**
-     * @notice Overrides the transfer function to block transfers
-     * @dev Compensator tokens are non-transferrable
-     */
-    function transfer(address to, uint256 amount) public override returns (bool) {
-        revert("Transfers are disabled");
-    }
-
-    /**
-     * @notice Overrides the transferFrom function to block transfers
-     * @dev Compensator tokens are non-transferrable
-     */
-    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
-        revert("Transfers are disabled");
     }
 }
