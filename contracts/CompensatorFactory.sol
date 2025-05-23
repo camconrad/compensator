@@ -18,7 +18,7 @@ import {Compensator} from "./Compensator.sol";
  */
 contract CompensatorFactory {
     //////////////////////////
-    // Variables
+    // State Variables
     //////////////////////////
 
     /// @notice Array of all deployed Compensator contract addresses
@@ -37,7 +37,7 @@ contract CompensatorFactory {
     event CompensatorCreated(address indexed delegatee, address indexed compensator);
 
     //////////////////////////
-    // Functions
+    // External Functions
     //////////////////////////
 
     /**
@@ -65,6 +65,10 @@ contract CompensatorFactory {
         // Return the address of the newly created Compensator contract
         return address(compensator);
     }
+
+    //////////////////////////
+    // Public Functions
+    //////////////////////////
 
     /**
      * @notice Retrieves the total number of deployed Compensator contracts
