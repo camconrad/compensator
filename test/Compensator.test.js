@@ -26,11 +26,8 @@ describe("Compensator", function () {
     
     // Deploy Compensator contract with mock addresses
     const CompensatorFactory = await ethers.getContractFactory("Compensator");
-    compensator = await CompensatorFactory.deploy();
+    compensator = await CompensatorFactory.deploy(await delegate.getAddress(), "Test Delegate");
     await compensator.waitForDeployment();
-    
-    // Initialize the compensator
-    await compensator.initialize(await delegate.getAddress(), "Test Delegate");
     
     // Fund accounts for testing
     await compToken.mint(delegate.address, ethers.parseEther("10000"));

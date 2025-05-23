@@ -5,7 +5,6 @@ import "./IComp.sol";
 import "./IGovernor.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
@@ -21,7 +20,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
  * and earn rewards. The delegate can deposit COMP to distribute rewards to delegators.
  * COMP holders may also stake COMP for or against proposals once delegated.
  */
-contract Compensator is ERC20, Initializable {
+contract Compensator is ERC20 {
     using SafeERC20 for IComp;
 
     //////////////////////////
@@ -35,10 +34,10 @@ contract Compensator is ERC20, Initializable {
     IGovernor public constant compoundGovernor = IGovernor(0x309a862bbC1A00e45506cB8A802D1ff10004c8C0);
 
     /// @notice The address of the delegate receiving voting power
-    address public delegate;
+    address public immutable delegate;
 
     /// @notice The name selected by this delegate when they registered
-    string public delegateName;
+    string public immutable delegateName;
 
     /// @notice The amount of COMP deposited by the delegate available for rewards to delegators
     uint256 public availableRewards;
@@ -185,32 +184,15 @@ contract Compensator is ERC20, Initializable {
     event DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection);
 
     //////////////////////////
-    // Modifiers
-    //////////////////////////
-
-    /// @notice Restricts access to the delegate
-    modifier onlyDelegate() {
-        require(msg.sender == delegate, "Not the delegate");
-        _;
-    }
-
-    //////////////////////////
     // Constructor & Initialization
     //////////////////////////
 
     /**
-     * @notice Initializes the Compensator contract with name and symbol
-     * @dev ERC20 token is non-transferrable and only used for accounting
-     */
-    constructor() ERC20("Compensator", "COMPENSATOR") {}
-
-    /**
-     * @notice Initializes the contract with the delegate's address and name
-     * @dev Sets up initial delegation and calculates the 5% delegation cap
+     * @notice Constructor that initializes the contract with the delegate's address and name
      * @param _delegate The address of the delegate
      * @param _delegateName The name of the delegate
      */
-    function initialize(address _delegate, string memory _delegateName) public initializer {
+    constructor(address _delegate, string memory _delegateName) ERC20("Compensator", "COMPENSATOR") {
         require(_delegate != address(0), "Invalid delegate address");
         delegate = _delegate;
         delegateName = _delegateName;
@@ -275,7 +257,7 @@ contract Compensator is ERC20, Initializable {
      * @dev Updates reward index before increasing available rewards
      * @param amount The amount of COMP to deposit
      */
-    function delegateDeposit(uint256 amount) external onlyDelegate {
+    function delegateDeposit(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
         compToken.transferFrom(delegate, address(this), amount);
         availableRewards += amount;
@@ -288,7 +270,7 @@ contract Compensator is ERC20, Initializable {
      * @dev Ensures sufficient funds remain for pending rewards before withdrawal
      * @param amount The amount of COMP to withdraw
      */
-    function delegateWithdraw(uint256 amount) external onlyDelegate {
+    function delegateWithdraw(uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
         _updateRewardsIndex();
         uint256 withdrawableAmount = availableRewards - totalPendingRewards;
@@ -303,7 +285,7 @@ contract Compensator is ERC20, Initializable {
      * @dev Updates reward index before changing rate to ensure proper accounting
      * @param newRate The new reward rate in COMP per second
      */
-    function setRewardRate(uint256 newRate) external onlyDelegate {
+    function setRewardRate(uint256 newRate) external {
         require(newRate >= 0, "Reward rate must be non-negative");
         require(newRate != rewardRate, "New rate must be different from current rate");
         _updateRewardsIndex();

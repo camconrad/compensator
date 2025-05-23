@@ -49,11 +49,8 @@ contract CompensatorFactory {
         // Check if contract has already been created
         require(delegateeToCompensator[delegatee] == address(0), "Delegatee already has a Compensator");
 
-        // Deploy a new Compensator contract
-        Compensator compensator = new Compensator();
-
-        // Initialize the Compensator contract with the delegatee's address and name
-        compensator.initialize(delegatee, delegateeName);
+        // Deploy a new Compensator contract with constructor parameters
+        Compensator compensator = new Compensator(delegatee, delegateeName);
 
         // Add the new Compensator contract address to the list of compensators
         compensators.push(address(compensator));

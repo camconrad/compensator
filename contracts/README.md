@@ -69,11 +69,12 @@
 - `DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection)` - Emitted when delegate voting status is verified.
 
 ### Functions
-- **`initialize(address _delegate, string memory _delegateName)`**  
+- **`constructor(address _delegate, string memory _delegateName)`**  
   Initializes the contract with the delegate's address and name.  
   - Sets the delegation cap to 5% of the total COMP supply.
   - Delegates voting power to the delegate.
   - Initializes the reward index at 1e18.
+  - Sets the delegate and delegateName as immutable variables.
 
 - **`delegateDeposit(uint256 amount)`**  
   Allows the delegate to deposit COMP into the contract for rewards distribution.  
