@@ -68,7 +68,7 @@ contract CompensatorFactory {
      * @param delegateeName The name of the delegatee
      * @return The address of the newly created Compensator contract
      */
-    function createCompensator(address delegatee, string memory delegateeName) external returns (address) {
+    function createCompensator(address delegatee, string calldata delegateeName) external returns (address) {
         // Check if contract has already been created
         require(delegateeToCompensator[delegatee] == address(0), "Delegatee already has a Compensator");
 
