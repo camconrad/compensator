@@ -94,6 +94,7 @@
 - **`setRewardRate(uint256 newRate)`**  
   Allows the delegate to set the reward rate (in COMP/second).  
   - Requires new rate to be non-negative.
+  - Requires new rate to be different from current rate.
   - Updates the reward index before setting the new rate.
   - Emits a `RewardRateUpdate` event.
 

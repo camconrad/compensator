@@ -305,6 +305,7 @@ contract Compensator is ERC20, Initializable {
      */
     function setRewardRate(uint256 newRate) external onlyDelegate {
         require(newRate >= 0, "Reward rate must be non-negative");
+        require(newRate != rewardRate, "New rate must be different from current rate");
         _updateRewardsIndex();
         rewardRate = newRate;
         emit RewardRateUpdate(delegate, newRate);
