@@ -25,7 +25,7 @@ contract CompensatorFactory {
     address[] public compensators;
 
     /// @notice Mapping from delegatee addresses to their corresponding Compensator contract addresses
-    mapping(address => address) public delegateeToCompensator;
+    mapping(address delegatee => address compensator) public delegateeToCompensator;
 
     //////////////////////////
     // Events

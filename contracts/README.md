@@ -4,7 +4,7 @@
 
 ### Variables
 - `address[] public compensators` - A list of all `Compensator` contracts created by the factory.
-- `mapping(address => address) public delegateeToCompensator` - A mapping of delegatees to their `Compensator` contracts.
+- `mapping(address delegatee => address compensator) public delegateeToCompensator` - A mapping of delegatees to their `Compensator` contracts.
 
 ### Functions
 - **`createCompensator(address delegatee, string memory delegateeName)`**  
@@ -33,23 +33,23 @@
 - `uint256 totalPendingRewards` - Total pending rewards for all delegators that have been accrued but not yet claimed.
 - `uint256 rewardsDeficit` - Tracks the total rewards deficit when availableRewards was insufficient.
 - `uint256 constant MIN_LOCK_PERIOD` - Minimum lock period for delegated COMP (7 days).
-- `mapping(address => uint256) unlockTime` - Tracks when each delegator's COMP will be unlocked.
+- `mapping(address delegator => uint256 timestamp) public unlockTime` - Tracks when each delegator's COMP will be unlocked.
 - `uint256 latestProposalId` - Latest proposal ID that has been seen.
-- `mapping(uint256 => bool) activeProposals` - Tracks active proposals.
-- `mapping(uint256 => bool) pendingProposals` - Tracks proposals that are about to start (within 1 day).
-- `mapping(address => uint256) unclaimedRewards` - Tracks the unclaimed rewards for each delegator.
-- `mapping(address => uint256) startRewardIndex` - Tracks the starting reward index for each delegator.
-- `mapping(uint256 => uint256) proposalCreationTime` - Tracks when each proposal was created.
+- `mapping(uint256 proposalId => bool isActive) public activeProposals` - Tracks active proposals.
+- `mapping(uint256 proposalId => bool isPending) public pendingProposals` - Tracks proposals that are about to start (within 1 day).
+- `mapping(address delegator => uint256 amount) public unclaimedRewards` - Tracks previously accrued but unclaimed rewards for each delegator.
+- `mapping(address delegator => uint256 index) public startRewardIndex` - Tracks the starting reward index for each delegator to calculate pending rewards.
+- `mapping(uint256 proposalId => uint256 timestamp) public proposalCreationTime` - Tracks when each proposal was created.
 - `uint256 constant MAX_PROPOSAL_RESOLUTION_TIME` - Maximum time a proposal can remain unresolved (30 days).
-- `mapping(uint256 => bool) delegateVoted` - Tracks whether the delegate has voted on a proposal.
-- `mapping(uint256 => uint8) delegateVoteDirection` - Tracks the delegate's vote direction on a proposal.
-- `struct ProposalStake` - Tracks stakes for proposals by delegators:
-  - `uint256 forStake` - Amount staked "For" a proposal.
-  - `uint256 againstStake` - Amount staked "Against" a proposal.
-- `mapping(uint256 => mapping(address => ProposalStake)) proposalStakes` - Tracks the stakes of each delegator for a specific proposal.
-- `mapping(uint256 => uint256) totalStakesFor` - Total stakes "For" a specific proposal.
-- `mapping(uint256 => uint256) totalStakesAgainst` - Total stakes "Against" a specific proposal.
-- `mapping(uint256 => uint8) proposalOutcomes` - Tracks the outcome of each proposal (0 = not resolved, 1 = For won, 2 = Against won).
+- `mapping(uint256 proposalId => bool hasVoted) public delegateVoted` - Tracks whether the delegate has voted on a proposal.
+- `mapping(uint256 proposalId => uint8 direction) public delegateVoteDirection` - Tracks the delegate's vote direction on a proposal.
+- `struct ProposalStake` - Structure to track individual delegator stakes on proposals:
+  - `uint256 forStake` - Amount staked in support of a proposal.
+  - `uint256 againstStake` - Amount staked against a proposal.
+- `mapping(uint256 proposalId => mapping(address delegator => ProposalStake stake)) public proposalStakes` - Mapping to track stakes for each proposal by each delegator.
+- `mapping(uint256 proposalId => uint256 amount) public totalStakesFor` - Total stakes "For" each proposal.
+- `mapping(uint256 proposalId => uint256 amount) public totalStakesAgainst` - Total stakes "Against" each proposal.
+- `mapping(uint256 proposalId => uint8 outcome) public proposalOutcomes` - Tracks the outcome of each proposal (0 = not resolved, 1 = For won, 2 = Against won).
 
 ### Events
 - `DelegateDeposit(address indexed delegate, uint256 amount)` - Emitted when the delegate deposits COMP.

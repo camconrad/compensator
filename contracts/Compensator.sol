@@ -65,16 +65,16 @@ contract Compensator is ERC20 {
     uint256 public totalPendingRewards;
 
     /// @notice Tracks the starting reward index for each delegator to calculate pending rewards
-    mapping(address => uint256) public startRewardIndex;
+    mapping(address delegator => uint256 index) public startRewardIndex;
 
     /// @notice Tracks previously accrued but unclaimed rewards for each delegator
-    mapping(address => uint256) public unclaimedRewards;
+    mapping(address delegator => uint256 amount) public unclaimedRewards;
 
     /// @notice Tracks the outcome of each proposal (0 = not resolved, 1 = For won, 2 = Against won)
-    mapping(uint256 => uint8) public proposalOutcomes;
+    mapping(uint256 proposalId => uint8 outcome) public proposalOutcomes;
 
     /// @notice Tracks when each proposal was created
-    mapping(uint256 => uint256) public proposalCreationTime;
+    mapping(uint256 proposalId => uint256 timestamp) public proposalCreationTime;
 
     /// @notice Maximum time a proposal can remain unresolved (30 days)
     uint256 public constant MAX_PROPOSAL_RESOLUTION_TIME = 30 days;
@@ -88,13 +88,13 @@ contract Compensator is ERC20 {
     }
 
     /// @notice Mapping to track stakes for each proposal by each delegator
-    mapping(uint256 => mapping(address => ProposalStake)) public proposalStakes;
+    mapping(uint256 proposalId => mapping(address delegator => ProposalStake stake)) public proposalStakes;
 
     /// @notice Total stakes "For" each proposal
-    mapping(uint256 => uint256) public totalStakesFor;
+    mapping(uint256 proposalId => uint256 amount) public totalStakesFor;
 
     /// @notice Total stakes "Against" each proposal
-    mapping(uint256 => uint256) public totalStakesAgainst;
+    mapping(uint256 proposalId => uint256 amount) public totalStakesAgainst;
 
     /// @notice Tracks the total rewards deficit when availableRewards was insufficient
     uint256 public rewardsDeficit;
@@ -103,16 +103,16 @@ contract Compensator is ERC20 {
     uint256 public constant MIN_LOCK_PERIOD = 7 days;
 
     /// @notice Tracks when each delegator's COMP will be unlocked
-    mapping(address => uint256) public unlockTime;
+    mapping(address delegator => uint256 timestamp) public unlockTime;
 
     /// @notice Latest proposal ID that has been seen
     uint256 public latestProposalId;
 
     /// @notice Tracks active proposals
-    mapping(uint256 => bool) public activeProposals;
+    mapping(uint256 proposalId => bool isActive) public activeProposals;
 
     /// @notice Tracks proposals that are about to start (within 1 day)
-    mapping(uint256 => bool) public pendingProposals;
+    mapping(uint256 proposalId => bool isPending) public pendingProposals;
 
     /// @notice Emitted when a delegator's COMP is locked
     event COMPLocked(address indexed delegator, uint256 unlockTime);
