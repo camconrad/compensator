@@ -5,12 +5,20 @@
 ### Variables
 - `address[] public compensators` - A list of all `Compensator` contracts created by the factory.
 - `mapping(address delegatee => address compensator) public delegateeToCompensator` - A mapping of delegatees to their `Compensator` contracts.
+- `address public immutable compToken` - The COMP governance token contract.
+- `address public immutable compoundGovernor` - The Compound Governor contract.
 
 ### Functions
+- **`constructor(address _compToken, address _compoundGovernor)`**  
+  Initializes the factory with the COMP token and Compound Governor addresses.  
+  - Validates that both addresses are non-zero.
+  - Sets the addresses as immutable variables.
+
 - **`createCompensator(address delegatee, string memory delegateeName)`**  
   Creates a `Compensator` contract for a delegatee.  
   - Adds the contract to the `compensators` list.  
   - Maps the delegatee to their `Compensator` contract.  
+  - Passes the COMP token and Compound Governor addresses to the new contract.
   - Returns the address of the new `Compensator` contract.
 
 - **`getCompensatorsCount()`**  
@@ -71,12 +79,13 @@
 - `RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued, uint256 rewardsDeficit)` - Emitted when the global reward index is updated.
 
 ### Functions
-- **`constructor(address _delegate, string memory _delegateName)`**  
-  Initializes the contract with the delegate's address and name.  
+- **`constructor(address _delegate, string memory _delegateName, address _compToken, address _compoundGovernor)`**  
+  Initializes the contract with the delegate's address, name, and required contract addresses.  
   - Sets the delegation cap to 5% of the total COMP supply.
   - Delegates voting power to the delegate.
   - Initializes the reward index at 1e18.
-  - Sets the delegate and delegateName as immutable variables.
+  - Sets the delegate, delegateName, compToken, and compoundGovernor as immutable variables.
+  - Validates that all addresses are non-zero.
 
 - **`delegateDeposit(uint256 amount)`**  
   Allows the delegate to deposit COMP into the contract for rewards distribution.  

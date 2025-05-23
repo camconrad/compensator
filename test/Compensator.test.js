@@ -26,7 +26,12 @@ describe("Compensator", function () {
     
     // Deploy Compensator contract with mock addresses
     const CompensatorFactory = await ethers.getContractFactory("Compensator");
-    compensator = await CompensatorFactory.deploy(await delegate.getAddress(), "Test Delegate");
+    compensator = await CompensatorFactory.deploy(
+      await delegate.getAddress(),
+      "Test Delegate",
+      await compToken.getAddress(),
+      await compoundGovernor.getAddress()
+    );
     await compensator.waitForDeployment();
     
     // Fund accounts for testing

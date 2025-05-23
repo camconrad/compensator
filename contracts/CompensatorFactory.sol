@@ -27,6 +27,12 @@ contract CompensatorFactory {
     /// @notice Mapping from delegatee addresses to their corresponding Compensator contract addresses
     mapping(address delegatee => address compensator) public delegateeToCompensator;
 
+    /// @notice The COMP governance token contract
+    address public immutable compToken;
+
+    /// @notice The Compound Governor contract
+    address public immutable compoundGovernor;
+
     //////////////////////////
     // Events
     //////////////////////////
@@ -35,6 +41,22 @@ contract CompensatorFactory {
     /// @param delegatee The address of the delegatee for whom the Compensator is created
     /// @param compensator The address of the newly created Compensator contract
     event CompensatorCreated(address indexed delegatee, address indexed compensator);
+
+    //////////////////////////
+    // Constructor
+    //////////////////////////
+
+    /**
+     * @notice Constructor that initializes the factory with the COMP token and Compound Governor addresses
+     * @param _compToken The address of the COMP token contract
+     * @param _compoundGovernor The address of the Compound Governor contract
+     */
+    constructor(address _compToken, address _compoundGovernor) {
+        require(_compToken != address(0), "Invalid COMP token address");
+        require(_compoundGovernor != address(0), "Invalid Compound Governor address");
+        compToken = _compToken;
+        compoundGovernor = _compoundGovernor;
+    }
 
     //////////////////////////
     // External Functions
@@ -51,7 +73,12 @@ contract CompensatorFactory {
         require(delegateeToCompensator[delegatee] == address(0), "Delegatee already has a Compensator");
 
         // Deploy a new Compensator contract with constructor parameters
-        Compensator compensator = new Compensator(delegatee, delegateeName);
+        Compensator compensator = new Compensator(
+            delegatee,
+            delegateeName,
+            compToken,
+            compoundGovernor
+        );
 
         // Add the new Compensator contract address to the list of compensators
         compensators.push(address(compensator));

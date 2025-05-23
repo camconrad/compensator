@@ -5,13 +5,26 @@ const { ethers } = require("hardhat");
 describe("CompensatorFactory", function () {
   let factory;
   let owner, delegatee;
+  let compToken, compoundGovernor;
   const delegateeName = "Test Delegatee";
 
   beforeEach(async function () {
     [owner, delegatee] = await ethers.getSigners();
     
+    // Deploy mock contracts for testing
+    const MockToken = await ethers.getContractFactory("MockERC20");
+    compToken = await MockToken.deploy("COMP", "COMP");
+    await compToken.waitForDeployment();
+    
+    const MockGovernor = await ethers.getContractFactory("MockGovernor");
+    compoundGovernor = await MockGovernor.deploy();
+    await compoundGovernor.waitForDeployment();
+    
     const CompensatorFactory = await ethers.getContractFactory("CompensatorFactory");
-    factory = await CompensatorFactory.deploy();
+    factory = await CompensatorFactory.deploy(
+      await compToken.getAddress(),
+      await compoundGovernor.getAddress()
+    );
     await factory.waitForDeployment();
   });
 
@@ -63,6 +76,8 @@ describe("CompensatorFactory", function () {
     // Check initialization parameters
     expect(await compensator.delegate()).to.equal(delegateeAddress);
     expect(await compensator.delegateName()).to.equal(delegateeName);
+    expect(await compensator.compToken()).to.equal(await compToken.getAddress());
+    expect(await compensator.compoundGovernor()).to.equal(await compoundGovernor.getAddress());
   });
   
   it("should allow creating multiple compensators for different delegatees", async function () {

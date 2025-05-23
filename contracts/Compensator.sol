@@ -41,10 +41,10 @@ contract Compensator is ERC20 {
     //////////////////////////
 
     /// @notice The COMP governance token contract
-    IComp public constant compToken = IComp(0xc00e94Cb662C3520282E6f5717214004A7f26888);
+    IComp public immutable compToken;
 
     /// @notice The Compound Governor contract
-    IGovernor public constant compoundGovernor = IGovernor(0x309a862bbC1A00e45506cB8A802D1ff10004c8C0);
+    IGovernor public immutable compoundGovernor;
 
     /// @notice The address of the delegate receiving voting power
     address public immutable delegate;
@@ -214,11 +214,24 @@ contract Compensator is ERC20 {
      * @notice Constructor that initializes the contract with the delegate's address and name
      * @param _delegate The address of the delegate
      * @param _delegateName The name of the delegate
+     * @param _compToken The address of the COMP token contract
+     * @param _compoundGovernor The address of the Compound Governor contract
      */
-    constructor(address _delegate, string memory _delegateName) ERC20("Compensator", "COMPENSATOR") {
+    constructor(
+        address _delegate,
+        string memory _delegateName,
+        address _compToken,
+        address _compoundGovernor
+    ) ERC20("Compensator", "COMPENSATOR") {
         require(_delegate != address(0), "Invalid delegate address");
+        require(_compToken != address(0), "Invalid COMP token address");
+        require(_compoundGovernor != address(0), "Invalid Compound Governor address");
+        
         delegate = _delegate;
         delegateName = _delegateName;
+        compToken = IComp(_compToken);
+        compoundGovernor = IGovernor(_compoundGovernor);
+        
         rewardIndex = 1e18; // Initialize reward index at 1 with 18 decimals
         compToken.delegate(delegate); // Delegate voting power to the delegate
 
