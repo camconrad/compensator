@@ -5,6 +5,7 @@ import {IComp} from "./IComp.sol";
 import {IGovernor} from "./IGovernor.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
@@ -21,7 +22,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * COMP holders may also stake COMP for or against proposals once delegated.
  * @custom:security-contact support@compensator.io
  */
-contract Compensator is ERC20 {
+contract Compensator is ERC20, ReentrancyGuard {
     using SafeERC20 for IComp;
 
     //////////////////////////
@@ -297,11 +298,17 @@ contract Compensator is ERC20 {
      * @dev Updates reward index before increasing available rewards
      * @param amount The amount of COMP to deposit
      */
-    function delegateDeposit(uint256 amount) external {
+    function delegateDeposit(uint256 amount) external nonReentrant {
+        // Checks
         require(amount > 0, "Amount must be greater than 0");
-        COMP_TOKEN.transferFrom(delegate, address(this), amount);
-        availableRewards += amount;
+        
+        // Effects
         _updateRewardsIndex();
+        availableRewards += amount;
+        
+        // Interactions
+        COMP_TOKEN.transferFrom(delegate, address(this), amount);
+        
         emit DelegateDeposit(delegate, amount);
     }
 
@@ -310,9 +317,9 @@ contract Compensator is ERC20 {
      * @dev Ensures sufficient funds remain for pending rewards before withdrawal
      * @param amount The amount of COMP to withdraw
      */
-    function delegateWithdraw(uint256 amount) external {
+    function delegateWithdraw(uint256 amount) external nonReentrant {
+        // Checks
         require(amount > 0, "Amount must be greater than 0");
-        _updateRewardsIndex();
         
         // Cache frequently accessed storage variables
         uint256 currentAvailableRewards = availableRewards;
@@ -322,8 +329,13 @@ contract Compensator is ERC20 {
         uint256 withdrawableAmount = currentAvailableRewards - currentTotalPendingRewards;
         require(amount <= withdrawableAmount, "Amount exceeds available rewards");
         
+        // Effects
+        _updateRewardsIndex();
         availableRewards = currentAvailableRewards - amount;
+        
+        // Interactions
         COMP_TOKEN.transfer(currentDelegate, amount);
+        
         emit DelegateWithdraw(currentDelegate, amount);
     }
 
@@ -345,18 +357,14 @@ contract Compensator is ERC20 {
      * @notice Allows a delegator to delegate tokens to the delegate to receive rewards
      * @param amount The amount of COMP to delegate
      */
-    function delegatorDeposit(uint256 amount) external {
+    function delegatorDeposit(uint256 amount) external nonReentrant {
+        // Checks
         require(amount > 0, "Amount must be greater than 0");
         require(totalDelegatedCOMP + amount <= delegationCap, "Delegation cap exceeded");
         
-        // Update rewards before changing the user's balance
+        // Effects
         _updateRewardsIndex();
         _updateUserRewards(msg.sender);
-        
-        // Process the deposit
-        COMP_TOKEN.transferFrom(msg.sender, address(this), amount);
-        _mint(msg.sender, amount);
-        totalDelegatedCOMP += amount;
         
         // Set unlock time based on active proposals
         uint256 newUnlockTime = block.timestamp + MIN_LOCK_PERIOD;
@@ -369,8 +377,12 @@ contract Compensator is ERC20 {
             emit COMPLocked(msg.sender, newUnlockTime);
         }
         
-        // Reset the reward index for the user
+        _mint(msg.sender, amount);
+        totalDelegatedCOMP += amount;
         startRewardIndex[msg.sender] = rewardIndex;
+        
+        // Interactions
+        COMP_TOKEN.transferFrom(msg.sender, address(this), amount);
         
         emit DelegatorDeposit(msg.sender, amount);
     }
@@ -380,19 +392,21 @@ contract Compensator is ERC20 {
      * @dev Claims pending rewards before processing withdrawal
      * @param amount The amount of COMP to withdraw
      */
-    function delegatorWithdraw(uint256 amount) external {
+    function delegatorWithdraw(uint256 amount) external nonReentrant {
+        // Checks
         require(amount > 0, "Amount must be greater than 0");
         require(block.timestamp >= unlockTime[msg.sender], "COMP is locked");
         require(!_hasActiveOrPendingProposals(), "Cannot withdraw during active or pending proposals");
         
+        // Effects
         _updateRewardsIndex();
         _updateUserRewards(msg.sender);
-        
         _burn(msg.sender, amount);
-        COMP_TOKEN.transfer(msg.sender, amount);
         totalDelegatedCOMP -= amount;
-        
         startRewardIndex[msg.sender] = rewardIndex;
+        
+        // Interactions
+        COMP_TOKEN.transfer(msg.sender, amount);
         
         emit DelegatorWithdraw(msg.sender, amount);
     }
@@ -405,7 +419,8 @@ contract Compensator is ERC20 {
      * @param support The vote option (0 = Against, 1 = For)
      * @param amount The amount of COMP to stake
      */
-    function stakeForProposal(uint256 proposalId, uint8 support, uint256 amount) external {
+    function stakeForProposal(uint256 proposalId, uint8 support, uint256 amount) external nonReentrant {
+        // Checks
         require(support == 0 || support == 1, "Invalid support value");
         require(amount > 0, "Amount must be greater than 0");
         require(proposalOutcomes[proposalId] == 0, "Proposal already resolved");
@@ -413,13 +428,11 @@ contract Compensator is ERC20 {
         IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
         require(state == IGovernor.ProposalState.Active, "Staking only allowed for active proposals");
 
-        // Update latest proposal ID and track creation time
+        // Effects
         _updateLatestProposalId(proposalId);
         if (proposalCreationTime[proposalId] == 0) {
             proposalCreationTime[proposalId] = block.timestamp;
         }
-
-        COMP_TOKEN.transferFrom(msg.sender, address(this), amount);
 
         if (support == 1) {
             proposalStakes[proposalId][msg.sender].forStake += amount;
@@ -429,6 +442,9 @@ contract Compensator is ERC20 {
             totalStakesAgainst[proposalId] += amount;
         }
 
+        // Interactions
+        COMP_TOKEN.transferFrom(msg.sender, address(this), amount);
+
         emit ProposalStaked(msg.sender, proposalId, support, amount);
     }
 
@@ -437,7 +453,8 @@ contract Compensator is ERC20 {
      * @dev Can be called by anyone once the proposal is resolved in Compound Governor
      * @param proposalId The ID of the proposal to resolve
      */
-    function resolveProposal(uint256 proposalId) external {
+    function resolveProposal(uint256 proposalId) external nonReentrant {
+        // Checks
         require(proposalOutcomes[proposalId] == 0, "Proposal already resolved");
         
         IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
@@ -450,6 +467,7 @@ contract Compensator is ERC20 {
             "Proposal not yet resolved"
         );
 
+        // Effects
         // Verify delegate voting and direction
         if (!delegateVoted[proposalId]) {
             try COMPOUND_GOVERNOR.hasVoted(proposalId, delegate) returns (bool hasVoted) {
@@ -481,6 +499,7 @@ contract Compensator is ERC20 {
 
         proposalOutcomes[proposalId] = winningSupport + 1;
         
+        // Interactions
         // Only transfer winning stakes if delegate has voted and voted in the winning direction
         if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == winningSupport) {
             if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
@@ -498,7 +517,8 @@ contract Compensator is ERC20 {
      * @dev Can only be called after proposal is resolved with recorded outcome
      * @param proposalId The ID of the proposal to reclaim stake from
      */
-    function reclaimLosingStake(uint256 proposalId) external {
+    function reclaimLosingStake(uint256 proposalId) external nonReentrant {
+        // Checks
         // Check if proposal needs to be auto-resolved due to timeout
         if (proposalOutcomes[proposalId] == 0 && 
             block.timestamp > proposalCreationTime[proposalId] + MAX_PROPOSAL_RESOLUTION_TIME) {
@@ -511,6 +531,7 @@ contract Compensator is ERC20 {
         ProposalStake storage stake = proposalStakes[proposalId][msg.sender];
         uint8 winningSupport = outcome - 1;
         
+        // Effects
         uint256 amountToReturn;
         if (winningSupport == 1) {
             amountToReturn = stake.againstStake;
@@ -523,7 +544,10 @@ contract Compensator is ERC20 {
         }
         
         require(amountToReturn > 0, "No losing stake to reclaim");
+        
+        // Interactions
         COMP_TOKEN.transfer(msg.sender, amountToReturn);
+        
         emit LosingStakeReclaimed(msg.sender, proposalId, amountToReturn);
     }
 

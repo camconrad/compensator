@@ -69,9 +69,10 @@ contract CompensatorFactory {
      * @return The address of the newly created Compensator contract
      */
     function createCompensator(address delegatee, string calldata delegateeName) external returns (address) {
-        // Check if contract has already been created
+        // Checks
         require(delegateeToCompensator[delegatee] == address(0), "Delegatee already has a Compensator");
 
+        // Effects
         // Deploy a new Compensator contract with constructor parameters
         Compensator compensator = new Compensator(
             delegatee,
@@ -112,11 +113,11 @@ contract CompensatorFactory {
      * @return An array of Compensator contract addresses for the requested page
      */
     function getCompensators(uint256 offset, uint256 limit) external view returns (address[] memory) {
+        // Checks
         uint256 totalCount = compensators.length;
-        
-        // Validate pagination parameters
         require(offset < totalCount, "Offset out of bounds");
         
+        // Effects
         // Calculate the actual number of items to return
         uint256 itemsToReturn = limit;
         if (offset + limit > totalCount) {
@@ -129,8 +130,7 @@ contract CompensatorFactory {
         // Copy the requested items
         for (uint256 i = 0; i < itemsToReturn; i++) {
             result[i] = compensators[offset + i];
-        }
-        
+        }        
         return result;
     }
 }
