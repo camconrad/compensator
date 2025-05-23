@@ -14,6 +14,7 @@ import "./Compensator.sol";
 /**
  * @title CompensatorFactory
  * @notice A factory contract for deploying and retrieving Compensator instances.
+ * @custom:security-contact support@compensator.io
  */
 contract CompensatorFactory {
     //////////////////////////

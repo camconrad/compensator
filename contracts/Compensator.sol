@@ -19,6 +19,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * @notice A contract that allows COMP holders to delegate their voting power
  * and earn rewards. The delegate can deposit COMP to distribute rewards to delegators.
  * COMP holders may also stake COMP for or against proposals once delegated.
+ * @custom:security-contact support@compensator.io
  */
 contract Compensator is ERC20 {
     using SafeERC20 for IComp;
