@@ -51,13 +51,24 @@
 - `uint256 constant MAX_PROPOSAL_RESOLUTION_TIME` - Maximum time a proposal can remain unresolved (30 days).
 - `mapping(uint256 proposalId => bool hasVoted) public delegateVoted` - Tracks whether the delegate has voted on a proposal.
 - `mapping(uint256 proposalId => uint8 direction) public delegateVoteDirection` - Tracks the delegate's vote direction on a proposal.
-- `struct ProposalStake` - Structure to track individual delegator stakes on proposals:
-  - `uint256 forStake` - Amount staked in support of a proposal.
-  - `uint256 againstStake` - Amount staked against a proposal.
+- `struct ProposalStake` - Gas-optimized structure to track individual delegator stakes on proposals:
+  - `uint128 forStake` - Amount staked in support of a proposal (sufficient for COMP amounts)
+  - `uint128 againstStake` - Amount staked against a proposal (sufficient for COMP amounts)
 - `mapping(uint256 proposalId => mapping(address delegator => ProposalStake stake)) public proposalStakes` - Mapping to track stakes for each proposal by each delegator.
 - `mapping(uint256 proposalId => uint256 amount) public totalStakesFor` - Total stakes "For" each proposal.
 - `mapping(uint256 proposalId => uint256 amount) public totalStakesAgainst` - Total stakes "Against" each proposal.
 - `mapping(uint256 proposalId => uint8 outcome) public proposalOutcomes` - Tracks the outcome of each proposal (0 = not resolved, 1 = For won, 2 = Against won).
+- `address public voteRecorder` - The address of the trusted off-chain service that can record votes.
+- `uint256 public voteRecorderLastUpdate` - Timestamp when the vote recorder was last updated.
+- `uint256 public constant VOTE_RECORDER_UPDATE_DELAY` - Minimum time between vote recorder updates (24 hours).
+- `address public pendingVoteRecorder` - Pending new vote recorder address.
+- `uint256 public voteRecorderUpdateTime` - Timestamp when the pending vote recorder can be confirmed.
+- `address public voteRecorderUpdateProposer` - Address that proposed the pending vote recorder update.
+- `uint256 public blocksPerDay` - Number of blocks per day for proposal timing calculations (default: 6500 for mainnet).
+- `enum ProposalOutcome` - Type-safe enum for proposal outcomes:
+  - `NotResolved`
+  - `AgainstWon`
+  - `ForWon`
 
 ### Events
 - `DelegateDeposit(address indexed delegate, uint256 amount)` - Emitted when the delegate deposits COMP.
@@ -76,7 +87,11 @@
 - `ProposalAutoResolved(uint256 indexed proposalId, uint8 winningSupport)` - Emitted when a proposal is automatically resolved after timeout.
 - `DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection)` - Emitted when delegate voting status is verified.
 - `UserRewardsUpdated(address indexed delegator, uint256 newRewards, uint256 totalUnclaimed)` - Emitted when a user's rewards are updated.
-- `RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued, uint256 rewardsDeficit)` - Emitted when the global reward index is updated.
+- `RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued)` - Emitted when the global reward index is updated.
+  - `newRewardIndex` - The new reward index value
+  - `rewardsAccrued` - The amount of rewards accrued in this update
+- `VoteRecorderUpdateProposed(address indexed proposer, address indexed newVoteRecorder, uint256 effectiveTime)` - Emitted when a new vote recorder is proposed.
+- `VoteRecorderUpdated(address indexed oldVoteRecorder, address indexed newVoteRecorder, address indexed proposer)` - Emitted when the vote recorder is updated.
 
 ### Functions
 - **`constructor(address _delegate, string memory _delegateName, address _compToken, address _compoundGovernor)`**  
@@ -195,6 +210,46 @@
     - Any accumulated rewards deficit
   - Returns lastRewarded + time needed for all rewards
 
+- **`proposeVoteRecorderUpdate(address newVoteRecorder)`**  
+  Allows the delegate to propose a new vote recorder address.  
+  - Requires caller to be the owner (delegate).
+  - Requires new vote recorder to be non-zero and different from current.
+  - Requires no pending update.
+  - Sets pending vote recorder and update time.
+  - Records proposer address.
+  - Emits a `VoteRecorderUpdateProposed` event.
+
+- **`confirmVoteRecorderUpdate()`**  
+  Allows the current vote recorder to confirm the pending update.  
+  - Requires caller to be the current vote recorder.
+  - Requires update delay to have passed.
+  - Requires a pending update to exist.
+  - Updates vote recorder address.
+  - Clears pending update state.
+  - Emits a `VoteRecorderUpdated` event.
+
+- **`cancelVoteRecorderUpdate()`**  
+  Allows either the current vote recorder or proposer to cancel the pending update.  
+  - Requires caller to be either current vote recorder or proposer.
+  - Requires a pending update to exist.
+  - Clears pending update state.
+  - Emits a `VoteRecorderUpdated` event.
+
+- **`setBlocksPerDay(uint256 _blocksPerDay)`**  
+  Allows the owner to update the number of blocks per day for proposal timing calculations.  
+  - Requires caller to be the owner (delegate).
+  - Requires new value to be between 1 and 50000.
+  - Updates blocksPerDay state variable.
+  - Used for proposal timing calculations.
+
+- **`getProposalStake(uint256 proposalId, address delegator)`**  
+  External view function that returns a delegator's stakes for a specific proposal.  
+  - Returns both FOR and AGAINST stakes.
+  - Useful for frontend integration and stake tracking.
+  - Returns:
+    - `forStake`: Amount staked in support of the proposal
+    - `againstStake`: Amount staked against the proposal
+
 ### Internal Functions
 - **`_updateUserRewards(address delegator)`**  
   Internal function to checkpoint a user's rewards.  
@@ -227,11 +282,14 @@
 - **`_hasActiveOrPendingProposals()`**  
   Internal function to check for active or pending proposals.  
   - Checks the last 10 proposals for active or pending status.
+  - Includes gas limit protection to prevent excessive gas usage.
+  - Breaks loop if gas limit exceeded (50,000 gas).
   - Returns true if any active or pending proposals are found.
 
 - **`_autoResolveProposal(uint256 proposalId)`**  
   Internal function to automatically resolve a proposal after timeout.  
   - Called when a proposal exceeds MAX_PROPOSAL_RESOLUTION_TIME.
+  - Uses ProposalOutcome enum for clear outcome states.
   - Verifies delegate voting status and direction.
   - Determines outcome based on proposal state.
   - Transfers winning stakes if delegate voted correctly.
@@ -292,3 +350,41 @@
   - Trustless proposal resolution prevents delegate manipulation
   - Automatic timeout mechanism prevents stuck proposals
   - Delegate voting verification ensures proper stake distribution
+
+- **Vote Recorder Update System**:  
+  The contract implements a secure vote recorder update mechanism where:
+  - Delegate can propose new vote recorder
+  - 24-hour delay prevents sudden changes
+  - Current vote recorder must confirm changes
+  - Either party can cancel pending updates
+  - Events track all update actions
+  - Clear state management prevents conflicts
+  - Access control ensures proper authorization
+
+- **Network-Agnostic Timing**:  
+  The contract uses a configurable `blocksPerDay` parameter to handle different network block times. This allows the contract to work correctly on any EVM-compatible network by adjusting the timing calculations accordingly. The default value of 6500 blocks per day is optimized for mainnet, but can be adjusted for other networks.
+
+- **Gas Protection**:  
+  The contract includes gas limit protection in proposal checks to prevent excessive gas usage. This is particularly important for functions that need to check multiple proposals, ensuring the contract remains usable even with a large number of proposals. The gas limit is set to 50,000 gas per check.
+
+- **Precision Improvements**:  
+  The contract uses consistent precision in all calculations, particularly for reward distribution and time-based calculations. This ensures accurate reward distribution and prevents precision loss in critical calculations. The `REWARD_PRECISION` constant is used throughout to maintain consistency.
+
+- **Proposal Outcome Handling**:  
+  The contract uses a clear enum for proposal outcomes, making the code more readable and type-safe. This helps prevent errors in outcome handling and makes the code more maintainable. The enum values are:
+  - `NotResolved`: Initial state
+  - `AgainstWon`: Proposal was defeated or timed out
+  - `ForWon`: Proposal was successful
+
+- **Gas Optimization**:  
+  The contract uses gas-optimized data structures where possible:
+  - `ProposalStake` struct uses `uint128` for stake amounts, which is sufficient for COMP token amounts while saving storage slots
+  - Events are optimized to include only necessary parameters
+  - View functions are provided for efficient frontend integration
+
+- **Frontend Integration**:  
+  The contract includes several view functions to help with frontend development:
+  - `getProposalStake`: Get a delegator's stakes for a specific proposal
+  - `getPendingRewards`: Get a delegator's pending rewards
+  - `rewardsUntil`: Calculate when rewards will be distributed
+  - These functions help reduce the need for complex off-chain calculations

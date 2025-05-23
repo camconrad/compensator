@@ -8,24 +8,22 @@ describe("Compensator", function () {
   let compoundGovernor;
   let compensator;
   let compensatorFactory;
-  let delegate, delegator1, delegator2, delegator3;
+  let delegate, delegator1, delegator2, delegator3, voteRecorder;
   
   const COMP_TOKEN_ADDRESS = "0xc00e94Cb662C3520282E6f5717214004A7f26888";
   const GOVERNOR_ADDRESS = "0x309a862bbC1A00e45506cB8A802D1ff10004c8C0";
 
-  before(async function () {
-    [delegate, delegator1, delegator2, delegator3] = await ethers.getSigners();
+  async function deployCompensatorFixture() {
+    [delegate, delegator1, delegator2, delegator3, voteRecorder] = await ethers.getSigners();
     
     // Deploy mock contracts for testing
     const MockToken = await ethers.getContractFactory("MockERC20");
     compToken = await MockToken.deploy("COMP", "COMP");
     await compToken.waitForDeployment();
-    compTokenAddress = await compToken.getAddress();
     
     const MockGovernor = await ethers.getContractFactory("MockGovernor");
     compoundGovernor = await MockGovernor.deploy();
     await compoundGovernor.waitForDeployment();
-    compoundGovernorAddress = await compoundGovernor.getAddress();
     
     // Deploy Compensator contract with mock addresses
     const CompensatorFactory = await ethers.getContractFactory("Compensator");
@@ -33,7 +31,9 @@ describe("Compensator", function () {
       await delegate.getAddress(),
       "Test Delegate",
       await compToken.getAddress(),
-      await compoundGovernor.getAddress()
+      await compoundGovernor.getAddress(),
+      await voteRecorder.getAddress(),
+      await delegate.getAddress() // factory address
     );
     await compensator.waitForDeployment();
     
@@ -42,6 +42,20 @@ describe("Compensator", function () {
     await compToken.mint(delegator1.address, ethers.parseEther("10000"));
     await compToken.mint(delegator2.address, ethers.parseEther("10000"));
     await compToken.mint(delegator3.address, ethers.parseEther("10000"));
+    
+    return { compensator, compToken, compoundGovernor, delegate, delegator1, delegator2, delegator3, voteRecorder };
+  }
+
+  beforeEach(async function () {
+    const fixture = await loadFixture(deployCompensatorFixture);
+    compensator = fixture.compensator;
+    compToken = fixture.compToken;
+    compoundGovernor = fixture.compoundGovernor;
+    delegate = fixture.delegate;
+    delegator1 = fixture.delegator1;
+    delegator2 = fixture.delegator2;
+    delegator3 = fixture.delegator3;
+    voteRecorder = fixture.voteRecorder;
   });
 
   describe("Views", function () {
@@ -799,6 +813,92 @@ describe("Compensator", function () {
       const { compensator, delegate } = await loadFixture(deployCompensatorFixture);
       await expect(compensator.connect(delegate).setRewardRate(100))
         .to.not.be.reverted;
+    });
+  });
+
+  describe("Proposal Staking", function () {
+    let proposalId;
+
+    beforeEach(async function () {
+      proposalId = 1;
+      
+      // Setup delegators with tokens
+      const compensatorAddress = await compensator.getAddress();
+      await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("1000"));
+      await compToken.connect(delegator2).approve(compensatorAddress, ethers.parseEther("1000"));
+      await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+      await compensator.connect(delegator2).delegatorDeposit(ethers.parseEther("100"));
+    });
+
+    describe("Stake Distribution", function () {
+      it("should return all stakes to stakers if delegate didn't vote", async function () {
+        // Stake on proposal
+        const stakeAmount = ethers.parseEther("10");
+        await compToken.connect(delegator1).approve(await compensator.getAddress(), stakeAmount);
+        await compToken.connect(delegator2).approve(await compensator.getAddress(), stakeAmount);
+        
+        await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount); // FOR
+        await compensator.connect(delegator2).stakeForProposal(proposalId, 0, stakeAmount); // AGAINST
+        
+        // Resolve proposal (FOR wins)
+        await compoundGovernor.setProposalState(proposalId, 4); // Succeeded
+        await compensator.resolveProposal(proposalId);
+        
+        // Both stakers should be able to reclaim their stakes
+        await compensator.connect(delegator1).reclaimStake(proposalId);
+        await compensator.connect(delegator2).reclaimStake(proposalId);
+        
+        expect(await compToken.balanceOf(delegator1.address)).to.equal(ethers.parseEther("990"));
+        expect(await compToken.balanceOf(delegator2.address)).to.equal(ethers.parseEther("990"));
+      });
+
+      it("should give winning stakes to delegate if they voted correctly", async function () {
+        // Stake on proposal
+        const stakeAmount = ethers.parseEther("10");
+        await compToken.connect(delegator1).approve(await compensator.getAddress(), stakeAmount);
+        await compToken.connect(delegator2).approve(await compensator.getAddress(), stakeAmount);
+        
+        await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount); // FOR
+        await compensator.connect(delegator2).stakeForProposal(proposalId, 0, stakeAmount); // AGAINST
+        
+        // Record delegate vote
+        await compensator.connect(voteRecorder).recordDelegateVote(proposalId, 1, 1, ethers.keccak256("0x")); // FOR
+        
+        // Resolve proposal (FOR wins)
+        await compoundGovernor.setProposalState(proposalId, 4); // Succeeded
+        await compensator.resolveProposal(proposalId);
+        
+        // Delegate should get winning stakes
+        expect(await compToken.balanceOf(delegate.address)).to.equal(ethers.parseEther("10010"));
+        
+        // Losing staker should get their stake back
+        await compensator.connect(delegator2).reclaimStake(proposalId);
+        expect(await compToken.balanceOf(delegator2.address)).to.equal(ethers.parseEther("990"));
+      });
+
+      it("should return all stakes if delegate voted wrong", async function () {
+        // Stake on proposal
+        const stakeAmount = ethers.parseEther("10");
+        await compToken.connect(delegator1).approve(await compensator.getAddress(), stakeAmount);
+        await compToken.connect(delegator2).approve(await compensator.getAddress(), stakeAmount);
+        
+        await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount); // FOR
+        await compensator.connect(delegator2).stakeForProposal(proposalId, 0, stakeAmount); // AGAINST
+        
+        // Record delegate vote
+        await compensator.connect(voteRecorder).recordDelegateVote(proposalId, 0, 1, ethers.keccak256("0x")); // AGAINST
+        
+        // Resolve proposal (FOR wins)
+        await compoundGovernor.setProposalState(proposalId, 4); // Succeeded
+        await compensator.resolveProposal(proposalId);
+        
+        // Both stakers should get their stakes back
+        await compensator.connect(delegator1).reclaimStake(proposalId);
+        await compensator.connect(delegator2).reclaimStake(proposalId);
+        
+        expect(await compToken.balanceOf(delegator1.address)).to.equal(ethers.parseEther("990"));
+        expect(await compToken.balanceOf(delegator2.address)).to.equal(ethers.parseEther("990"));
+      });
     });
   });
 });

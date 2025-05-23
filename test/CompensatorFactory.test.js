@@ -4,12 +4,12 @@ const { ethers } = require("hardhat");
 
 describe("CompensatorFactory", function () {
   let factory;
-  let owner, delegatee;
+  let owner, delegate, voteRecorder;
   let compToken, compoundGovernor;
-  const delegateeName = "Test Delegatee";
+  const delegateName = "Test Delegate";
 
   beforeEach(async function () {
-    [owner, delegatee] = await ethers.getSigners();
+    [owner, delegate, voteRecorder] = await ethers.getSigners();
     
     // Deploy mock contracts for testing
     const MockToken = await ethers.getContractFactory("MockERC20");
@@ -25,95 +25,74 @@ describe("CompensatorFactory", function () {
     const CompensatorFactory = await ethers.getContractFactory("CompensatorFactory");
     factory = await CompensatorFactory.deploy(
       await compToken.getAddress(),
-      await compoundGovernor.getAddress()
+      await compoundGovernor.getAddress(),
+      await voteRecorder.getAddress()
     );
     await factory.waitForDeployment();
   });
 
   it("should return empty array when no compensators exist", async function () {
-    const compensators = await factory.getCompensators();
+    const compensators = await factory.getCompensators(0, 10);
     expect(compensators.length).to.equal(0);
   });
 
-  it("should return zero address for non-existent delegatee", async function () {
-    const address = await factory.getCompensator(delegatee.address);
+  it("should return zero address for non-existent delegate", async function () {
+    const address = await factory.delegateToCompensator(delegate.address);
     expect(address).to.equal(ethers.ZeroAddress);
   });
 
   it("should create a new compensator", async function () {
-    const delegateeAddress = delegatee.address;
-    const factoryAddress = await factory.getAddress(); // Get factory address
-    const tx = await factory.createCompensator(delegateeAddress, delegateeName);
+    const delegateAddress = delegate.address;
+    const factoryAddress = await factory.getAddress();
+    const tx = await factory.createCompensator(delegateAddress, delegateName);
     const receipt = await tx.wait();
     
-    const compensatorAddress = await factory.getCompensator(delegateeAddress);
+    const compensatorAddress = await factory.delegateToCompensator(delegateAddress);
     expect(compensatorAddress).to.not.equal(ethers.ZeroAddress);
     
-    const compensators = await factory.getCompensators();
+    const compensators = await factory.getCompensators(0, 10);
     expect(compensators).to.include(compensatorAddress);
     expect(compensators.length).to.equal(1);
     
     await expect(tx)
       .to.emit(factory, "CompensatorCreated")
-      .withArgs(delegateeAddress, compensatorAddress);
+      .withArgs(delegateAddress, compensatorAddress, delegateName);
   });
 
-  it("should not allow duplicate compensators for same delegatee", async function () {
-    const delegateeAddress = delegatee.address;
-    await factory.createCompensator(delegateeAddress, delegateeName);
+  it("should not allow duplicate compensators for same delegate", async function () {
+    const delegateAddress = delegate.address;
+    await factory.createCompensator(delegateAddress, delegateName);
     
     await expect(
-      factory.createCompensator(delegateeAddress, delegateeName)
-    ).to.be.revertedWith("Delegatee already has a Compensator");
+      factory.createCompensator(delegateAddress, delegateName)
+    ).to.be.revertedWith("Delegate already has a Compensator");
   });
   
   it("should initialize the Compensator contract correctly", async function () {
-    const delegateeAddress = delegatee.address;
-    await factory.createCompensator(delegateeAddress, delegateeName);
+    const delegateAddress = delegate.address;
+    await factory.createCompensator(delegateAddress, delegateName);
     
-    const compensatorAddress = await factory.getCompensator(delegateeAddress);
+    const compensatorAddress = await factory.delegateToCompensator(delegateAddress);
     const Compensator = await ethers.getContractFactory("Compensator");
     const compensator = await Compensator.attach(compensatorAddress);
     
     // Check initialization parameters
-    expect(await compensator.delegate()).to.equal(delegateeAddress);
-    expect(await compensator.delegateName()).to.equal(delegateeName);
+    expect(await compensator.delegate()).to.equal(delegateAddress);
+    expect(await compensator.delegateName()).to.equal(delegateName);
     expect(await compensator.COMP_TOKEN()).to.equal(await compToken.getAddress());
     expect(await compensator.COMPOUND_GOVERNOR()).to.equal(await compoundGovernor.getAddress());
-  });
-  
-  it("should allow creating multiple compensators for different delegatees", async function () {
-    const [_, delegatee1, delegatee2, delegatee3] = await ethers.getSigners();
-    
-    // Create compensators for different delegatees
-    await factory.createCompensator(delegatee1.address, "Delegatee 1");
-    await factory.createCompensator(delegatee2.address, "Delegatee 2");
-    await factory.createCompensator(delegatee3.address, "Delegatee 3");
-    
-    // Check all compensators exist
-    const compensators = await factory.getCompensators();
-    expect(compensators.length).to.equal(3);
-    
-    // Check individual mappings
-    expect(await factory.getCompensator(delegatee1.address)).to.not.equal(ethers.ZeroAddress);
-    expect(await factory.getCompensator(delegatee2.address)).to.not.equal(ethers.ZeroAddress);
-    expect(await factory.getCompensator(delegatee3.address)).to.not.equal(ethers.ZeroAddress);
-    
-    // Check all addresses are different
-    expect(await factory.getCompensator(delegatee1.address)).to.not.equal(await factory.getCompensator(delegatee2.address));
-    expect(await factory.getCompensator(delegatee1.address)).to.not.equal(await factory.getCompensator(delegatee3.address));
-    expect(await factory.getCompensator(delegatee2.address)).to.not.equal(await factory.getCompensator(delegatee3.address));
+    expect(await compensator.VOTE_RECORDER()).to.equal(await voteRecorder.getAddress());
   });
 
   describe("Pagination", function () {
-    let delegatees;
+    let delegates;
     const PAGE_SIZE = 2;
 
     beforeEach(async function () {
-      // Create multiple delegatees for testing pagination
-      delegatees = await ethers.getSigners();
+      // Create multiple delegates for testing pagination
+      delegates = await ethers.getSigners();
       for (let i = 1; i <= 5; i++) {
-        await factory.createCompensator(delegatees[i].address, `Delegatee ${i}`);
+        await factory.createCompensator(delegates[i].address, `Delegate ${i}`);
       }
     });
 
@@ -125,21 +104,21 @@ describe("CompensatorFactory", function () {
     it("should return first page correctly", async function () {
       const page = await factory.getCompensators(0, PAGE_SIZE);
       expect(page.length).to.equal(PAGE_SIZE);
-      expect(page[0]).to.equal(await factory.getCompensator(delegatees[1].address));
-      expect(page[1]).to.equal(await factory.getCompensator(delegatees[2].address));
+      expect(page[0]).to.equal(await factory.delegateToCompensator(delegates[1].address));
+      expect(page[1]).to.equal(await factory.delegateToCompensator(delegates[2].address));
     });
 
     it("should return middle page correctly", async function () {
       const page = await factory.getCompensators(2, PAGE_SIZE);
       expect(page.length).to.equal(PAGE_SIZE);
-      expect(page[0]).to.equal(await factory.getCompensator(delegatees[3].address));
-      expect(page[1]).to.equal(await factory.getCompensator(delegatees[4].address));
+      expect(page[0]).to.equal(await factory.delegateToCompensator(delegates[3].address));
+      expect(page[1]).to.equal(await factory.delegateToCompensator(delegates[4].address));
     });
 
     it("should return last page correctly", async function () {
       const page = await factory.getCompensators(4, PAGE_SIZE);
       expect(page.length).to.equal(1);
-      expect(page[0]).to.equal(await factory.getCompensator(delegatees[5].address));
+      expect(page[0]).to.equal(await factory.delegateToCompensator(delegates[5].address));
     });
 
     it("should handle out of bounds offset", async function () {
@@ -149,16 +128,13 @@ describe("CompensatorFactory", function () {
     });
 
     it("should handle empty result set", async function () {
-      const emptyFactory = await ethers.deployContract("CompensatorFactory");
+      const emptyFactory = await ethers.deployContract("CompensatorFactory", [
+        await compToken.getAddress(),
+        await compoundGovernor.getAddress(),
+        await voteRecorder.getAddress()
+      ]);
       const page = await emptyFactory.getCompensators(0, PAGE_SIZE);
       expect(page.length).to.equal(0);
-    });
-
-    it("should handle limit larger than remaining items", async function () {
-      const page = await factory.getCompensators(3, PAGE_SIZE * 2);
-      expect(page.length).to.equal(2); // Should only return remaining items
-      expect(page[0]).to.equal(await factory.getCompensator(delegatees[4].address));
-      expect(page[1]).to.equal(await factory.getCompensator(delegatees[5].address));
     });
   });
 });

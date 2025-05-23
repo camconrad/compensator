@@ -22,8 +22,11 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 ### 2. **Vote Compensation**
 - Delegators can incentivize delegates to vote for or against proposals by staking COMP.
 - After the delegate votes, the stake is distributed based on the outcome:
-  - Delegators who staked for the winning option pass their stake to the delegate.
-  - Delegators who staked for the losing option get their stake back.
+  - If delegate voted correctly:
+    - Delegators who staked for the winning option pass their stake to the delegate
+    - Delegators who staked for the losing option get their stake back
+  - If delegate didn't vote or voted wrong:
+    - All delegators get their stakes back
 - The system verifies delegate voting through the Compound Governor contract:
   - Checks if the delegate has voted on the proposal and verifies direction
   - Only distributes winning stakes if delegate voted in the winning direction
@@ -65,18 +68,53 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 
 ## Development Workflow
 
-1. **Local Development**:
-   - Use `npx hardhat node` to start a local Ethereum network
-   - Deploy contracts using `npx hardhat run scripts/deploy.js --network localhost`
+1. **Setup**:
+   ```bash
+   # Install dependencies
+   npm install
+   
+   # Install additional test dependencies
+   npm install --save-dev @nomicfoundation/hardhat-network-helpers
+   ```
 
-2. **Testing**:
-   - Write tests in the `test/` directory
-   - Run tests using `npx hardhat test`
-   - Check coverage using `npx hardhat coverage`
+2. **Local Development**:
+   ```bash
+   # Start local Ethereum network
+   npx hardhat node
+   
+   # Deploy contracts locally
+   npx hardhat run scripts/deploy.js --network localhost
+   ```
 
-3. **Deployment**:
-   - Deploy to testnet: `npx hardhat run scripts/deploy.js --network goerli`
-   - Deploy to mainnet: `npx hardhat run scripts/deploy.js --network mainnet`
+3. **Testing**:
+   ```bash
+   # Run all tests
+   npx hardhat test
+   
+   # Run tests with gas reporting
+   REPORT_GAS=true npx hardhat test
+   
+   # Run specific test file
+   npx hardhat test test/Compensator.test.js
+   
+   # Check test coverage
+   npx hardhat coverage
+   ```
+
+4. **Deployment**:
+   ```bash
+   # Deploy to testnet
+   npx hardhat run scripts/deploy.js --network goerli
+   
+   # Deploy to mainnet
+   npx hardhat run scripts/deploy.js --network mainnet
+   ```
+
+5. **Verification**:
+   ```bash
+   # Verify contract on Etherscan
+   npx hardhat verify --network <network> <contract-address> <constructor-args>
+   ```
 
 ## Common Issues and Solutions
 
@@ -84,15 +122,32 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
    - Ensure all dependencies are installed: `npm install`
    - Clear Hardhat cache: `npx hardhat clean`
    - Check test environment setup in `hardhat.config.js`
+   - Verify mock contracts are properly deployed
+   - Check for proper signer setup in tests
 
 2. **Compilation Errors**:
-   - Verify Solidity version matches in all contracts
+   - Verify Solidity version matches in all contracts (0.8.21)
    - Check import paths are correct
    - Ensure all dependencies are installed
+   - Clear Hardhat cache if needed: `npx hardhat clean`
 
 3. **Gas Issues**:
    - Run with gas reporting: `REPORT_GAS=true npx hardhat test`
    - Check optimizer settings in `hardhat.config.js`
+   - Review gas optimization in contract code
+   - Monitor gas usage in tests
+
+4. **Network Issues**:
+   - Ensure proper network configuration in `hardhat.config.js`
+   - Check RPC endpoint availability
+   - Verify network connection: `npx hardhat node`
+   - Check for proper network selection in deployment scripts
+
+5. **Deployment Issues**:
+   - Verify constructor arguments match contract requirements
+   - Check for sufficient gas and ETH on deployment account
+   - Ensure proper network configuration
+   - Verify contract verification parameters
 
 ## Security Features
 - **Proposal Tracking**: Active and pending proposals are tracked to ensure participation.
@@ -108,6 +163,7 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 - **Timeout Protection**: Proposals auto-resolve after 30 days to prevent stuck stakes.
 - **Vote Verification**: Delegates must vote correctly to receive winning stakes.
 - **Lock Period**: A minimum 7-day lock period prevents gaming withdrawals.
+- **Precision Safeguards**: Uses consistent precision in calculations.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains.
