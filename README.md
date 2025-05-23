@@ -20,13 +20,12 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - Delegators earn rewards based on their share of delegated COMP.
 
 ### 2. **Vote Compensation**
-- Delegators can incentivize delegates to vote for or against specific proposals by staking COMP.
+- Delegators can incentivize delegates to vote for or against proposals by staking COMP.
 - After the delegate votes, the stake is distributed based on the outcome:
   - Delegators who staked for the winning option pass their stake to the delegate.
   - Delegators who staked for the losing option get their stake back.
 - The system verifies delegate voting through the Compound Governor contract:
-  - Checks if the delegate has voted on the proposal
-  - Verifies the delegate's vote direction
+  - Checks if the delegate has voted on the proposal and verifies direction
   - Only distributes winning stakes if delegate voted in the winning direction
   - Automatically resolves proposals after 30 days if not resolved
 
@@ -97,18 +96,18 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 
 ## Security Features
 - **Proposal Tracking**: Active and pending proposals are tracked to ensure participation.
+- **Trustless Resolution**: Proposal outcomes are determined by the Compound Governor's state.
 - **Delegation Cap**: A 5% cap ensures no single delegate can accumulate excessive voting power.
 - **Pending Rewards**: Delegates cannot withdraw COMP that is reserved for pending rewards.
 - **Transfer Restrictions**: The `Compensator` token cannot be transferred between users.
-- **Lock Period**: A minimum 7-day lock period prevents early withdraw.
-- **Trustless Resolution**: Proposal outcomes are determined by the Compound Governor's state, not delegate declarations.
-- **Voting Verification**: Delegates must vote correctly to receive winning stakes, preventing vote manipulation.
-- **Auto-Resolution**: Proposals automatically resolve after 30 days, preventing stuck stakes.
 - **Reward Preservation**: Rewards are preserved during deposits and withdrawals, ensuring fair distribution.
 - **Delegate Verification**: System verifies delegate voting through Compound Governor contract.
 - **Vote Direction Check**: Ensures delegate voted in the winning direction before distributing stakes.
-- **Timeout Protection**: Proposals auto-resolve after 30 days to prevent stuck stakes.
+- **Auto-Resolution**: Proposals automatically resolve after 30 days, preventing stuck stakes.
 - **State Tracking**: Comprehensive tracking of proposal states and delegate voting status.
+- **Timeout Protection**: Proposals auto-resolve after 30 days to prevent stuck stakes.
+- **Vote Verification**: Delegates must vote correctly to receive winning stakes.
+- **Lock Period**: A minimum 7-day lock period prevents gaming withdrawals.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains.
