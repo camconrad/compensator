@@ -66,15 +66,6 @@ contract CompensatorFactory {
     }
 
     /**
-     * @notice Retrieves the Compensator contract address for a given delegatee
-     * @param delegatee The address of the delegatee
-     * @return The address of the Compensator contract associated with the delegatee
-     */
-    function getCompensator(address delegatee) external view returns (address) {
-        return delegateeToCompensator[delegatee];
-    }
-
-    /**
      * @notice Retrieves the total number of deployed Compensator contracts
      * @return The total count of Compensator contracts
      */

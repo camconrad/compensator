@@ -13,11 +13,11 @@
   - Maps the delegatee to their `Compensator` contract.  
   - Returns the address of the new `Compensator` contract.
 
-- **`getCompensator(address delegatee)`**  
-  Returns the `Compensator` contract address for a given delegatee.
+- **`getCompensatorsCount()`**  
+  Returns the total number of deployed Compensator contracts.
 
-- **`getCompensators()`**  
-  Returns an array of all deployed `Compensator` contract addresses.
+- **`getCompensators(uint256 offset, uint256 limit)`**  
+  Returns a paginated list of Compensator contract addresses.
 
 ## Compensator
 
