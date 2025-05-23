@@ -24,6 +24,11 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - After the delegate votes, the stake is distributed based on the outcome:
   - Delegators who staked for the winning option pass their stake to the delegate.
   - Delegators who staked for the losing option get their stake back.
+- The system verifies delegate voting through the Compound Governor contract:
+  - Checks if the delegate has voted on the proposal
+  - Verifies the delegate's vote direction
+  - Only distributes winning stakes if delegate voted in the winning direction
+  - Automatically resolves proposals after 30 days if not resolved
 
 See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contracts/README.md) for more detail.
 
@@ -96,6 +101,14 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 - **Pending Rewards**: Delegates cannot withdraw COMP that is reserved for pending rewards.
 - **Transfer Restrictions**: The `Compensator` token cannot be transferred between users.
 - **Lock Period**: A minimum 7-day lock period prevents early withdraw.
+- **Trustless Resolution**: Proposal outcomes are determined by the Compound Governor's state, not delegate declarations.
+- **Voting Verification**: Delegates must vote correctly to receive winning stakes, preventing vote manipulation.
+- **Auto-Resolution**: Proposals automatically resolve after 30 days, preventing stuck stakes.
+- **Reward Preservation**: Rewards are preserved during deposits and withdrawals, ensuring fair distribution.
+- **Delegate Verification**: System verifies delegate voting through Compound Governor contract.
+- **Vote Direction Check**: Ensures delegate voted in the winning direction before distributing stakes.
+- **Timeout Protection**: Proposals auto-resolve after 30 days to prevent stuck stakes.
+- **State Tracking**: Comprehensive tracking of proposal states and delegate voting status.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains.

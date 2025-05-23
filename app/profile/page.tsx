@@ -50,6 +50,8 @@ interface UserProfile {
   totalDelegations: number;
   activeDelegations: number;
   statement?: string;
+  rewards?: string;
+  staked?: string;
 }
 
 interface Delegation {
@@ -103,12 +105,8 @@ export default function ProfilePage() {
   const { switchChainAsync } = useSwitchChain();
   const { handleSetCompensatorContract } = useGetCompensatorContract();
   const { compoundContract } = useGetCompoundContract();
-  const [distributeLoading, setDistributeLoading] = useState(false);
-  const [selectedProposalId, setSelectedProposalId] = useState("");
-  const [selectedWinningSupport, setSelectedWinningSupport] = useState<0 | 1>(
-    0
-  );
-  const [isDistributeModalOpen, setIsDistributeModalOpen] = useState(false);
+  const [isClaiming, setIsClaiming] = useState<boolean>(false);
+  const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
 
   const loadAllData = useCallback(async () => {
     try {
@@ -140,16 +138,62 @@ export default function ProfilePage() {
   const fetchProfileData = async () => {
     setIsProfileLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      if (!address || !compensatorFactoryContract) {
+        throw new Error("Please connect to a wallet");
+      }
+
+      // Get the user's compensator contract address
+      const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
+      if (!compensatorAddress || compensatorAddress === ethers.ZeroAddress) {
+        setProfile({
+          name: "Username",
+          address: address || "0x1234..5678",
+          image: "/logo.png",
+          bio: "Compound governance participant",
+          votingPower: "0",
+          totalDelegations: 0,
+          activeDelegations: 0,
+          statement: "",
+          rewards: "0",
+          staked: "0",
+        });
+        setIsProfileLoading(false);
+        return;
+      }
+
+      // Get the compensator contract
+      const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
+      if (!compensatorContract) {
+        throw new Error("Failed to get compensator contract");
+      }
+
+      // Get pending rewards
+      const pendingRewards = await compensatorContract.getPendingRewards(address);
+      const formattedRewards = ethers.formatEther(pendingRewards);
+
+      // Get staked amount
+      const stakedAmount = await compensatorContract.balanceOf(address);
+      const formattedStaked = ethers.formatEther(stakedAmount);
+
+      // Get total delegated COMP
+      const totalDelegatedCOMP = await compensatorContract.totalDelegatedCOMP();
+      const formattedTotalDelegated = ethers.formatEther(totalDelegatedCOMP);
+
+      // Get vote power from COMP token
+      const votePower = await compoundContract?.getCurrentVotes(address);
+      const formattedVotePower = votePower ? ethers.formatEther(votePower) : "0";
+
       setProfile({
         name: "Username",
         address: address || "0x1234..5678",
         image: "/logo.png",
         bio: "Compound governance participant",
-        votingPower: "0",
-        totalDelegations: 0,
+        votingPower: formattedVotePower,
+        totalDelegations: Number(formattedTotalDelegated),
         activeDelegations: 0,
         statement: "",
+        rewards: formattedRewards,
+        staked: formattedStaked,
       });
       setIsProfileLoading(false);
     } catch (error) {
@@ -328,105 +372,7 @@ export default function ProfilePage() {
     setDelegateAddress("");
     setApr("");
     setFundingAmount("");
-  };
-
-  const handleDistributeStakes = async () => {
-    if (!address || !selectedProposalId || !compensatorFactoryContract) {
-      toast.error("Please connect wallet and select a proposal");
-      return;
-    }
-
-    setDistributeLoading(true);
-
-    try {
-      const compensatorAddress =
-        await compensatorFactoryContract.getCompensator(address);
-
-      if (!compensatorAddress || compensatorAddress === ethers.ZeroAddress) {
-        throw new Error("No compensator found for this delegate");
-      }
-
-      const compensatorContract = await handleSetCompensatorContract(
-        compensatorAddress
-      );
-
-      if (!compensatorContract) {
-        throw new Error("Compensator contract not found");
-      }
-
-      const { provider } = await getEthersSigner(wagmiConfig);
-      const feeData = await provider.getFeeData();
-
-      // Estimate gas with error handling
-      let gasEstimate;
-      try {
-        gasEstimate = await compensatorContract.distributeStakes.estimateGas(
-          selectedProposalId,
-          selectedWinningSupport,
-          {
-            maxFeePerGas: feeData.maxFeePerGas,
-            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-          }
-        );
-      } catch (estimateError) {
-        console.error("Gas estimate failed:", estimateError);
-        throw new Error(
-          "Transaction would likely fail. Please try again later."
-        );
-      }
-
-      // Show loading toast
-      const toastId = toast.loading("Processing distribution...");
-
-      const tx = await compensatorContract.distributeStakes(
-        selectedProposalId,
-        selectedWinningSupport,
-        {
-          gasLimit: gasEstimate,
-          maxFeePerGas: feeData.maxFeePerGas,
-          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-        }
-      );
-
-      // Show transaction hash to user
-      toast.loading(
-        `Transaction submitted: ${tx.hash.substring(
-          0,
-          6
-        )}...${tx.hash.substring(tx.hash.length - 4)}`,
-        { id: toastId }
-      );
-
-      const receipt = await waitForTransactionReceipt(wagmiConfig, {
-        hash: tx.hash,
-      });
-
-      if (receipt?.status === "success") {
-        toast.success(
-          `Successfully distributed stakes for proposal ${selectedProposalId}`,
-          { id: toastId }
-        );
-        setIsDistributeModalOpen(false);
-      } else {
-        throw new Error("Transaction failed");
-      }
-    } catch (error: any) {
-      console.error("Error distributing stakes:", error);
-      let errorMessage = "Failed to distribute stakes";
-      if (error.message.includes("user rejected transaction")) {
-        errorMessage = "Transaction rejected by user";
-      } else if (error.message.includes("insufficient funds")) {
-        errorMessage = "Insufficient funds for gas";
-      } else if (error.message.includes("not ready for distribution")) {
-        errorMessage = "Proposal not ready for distribution yet";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage);
-    } finally {
-      setDistributeLoading(false);
-    }
+    setModalKey(Date.now());
   };
 
   const handleSetReward = async (compensatorAddress: string) => {
@@ -461,7 +407,6 @@ export default function ProfilePage() {
     } catch (error) {
       console.log("error :>> ", error);
       setLoading(false);
-    } finally {
     }
   };
 
@@ -481,7 +426,6 @@ export default function ProfilePage() {
       const convertAmount = ethers
         .parseUnits(fundingAmount ? fundingAmount?.toString() : "0", decimals)
         .toString();
-      console.log("convertAmount :>> ", convertAmount);
       const { provider } = await getEthersSigner(wagmiConfig);
       const feeData = await provider.getFeeData();
 
@@ -509,10 +453,6 @@ export default function ProfilePage() {
           {
             hash: approveReceipt?.hash,
           }
-        );
-        console.log(
-          "transactionApproveReceipt :>> ",
-          transactionApproveReceipt
         );
 
         if (transactionApproveReceipt?.status === "success") {
@@ -654,6 +594,118 @@ export default function ProfilePage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleClaimRewards = async () => {
+    if (!address || !compensatorFactoryContract) {
+      toast.error("Please connect to a wallet");
+      return;
+    }
+
+    setIsClaiming(true);
+    try {
+      // Get the user's compensator contract address
+      const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
+      if (!compensatorAddress || compensatorAddress === ethers.ZeroAddress) {
+        toast.error("No compensator contract found");
+        return;
+      }
+
+      // Get the compensator contract
+      const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
+      if (!compensatorContract) {
+        toast.error("Failed to get compensator contract");
+        return;
+      }
+
+      // Get the current rewards before claiming
+      const pendingRewards = await compensatorContract.getPendingRewards(address);
+      if (pendingRewards === BigInt(0)) {
+        toast.error("No rewards to claim");
+        return;
+      }
+
+      // Claim rewards
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+      const gas = await compensatorContract.claimRewards.estimateGas();
+      const receipt = await compensatorContract.claimRewards({
+        gasLimit: gas,
+        maxFeePerGas: feeData.maxFeePerGas,
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+      });
+
+      const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+        hash: receipt?.hash,
+      });
+
+      if (transactionReceipt?.status === "success") {
+        toast.success("Rewards claimed successfully");
+        // Refresh profile data to update rewards
+        await fetchProfileData();
+      }
+    } catch (error) {
+      console.error("Error claiming rewards:", error);
+      toast.error("Failed to claim rewards");
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
+  const handleWithdrawStaked = async () => {
+    if (!address || !compensatorFactoryContract) {
+      toast.error("Please connect to a wallet");
+      return;
+    }
+
+    setIsWithdrawing(true);
+    try {
+      // Get the user's compensator contract address
+      const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
+      if (!compensatorAddress || compensatorAddress === ethers.ZeroAddress) {
+        toast.error("No compensator contract found");
+        return;
+      }
+
+      // Get the compensator contract
+      const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
+      if (!compensatorContract) {
+        toast.error("Failed to get compensator contract");
+        return;
+      }
+
+      // Get the current staked amount
+      const stakedAmount = await compensatorContract.balanceOf(address);
+      if (stakedAmount === BigInt(0)) {
+        toast.error("No staked tokens to withdraw");
+        return;
+      }
+
+      // Withdraw staked tokens
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+      const gas = await compensatorContract.delegatorWithdraw.estimateGas(stakedAmount);
+      const receipt = await compensatorContract.delegatorWithdraw(stakedAmount, {
+        gasLimit: gas,
+        maxFeePerGas: feeData.maxFeePerGas,
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
+      });
+
+      const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+        hash: receipt?.hash,
+      });
+
+      if (transactionReceipt?.status === "success") {
+        toast.success("Staked tokens withdrawn successfully");
+        // Refresh profile data to update staked amount
+        await fetchProfileData();
+      }
+    } catch (error) {
+      console.error("Error withdrawing staked tokens:", error);
+      toast.error("Failed to withdraw staked tokens");
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -737,8 +789,8 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ) : (
-                <>
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div className="flex flex-col h-full">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-full flex items-center justify-center">
                         <Image
@@ -776,22 +828,16 @@ export default function ProfilePage() {
                     </div>
                     <div className="">
                       <button
-                        onClick={handleRewardsButtonClick}
+                        onClick={() => setIsRewardsModalOpen(true)}
                         className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-4 py-[9px] text-center rounded-full flex justify-center items-center"
                       >
                         Create Compensator
-                      </button>
-                      <button
-                        onClick={() => setIsDistributeModalOpen(true)}
-                        className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#E8F5E9] dark:bg-[#1B3A1F] text-[#10b981] dark:text-[#4CAF50] px-4 py-[9px] text-center rounded-full flex justify-center items-center mt-3"
-                      >
-                        Distribute Stakes
                       </button>
                     </div>
                   </div>
 
                   {profile?.statement && (
-                    <div className="mt-4 p-4 bg-[#F9FAFB] dark:bg-[#17212B] rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                    <div className="mt-8 p-4 bg-[#F9FAFB] dark:bg-[#17212B] rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                       <h3 className="text-sm font-medium text-[#030303] dark:text-white mb-2">
                         Delegation Statement
                       </h3>
@@ -801,9 +847,11 @@ export default function ProfilePage() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  <div className="flex-grow"></div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-[54px]">
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                      <div className="flex items-center justify-start gap-[6px]">
+                      <div className="flex items-center space-x-2 mb-2">
                         <img
                           src="/logo.png"
                           alt=""
@@ -818,23 +866,86 @@ export default function ProfilePage() {
                       </h3>
                     </div>
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                        {profile?.totalDelegations || 0}
-                      </p>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <img
+                          src="/logo.png"
+                          alt=""
+                          className="h-5 w-5 rounded-full"
+                        />
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {profile?.totalDelegations || 0}
+                        </p>
+                      </div>
                       <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
                         Delegations
                       </h3>
                     </div>
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                        0
-                      </p>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <img
+                          src="/logo.png"
+                          alt=""
+                          className="h-5 w-5 rounded-full"
+                        />
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                          0
+                        </p>
+                      </div>
                       <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                        Proposals
+                        Staked
+                      </h3>
+                    </div>
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <img
+                            src="/logo.png"
+                            alt=""
+                            className="h-5 w-5 rounded-full"
+                          />
+                          <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                            {profile?.rewards || "0"}
+                          </p>
+                        </div>
+                        {Number(profile?.rewards || 0) > 0 && (
+                          <button
+                            onClick={handleClaimRewards}
+                            disabled={isClaiming}
+                            className="transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 text-xs bg-[#10b981] dark:bg-white text-white dark:text-[#0D131A] px-3 py-1.5 text-center rounded-full flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isClaiming ? (
+                              <svg
+                                className="animate-spin h-4 w-4"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                            ) : (
+                              "Claim"
+                            )}
+                          </button>
+                        )}
+                      </div>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Rewards
                       </h3>
                     </div>
                   </div>
-                </>
+                </div>
               )}
             </motion.div>
 
@@ -863,7 +974,7 @@ export default function ProfilePage() {
                     </TabsTrigger>
                     <TabsTrigger
                       value="delegations"
-                      className="rounded-full  text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+                      className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
                     >
                       Delegations
                     </TabsTrigger>
@@ -1199,7 +1310,7 @@ export default function ProfilePage() {
                       </p>
                       <Link
                         href="/explore"
-                        className="bg-[#10b981] transition-all duration-200 transform hover:scale-105 active:scale-95 text-white px-6 py-2 rounded-full hover:bg-emerald-600 font-semibold inline-flex items-center"
+                        className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
                       >
                         Find Delegates
                       </Link>
@@ -1385,106 +1496,6 @@ export default function ProfilePage() {
                       "Create Compensator"
                     )}
                   </button>
-                </div>
-              </Modal>
-            )}
-
-            {isDistributeModalOpen && (
-              <Modal
-                handleClose={() => setIsDistributeModalOpen(false)}
-                open={isDistributeModalOpen}
-              >
-                <div className="">
-                  <h2 className="text-xl font-semibold mb-4 dark:text-white">
-                    Distribute Stakes
-                  </h2>
-                  <div className="space-y-4">
-                    <motion.div
-                      className="relative"
-                      variants={itemVariants}
-                    >
-                      <div className="relative h-14">
-                        <input
-                          id="selectedProposalId"
-                          value={selectedProposalId}
-                          onChange={(e) =>
-                            setSelectedProposalId(e.target.value)
-                          }
-                          onFocus={() => setIsProposalFocused(true)}
-                          onBlur={() => setIsProposalFocused(false)}
-                          className="absolute font-semibold pb-2 inset-0 h-full p-3 px-4 rounded-lg w-full transition-all bg-[#EFF2F5] dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] text-[#030303] dark:text-white outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
-                        />
-                        <label
-                          htmlFor="selectedProposalId"
-                          className={`absolute left-4 pointer-events-none transition-all duration-200 ${
-                            isProposalFocused || selectedProposalId
-                              ? "text-xs text-emerald-500 dark:text-emerald-400 top-1"
-                              : "text-sm text-gray-500 dark:text-gray-400 top-1/2 -translate-y-1/2"
-                          }`}
-                        >
-                          Proposal Id
-                        </label>
-                      </div>
-                    </motion.div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setSelectedWinningSupport(0)}
-                        className={`flex-1 py-2 px-4 rounded-lg border ${
-                          selectedWinningSupport === 0
-                            ? "bg-[#f54a4a] text-white"
-                            : "border-[#f54a4a] text-[#f54a4a]"
-                        }`}
-                      >
-                        Against (0)
-                      </button>
-                      <button
-                        onClick={() => setSelectedWinningSupport(1)}
-                        className={`flex-1 py-2 px-4 rounded-lg border ${
-                          selectedWinningSupport === 1
-                            ? "bg-[#10b981] text-white"
-                            : "border-[#10b981] text-[#10b981e0]"
-                        }`}
-                      >
-                        For (1)
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={handleDistributeStakes}
-                      disabled={!selectedProposalId || distributeLoading}
-                      className={`${
-                        distributeLoading || !selectedProposalId
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-emerald-600"
-                      } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981] text-white py-3 text-center rounded-full flex justify-center items-center mt-4`}
-                    >
-                      {distributeLoading ? (
-                        <svg
-                          className="animate-spin h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                      ) : (
-                        "Distribute Stakes"
-                      )}
-                    </button>
-                  </div>
                 </div>
               </Modal>
             )}

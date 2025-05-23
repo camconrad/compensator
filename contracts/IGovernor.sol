@@ -20,5 +20,21 @@ interface IGovernor {
         bool executed
     );
     
-    function castVote(uint proposalId, uint8 support) external;
+    function castVote(uint256 proposalId, uint8 support) external;
+    
+    function hasVoted(uint256 proposalId, address account) external view returns (bool);
+    
+    function proposalSnapshot(uint256 proposalId) external view returns (uint256);
+    
+    function proposalDeadline(uint256 proposalId) external view returns (uint256);
+    
+    function getVotes(address account, uint256 timepoint) external view returns (uint256);
+    
+    function COUNTING_MODE() external pure returns (string memory);
+
+    function proposalVotes(uint256 proposalId) external view returns (
+        uint256 againstVotes,
+        uint256 forVotes,
+        uint256 abstainVotes
+    );
 }

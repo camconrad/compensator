@@ -73,6 +73,12 @@ contract Compensator is ERC20, Initializable {
     /// @notice Tracks the outcome of each proposal (0 = not resolved, 1 = For won, 2 = Against won)
     mapping(uint256 => uint8) public proposalOutcomes;
 
+    /// @notice Tracks when each proposal was created
+    mapping(uint256 => uint256) public proposalCreationTime;
+
+    /// @notice Maximum time a proposal can remain unresolved (30 days)
+    uint256 public constant MAX_PROPOSAL_RESOLUTION_TIME = 30 days;
+
     /// @notice Structure to track individual delegator stakes on proposals
     struct ProposalStake {
         /// @notice Amount staked in support of a proposal
@@ -120,6 +126,9 @@ contract Compensator is ERC20, Initializable {
     /// @notice Emitted when a proposal is marked as inactive
     event ProposalDeactivated(uint256 indexed proposalId);
 
+    /// @notice Emitted when a proposal is automatically resolved
+    event ProposalAutoResolved(uint256 indexed proposalId, uint8 winningSupport);
+
     //////////////////////////
     // Events
     //////////////////////////
@@ -150,6 +159,9 @@ contract Compensator is ERC20, Initializable {
 
     /// @notice Emitted when a delegator reclaims their losing stake after a proposal is resolved
     event LosingStakeReclaimed(address indexed delegator, uint256 proposalId, uint256 amount);
+
+    /// @notice Emitted when delegate voting is verified
+    event DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection);
 
     //////////////////////////
     // Modifiers
@@ -326,27 +338,6 @@ contract Compensator is ERC20, Initializable {
     }
 
     /**
-     * @notice Allows a delegator to claim their rewards for delegating
-     * @dev Transfers accumulated COMP rewards to the delegator
-     */
-    function claimRewards() external {
-        _updateRewardsIndex();
-        _updateUserRewards(msg.sender);
-        
-        uint256 rewardsToSend = unclaimedRewards[msg.sender];
-        require(rewardsToSend > 0, "No rewards to claim");
-        
-        unclaimedRewards[msg.sender] = 0;
-        startRewardIndex[msg.sender] = rewardIndex;
-        
-        totalPendingRewards -= rewardsToSend;
-        availableRewards -= rewardsToSend;
-        
-        compToken.transfer(msg.sender, rewardsToSend);
-        emit ClaimRewards(msg.sender, rewardsToSend);
-    }
-
-    /**
      * @notice Allows a delegator to stake COMP on a proposal
      * @dev Only active proposals can be staked on
      * @param proposalId The ID of the proposal
@@ -361,8 +352,11 @@ contract Compensator is ERC20, Initializable {
         IGovernor.ProposalState state = compoundGovernor.state(proposalId);
         require(state == IGovernor.ProposalState.Active, "Staking only allowed for active proposals");
 
-        // Update latest proposal ID
+        // Update latest proposal ID and track creation time
         _updateLatestProposalId(proposalId);
+        if (proposalCreationTime[proposalId] == 0) {
+            proposalCreationTime[proposalId] = block.timestamp;
+        }
 
         compToken.transferFrom(msg.sender, address(this), amount);
 
@@ -378,24 +372,61 @@ contract Compensator is ERC20, Initializable {
     }
 
     /**
-     * @notice Allows the delegate to distribute stakes after a proposal is resolved
-     * @dev Only transfers winning stakes to delegate, losing stakes remain reclaimable
-     * @param proposalId The ID of the proposal
-     * @param winningSupport The winning vote option (0 = Against, 1 = For)
+     * @notice Resolves a proposal and distributes stakes based on the actual outcome
+     * @dev Can be called by anyone once the proposal is resolved in Compound Governor
+     * @param proposalId The ID of the proposal to resolve
      */
-    function distributeStakes(uint256 proposalId, uint8 winningSupport) external onlyDelegate {
-        require(winningSupport == 0 || winningSupport == 1, "Invalid support value");
+    function resolveProposal(uint256 proposalId) external {
         require(proposalOutcomes[proposalId] == 0, "Proposal already resolved");
         
-        // Update latest proposal ID
-        _updateLatestProposalId(proposalId);
-        
+        IGovernor.ProposalState state = compoundGovernor.state(proposalId);
+        require(
+            state == IGovernor.ProposalState.Succeeded || 
+            state == IGovernor.ProposalState.Defeated || 
+            state == IGovernor.ProposalState.Expired ||
+            state == IGovernor.ProposalState.Canceled ||
+            state == IGovernor.ProposalState.Executed, 
+            "Proposal not yet resolved"
+        );
+
+        // Verify delegate voting and direction
+        if (!delegateVoted[proposalId]) {
+            try compoundGovernor.hasVoted(proposalId, delegate) returns (bool hasVoted) {
+                delegateVoted[proposalId] = hasVoted;
+                
+                // If delegate voted, get their vote direction
+                if (hasVoted) {
+                    (uint256 againstVotes, uint256 forVotes,) = compoundGovernor.proposalVotes(proposalId);
+                    // If delegate has more for votes than against, they voted For
+                    delegateVoteDirection[proposalId] = forVotes > againstVotes ? 1 : 0;
+                }
+                
+                emit DelegateVotingVerified(proposalId, hasVoted, delegateVoteDirection[proposalId]);
+            } catch {
+                // If hasVoted fails, assume delegate hasn't voted
+                delegateVoted[proposalId] = false;
+                emit DelegateVotingVerified(proposalId, false, 0);
+            }
+        }
+
+        // Determine the winning support based on the proposal state
+        uint8 winningSupport;
+        if (state == IGovernor.ProposalState.Succeeded || 
+            state == IGovernor.ProposalState.Executed) {
+            winningSupport = 1; // For won
+        } else {
+            winningSupport = 0; // Against won (includes Defeated, Expired, Canceled)
+        }
+
         proposalOutcomes[proposalId] = winningSupport + 1;
         
-        if (winningSupport == 1) {
-            compToken.transfer(delegate, totalStakesFor[proposalId]);
-        } else {
-            compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+        // Only transfer winning stakes if delegate has voted and voted in the winning direction
+        if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == winningSupport) {
+            if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
+                compToken.transfer(delegate, totalStakesFor[proposalId]);
+            } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
+                compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+            }
         }
         
         emit ProposalStakeDistributed(proposalId, winningSupport);
@@ -407,6 +438,12 @@ contract Compensator is ERC20, Initializable {
      * @param proposalId The ID of the proposal to reclaim stake from
      */
     function reclaimLosingStake(uint256 proposalId) external {
+        // Check if proposal needs to be auto-resolved due to timeout
+        if (proposalOutcomes[proposalId] == 0 && 
+            block.timestamp > proposalCreationTime[proposalId] + MAX_PROPOSAL_RESOLUTION_TIME) {
+            _autoResolveProposal(proposalId);
+        }
+
         uint8 outcome = proposalOutcomes[proposalId];
         require(outcome != 0, "Proposal not resolved yet");
         
@@ -427,6 +464,77 @@ contract Compensator is ERC20, Initializable {
         require(amountToReturn > 0, "No losing stake to reclaim");
         compToken.transfer(msg.sender, amountToReturn);
         emit LosingStakeReclaimed(msg.sender, proposalId, amountToReturn);
+    }
+
+    /**
+     * @notice Automatically resolves a proposal that has exceeded the maximum resolution time
+     * @dev Internal function called by reclaimLosingStake when timeout is reached
+     * @param proposalId The ID of the proposal to auto-resolve
+     */
+    function _autoResolveProposal(uint256 proposalId) internal {
+        IGovernor.ProposalState state = compoundGovernor.state(proposalId);
+        
+        // If proposal is still active/pending after timeout, consider it defeated
+        if (state == IGovernor.ProposalState.Active || 
+            state == IGovernor.ProposalState.Pending) {
+            proposalOutcomes[proposalId] = 2; // Against won
+            
+            // Verify delegate voting and direction
+            if (!delegateVoted[proposalId]) {
+                try compoundGovernor.hasVoted(proposalId, delegate) returns (bool hasVoted) {
+                    delegateVoted[proposalId] = hasVoted;
+                    
+                    // If delegate voted, get their vote direction
+                    if (hasVoted) {
+                        (uint256 againstVotes, uint256 forVotes,) = compoundGovernor.proposalVotes(proposalId);
+                        delegateVoteDirection[proposalId] = forVotes > againstVotes ? 1 : 0;
+                    }
+                    
+                    emit DelegateVotingVerified(proposalId, hasVoted, delegateVoteDirection[proposalId]);
+                } catch {
+                    delegateVoted[proposalId] = false;
+                    emit DelegateVotingVerified(proposalId, false, 0);
+                }
+            }
+
+            if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == 0 && totalStakesAgainst[proposalId] > 0) {
+                compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+            }
+            emit ProposalAutoResolved(proposalId, 0);
+        } else {
+            // Otherwise, resolve based on actual state
+            uint8 winningSupport = (state == IGovernor.ProposalState.Succeeded || 
+                                  state == IGovernor.ProposalState.Executed) ? 1 : 0;
+            proposalOutcomes[proposalId] = winningSupport + 1;
+            
+            // Verify delegate voting and direction
+            if (!delegateVoted[proposalId]) {
+                try compoundGovernor.hasVoted(proposalId, delegate) returns (bool hasVoted) {
+                    delegateVoted[proposalId] = hasVoted;
+                    
+                    // If delegate voted, get their vote direction
+                    if (hasVoted) {
+                        (uint256 againstVotes, uint256 forVotes,) = compoundGovernor.proposalVotes(proposalId);
+                        delegateVoteDirection[proposalId] = forVotes > againstVotes ? 1 : 0;
+                    }
+                    
+                    emit DelegateVotingVerified(proposalId, hasVoted, delegateVoteDirection[proposalId]);
+                } catch {
+                    delegateVoted[proposalId] = false;
+                    emit DelegateVotingVerified(proposalId, false, 0);
+                }
+            }
+            
+            if (delegateVoted[proposalId] && delegateVoteDirection[proposalId] == winningSupport) {
+                if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
+                    compToken.transfer(delegate, totalStakesFor[proposalId]);
+                } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
+                    compToken.transfer(delegate, totalStakesAgainst[proposalId]);
+                }
+            }
+            
+            emit ProposalAutoResolved(proposalId, winningSupport);
+        }
     }
 
     /**

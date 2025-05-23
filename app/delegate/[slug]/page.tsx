@@ -31,6 +31,7 @@ import {
   useWriteContract,
 } from "wagmi";
 import { mainnet } from "wagmi/chains";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Proposal {
   title: string;
@@ -431,9 +432,9 @@ export default function DelegatePage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-[54px]">
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                      <div className="flex items-center justify-start gap-[6px]">
+                      <div className="flex items-center space-x-2 mb-2">
                         <img
                           src="/logo.png"
                           alt=""
@@ -448,19 +449,45 @@ export default function DelegatePage() {
                       </h3>
                     </div>
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                        {currentDelegate?.totalDelegations || 0}
-                      </p>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <img
+                          src="/logo.png"
+                          alt=""
+                          className="h-5 w-5 rounded-full"
+                        />
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {currentDelegate?.totalDelegations || 0}
+                        </p>
+                      </div>
                       <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
                         Delegations
                       </h3>
                     </div>
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
-                      <p className="text-2xl font-bold text-[#030303] dark:text-white">
-                        0
-                      </p>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <img
+                          src="/logo.png"
+                          alt=""
+                          className="h-5 w-5 rounded-full"
+                        />
+                        <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                          {Number(currentDelegate?.distributed || "0") === 0 ? "0" : Number(currentDelegate?.distributed || "0").toFixed(2)}
+                        </p>
+                      </div>
                       <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
-                        Proposals
+                        Staked
+                      </h3>
+                    </div>
+                    <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <p className="text-2xl font-bold text-[#030303] dark:text-white">
+                            {Number(currentDelegate?.rewardRate || 0) === 0 ? "0%" : `${Number(currentDelegate?.rewardRate || 0).toFixed(2)}%`}
+                          </p>
+                        </div>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400 mb-1">
+                        Reward Rate
                       </h3>
                     </div>
                   </div>
@@ -474,219 +501,223 @@ export default function DelegatePage() {
               )}
             </motion.div>
 
-            {/* Proposals Section */}
+            {/* History and Delegations Section */}
             <motion.div
               className="mb-4"
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.1 }}
             >
-              <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">
-                History
-              </h2>
-
-              {isProposalsLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[1, 2].map((_, index) => (
-                    <div
-                      key={index}
-                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
+              <Tabs defaultValue="history" className="w-full">
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-[-6px]">
+                    Activity
+                  </h2>
+                  <TabsList className="bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#232F3B] p-1 rounded-full">
+                    <TabsTrigger
+                      value="history"
+                      className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
                     >
-                      <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md mb-3"></div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
-                        <div className="h-4 w-24 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                      </div>
-                      <div className="h-4 w-full bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
-                      <div className="h-2 w-full bg-gray-200 dark:bg-[#33475b] rounded-full mb-2"></div>
-                      <div className="flex justify-between">
-                        <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                        <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                      </div>
-                    </div>
-                  ))}
+                      History
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="delegations"
+                      className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+                    >
+                      Delegations
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
-              ) : proposals.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {proposals.map((proposal, index) => (
-                    <div
-                      key={index}
-                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
-                    >
-                      <h3 className="text-lg font-semibold text-[#030303] dark:text-white">
-                        {proposal.title}
-                      </h3>
-                      <div className="flex items-center mt-2">
-                        <span
-                          className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                            proposal.status === "Active"
-                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                          }`}
+
+                <TabsContent value="history" className="space-y-4">
+                  {isProposalsLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[1, 2].map((_, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
                         >
-                          {proposal.status}
-                        </span>
-                        <span className="text-sm text-[#6D7C8D] font-medium dark:text-gray-400 ml-2">
-                          {proposal.date}
-                        </span>
+                          <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#33475b] rounded-md mb-3"></div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
+                            <div className="h-4 w-24 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                          </div>
+                          <div className="h-4 w-full bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
+                          <div className="h-2 w-full bg-gray-200 dark:bg-[#33475b] rounded-full mb-2"></div>
+                          <div className="flex justify-between">
+                            <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                            <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : proposals.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {proposals.map((proposal, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer"
+                        >
+                          <h3 className="text-lg font-semibold text-[#030303] dark:text-white">
+                            {proposal.title}
+                          </h3>
+                          <div className="flex items-center mt-2">
+                            <span
+                              className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                                proposal.status === "Active"
+                                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                  : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                              }`}
+                            >
+                              {proposal.status}
+                            </span>
+                            <span className="text-sm text-[#6D7C8D] font-medium dark:text-gray-400 ml-2">
+                              {proposal.date}
+                            </span>
+                          </div>
+                          <div className="mt-3">
+                            <div className="flex justify-between mb-1">
+                              <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
+                                Votes
+                              </p>
+                              <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
+                                {(proposal.votesFor + proposal.votesAgainst).toFixed(2)}K
+                              </p>
+                            </div>
+                            <div className="w-full bg-gray-200 dark:bg-[#33475b] rounded-full h-1.5">
+                              <div
+                                className="bg-emerald-500 h-1.5 rounded-full"
+                                style={{
+                                  width: `${
+                                    (proposal.votesFor /
+                                      (proposal.votesFor + proposal.votesAgainst)) *
+                                    100
+                                  }%`,
+                                }}
+                              ></div>
+                            </div>
+                            <div className="flex justify-between mt-2">
+                              <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                                {proposal.votesFor}K
+                              </p>
+                              <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                                {proposal.votesAgainst}K
+                              </p>
+                            </div>
+                          </div>
+                          {proposal.voted && (
+                            <div className="mt-3 flex items-center">
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  proposal.voteDirection === "for"
+                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                }`}
+                              >
+                                Voted {proposal.voteDirection === "for" ? "For" : "Against"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
                       </div>
-                      <div className="mt-3">
-                        <div className="flex justify-between mb-1">
-                          <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
-                            Votes
-                          </p>
-                          <p className="text-sm font-medium text-[#6D7C8D] dark:text-gray-400">
-                            {(
-                              proposal.votesFor + proposal.votesAgainst
-                            ).toFixed(2)}
-                            K
-                          </p>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-[#33475b] rounded-full h-1.5">
-                          <div
-                            className="bg-emerald-500 h-1.5 rounded-full"
-                            style={{
-                              width: `${
-                                (proposal.votesFor /
-                                  (proposal.votesFor + proposal.votesAgainst)) *
-                                100
-                              }%`,
-                            }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                          <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                            {proposal.votesFor}K
-                          </p>
-                          <p className="text-sm font-medium text-red-600 dark:text-red-400">
-                            {proposal.votesAgainst}K
-                          </p>
-                        </div>
-                      </div>
-                      {proposal.voted && (
-                        <div className="mt-3 flex items-center">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              proposal.voteDirection === "for"
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            }`}
-                          >
-                            Voted{" "}
-                            {proposal.voteDirection === "for"
-                              ? "For"
-                              : "Against"}
-                          </span>
-                        </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        No Voting History
+                      </h2>
+                      <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-3 max-w-md mx-auto">
+                        Voting history is currently untracked
+                      </p>
+                      {currentDelegate?.externalLink && (
+                        <a
+                          href={currentDelegate.externalLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
+                        >
+                          View Proposals
+                        </a>
                       )}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
-                  <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
-                    <TrendingUp className="h-6 w-6 text-[#030303] dark:text-white" />
-                  </div>
-                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
-                    No Voting History
-                  </h2>
-                  <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-3 max-w-md mx-auto">
-                    Voting history is currently untracked
-                  </p>
-                  {currentDelegate?.externalLink && (
-                    <a
-                      href={currentDelegate.externalLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
-                    >
-                      View Proposals
-                    </a>
                   )}
-                </div>
-              )}
-            </motion.div>
+                </TabsContent>
 
-            {/* Delegations Section */}
-            <motion.div
-              className="mb-4"
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.2 }}
-            >
-              <h2 className="text-xl font-semibold text-[#030303] dark:text-white mb-3">
-                Delegations
-              </h2>
-
-              {isDelegationsLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((_, index) => (
-                    <div
-                      key={index}
-                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
-                        <div>
-                          <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
-                          <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                <TabsContent value="delegations" className="space-y-4">
+                  {isDelegationsLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((_, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm animate-pulse"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full"></div>
+                            <div>
+                              <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md mb-2"></div>
+                              <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                            </div>
+                            <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
+                          </div>
                         </div>
-                        <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md"></div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : delegations.length > 0 ? (
-                <div className="space-y-4">
-                  {delegations.map((delegation, index) => (
-                    <div
-                      key={index}
-                      className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 flex-shrink-0 rounded-full overflow-hidden">
-                          <Image
-                            src="/placeholder.svg?height=48&width=48"
-                            alt="Delegator"
-                            width={48}
-                            height={48}
-                            className="object-cover"
-                          />
+                  ) : delegations.length > 0 ? (
+                    <div className="space-y-4">
+                      {delegations.map((delegation, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-12 flex-shrink-0 rounded-full overflow-hidden">
+                              <Image
+                                src="/placeholder.svg?height=48&width=48"
+                                alt="Delegator"
+                                width={48}
+                                height={48}
+                                className="object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-base font-semibold text-[#030303] dark:text-white">
+                                {delegation.delegator}
+                              </p>
+                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                                Amount: {delegation.amount}
+                              </p>
+                            </div>
+                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
+                              {delegation.date}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-base font-semibold text-[#030303] dark:text-white">
-                            {delegation.delegator}
-                          </p>
-                          <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
-                            Amount: {delegation.amount}
-                          </p>
-                        </div>
-                        <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
-                          {delegation.date}
-                        </p>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
-                  <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
-                    <Users className="h-6 w-6 text-[#030303] dark:text-white" />
-                  </div>
-                  <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
-                    No Delegations
-                  </h2>
-                  <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-3 max-w-md mx-auto">
-                    Delegations are currently untracked
-                  </p>
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
-                  >
-                    Delegate COMP
-                  </button>
-                </div>
-              )}
+                  ) : (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center">
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <Users className="h-6 w-6 text-[#030303] dark:text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        No Delegations
+                      </h2>
+                      <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-3 max-w-md mx-auto">
+                        Delegations are currently untracked
+                      </p>
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
+                      >
+                        Delegate COMP
+                      </button>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </motion.div>
           </div>
         </motion.main>

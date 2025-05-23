@@ -558,4 +558,130 @@ describe("Compensator", function () {
       );
     });
   });
+
+  describe("Proposal Staking and Resolution", function () {
+    beforeEach(async function () {
+      // Setup: Delegate deposits rewards and sets reward rate
+      const compensatorAddress = await compensator.getAddress();
+      await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
+      await compensator.connect(delegate).delegateDeposit(ethers.parseEther("1000"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+    });
+
+    it("should verify delegate voting before distributing stakes", async function () {
+      const proposalId = 1;
+      const stakeAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+
+      // Setup delegator with tokens
+      await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
+      await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount);
+
+      // Mock delegate voting
+      await compoundGovernor.mockHasVoted(proposalId, delegate.address, true);
+      await compoundGovernor.mockProposalVotes(proposalId, ethers.parseEther("100"), ethers.parseEther("50"), 0);
+
+      // Resolve proposal
+      await compoundGovernor.mockState(proposalId, 4); // Succeeded state
+      await compensator.resolveProposal(proposalId);
+
+      // Check delegate voting verification
+      const delegateVoted = await compensator.delegateVoted(proposalId);
+      const delegateVoteDirection = await compensator.delegateVoteDirection(proposalId);
+      expect(delegateVoted).to.be.true;
+      expect(delegateVoteDirection).to.equal(1); // For
+    });
+
+    it("should only distribute winning stakes if delegate voted correctly", async function () {
+      const proposalId = 2;
+      const stakeAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+
+      // Setup delegator with tokens
+      await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
+      await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount);
+
+      // Mock delegate voting in wrong direction
+      await compoundGovernor.mockHasVoted(proposalId, delegate.address, true);
+      await compoundGovernor.mockProposalVotes(proposalId, ethers.parseEther("50"), ethers.parseEther("100"), 0);
+
+      // Resolve proposal
+      await compoundGovernor.mockState(proposalId, 4); // Succeeded state
+      await compensator.resolveProposal(proposalId);
+
+      // Check that winning stakes were not distributed
+      const delegateBalance = await compToken.balanceOf(delegate.address);
+      expect(delegateBalance).to.equal(ethers.parseEther("10000")); // Initial balance unchanged
+    });
+
+    it("should auto-resolve proposals after timeout", async function () {
+      const proposalId = 3;
+      const stakeAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+
+      // Setup delegator with tokens
+      await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
+      await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount);
+
+      // Advance time past MAX_PROPOSAL_RESOLUTION_TIME
+      await ethers.provider.send("evm_increaseTime", [31 * 24 * 60 * 60]); // 31 days
+      await ethers.provider.send("evm_mine");
+
+      // Try to reclaim losing stake
+      await compensator.connect(delegator1).reclaimLosingStake(proposalId);
+
+      // Check proposal was auto-resolved
+      const outcome = await compensator.proposalOutcomes(proposalId);
+      expect(outcome).to.equal(2); // Against won (auto-resolved)
+    });
+
+    it("should track proposal states correctly", async function () {
+      const proposalId = 4;
+      const stakeAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+
+      // Setup delegator with tokens
+      await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
+      await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount);
+
+      // Check proposal is tracked as active
+      const isActive = await compensator.activeProposals(proposalId);
+      expect(isActive).to.be.true;
+
+      // Mock proposal becoming pending
+      await compoundGovernor.mockProposalSnapshot(proposalId, (await ethers.provider.getBlockNumber()) + 100);
+      await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount);
+
+      // Check proposal is tracked as pending
+      const isPending = await compensator.pendingProposals(proposalId);
+      expect(isPending).to.be.true;
+    });
+
+    it("should emit correct events for delegate voting verification", async function () {
+      const proposalId = 5;
+      const stakeAmount = ethers.parseEther("100");
+      const compensatorAddress = await compensator.getAddress();
+
+      // Setup delegator with tokens
+      await compToken.connect(delegator1).approve(compensatorAddress, stakeAmount);
+      await compensator.connect(delegator1).stakeForProposal(proposalId, 1, stakeAmount);
+
+      // Mock delegate voting
+      await compoundGovernor.mockHasVoted(proposalId, delegate.address, true);
+      await compoundGovernor.mockProposalVotes(proposalId, ethers.parseEther("100"), ethers.parseEther("50"), 0);
+
+      // Resolve proposal and check events
+      await compoundGovernor.mockState(proposalId, 4); // Succeeded state
+      const tx = await compensator.resolveProposal(proposalId);
+      const receipt = await tx.wait();
+
+      // Check DelegateVotingVerified event
+      const delegateVotingVerifiedEvent = receipt.logs.find(
+        log => log.fragment && log.fragment.name === 'DelegateVotingVerified'
+      );
+      expect(delegateVotingVerifiedEvent).to.not.be.undefined;
+      expect(delegateVotingVerifiedEvent.args.hasVoted).to.be.true;
+      expect(delegateVotingVerifiedEvent.args.voteDirection).to.equal(1);
+    });
+  });
 });

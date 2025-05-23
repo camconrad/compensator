@@ -39,6 +39,10 @@
 - `mapping(uint256 => bool) pendingProposals` - Tracks proposals that are about to start (within 1 day).
 - `mapping(address => uint256) unclaimedRewards` - Tracks the unclaimed rewards for each delegator.
 - `mapping(address => uint256) startRewardIndex` - Tracks the starting reward index for each delegator.
+- `mapping(uint256 => uint256) proposalCreationTime` - Tracks when each proposal was created.
+- `uint256 constant MAX_PROPOSAL_RESOLUTION_TIME` - Maximum time a proposal can remain unresolved (30 days).
+- `mapping(uint256 => bool) delegateVoted` - Tracks whether the delegate has voted on a proposal.
+- `mapping(uint256 => uint8) delegateVoteDirection` - Tracks the delegate's vote direction on a proposal.
 - `struct ProposalStake` - Tracks stakes for proposals by delegators:
   - `uint256 forStake` - Amount staked "For" a proposal.
   - `uint256 againstStake` - Amount staked "Against" a proposal.
@@ -54,13 +58,15 @@
 - `DelegatorDeposit(address indexed delegator, uint256 amount)` - Emitted when a delegator deposits COMP.
 - `DelegatorWithdraw(address indexed delegator, uint256 amount)` - Emitted when a delegator withdraws COMP.
 - `ProposalStaked(address indexed staker, uint256 proposalId, uint8 support, uint256 amount)` - Emitted when a delegator stakes COMP for a proposal outcome.
-- `ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport)` - Emitted when a delegate distributes stakes after a proposal resolves.
+- `ProposalStakeDistributed(uint256 proposalId, uint8 winningSupport)` - Emitted when stakes are distributed after a proposal resolves.
 - `ClaimRewards(address indexed delegator, uint256 amount)` - Emitted when a delegator claims their rewards.
 - `LosingStakeReclaimed(address indexed delegator, uint256 proposalId, uint256 amount)` - Emitted when a delegator reclaims their losing stake after a proposal is resolved.
 - `COMPLocked(address indexed delegator, uint256 unlockTime)` - Emitted when a delegator's COMP is locked.
 - `NewProposalDetected(uint256 indexed proposalId)` - Emitted when a new proposal is detected.
 - `ProposalActivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as active.
 - `ProposalDeactivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as inactive.
+- `ProposalAutoResolved(uint256 indexed proposalId, uint8 winningSupport)` - Emitted when a proposal is automatically resolved after timeout.
+- `DelegateVotingVerified(uint256 indexed proposalId, bool hasVoted, uint8 voteDirection)` - Emitted when delegate voting status is verified.
 
 ### Functions
 - **`initialize(address _delegate, string memory _delegateName)`**  
@@ -136,21 +142,25 @@
   - Requires the proposal to not already be resolved.
   - Requires the proposal to be in an Active state in the Governor contract.
   - Updates latest proposal ID and tracks proposal state.
+  - Records proposal creation time if not already set.
   - Transfers COMP from the delegator to the contract.
   - Updates the delegator's proposal stakes and total stakes.
   - Emits a `ProposalStaked` event.
 
-- **`distributeStakes(uint256 proposalId, uint8 winningSupport)`**  
-  Allows the delegate to distribute staked COMP after a proposal resolves.  
-  - Requires winningSupport to be 0 (Against) or 1 (For).
+- **`resolveProposal(uint256 proposalId)`**  
+  Allows anyone to resolve a proposal and distribute stakes based on the actual outcome.  
   - Requires the proposal to not already be resolved.
-  - Updates latest proposal ID and tracks proposal state.
+  - Requires the proposal to be in a resolved state in the Compound Governor.
+  - Verifies if the delegate has voted and their vote direction.
+  - Determines the winning support based on the proposal's actual outcome.
   - Records the proposal outcome.
-  - Transfers the winning stakes to the delegate.
+  - Transfers winning stakes to the delegate if they voted correctly.
   - Emits a `ProposalStakeDistributed` event.
+  - Emits a `DelegateVotingVerified` event.
 
 - **`reclaimLosingStake(uint256 proposalId)`**  
   Allows delegators to reclaim their losing stake after a proposal is resolved.  
+  - Checks if the proposal needs to be auto-resolved due to timeout.
   - Requires the proposal to be resolved.
   - Determines the winning side and the amount to return.
   - Updates the delegator's proposal stakes and total stakes.
@@ -203,6 +213,14 @@
   - Checks the last 10 proposals for active or pending status.
   - Returns true if any active or pending proposals are found.
 
+- **`_autoResolveProposal(uint256 proposalId)`**  
+  Internal function to automatically resolve a proposal after timeout.  
+  - Called when a proposal exceeds MAX_PROPOSAL_RESOLUTION_TIME.
+  - Verifies delegate voting status and direction.
+  - Determines outcome based on proposal state.
+  - Transfers winning stakes if delegate voted correctly.
+  - Emits appropriate events.
+
 ### ERC20 Overrides
 - **`transfer(address to, uint256 amount)`**  
   Overridden to prevent transfers of Compensator tokens.  
@@ -220,6 +238,14 @@
 - **Proposal State Tracking**:  
   The contract tracks both active and pending proposals to ensure proper lock period enforcement. It checks the last 10 proposals to determine if any are active or pending, and extends lock periods accordingly.
 
+- **Trustless Proposal Resolution**:  
+  The contract implements a trustless proposal resolution mechanism where:
+  - Anyone can trigger resolution through `resolveProposal`
+  - Outcomes are determined by the Compound Governor's state
+  - Delegate voting is verified automatically
+  - Winning stakes are only transferred if the delegate voted correctly
+  - A 30-day timeout ensures proposals can't be stuck indefinitely
+
 - **Rewards Distribution Mechanism**:  
   The contract uses an index-based reward distribution mechanism that accrues rewards based on each delegator's stake proportional to the total delegated COMP. This mechanism ensures fair reward distribution and proper accounting even when delegators deposit or withdraw at different times.
 
@@ -230,7 +256,7 @@
   By separating the tracking of accrued rewards (unclaimedRewards) from the reward index (startRewardIndex), the contract ensures accurate reward accounting across all user interactions.
 
 - **Proposal Staking Mechanism**:  
-  The contract allows delegators to stake on proposal outcomes, and these stakes can be either claimed by the delegate (if they win) or reclaimed by the delegator (if they lose).
+  The contract allows delegators to stake on proposal outcomes, and these stakes can be either claimed by the delegate (if they win and voted correctly) or reclaimed by the delegator (if they lose).
 
 - **Dynamic Delegation Cap**:  
   The delegation cap is set to 5% of the total COMP supply during initialization. If the total COMP supply changes (e.g., due to minting or burning), the delegation cap will not be updated dynamically.
@@ -247,3 +273,6 @@
   - Delegation cap prevents excessive voting power
   - Non-transferable tokens prevent unauthorized transfers
   - Proper reward accounting prevents double-counting
+  - Trustless proposal resolution prevents delegate manipulation
+  - Automatic timeout mechanism prevents stuck proposals
+  - Delegate voting verification ensures proper stake distribution
