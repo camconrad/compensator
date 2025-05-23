@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 describe("Compensator", function () {
   let compToken;
@@ -756,5 +757,48 @@ describe("Compensator", function () {
   it("should return correct token and governor addresses", async function () {
     expect(await compensator.COMP_TOKEN()).to.equal(await compToken.getAddress());
     expect(await compensator.COMPOUND_GOVERNOR()).to.equal(await compoundGovernor.getAddress());
+  });
+
+  describe("Access Control", function () {
+    it("Only delegate can call delegateDeposit", async function () {
+      const { compensator, delegate, otherAccount } = await loadFixture(deployCompensatorFixture);
+      await expect(compensator.connect(otherAccount).delegateDeposit(100))
+        .to.be.revertedWith("Only delegate can deposit");
+    });
+
+    it("Only delegate can call delegateWithdraw", async function () {
+      const { compensator, delegate, otherAccount } = await loadFixture(deployCompensatorFixture);
+      await expect(compensator.connect(otherAccount).delegateWithdraw(100))
+        .to.be.revertedWith("Only delegate can withdraw");
+    });
+
+    it("Only delegate can call setRewardRate", async function () {
+      const { compensator, delegate, otherAccount } = await loadFixture(deployCompensatorFixture);
+      await expect(compensator.connect(otherAccount).setRewardRate(100))
+        .to.be.revertedWith("Only delegate can set reward rate");
+    });
+
+    it("Delegate can call delegateDeposit", async function () {
+      const { compensator, delegate, compToken } = await loadFixture(deployCompensatorFixture);
+      await compToken.mint(delegate.address, 100);
+      await compToken.connect(delegate).approve(compensator.address, 100);
+      await expect(compensator.connect(delegate).delegateDeposit(100))
+        .to.not.be.reverted;
+    });
+
+    it("Delegate can call delegateWithdraw", async function () {
+      const { compensator, delegate, compToken } = await loadFixture(deployCompensatorFixture);
+      await compToken.mint(delegate.address, 100);
+      await compToken.connect(delegate).approve(compensator.address, 100);
+      await compensator.connect(delegate).delegateDeposit(100);
+      await expect(compensator.connect(delegate).delegateWithdraw(50))
+        .to.not.be.reverted;
+    });
+
+    it("Delegate can call setRewardRate", async function () {
+      const { compensator, delegate } = await loadFixture(deployCompensatorFixture);
+      await expect(compensator.connect(delegate).setRewardRate(100))
+        .to.not.be.reverted;
+    });
   });
 });

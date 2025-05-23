@@ -48,6 +48,7 @@ contract Compensator is ERC20, ReentrancyGuard {
     IGovernor public immutable COMPOUND_GOVERNOR;
 
     /// @notice The address of the delegate receiving voting power
+    /// @dev The delegate is the person who receives COMP delegations and can earn rewards
     address public immutable delegate;
 
     /// @notice The name selected by this delegate when they registered
@@ -300,6 +301,7 @@ contract Compensator is ERC20, ReentrancyGuard {
      */
     function delegateDeposit(uint256 amount) external nonReentrant {
         // Checks
+        require(msg.sender == delegate, "Only delegate can deposit");
         require(amount > 0, "Amount must be greater than 0");
         
         // Effects
@@ -319,6 +321,7 @@ contract Compensator is ERC20, ReentrancyGuard {
      */
     function delegateWithdraw(uint256 amount) external nonReentrant {
         // Checks
+        require(msg.sender == delegate, "Only delegate can withdraw");
         require(amount > 0, "Amount must be greater than 0");
         
         // Cache frequently accessed storage variables
@@ -344,17 +347,26 @@ contract Compensator is ERC20, ReentrancyGuard {
      * @dev Updates reward index before changing rate to ensure proper accounting
      * @param newRate The new reward rate in COMP per second
      */
-    function setRewardRate(uint256 newRate) external {
+    function setRewardRate(uint256 newRate) external nonReentrant {
+        // Checks
+        require(msg.sender == delegate, "Only delegate can set reward rate");
         require(newRate >= 0, "Reward rate must be non-negative");
         require(newRate != rewardRate, "New rate must be different from current rate");
+        
+        // Effects
         _updateRewardsIndex();
         rewardRate = newRate;
+        
+        // Interactions
+        // No external calls
+        
         emit RewardRateUpdate(delegate, newRate);
     }
 
     // Delegator functions
     /**
      * @notice Allows a delegator to delegate tokens to the delegate to receive rewards
+     * @dev A delegator is someone who delegates their COMP to the delegate
      * @param amount The amount of COMP to delegate
      */
     function delegatorDeposit(uint256 amount) external nonReentrant {

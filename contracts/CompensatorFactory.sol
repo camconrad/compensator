@@ -24,8 +24,9 @@ contract CompensatorFactory {
     /// @notice Array of all deployed Compensator contract addresses
     address[] public compensators;
 
-    /// @notice Mapping from delegatee addresses to their corresponding Compensator contract addresses
-    mapping(address delegatee => address compensator) public delegateeToCompensator;
+    /// @notice Mapping from delegate addresses to their corresponding Compensator contract addresses
+    /// @dev A delegate is someone who receives COMP delegations and can earn rewards
+    mapping(address delegate => address compensator) public delegateToCompensator;
 
     /// @notice The COMP governance token contract
     address public immutable COMP_TOKEN;
@@ -38,9 +39,9 @@ contract CompensatorFactory {
     //////////////////////////
 
     /// @notice Emitted when a new Compensator contract is created
-    /// @param delegatee The address of the delegatee for whom the Compensator is created
+    /// @param delegate The address of the delegate (person who will receive COMP delegations)
     /// @param compensator The address of the newly created Compensator contract
-    event CompensatorCreated(address indexed delegatee, address indexed compensator);
+    event CompensatorCreated(address indexed delegate, address indexed compensator);
 
     //////////////////////////
     // Constructor
@@ -63,20 +64,20 @@ contract CompensatorFactory {
     //////////////////////////
 
     /**
-     * @notice Creates a new Compensator contract for a delegatee
-     * @param delegatee The address of the delegatee
-     * @param delegateeName The name of the delegatee
+     * @notice Creates a new Compensator contract for a delegate
+     * @param delegate The address of the delegate (person who will receive COMP delegations)
+     * @param delegateName The name of the delegate
      * @return The address of the newly created Compensator contract
      */
-    function createCompensator(address delegatee, string calldata delegateeName) external returns (address) {
+    function createCompensator(address delegate, string calldata delegateName) external returns (address) {
         // Checks
-        require(delegateeToCompensator[delegatee] == address(0), "Delegatee already has a Compensator");
+        require(delegateToCompensator[delegate] == address(0), "Delegate already has a Compensator");
 
         // Effects
         // Deploy a new Compensator contract with constructor parameters
         Compensator compensator = new Compensator(
-            delegatee,
-            delegateeName,
+            delegate,
+            delegateName,
             COMP_TOKEN,
             COMPOUND_GOVERNOR
         );
@@ -84,11 +85,11 @@ contract CompensatorFactory {
         // Add the new Compensator contract address to the list of compensators
         compensators.push(address(compensator));
 
-        // Map the delegatee to their Compensator contract address
-        delegateeToCompensator[delegatee] = address(compensator);
+        // Map the delegate to their Compensator contract address
+        delegateToCompensator[delegate] = address(compensator);
 
         // Emit the CompensatorCreated event
-        emit CompensatorCreated(delegatee, address(compensator));
+        emit CompensatorCreated(delegate, address(compensator));
 
         // Return the address of the newly created Compensator contract
         return address(compensator);
