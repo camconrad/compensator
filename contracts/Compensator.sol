@@ -206,13 +206,25 @@ contract Compensator is ERC20, Initializable {
 
     /**
      * @notice Calculates the timestamp until which rewards will be distributed
-     * @dev Returns current timestamp if no rewards are being distributed
+     * @dev Returns lastRewarded timestamp if no rewards are being distributed
      * @return until The timestamp until which rewards will be distributed based on current rate
      */
     function rewardsUntil() external view returns (uint256) {
-        if (rewardRate == 0 || availableRewards <= totalPendingRewards) return block.timestamp;
-        uint256 remainingRewardsTime = (availableRewards - totalPendingRewards) / rewardRate;
-        return lastRewarded + remainingRewardsTime;
+        if (rewardRate == 0) return lastRewarded;
+        
+        // Calculate time for current available rewards
+        uint256 remainingRewardsTime = 0;
+        if (availableRewards > totalPendingRewards) {
+            remainingRewardsTime = (availableRewards - totalPendingRewards) / rewardRate;
+        }
+        
+        // Calculate time needed to cover the deficit
+        uint256 deficitTime = 0;
+        if (rewardsDeficit > 0) {
+            deficitTime = rewardsDeficit / rewardRate;
+        }
+        
+        return lastRewarded + remainingRewardsTime + deficitTime;
     }
 
     /**

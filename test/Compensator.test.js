@@ -42,19 +42,83 @@ describe("Compensator", function () {
   describe("Views", function () {
     beforeEach(async function () {
       // Setup: Delegate deposits rewards and sets reward rate
-      const compensatorAddress = await compensator.getAddress(); // Get contract address
+      const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("100"));
       await compensator.connect(delegate).delegateDeposit(ethers.parseEther("100"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
     });
 
-    it("should calculate rewardsUntil correctly", async function () {
-      const latestBlock = await ethers.provider.getBlock("latest");
-      const expectedTime = latestBlock.timestamp + 100; // 100 seconds of rewards at 1 token/second
-      
-      const rewardsUntil = await compensator.rewardsUntil();
-      // Allow for a small difference due to block timestamp changes
-      expect(rewardsUntil).to.be.closeTo(expectedTime, 5);
+    describe("rewardsUntil", function () {
+      it("should return lastRewarded when rewardRate is zero", async function () {
+        await compensator.connect(delegate).setRewardRate(0);
+        const lastRewarded = await compensator.lastRewarded();
+        const rewardsUntil = await compensator.rewardsUntil();
+        expect(rewardsUntil).to.equal(lastRewarded);
+      });
+
+      it("should calculate time for current available rewards", async function () {
+        const latestBlock = await ethers.provider.getBlock("latest");
+        const expectedTime = latestBlock.timestamp + 100; // 100 seconds of rewards at 1 token/second
+        const rewardsUntil = await compensator.rewardsUntil();
+        expect(rewardsUntil).to.be.closeTo(expectedTime, 5);
+      });
+
+      it("should include deficit time in calculation", async function () {
+        // Setup delegator to create deficit
+        const compensatorAddress = await compensator.getAddress();
+        await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
+        await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+        
+        // Advance time to create deficit
+        await ethers.provider.send("evm_increaseTime", [200]); // 200 seconds
+        await ethers.provider.send("evm_mine");
+        
+        // Get rewardsUntil
+        const rewardsUntil = await compensator.rewardsUntil();
+        const latestBlock = await ethers.provider.getBlock("latest");
+        
+        // Should be lastRewarded + time for current rewards + time for deficit
+        expect(rewardsUntil).to.be.closeTo(latestBlock.timestamp + 200, 5);
+      });
+
+      it("should handle both current rewards and deficit", async function () {
+        // Setup delegator
+        const compensatorAddress = await compensator.getAddress();
+        await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
+        await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+        
+        // Create deficit
+        await ethers.provider.send("evm_increaseTime", [100]); // 100 seconds deficit
+        await ethers.provider.send("evm_mine");
+        
+        // Add more rewards
+        await compensator.connect(delegate).delegateDeposit(ethers.parseEther("50"));
+        
+        // Get rewardsUntil
+        const rewardsUntil = await compensator.rewardsUntil();
+        const latestBlock = await ethers.provider.getBlock("latest");
+        
+        // Should be lastRewarded + time for new rewards + time for deficit
+        expect(rewardsUntil).to.be.closeTo(latestBlock.timestamp + 150, 5);
+      });
+
+      it("should handle zero available rewards correctly", async function () {
+        // Setup delegator
+        const compensatorAddress = await compensator.getAddress();
+        await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
+        await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+        
+        // Create deficit
+        await ethers.provider.send("evm_increaseTime", [100]); // 100 seconds deficit
+        await ethers.provider.send("evm_mine");
+        
+        // Get rewardsUntil
+        const rewardsUntil = await compensator.rewardsUntil();
+        const latestBlock = await ethers.provider.getBlock("latest");
+        
+        // Should be lastRewarded + time for deficit only
+        expect(rewardsUntil).to.be.closeTo(latestBlock.timestamp + 100, 5);
+      });
     });
 
     it("should calculate pending rewards correctly", async function () {

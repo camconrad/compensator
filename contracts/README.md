@@ -176,8 +176,11 @@
 
 - **`rewardsUntil()`**  
   Returns the timestamp until which rewards will be distributed.  
-  - If reward rate is 0 or there are insufficient rewards, returns the current timestamp.
-  - Otherwise, calculates the timestamp based on remaining rewards and reward rate.
+  - If reward rate is 0, returns the lastRewarded timestamp.
+  - Otherwise, calculates the total time needed to distribute:
+    - Current available rewards (if any)
+    - Any accumulated rewards deficit
+  - Returns lastRewarded + time needed for all rewards
 
 ### Internal Functions
 - **`_updateUserRewards(address delegator)`**  
