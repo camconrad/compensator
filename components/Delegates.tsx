@@ -160,12 +160,20 @@ const Delegates = () => {
         args: [delegateAddress],
       });
 
-      toast.success("Delegation successful!");
+      toast.success("Delegation successful!", {
+        style: {
+          fontWeight: "600",
+        },
+      });
       handleModalClose();
       refetchCompBalance();
     } catch (error) {
       console.error("Error delegating COMP:", error);
-      toast.error("Failed to delegate COMP. Please try again.");
+      toast.error("Failed to delegate COMP. Please try again.", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     } finally {
       setLoading(false);
     }

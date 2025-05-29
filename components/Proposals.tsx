@@ -146,7 +146,11 @@ const Proposals = () => {
 
   const handleSubmitStake = async (amount: number) => {
     if (!selectedProposal) {
-      return toast.error("No proposal selected");
+      return toast.error("No proposal selected", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     }
 
     setLoading(true);
@@ -171,7 +175,11 @@ const Proposals = () => {
       }
 
       if (!compoundContract) {
-        return toast.error("Compound contract not found");
+        return toast.error("Compound contract not found", {
+          style: {
+            fontWeight: "600",
+          },
+        });
       }
       
       const decimals = await compoundContract.decimals();
@@ -209,7 +217,11 @@ const Proposals = () => {
         );
 
         if (transactionApproveReceipt?.status === "success") {
-          toast.success("Successful Approved");
+          toast.success("Successful Approved", {
+            style: {
+              fontWeight: "600",
+            },
+          });
         }
       }
 
@@ -236,11 +248,19 @@ const Proposals = () => {
       );
       if (transactionDelegatorReceipt?.status === "success") {
         setIsModalOpen(false);
-        toast.success("Stake Successfully");
+        toast.success("Stake Successfully", {
+          style: {
+            fontWeight: "600",
+          },
+        });
       }
     } catch (error) {
       console.log("error :>> ", error);
-      toast.error("Failed to stake");
+      toast.error("Failed to stake", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     } finally {
       setLoading(false);
     }

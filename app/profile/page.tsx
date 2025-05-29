@@ -340,15 +340,8 @@ export default function ProfilePage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Address copied to clipboard", {
-      position: "bottom-center",
       style: {
-        borderRadius: "10px",
-        background: "#333",
-        color: "#fff",
-      },
-      iconTheme: {
-        primary: "#10B981",
-        secondary: "#FFFFFF",
+        fontWeight: "600",
       },
     });
   };
@@ -381,7 +374,11 @@ export default function ProfilePage() {
         compensatorAddress
       );
       if (!compensatorContract) {
-        return toast.error("Compensator contract not found");
+        return toast.error("Compensator contract not found", {
+          style: {
+            fontWeight: "600",
+          },
+        });
       }
 
       const { provider } = await getEthersSigner(wagmiConfig);
@@ -401,7 +398,11 @@ export default function ProfilePage() {
         hash: receipt?.hash,
       });
       if (transactionReceipt?.status === "success") {
-        toast.success("Set reward successfully");
+        toast.success("Set reward successfully", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         await handleSetFundingAmount(compensatorAddress);
       }
     } catch (error) {
@@ -420,7 +421,11 @@ export default function ProfilePage() {
       }
 
       if (!compoundContract) {
-        return toast.error("Compound contract not found");
+        return toast.error("Compound contract not found", {
+          style: {
+            fontWeight: "600",
+          },
+        });
       }
       const decimals = await compoundContract.decimals();
       const convertAmount = ethers
@@ -456,7 +461,11 @@ export default function ProfilePage() {
         );
 
         if (transactionApproveReceipt?.status === "success") {
-          toast.success("Successful Approved");
+          toast.success("Successful Approved", {
+            style: {
+              fontWeight: "600",
+            },
+          });
         }
       }
 
@@ -478,12 +487,20 @@ export default function ProfilePage() {
         }
       );
       if (transactionDelegatorReceipt?.status === "success") {
-        toast.success("Set Funding Successfully");
+        toast.success("Set Funding Successfully", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         handleRewardsModalClose();
       }
     } catch (error) {
       console.log("error :>> ", error);
-      toast.error("Failed to set Funding");
+      toast.error("Failed to set Funding", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -535,7 +552,11 @@ export default function ProfilePage() {
       });
 
       if (transactionReceipt?.status === "success") {
-        toast.success("Compensator created successfully");
+        toast.success("Compensator created successfully", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         const compensatorAddress =
           await compensatorFactoryContract.getCompensator(delegateAddress);
         await handleSetReward(compensatorAddress);
@@ -596,7 +617,11 @@ export default function ProfilePage() {
 
   const handleClaimRewards = async () => {
     if (!address || !compensatorFactoryContract) {
-      toast.error("Please connect to a wallet");
+      toast.error("Please connect to a wallet", {
+        style: {
+          fontWeight: "600",
+        },
+      });
       return;
     }
 
@@ -605,21 +630,33 @@ export default function ProfilePage() {
       // Get the user's compensator contract address
       const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
       if (!compensatorAddress || compensatorAddress === ethers.ZeroAddress) {
-        toast.error("No compensator contract found");
+        toast.error("No compensator contract found", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
       // Get the compensator contract
       const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
       if (!compensatorContract) {
-        toast.error("Failed to get compensator contract");
+        toast.error("Failed to get compensator contract", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
       // Get the current rewards before claiming
       const pendingRewards = await compensatorContract.getPendingRewards(address);
       if (pendingRewards === BigInt(0)) {
-        toast.error("No rewards to claim");
+        toast.error("No rewards to claim", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
@@ -638,13 +675,21 @@ export default function ProfilePage() {
       });
 
       if (transactionReceipt?.status === "success") {
-        toast.success("Rewards claimed successfully");
+        toast.success("Rewards claimed successfully", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         // Refresh profile data to update rewards
         await fetchProfileData();
       }
     } catch (error) {
       console.error("Error claiming rewards:", error);
-      toast.error("Failed to claim rewards");
+      toast.error("Failed to claim rewards", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     } finally {
       setIsClaiming(false);
     }
@@ -652,7 +697,11 @@ export default function ProfilePage() {
 
   const handleWithdrawStaked = async () => {
     if (!address || !compensatorFactoryContract) {
-      toast.error("Please connect to a wallet");
+      toast.error("Please connect to a wallet", {
+        style: {
+          fontWeight: "600",
+        },
+      });
       return;
     }
 
@@ -661,21 +710,33 @@ export default function ProfilePage() {
       // Get the user's compensator contract address
       const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
       if (!compensatorAddress || compensatorAddress === ethers.ZeroAddress) {
-        toast.error("No compensator contract found");
+        toast.error("No compensator contract found", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
       // Get the compensator contract
       const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
       if (!compensatorContract) {
-        toast.error("Failed to get compensator contract");
+        toast.error("Failed to get compensator contract", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
       // Get the current staked amount
       const stakedAmount = await compensatorContract.balanceOf(address);
       if (stakedAmount === BigInt(0)) {
-        toast.error("No staked tokens to withdraw");
+        toast.error("No staked tokens to withdraw", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
@@ -694,13 +755,21 @@ export default function ProfilePage() {
       });
 
       if (transactionReceipt?.status === "success") {
-        toast.success("Staked tokens withdrawn successfully");
+        toast.success("Staked tokens withdrawn successfully", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         // Refresh profile data to update staked amount
         await fetchProfileData();
       }
     } catch (error) {
       console.error("Error withdrawing staked tokens:", error);
-      toast.error("Failed to withdraw staked tokens");
+      toast.error("Failed to withdraw staked tokens", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     } finally {
       setIsWithdrawing(false);
     }

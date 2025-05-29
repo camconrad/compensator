@@ -51,25 +51,15 @@ const handleCopyClick = (e: React.MouseEvent, address: string) => {
     .writeText(address)
     .then(() => {
       toast.success("Address copied", {
-        position: "bottom-center",
         style: {
-          borderRadius: "10px",
-          background: "#333",
-          color: "#fff",
-        },
-        iconTheme: {
-          primary: "#10B981",
-          secondary: "#FFFFFF",
+          fontWeight: "600",
         },
       });
     })
     .catch(() => {
       toast.error("Failed to copy address.", {
-        position: "bottom-center",
         style: {
-          borderRadius: "10px",
-          background: "#333",
-          color: "#fff",
+          fontWeight: "600",
         },
       });
     });

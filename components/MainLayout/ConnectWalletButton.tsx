@@ -34,6 +34,7 @@ const ConnectWalletButton = ({ isMobile = false }) => {
   const [claimSuccess, setClaimSuccess] = useState(false)
   const [pendingRewards, setPendingRewards] = useState("0.0000")
   const [walletBalance, setWalletBalance] = useState("0.0000")
+  const [isFaucetLoading, setIsFaucetLoading] = useState(false)
 
   const { handleSetCompensatorContract } = useGetCompensatorContract()
   const { compensatorFactoryContract } = useGetCompensatorFactoryContract()
@@ -130,6 +131,30 @@ const ConnectWalletButton = ({ isMobile = false }) => {
     setShowPopover(false)
   }
 
+  const handleFaucetClaim = async () => {
+    setIsFaucetLoading(true)
+    try {
+      // TODO: Implement faucet claim logic here
+      // This will be implemented when the faucet contract is ready
+      await new Promise(resolve => setTimeout(resolve, 2000)) // Temporary delay for testing
+      toast.success("Testnet tokens claimed successfully!", {
+        style: {
+          fontWeight: "600",
+        },
+      })
+    } catch (error) {
+      console.error("Error claiming testnet tokens:", error)
+      toast.error("Failed to claim testnet tokens", {
+        style: {
+          fontWeight: "600",
+        },
+      })
+    } finally {
+      setIsFaucetLoading(false)
+      setShowPopover(false)
+    }
+  }
+
   const handleClaimCOMP = async () => {
     if (!address || Number.parseFloat(pendingRewards) <= 0) return
 
@@ -163,11 +188,19 @@ const ConnectWalletButton = ({ isMobile = false }) => {
       if (transactionReceipt?.status === "success") {
         setClaimSuccess(true)
         setPendingRewards("0.0000")
-        toast.success(`Successfully claimed ${pendingRewards} COMP tokens`)
+        toast.success(`Successfully claimed ${pendingRewards} COMP tokens`, {
+          style: {
+            fontWeight: "600",
+          },
+        })
       }
     } catch (error) {
       console.error("Error claiming COMP:", error)
-      toast.error("Failed to claim COMP rewards")
+      toast.error("Failed to claim COMP rewards", {
+        style: {
+          fontWeight: "600",
+        },
+      })
     } finally {
       setIsClaimLoading(false)
     }
@@ -346,12 +379,36 @@ const ConnectWalletButton = ({ isMobile = false }) => {
             Disconnect Wallet
           </motion.button>
           <motion.button
-            onClick={handleChangeWallet}
-            className="w-full py-3 px-4 text-xs font-semibold bg-[#D7DFE4] dark:bg-[#2B3947] hover:bg-[#c7d1d6] dark:hover:bg-[#2F3E4D] text-[#030303] dark:text-white rounded-full transition-colors"
+            onClick={handleFaucetClaim}
+            className="w-full py-3 px-4 text-xs font-semibold bg-[#D7DFE4] dark:bg-[#2B3947] hover:bg-[#c7d1d6] dark:hover:bg-[#2F3E4D] text-[#030303] dark:text-white rounded-full transition-colors flex items-center justify-center"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            disabled={isFaucetLoading}
           >
-            Change Wallet
+            {isFaucetLoading ? (
+              <svg
+                className="animate-spin h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : (
+              "Get Testnet Tokens"
+            )}
           </motion.button>
         </div>
       </motion.div>,

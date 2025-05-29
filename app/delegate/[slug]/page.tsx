@@ -272,12 +272,20 @@ export default function DelegatePage() {
         args: [delegateAddress],
       });
 
-      toast.success("Delegation successful!");
+      toast.success("Delegation successful!", {
+        style: {
+          fontWeight: "600",
+        },
+      });
       handleModalClose();
       refetchCompBalance();
     } catch (error) {
       console.error("Error delegating COMP:", error);
-      toast.error("Failed to delegate COMP. Please try again.");
+      toast.error("Failed to delegate COMP. Please try again.", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -287,15 +295,8 @@ export default function DelegatePage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Address copied to clipboard", {
-      position: "top-center",
       style: {
-        borderRadius: "10px",
-        background: "#ffffff",
-        color: "#030303",
-      },
-      iconTheme: {
-        primary: "#ffffff",
-        secondary: "#10B981",
+        fontWeight: "600",
       },
     });
   };
