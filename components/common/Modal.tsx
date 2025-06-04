@@ -124,10 +124,22 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
 
   const handleTokenSelect = (token: string, isFrom: boolean) => {
     if (isFrom) {
-      setFromToken(token);
+      if (token === toToken) {
+        // If trying to set the same token, swap the tokens instead
+        setFromToken(toToken);
+        setToToken(fromToken);
+      } else {
+        setFromToken(token);
+      }
       setShowFromDropdown(false);
     } else {
-      setToToken(token);
+      if (token === fromToken) {
+        // If trying to set the same token, swap the tokens instead
+        setToToken(fromToken);
+        setFromToken(toToken);
+      } else {
+        setToToken(token);
+      }
       setShowToDropdown(false);
     }
   };
@@ -250,10 +262,16 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                       </p>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <div className="relative">
+                      <div className="relative flex items-center">
+                        <button 
+                          onClick={() => setFromAmount(tokenBalances[fromToken].toString())}
+                          className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E5E7EB] dark:bg-[#2d3d4d] text-white hover:bg-[#D1D5DB] dark:hover:bg-[#3d4d5d] transition-colors mr-2"
+                        >
+                          MAX
+                        </button>
                         <div 
                           onClick={() => setShowFromDropdown(!showFromDropdown)}
-                          className="flex items-center gap-2 rounded-lg pl-2 w-auto cursor-pointer"
+                          className="flex items-center gap-2 rounded-lg pl-0 pr-3 w-auto cursor-pointer"
                         >
                           <img
                             src={tokenIcons[fromToken]}
@@ -263,22 +281,28 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                           <span className="text-sm font-semibold dark:text-white">{fromToken}</span>
                         </div>
                         {showFromDropdown && (
-                          <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[#1D2833] rounded-xl shadow-lg border border-[#efefef] dark:border-[#28303e] w-32 z-50 p-1">
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute top-full right-0 mt-1 bg-white dark:bg-[#1D2833] rounded-xl shadow-lg border border-[#efefef] dark:border-[#28303e] w-32 z-50 p-1"
+                          >
                             {Object.keys(tokenIcons).map((token) => (
                               <div
                                 key={token}
                                 onClick={() => handleTokenSelect(token, true)}
-                                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#24313d] cursor-pointer rounded-lg"
+                                className={`flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#24313d] cursor-pointer rounded-lg ${token === toToken ? 'opacity-50 cursor-not-allowed' : ''}`}
                               >
                                 <img
                                   src={tokenIcons[token]}
                                   alt={token}
                                   className="h-5 w-5 rounded-full"
                                 />
-                                <span className="text-sm font-medium dark:text-white">{token}</span>
+                                <span className="text-sm font-semibold dark:text-white">{token}</span>
                               </div>
                             ))}
-                          </div>
+                          </motion.div>
                         )}
                       </div>
                       <p className="text-xs text-[#6D7C8D] flex items-center gap-1 justify-end">
@@ -334,22 +358,28 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                           <span className="text-sm font-semibold dark:text-white">{toToken}</span>
                         </div>
                         {showToDropdown && (
-                          <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[#1D2833] rounded-xl shadow-lg border border-[#efefef] dark:border-[#28303e] w-32 z-50 p-1">
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute top-full right-0 mt-1 bg-white dark:bg-[#1D2833] rounded-xl shadow-lg border border-[#efefef] dark:border-[#28303e] w-32 z-50 p-1"
+                          >
                             {Object.keys(tokenIcons).map((token) => (
                               <div
                                 key={token}
                                 onClick={() => handleTokenSelect(token, false)}
-                                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#24313d] cursor-pointer rounded-lg"
+                                className={`flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#24313d] cursor-pointer rounded-lg ${token === fromToken ? 'opacity-50 cursor-not-allowed' : ''}`}
                               >
                                 <img
                                   src={tokenIcons[token]}
                                   alt={token}
                                   className="h-5 w-5 rounded-full"
                                 />
-                                <span className="text-sm font-medium dark:text-white">{token}</span>
+                                <span className="text-sm font-semibold dark:text-white">{token}</span>
                               </div>
                             ))}
-                          </div>
+                          </motion.div>
                         )}
                       </div>
                       <p className="text-xs text-[#6D7C8D] flex items-center gap-1 justify-end">
