@@ -325,7 +325,7 @@ const Delegates = () => {
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
+                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <div className="flex items-center mr-3 ml-2">
                       <Image

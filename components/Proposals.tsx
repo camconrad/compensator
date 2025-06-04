@@ -380,7 +380,7 @@ const Proposals = () => {
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full bg-transparent font-semibold dark:text-gray-100 focus:outline-none text-lg"
+                      className="w-full bg-transparent font-semibold dark:text-gray-100 focus:outline-none text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <div className="flex items-center mr-3 ml-2">
                       <Image

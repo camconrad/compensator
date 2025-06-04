@@ -251,7 +251,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                       <input
                         type="number"
                         placeholder="0.00"
-                        className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
+                        className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         value={fromAmount}
                         onChange={(e) => setFromAmount(e.target.value)}
                       />
@@ -334,7 +334,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                       <input
                         type="number"
                         placeholder="0.00"
-                        className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white"
+                        className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         value={toAmount}
                         onChange={(e) => setFromAmount(e.target.value)}
                       />
