@@ -401,8 +401,11 @@ const Proposals = () => {
                         ? `$${(parseFloat(amount) * compPrice).toFixed(2)}`
                         : "$0.00"}
                     </p>
-                    <p className="text-xs text-[#6D7C8D]">
-                      Balance: {formattedCompBalance.toFixed(4)}
+                    <p className="text-xs text-[#6D7C8D] flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                        <path d="M2.273 5.625A4.483 4.483 0 015.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 3H5.25a3 3 0 00-2.977 2.625zM2.273 8.625A4.483 4.483 0 015.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 6H5.25a3 3 0 00-2.977 2.625zM5.25 9a3 3 0 00-3 3v6a3 3 0 003 3h13.5a3 3 0 003-3v-6a3 3 0 00-3-3H15a.75.75 0 01-.75-.75 1.5 1.5 0 00-1.5-1.5H9a1.5 1.5 0 00-1.5 1.5A.75.75 0 016 9H5.25z" />
+                      </svg>
+                      {formattedCompBalance.toFixed(4)}
                     </p>
                   </div>
                 </div>

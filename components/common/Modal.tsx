@@ -56,6 +56,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
     COMP: 0,
   })
   const [showSlippagePopover, setShowSlippagePopover] = useState(false)
+  const compPrice = 0.0001; // Placeholder price, replace with actual price from your data source
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflowY
@@ -231,17 +232,21 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                         value={fromAmount}
                         onChange={(e) => setFromAmount(e.target.value)}
                       />
-                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">$0.00</span>
+                      <p className="text-xs text-[#6D7C8D]">
+                        {fromAmount
+                          ? `$${(parseFloat(fromAmount) * compPrice).toFixed(2)}`
+                          : "$0.00"}
+                      </p>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 rounded-lg pl-2">
+                      <div className="flex items-center gap-2 rounded-lg pl-2 w-auto">
                         <img
                           src={tokenIcons[fromToken]}
                           alt={fromToken}
                           className="h-6 w-6 rounded-full"
                         />
                         <select
-                          className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
+                          className="border-none bg-transparent appearance-none text-center focus:outline-none rounded-lg py-2 text-sm font-semibold dark:text-white w-auto"
                           value={fromToken}
                           onChange={(e) => setFromToken(e.target.value)}
                         >
@@ -252,25 +257,26 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                           ))}
                         </select>
                       </div>
-                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400 mt-1 min-w-[86px]">
-                        Balance: {tokenBalances[fromToken].toFixed(2)}
-                      </span>
+                      <p className="text-xs text-[#6D7C8D] flex items-center gap-1 justify-end">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                          <path d="M2.273 5.625A4.483 4.483 0 015.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 3H5.25a3 3 0 00-2.977 2.625zM2.273 8.625A4.483 4.483 0 015.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 6H5.25a3 3 0 00-2.977 2.625zM5.25 9a3 3 0 00-3 3v6a3 3 0 003 3h13.5a3 3 0 003-3v-6a3 3 0 00-3-3H15a.75.75 0 01-.75-.75 1.5 1.5 0 00-1.5-1.5H9a1.5 1.5 0 00-1.5 1.5A.75.75 0 016 9H5.25z" />
+                        </svg>
+                        {tokenBalances[fromToken].toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Swap Toggle/Switch Button */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-[56%] z-10">
-                  <motion.div
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#EFF2F5] dark:bg-[#1D2833] border-4 border-white dark:border-[#0D131A]"
+                <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 bg-[#EFF2F5] dark:bg-[#1D2833] p-2 rounded-full border-2 border-white dark:border-[#0D131A] shadow-sm transition-transform w-10 h-10 flex items-center justify-center hover:scale-105">
+                  <button
                     onClick={handleSwapTokens}
-                    variants={closeButtonVariants}
-                    initial="rest"
-                    whileHover="hover"
-                    whileTap="tap"
+                    className="w-full h-full flex items-center justify-center"
                   >
-                    <Repeat className="h-5 w-5 dark:text-gray-300" />
-                  </motion.div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 dark:text-gray-300">
+                      <path fillRule="evenodd" d="M12 3.75a.75.75 0 01.75.75v13.19l5.47-5.47a.75.75 0 111.06 1.06l-6.75 6.75a.75.75 0 01-1.06 0l-6.75-6.75a.75.75 0 111.06-1.06l5.47 5.47V4.5a.75.75 0 01.75-.75z" clipRule="evenodd" strokeWidth="2" />
+                    </svg>
+                  </button>
                 </div>
 
                 {/* To Token */}
@@ -284,17 +290,21 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                         value={toAmount}
                         onChange={(e) => setFromAmount(e.target.value)}
                       />
-                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400">$0.00</span>
+                      <p className="text-xs text-[#6D7C8D]">
+                        {toAmount
+                          ? `$${(parseFloat(toAmount) * compPrice).toFixed(2)}`
+                          : "$0.00"}
+                      </p>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 rounded-lg pl-2">
+                      <div className="flex items-center gap-2 rounded-lg pl-2 w-auto">
                         <img
                           src={tokenIcons[toToken]}
                           alt={toToken}
                           className="h-6 w-6 rounded-full"
                         />
                         <select
-                          className="border-none bg-gray-200 appearance-none text-center focus:outline-none dark:bg-gray-700 rounded-lg py-2 text-sm font-semibold dark:text-white"
+                          className="border-none bg-transparent appearance-none text-center focus:outline-none rounded-lg py-2 text-sm font-semibold dark:text-white w-auto"
                           value={toToken}
                           onChange={(e) => setToToken(e.target.value)}
                         >
@@ -305,16 +315,19 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                           ))}
                         </select>
                       </div>
-                      <span className="text-sm text-gray-500 font-medium dark:text-gray-400 mt-1 min-w-[86px]">
-                        Balance: {tokenBalances[toToken].toFixed(2)}
-                      </span>
+                      <p className="text-xs text-[#6D7C8D] flex items-center gap-1 justify-end">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                          <path d="M2.273 5.625A4.483 4.483 0 015.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 3H5.25a3 3 0 00-2.977 2.625zM2.273 8.625A4.483 4.483 0 015.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 6H5.25a3 3 0 00-2.977 2.625zM5.25 9a3 3 0 00-3 3v6a3 3 0 003 3h13.5a3 3 0 003-3v-6a3 3 0 00-3-3H15a.75.75 0 01-.75-.75 1.5 1.5 0 00-1.5-1.5H9a1.5 1.5 0 00-1.5 1.5A.75.75 0 016 9H5.25z" />
+                        </svg>
+                        {tokenBalances[toToken].toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Swap Button */}
                 <button
-                  className="w-full py-3 bg-[#10b981e0] text-white font-semibold rounded-full hover:bg-emerald-600 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                  className="w-full py-3 bg-[#10b981e0] text-white font-semibold rounded-full transition-transform hover:scale-105 active:scale-95"
                   onClick={handleSwap}
                   disabled={isSwapping}
                 >

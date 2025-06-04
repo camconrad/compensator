@@ -39,7 +39,7 @@ export default function TermsOfService() {
           transition={{ duration: 0.5 }}
         >
           <div className="max-w-2xl w-full">
-            <h1 className="text-4xl font-bold text-[#030303] dark:text-white mb-10">
+            <h1 className="text-4xl font-bold text-[#030303] dark:text-white mb-4">
               Terms of Service
             </h1>
 

@@ -35,7 +35,7 @@ export default function PrivacyPolicy() {
           transition={{ duration: 0.5 }}
         >
           <div className="max-w-2xl w-full">
-            <h1 className="text-4xl font-bold text-[#030303] dark:text-white mb-10">Privacy Policy</h1>
+            <h1 className="text-4xl font-bold text-[#030303] dark:text-white mb-4">Privacy Policy</h1>
 
             <div className="prose dark:prose-dark font-medium text-[#6D7C8D] space-y-6 max-w-none">
               {/* Introduction */}
