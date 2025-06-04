@@ -643,7 +643,7 @@ export default function DelegatePage() {
                           href={currentDelegate.externalLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
+                          className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-[#0D131A] font-semibold inline-flex items-center text-sm mb-2"
                         >
                           View Proposals
                         </a>
