@@ -482,6 +482,11 @@ export default function DelegatePage() {
                     <div className="bg-[#F9FAFB] dark:bg-[#17212B] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
+                          <img
+                            src="/logo.png"
+                            alt=""
+                            className="h-5 w-5 rounded-full"
+                          />
                           <p className="text-2xl font-bold text-[#030303] dark:text-white">
                             {Number(currentDelegate?.rewardRate || 0) === 0 ? "0%" : `${Number(currentDelegate?.rewardRate || 0).toFixed(2)}%`}
                           </p>

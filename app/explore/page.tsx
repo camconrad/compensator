@@ -436,19 +436,19 @@ const ExplorePage = () => {
                               </div>
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
+                              className="px-6 text-[#6D7C8D] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               <span className="">{delegate.rewardAPR}</span>
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
+                              className="px-6 text-[#6D7C8D] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               {parseFloat(delegate.distributed).toFixed(2)} COMP
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
+                              className="px-6 text-[#6D7C8D] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               <div className="flex items-center">
@@ -464,7 +464,7 @@ const ExplorePage = () => {
                               </div>
                             </td>
                             <td
-                              className="px-6 text-[#030303] text-sm py-4 dark:text-[#ccd8e8]"
+                              className="px-6 text-[#6D7C8D] text-sm py-4 dark:text-[#ccd8e8]"
                               style={{ width: "120px" }}
                             >
                               <div className="flex items-center">
