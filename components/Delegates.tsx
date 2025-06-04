@@ -419,15 +419,8 @@ const Delegates = () => {
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Reward Rate</div>
-              <div className="flex items-center gap-1">
+              <div className="">
                 {selectedDelegate?.rewardAPR}
-                <Image
-                  src="/logo.png"
-                  alt="COMP Logo"
-                  width={16}
-                  height={16}
-                  className="rounded-full"
-                />
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
