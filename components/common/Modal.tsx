@@ -56,7 +56,8 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
     COMP: 0,
   })
   const [showSlippagePopover, setShowSlippagePopover] = useState(false)
-  const compPrice = 0.0001; // Placeholder price, replace with actual price from your data source
+  const [showFromDropdown, setShowFromDropdown] = useState(false);
+  const [showToDropdown, setShowToDropdown] = useState(false);
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflowY
@@ -120,6 +121,16 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
       setSlippageTolerance(value)
     }
   }
+
+  const handleTokenSelect = (token: string, isFrom: boolean) => {
+    if (isFrom) {
+      setFromToken(token);
+      setShowFromDropdown(false);
+    } else {
+      setToToken(token);
+      setShowToDropdown(false);
+    }
+  };
 
   if (!open) return null
 
@@ -234,28 +245,41 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                       />
                       <p className="text-xs text-[#6D7C8D]">
                         {fromAmount
-                          ? `$${(parseFloat(fromAmount) * compPrice).toFixed(2)}`
+                          ? `$${fromAmount}`
                           : "$0.00"}
                       </p>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-2 rounded-lg pl-2 w-auto">
-                        <img
-                          src={tokenIcons[fromToken]}
-                          alt={fromToken}
-                          className="h-6 w-6 rounded-full"
-                        />
-                        <select
-                          className="border-none bg-transparent appearance-none text-center focus:outline-none rounded-lg py-2 text-sm font-semibold dark:text-white w-auto"
-                          value={fromToken}
-                          onChange={(e) => setFromToken(e.target.value)}
+                      <div className="relative">
+                        <div 
+                          onClick={() => setShowFromDropdown(!showFromDropdown)}
+                          className="flex items-center gap-2 rounded-lg pl-2 w-auto cursor-pointer"
                         >
-                          {Object.keys(tokenIcons).map((token) => (
-                            <option key={token} value={token}>
-                              {token}
-                            </option>
-                          ))}
-                        </select>
+                          <img
+                            src={tokenIcons[fromToken]}
+                            alt={fromToken}
+                            className="h-6 w-6 rounded-full"
+                          />
+                          <span className="text-sm font-semibold dark:text-white">{fromToken}</span>
+                        </div>
+                        {showFromDropdown && (
+                          <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[#1D2833] rounded-xl shadow-lg border border-[#efefef] dark:border-[#28303e] w-32 z-50 p-1">
+                            {Object.keys(tokenIcons).map((token) => (
+                              <div
+                                key={token}
+                                onClick={() => handleTokenSelect(token, true)}
+                                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#24313d] cursor-pointer rounded-lg"
+                              >
+                                <img
+                                  src={tokenIcons[token]}
+                                  alt={token}
+                                  className="h-5 w-5 rounded-full"
+                                />
+                                <span className="text-sm font-medium dark:text-white">{token}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <p className="text-xs text-[#6D7C8D] flex items-center gap-1 justify-end">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
@@ -292,28 +316,41 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                       />
                       <p className="text-xs text-[#6D7C8D]">
                         {toAmount
-                          ? `$${(parseFloat(toAmount) * compPrice).toFixed(2)}`
+                          ? `$${toAmount}`
                           : "$0.00"}
                       </p>
                     </div>
                     <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-2 rounded-lg pl-2 w-auto">
-                        <img
-                          src={tokenIcons[toToken]}
-                          alt={toToken}
-                          className="h-6 w-6 rounded-full"
-                        />
-                        <select
-                          className="border-none bg-transparent appearance-none text-center focus:outline-none rounded-lg py-2 text-sm font-semibold dark:text-white w-auto"
-                          value={toToken}
-                          onChange={(e) => setToToken(e.target.value)}
+                      <div className="relative">
+                        <div 
+                          onClick={() => setShowToDropdown(!showToDropdown)}
+                          className="flex items-center gap-2 rounded-lg pl-2 w-auto cursor-pointer"
                         >
-                          {Object.keys(tokenIcons).map((token) => (
-                            <option key={token} value={token}>
-                              {token}
-                            </option>
-                          ))}
-                        </select>
+                          <img
+                            src={tokenIcons[toToken]}
+                            alt={toToken}
+                            className="h-6 w-6 rounded-full"
+                          />
+                          <span className="text-sm font-semibold dark:text-white">{toToken}</span>
+                        </div>
+                        {showToDropdown && (
+                          <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[#1D2833] rounded-xl shadow-lg border border-[#efefef] dark:border-[#28303e] w-32 z-50 p-1">
+                            {Object.keys(tokenIcons).map((token) => (
+                              <div
+                                key={token}
+                                onClick={() => handleTokenSelect(token, false)}
+                                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#24313d] cursor-pointer rounded-lg"
+                              >
+                                <img
+                                  src={tokenIcons[token]}
+                                  alt={token}
+                                  className="h-5 w-5 rounded-full"
+                                />
+                                <span className="text-sm font-medium dark:text-white">{token}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <p className="text-xs text-[#6D7C8D] flex items-center gap-1 justify-end">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
