@@ -265,7 +265,7 @@ const Modal = ({ open, handleClose, className, title, hideCloseIcon = false, chi
                       <div className="relative flex items-center">
                         <button 
                           onClick={() => setFromAmount(tokenBalances[fromToken].toString())}
-                          className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E5E7EB] dark:bg-[#2d3d4d] text-white hover:bg-[#D1D5DB] dark:hover:bg-[#3d4d5d] transition-colors mr-2"
+                          className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E5E7EB] dark:bg-[#2d3d4d] text-[#374151] dark:text-white hover:bg-[#D1D5DB] dark:hover:bg-[#3d4d5d] transition-colors mr-2"
                         >
                           MAX
                         </button>

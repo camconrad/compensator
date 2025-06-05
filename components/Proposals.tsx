@@ -383,6 +383,12 @@ const Proposals = () => {
                       className="w-full bg-transparent font-semibold dark:text-gray-100 focus:outline-none text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <div className="flex items-center mr-3 ml-2">
+                      <button 
+                        onClick={() => setAmount(formattedCompBalance.toString())}
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E5E7EB] dark:bg-[#2d3d4d] text-[#374151] dark:text-white hover:bg-[#D1D5DB] dark:hover:bg-[#3d4d5d] transition-colors mr-2"
+                      >
+                        MAX
+                      </button>
                       <Image
                         src="/logo.png"
                         alt="Compensator Logo"
