@@ -756,19 +756,27 @@ export default function DelegatePage() {
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold"
+                      className="w-full bg-transparent dark:text-gray-100 focus:outline-none text-xl font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <div className="flex items-center mr-3 ml-2">
-                      <Image
-                        src="/logo.png"
-                        alt="COMP Logo"
-                        width={20}
-                        height={20}
-                        className="mx-auto rounded-full"
-                      />
-                      <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">
-                        COMP
-                      </span>
+                      <button 
+                        onClick={() => setAmount(formattedCompBalance)}
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E5E7EB] dark:bg-[#2d3d4d] text-[#374151] dark:text-white hover:bg-[#D1D5DB] dark:hover:bg-[#3d4d5d] transition-colors mr-2"
+                      >
+                        MAX
+                      </button>
+                      <div className="flex items-center">
+                        <Image
+                          src="/logo.png"
+                          alt="COMP Logo"
+                          width={20}
+                          height={20}
+                          className="mx-auto rounded-full"
+                        />
+                        <span className="px-1 py-2 dark:text-gray-200 rounded text-sm font-semibold">
+                          COMP
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2">
