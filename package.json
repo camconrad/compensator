@@ -9,8 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@lifi/sdk": "^3.6.2",
-    "@lifi/wallet-management": "^3.7.1",
+    "@bigmi/react": "^0.3.1",
+    "@lifi/sdk": "^3.5.2",
+    "@lifi/wallet-management": "3.6.2",
     "@metamask/providers": "^20.0.0",
     "@radix-ui/react-popover": "^1.1.6",
     "@radix-ui/react-slot": "^1.1.2",
