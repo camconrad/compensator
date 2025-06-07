@@ -45,7 +45,7 @@ export const wagmiConfig = getDefaultConfig({
 // });
 
 createConfig({
-  integrator: "bot",
+  integrator: "comp",
   providers: [
     EVM({
       getWalletClient: () => getWalletClient(wagmiConfig) as any,
