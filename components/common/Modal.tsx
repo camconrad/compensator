@@ -84,7 +84,7 @@ const tokenOptions = [
     name: "Compound",
     symbol: "COMP",
     contractAddress: "0xc00e94cb662c3520282e6f5717214004a7f26888",
-    image: "/logo.svg",
+    image: "/logo.png",
     decimals: 18,
   },
 ];
