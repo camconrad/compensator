@@ -494,7 +494,7 @@ const Modal = ({
                           className="flex items-center gap-2 rounded-lg pl-2 w-auto cursor-pointer"
                         >
                           <img
-                            src={toToken?.symbol}
+                            src={toToken?.image}
                             alt={toToken?.symbol}
                             className="h-6 w-6 rounded-full"
                           />
