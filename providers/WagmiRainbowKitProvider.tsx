@@ -44,6 +44,21 @@ export const wagmiConfig = getDefaultConfig({
 //   preloadChains: false,
 // });
 
+createConfig({
+  integrator: "bot",
+  providers: [
+    EVM({
+      getWalletClient: () => getWalletClient(wagmiConfig) as any,
+      switchChain: async (chainId): Promise<any> => {
+        const chain = await switchChain(wagmiConfig, { chainId: chainId as any });
+        return getWalletClient(wagmiConfig, { chainId: chain.id });
+      },
+    }),
+  ],
+  // We disable chain preloading and will update chain configuration in runtime
+  preloadChains: false,
+});
+
 const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
   const theme = useSettingTheme();
 
@@ -58,7 +73,7 @@ const WagmiRainbowKitProvider = ({ children }: PropsWithChildren) => {
     },
   });
 
-  // useSyncWagmiConfig(wagmiConfig, connectors, chains);
+  useSyncWagmiConfig(wagmiConfig, connectors, chains);
 
 
   return (
