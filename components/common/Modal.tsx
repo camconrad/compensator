@@ -631,7 +631,6 @@ const Modal = ({
                           value={tokenBalances[fromToken?.symbol] || 0}
                           decimalScale={4}
                           fixedDecimalScale
-                          prefix="$"
                         />
                       </p>
                     </div>
@@ -753,7 +752,6 @@ const Modal = ({
                           value={tokenBalances[toToken?.symbol] || 0}
                           decimalScale={4}
                           fixedDecimalScale
-                          prefix="$"
                         />
                       </p>
                     </div>
