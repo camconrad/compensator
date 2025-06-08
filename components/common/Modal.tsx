@@ -207,7 +207,7 @@ const Modal = ({
           console.log("updateRouteHook", route);
         },
       });
-      toast.success("Swap successfully!");
+      toast.success("Swap successful!");
       handleGetBalance();
       setFromAmount("");
       setToAmount("");
