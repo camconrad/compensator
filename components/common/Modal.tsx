@@ -63,6 +63,7 @@ const tokenOptions = [
   {
     name: "Ethereum",
     symbol: "ETH",
+    symbolPrice: "ETH",
     contractAddress: "0x0000000000000000000000000000000000000000",
     image: "/eth.svg",
     decimals: 18,
@@ -70,6 +71,7 @@ const tokenOptions = [
   {
     name: "WBTC",
     symbol: "WBTC",
+    symbolPrice: "BTC",
     contractAddress: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
     image: "/wbtc.svg",
     decimals: 8,
@@ -77,6 +79,7 @@ const tokenOptions = [
   {
     name: "Tether",
     symbol: "USDT",
+    symbolPrice: "USDT",
     contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
     image: "/usdt.svg",
     decimals: 6,
@@ -84,6 +87,7 @@ const tokenOptions = [
   {
     name: "USDC",
     symbol: "USDC",
+    symbolPrice: "USDC",
     contractAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     image: "/usdc.svg",
     decimals: 6,
@@ -91,6 +95,7 @@ const tokenOptions = [
   {
     name: "Compound",
     symbol: "COMP",
+    symbolPrice: "COMP",
     contractAddress: "0xc00e94cb662c3520282e6f5717214004a7f26888",
     image: "/logo.png",
     decimals: 18,
@@ -202,6 +207,8 @@ const Modal = ({
         },
       });
       handleGetBalance();
+      setFromAmount("");
+      setToAmount("");
       setError(null);
     } catch (error: any) {
       console.error("handleSwap", error?.message, error);
@@ -334,8 +341,8 @@ const Modal = ({
     }
     try {
       const [fromTokenPrice, toTokenPrice] = await Promise.all([
-        getPriceToken(fromToken?.symbol),
-        getPriceToken(toToken?.symbol),
+        getPriceToken(fromToken?.symbolPrice),
+        getPriceToken(toToken?.symbolPrice),
       ]);
 
       updateUsdPrice({
@@ -394,6 +401,17 @@ const Modal = ({
     handleGetBalance();
     handleGetPriceToken();
   }, [fromToken, toToken]);
+
+  useEffect(() => {
+    if (Number.isNaN(+fromAmount)) {
+      setToAmount("");
+    } else {
+      const toAmount =
+        (usdPrice[fromToken?.symbol] * parseFloat(fromAmount)) /
+        usdPrice[toToken?.symbol];
+      setToAmount(floorFraction(toAmount, 5)?.toString());
+    }
+  }, [usdPrice[fromToken?.symbol], usdPrice[toToken?.symbol]]);
 
   if (!open) return null;
 
