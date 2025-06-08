@@ -629,7 +629,7 @@ const Modal = ({
                         <NumericFormat
                           displayType="text"
                           value={tokenBalances[fromToken?.symbol] || 0}
-                          decimalScale={5}
+                          decimalScale={4}
                           fixedDecimalScale
                           prefix="$"
                         />
@@ -751,7 +751,7 @@ const Modal = ({
                         <NumericFormat
                           displayType="text"
                           value={tokenBalances[toToken?.symbol] || 0}
-                          decimalScale={5}
+                          decimalScale={4}
                           fixedDecimalScale
                           prefix="$"
                         />
