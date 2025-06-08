@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Repeat, Settings } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import { NumericFormat } from "react-number-format";
 import { erc20Abi } from "viem";
@@ -206,6 +207,7 @@ const Modal = ({
           console.log("updateRouteHook", route);
         },
       });
+      toast.success("Swap successfully!");
       handleGetBalance();
       setFromAmount("");
       setToAmount("");
