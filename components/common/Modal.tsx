@@ -1,5 +1,11 @@
 "use client";
 
+import { useGetContract } from "@/hooks/useGetContract";
+import {
+  useSettingActions,
+  useSettingUsdPrice,
+} from "@/store/setting/selector";
+import { floorFraction, getPriceToken } from "@/utils/helpers";
 import {
   convertQuoteToRoute,
   executeRoute,
@@ -12,6 +18,8 @@ import { ArrowLeft, Repeat, Settings } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
+import { NumericFormat } from "react-number-format";
+import { erc20Abi } from "viem";
 import { useAccount } from "wagmi";
 
 interface ModalProps {
@@ -113,9 +121,15 @@ const Modal = ({
     USDC: 0,
     COMP: 0,
   });
+  const usdPrice = useSettingUsdPrice();
+  const { updateUsdPrice } = useSettingActions();
   const [showSlippagePopover, setShowSlippagePopover] = useState(false);
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown] = useState(false);
+  const { getProvider, getReadContract } = useGetContract();
+
+  const fromTokenPrice = usdPrice[fromToken?.symbol] || 1;
+  const toTokenPrice = usdPrice[toToken?.symbol] || 1;
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflowY;
@@ -187,6 +201,7 @@ const Modal = ({
           console.log("updateRouteHook", route);
         },
       });
+      handleGetBalance();
       setError(null);
     } catch (error: any) {
       console.error("handleSwap", error?.message, error);
@@ -219,6 +234,117 @@ const Modal = ({
     //   setShowSwapUI(false)
     //   alert("Swap successful!")
     // }, 2000)
+  };
+
+  const handleGetBalance = async () => {
+    if (!address) {
+      return;
+    }
+    if (!fromToken || !toToken) {
+      return;
+    }
+    try {
+      if (fromToken?.symbol === "ETH") {
+        const provider = await getProvider();
+
+        if (provider) {
+          const balance = await provider.getBalance(address);
+          const amountFormatted = BigNumber(balance?.toString())
+            .dividedBy(BigNumber(10).pow(fromToken?.decimals))
+            .toNumber();
+
+          setTokenBalances((tokenBalances) => ({
+            ...tokenBalances,
+            [fromToken?.symbol]: floorFraction(amountFormatted, 5),
+          }));
+        }
+
+        return;
+      }
+
+      const tokenContract = await getReadContract(
+        fromToken?.contractAddress,
+        JSON.stringify(erc20Abi)
+      );
+
+      if (!tokenContract) {
+        return;
+      }
+
+      const decimals = await tokenContract.decimals();
+      const balance = await tokenContract.balanceOf(address);
+      const amountFormatted = BigNumber(balance)
+        .dividedBy(BigNumber(10).pow(decimals))
+        .toNumber();
+
+      setTokenBalances((tokenBalances) => ({
+        ...tokenBalances,
+        [fromToken?.symbol]: floorFraction(amountFormatted, 5),
+      }));
+    } catch (error) {
+      console.error("Modal.handleGetBalance.fromToken", error);
+    }
+
+    try {
+      if (toToken?.symbol === "ETH") {
+        const provider = await getProvider();
+
+        if (provider) {
+          const balance = await provider.getBalance(address);
+          const amountFormatted = BigNumber(balance?.toString())
+            .dividedBy(BigNumber(10).pow(toToken?.decimals))
+            .toNumber();
+
+          setTokenBalances((tokenBalances) => ({
+            ...tokenBalances,
+            [toToken?.symbol]: floorFraction(amountFormatted, 5),
+          }));
+        }
+
+        return;
+      }
+
+      const tokenContract = await getReadContract(
+        toToken?.contractAddress,
+        JSON.stringify(erc20Abi)
+      );
+
+      if (!tokenContract) {
+        return;
+      }
+
+      const decimals = await tokenContract.decimals();
+      const balance = await tokenContract.balanceOf(address);
+      const amountFormatted = BigNumber(balance)
+        .dividedBy(BigNumber(10).pow(decimals))
+        .toNumber();
+
+      setTokenBalances((tokenBalances) => ({
+        ...tokenBalances,
+        [toToken?.symbol]: floorFraction(amountFormatted, 5),
+      }));
+    } catch (error) {
+      console.error("Modal.handleGetBalance.toToken", error);
+    }
+  };
+
+  const handleGetPriceToken = async () => {
+    if (!fromToken || !toToken) {
+      return;
+    }
+    try {
+      const [fromTokenPrice, toTokenPrice] = await Promise.all([
+        getPriceToken(fromToken?.symbol),
+        getPriceToken(toToken?.symbol),
+      ]);
+
+      updateUsdPrice({
+        [fromToken?.symbol]: fromTokenPrice,
+        [toToken?.symbol]: toTokenPrice,
+      });
+    } catch (error) {
+      console.error("Modal.handleGetPriceToken", error);
+    }
   };
 
   const handleSlippageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -263,6 +389,11 @@ const Modal = ({
       setShowToDropdown(false);
     }
   };
+
+  useEffect(() => {
+    handleGetBalance();
+    handleGetPriceToken();
+  }, [fromToken, toToken]);
 
   if (!open) return null;
 
@@ -368,16 +499,48 @@ const Modal = ({
                 <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] p-3 mb-1">
                   <div className="flex justify-between mb-0 items-center">
                     <div className="gap-4 flex flex-col">
-                      <input
-                        type="number"
+                      <NumericFormat
                         placeholder="0.00"
                         className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         value={fromAmount}
-                        onChange={(e) => setFromAmount(e.target.value)}
+                        // onValueChange={(e) => {
+                        //   const fromAmount = e.value;
+                        //   setFromAmount(fromAmount);
+                        //   if (Number.isNaN(+fromAmount)) {
+                        //     setToAmount("");
+                        //   } else {
+                        //     const toAmount =
+                        //       (usdPrice[fromToken?.symbol] *
+                        //         parseFloat(fromAmount)) /
+                        //       usdPrice[toToken?.symbol];
+                        //     setToAmount(floorFraction(toAmount, 5)?.toString());
+                        //   }
+                        // }}
+                        onChange={(e) => {
+                          const fromAmount = e.target.value?.replaceAll(
+                            ",",
+                            ""
+                          );
+                          setFromAmount(fromAmount);
+                          if (Number.isNaN(+fromAmount)) {
+                            setToAmount("");
+                          } else {
+                            const toAmount =
+                              (usdPrice[fromToken?.symbol] *
+                                parseFloat(fromAmount)) /
+                              usdPrice[toToken?.symbol];
+                            setToAmount(floorFraction(toAmount, 5)?.toString());
+                          }
+                        }}
+                        thousandSeparator
                       />
-                      <p className="text-xs text-[#6D7C8D]">
-                        {fromAmount ? `$${fromAmount}` : "$0.00"}
-                      </p>
+                      <NumericFormat
+                        displayType="text"
+                        className="text-xs text-[#6D7C8D]"
+                        value={parseFloat(fromAmount) * fromTokenPrice || 0}
+                        decimalScale={2}
+                        prefix="$"
+                      />
                     </div>
                     <div className="flex flex-col gap-4">
                       <div className="relative flex items-center">
@@ -444,7 +607,14 @@ const Modal = ({
                         >
                           <path d="M2.273 5.625A4.483 4.483 0 015.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 3H5.25a3 3 0 00-2.977 2.625zM2.273 8.625A4.483 4.483 0 015.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 6H5.25a3 3 0 00-2.977 2.625zM5.25 9a3 3 0 00-3 3v6a3 3 0 003 3h13.5a3 3 0 003-3v-6a3 3 0 00-3-3H15a.75.75 0 01-.75-.75 1.5 1.5 0 00-1.5-1.5H9a1.5 1.5 0 00-1.5 1.5A.75.75 0 016 9H5.25z" />
                         </svg>
-                        {tokenBalances[fromToken?.symbol].toFixed(2)}
+
+                        <NumericFormat
+                          displayType="text"
+                          value={tokenBalances[fromToken?.symbol] || 0}
+                          decimalScale={5}
+                          fixedDecimalScale
+                          prefix="$"
+                        />
                       </p>
                     </div>
                   </div>
@@ -476,16 +646,34 @@ const Modal = ({
                 <div className="rounded-xl bg-[#EFF2F5] font-medium dark:bg-[#1D2833] border border-[#efefef] dark:border-[#28303e] p-3 mb-3">
                   <div className="flex justify-between mb-0 items-center">
                     <div className="gap-4 flex flex-col">
-                      <input
-                        type="number"
+                      <NumericFormat
                         placeholder="0.00"
                         className="w-full border-none font-semibold bg-transparent text-xl focus:outline-none dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         value={toAmount}
-                        onChange={(e) => setFromAmount(e.target.value)}
+                        onChange={(e) => {
+                          const toAmount = e.target.value?.replaceAll(",", "");
+                          setToAmount(toAmount);
+                          if (Number.isNaN(+toAmount)) {
+                            setFromAmount("");
+                          } else {
+                            const fromAmount =
+                              (usdPrice[toToken.symbol] *
+                                parseFloat(toAmount)) /
+                              usdPrice[fromToken.symbol];
+                            setFromAmount(
+                              floorFraction(fromAmount, 5)?.toString()
+                            );
+                          }
+                        }}
+                        thousandSeparator
                       />
-                      <p className="text-xs text-[#6D7C8D]">
-                        {toAmount ? `$${toAmount}` : "$0.00"}
-                      </p>
+                      <NumericFormat
+                        displayType="text"
+                        className="text-xs text-[#6D7C8D]"
+                        value={parseFloat(toAmount) * toTokenPrice || 0}
+                        decimalScale={2}
+                        prefix="$"
+                      />
                     </div>
                     <div className="flex flex-col gap-4">
                       <div className="relative">
@@ -542,7 +730,13 @@ const Modal = ({
                         >
                           <path d="M2.273 5.625A4.483 4.483 0 015.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 3H5.25a3 3 0 00-2.977 2.625zM2.273 8.625A4.483 4.483 0 015.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 6H5.25a3 3 0 00-2.977 2.625zM5.25 9a3 3 0 00-3 3v6a3 3 0 003 3h13.5a3 3 0 003-3v-6a3 3 0 00-3-3H15a.75.75 0 01-.75-.75 1.5 1.5 0 00-1.5-1.5H9a1.5 1.5 0 00-1.5 1.5A.75.75 0 016 9H5.25z" />
                         </svg>
-                        {tokenBalances[toToken?.symbol].toFixed(2)}
+                        <NumericFormat
+                          displayType="text"
+                          value={tokenBalances[toToken?.symbol] || 0}
+                          decimalScale={5}
+                          fixedDecimalScale
+                          prefix="$"
+                        />
                       </p>
                     </div>
                   </div>
