@@ -12,7 +12,9 @@ export default function Footer() {
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     updateTheme(newTheme);
-    localStorage.setItem("compensatorTheme", newTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("compensatorTheme", newTheme);
+    }
   };
 
   return (

@@ -3,7 +3,6 @@
 import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Head from "next/head";
 import authServices from "@/services/auth";
 import { useEffect, useState, useRef } from "react";
 import { useAccount } from "wagmi";
@@ -23,6 +22,11 @@ const Header = () => {
   const pathname = usePathname();
 
   const { address } = useAccount();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
@@ -73,16 +77,16 @@ const Header = () => {
   };
 
   useEffect(() => {
-    if (address) {
+    if (address && isClient) {
       handleLogin();
     }
-  }, [address]);
+  }, [address, isClient]);
 
   useEffect(() => {
-    if (accessToken) {
+    if (accessToken && isClient) {
       handleGetProfile();
     }
-  }, [accessToken]);
+  }, [accessToken, isClient]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -145,18 +149,7 @@ const Header = () => {
   }, [hoveredTab]);
 
   return (
-    <>
-      <Head>
-        <style>{`
-          body {
-            background-color: #EFF2F5;
-          }
-          .dark body {
-            background-color: #0D131A;
-          }
-        `}</style>
-      </Head>
-      <header className="inset-x-0 left-0 top-0 w-full bg-[#EFF2F5] dark:bg-[#0D131A] backdrop-blur-lg">
+    <header className="inset-x-0 left-0 top-0 w-full bg-[#EFF2F5] dark:bg-[#0D131A] backdrop-blur-lg">
         <div className="flex items-center justify-between w-full px-4 max-w-[1100px] py-3 mx-auto">
           <div className="flex items-center justify-start">
             <Link href="/" className="mr-4">
@@ -235,7 +228,7 @@ const Header = () => {
               <NetworkDropdown />
             </div>
             <div className="">
-              <ConnectWalletButton isMobile={isMobile} />
+              {isClient && <ConnectWalletButton isMobile={isMobile} />}
             </div>
             <div className="md:hidden flex items-center">
               <MobileNavigation navItems={navItems} currentPath={pathname} />
@@ -243,7 +236,6 @@ const Header = () => {
           </div>
         </div>
       </header>
-    </>
   );
 };
 

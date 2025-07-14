@@ -18,6 +18,12 @@ import { getEthersSigner } from "@/hooks/useEtherProvider"
 import toast from "react-hot-toast"
 
 const ConnectWalletButton = ({ isMobile = false }) => {
+  const [isClient, setIsClient] = useState(false)
+  
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   const { openConnectModal } = useConnectModal()
   const { address } = useAccount()
   const { disconnectAsync } = useDisconnect()
@@ -257,22 +263,11 @@ const ConnectWalletButton = ({ isMobile = false }) => {
       opacity: 0,
       scale: 0.98,
       y: -3,
-      transition: {
-        duration: 0.1,
-        ease: [0.4, 0.0, 0.2, 1],
-      },
     },
     visible: {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 500,
-        damping: 30,
-        mass: 0.5,
-        velocity: 5,
-      },
     },
   }
 
@@ -289,6 +284,12 @@ const ConnectWalletButton = ({ isMobile = false }) => {
   }
 
   const isClaimDisabled = Number.parseFloat(pendingRewards) <= 0 || isClaimLoading || claimSuccess
+
+  if (!isClient) {
+    return (
+      <div className="w-[120px] h-[36px] bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+    )
+  }
 
   if (!address) {
     if (isMobile) {

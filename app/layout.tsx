@@ -7,9 +7,15 @@ export const metadata: Metadata = {
   title: "Home | Compensator",
   description: "Access the Compound delegate marketplace.",
   openGraph: {
+    title: "Home | Compensator",
+    description: "Access the Compound delegate marketplace.",
+    type: "website",
     images: "/twitter-image.png",
   },
   twitter: {
+    card: "summary",
+    title: "Home | Compensator",
+    description: "Access the Compound delegate marketplace.",
     images: "/twitter-image.png",
   },
 };

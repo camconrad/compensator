@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import Footer from "@/components/Footer";
 import Header from "@/components/MainLayout/Header";
 import { Button } from "@/components/ui/button";
@@ -17,13 +19,11 @@ import {
   Users,
   X,
 } from "lucide-react";
-import Head from "next/head";
 import Image from "next/image";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import Headroom from "react-headroom";
 import toast from "react-hot-toast";
-import blockies from 'ethereum-blockies-png'
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -102,8 +102,15 @@ const ExplorePage = () => {
     
     try {
       const compensators = await compensatorService.getAllCompensators();
-      const delegates = compensators.map((compensator: any) => {
-        const dataURL = blockies.createDataURL({ seed: compensator?.address || compensator?.owner })
+      const delegates = await Promise.all(compensators.map(async (compensator: any) => {
+        // Dynamically import blockies only on client side
+        let dataURL = "/placeholder.svg";
+        try {
+          const blockies = await import('ethereum-blockies-png');
+          dataURL = blockies.default.createDataURL({ seed: compensator?.address || compensator?.owner });
+        } catch (error) {
+          console.log("Failed to generate blockie:", error);
+        }
         return {
           name: compensator?.name || "Unknown Delegate",
           address: compensator?.address,
@@ -114,7 +121,7 @@ const ExplorePage = () => {
           rewardAPR: "0.00%",
           image: dataURL,
         };
-      });
+      }));
       setListDelegatesFromServer(delegates);
     } catch (error) {
       console.log("error :>> ", error);
@@ -194,16 +201,7 @@ const ExplorePage = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>Explore Delegates | Compensator</title>
-        <meta
-          name="description"
-          content="Explore and discover delegates on the Compound delegate marketplace."
-        />
-      </Head>
-
-      <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
+    <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         <div className="relative z-50">
           <Headroom
             style={{
@@ -572,11 +570,7 @@ const ExplorePage = () => {
         </motion.main>
         <Footer />
       </div>
-    </>
   );
 };
 
 export default ExplorePage;
-
-// Make this page dynamic to prevent SSR issues with Wagmi
-export const dynamic = 'force-dynamic';

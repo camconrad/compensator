@@ -3,7 +3,6 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -16,6 +15,8 @@ import Footer from "@/components/Footer"; // Import the new Footer component
 import { Sun, Moon } from "lucide-react";
 import { useSettingActions, useSettingTheme } from "@/store/setting/selector";
 import Headroom from "react-headroom";
+
+export const dynamic = 'force-dynamic';
 
 export default function Home() {
   const [authorized, setAuthorized] = useState(false);
@@ -49,9 +50,11 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const auth = localStorage.getItem("compensatorAuthorized");
-    if (auth === "true") {
-      setAuthorized(true);
+    if (typeof window !== 'undefined') {
+      const auth = localStorage.getItem("compensatorAuthorized");
+      if (auth === "true") {
+        setAuthorized(true);
+      }
     }
   }, []);
 
@@ -70,7 +73,9 @@ export default function Home() {
     setTimeout(() => {
       if (passcode === correctPasscode) {
         setAuthorized(true);
-        localStorage.setItem("compensatorAuthorized", "true");
+        if (typeof window !== 'undefined') {
+          localStorage.setItem("compensatorAuthorized", "true");
+        }
         setError("");
       } else {
         setError("Invalid passcode. Please try again.");
@@ -81,16 +86,7 @@ export default function Home() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Home | Compensator</title>
-        <meta
-          name="description"
-          content="Access the Compound delegate marketplace."
-        />
-      </Head>
-
-      <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
+    <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         {authorized ? (
           <>
             <div className="relative z-50">
@@ -264,6 +260,5 @@ export default function Home() {
           </motion.main>
         )}
       </div>
-    </>
   );
 }

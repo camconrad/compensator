@@ -1,6 +1,5 @@
 "use client";
 
-import Head from "next/head";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Header from "@/components/MainLayout/Header";
@@ -8,20 +7,13 @@ import Footer from "@/components/Footer";
 import { useSettingTheme } from "@/store/setting/selector";
 import Headroom from "react-headroom";
 
+export const dynamic = 'force-dynamic';
+
 export default function TermsOfService() {
   const theme = useSettingTheme();
 
   return (
-    <>
-      <Head>
-        <title>Terms of Service | Compensator</title>
-        <meta
-          name="description"
-          content="Terms of Service for the Compound delegate marketplace."
-        />
-      </Head>
-
-      <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
+    <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         <div className="relative z-50">
           <Headroom
             style={{
@@ -199,7 +191,6 @@ export default function TermsOfService() {
         </motion.main>
         <Footer />
       </div>
-    </>
   );
 }
 

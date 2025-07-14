@@ -1,6 +1,7 @@
 "use client";
 
-import Head from "next/head";
+export const dynamic = 'force-dynamic';
+
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/MainLayout/Header";
 import Footer from "@/components/Footer";
@@ -73,16 +74,18 @@ interface Proposal {
 }
 
 export default function ProfilePage() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const theme = useSettingTheme();
   const { address, isConnected } = useAccount();
-
-
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
-  const [isDelegationsLoading, setIsDelegationsLoading] =
-    useState<boolean>(true);
+  const [isDelegationsLoading, setIsDelegationsLoading] = useState<boolean>(true);
   const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true);
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -91,8 +94,7 @@ export default function ProfilePage() {
   const [apr, setApr] = useState<string>("");
   const [fundingAmount, setFundingAmount] = useState<string>("");
   const [isProfileNameFocused, setIsProfileNameFocused] = useState(false);
-  const [isDelegateAddressFocused, setIsDelegateAddressFocused] =
-    useState(false);
+  const [isDelegateAddressFocused, setIsDelegateAddressFocused] = useState(false);
   const [isAprFocused, setIsAprFocused] = useState(false);
   const [isFundingAmountFocused, setIsFundingAmountFocused] = useState(false);
   const [isProposalFocused, setIsProposalFocused] = useState(false);
@@ -131,6 +133,8 @@ export default function ProfilePage() {
       setProposals([]);
     }
   }, [isConnected, address, loadAllData]);
+
+  if (!isClient) return null;
 
   const fetchProfileData = async () => {
     setIsProfileLoading(true);
@@ -760,16 +764,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>My Profile | Compensator</title>
-        <meta
-          name="description"
-          content="View your Compound governance profile and delegations"
-        />
-      </Head>
-
-      <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
+    <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         <div className="relative z-50">
           <Headroom
             style={{
@@ -848,7 +843,7 @@ export default function ProfilePage() {
                             </>
                           ) : (
                             <p className="text-sm text-[#6D7C8D] font-medium dark:text-gray-400">
-                              Connect wallet to view your profile
+                              Connect wallet to view profile
                             </p>
                           )}
                         </div>
@@ -1531,6 +1526,5 @@ export default function ProfilePage() {
         </motion.main>
         <Footer />
       </div>
-    </>
   );
 }

@@ -12,7 +12,7 @@ export const wagmiConfig = getDefaultConfig({
   chains: [mainnet],
   projectId: "02a231b2406ed316c861abefc95c5e59",
   appName: "Compensator",
-  ssr: true,
+  ssr: false,
 })
 
 const config = wagmiConfig
@@ -74,20 +74,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
     setMounted(true)
   }, [])
 
-  // Don't render anything until mounted to prevent hydration issues
-  if (!mounted) {
-    return (
-      <div style={{ visibility: 'hidden' }}>
-        {children}
-      </div>
-    )
-  }
-
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProviderWithTheme>
-          {children}
+          <div style={{ visibility: mounted ? 'visible' : 'hidden' }}>
+            {children}
+          </div>
         </RainbowKitProviderWithTheme>
       </QueryClientProvider>
     </WagmiProvider>

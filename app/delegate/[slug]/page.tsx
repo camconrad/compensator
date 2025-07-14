@@ -17,7 +17,6 @@ import blockies from "ethereum-blockies-png";
 import { formatUnits, isAddress } from "ethers";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Copy, TrendingUp, Users } from "lucide-react";
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -332,22 +331,7 @@ export default function DelegatePage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>
-          {delegate ? currentDelegate?.name : "Loading Delegate"} | Compensator
-        </title>
-        <meta
-          name="description"
-          content={
-            delegate
-              ? `Profile page for ${currentDelegate?.name}, a Compound delegate on the Compensator marketplace.`
-              : "Loading delegate profile..."
-          }
-        />
-      </Head>
-
-      <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
+    <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         <div className="relative z-50">
           <Headroom
             style={{
@@ -758,10 +742,9 @@ export default function DelegatePage() {
           </div>
         </motion.main>
         <Footer />
-      </div>
 
-      {/* Delegate Modal */}
-      {isModalOpen && delegate && (
+        {/* Delegate Modal */}
+        {isModalOpen && delegate && (
         <Modal handleClose={handleModalClose} open={isModalOpen}>
           <div className="">
             <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full overflow-hidden">
@@ -912,6 +895,9 @@ export default function DelegatePage() {
           </div>
         </Modal>
       )}
-    </>
+      </div>
   );
 }
+// Make this page dynamic to prevent SSR issues with Wagmi
+export const dynamic = 'force-dynamic';
+
