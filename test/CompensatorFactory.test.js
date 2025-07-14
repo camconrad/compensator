@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
