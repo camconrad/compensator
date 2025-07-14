@@ -97,6 +97,9 @@ const ExplorePage = () => {
   };
 
   const handleGetDelegatesFromServer = async () => {
+    // Only run on client side to avoid SSR issues with Wagmi
+    if (typeof window === 'undefined') return;
+    
     try {
       const compensators = await compensatorService.getAllCompensators();
       const delegates = compensators.map((compensator: any) => {
@@ -574,3 +577,6 @@ const ExplorePage = () => {
 };
 
 export default ExplorePage;
+
+// Make this page dynamic to prevent SSR issues with Wagmi
+export const dynamic = 'force-dynamic';
