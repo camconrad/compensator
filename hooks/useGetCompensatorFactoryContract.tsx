@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { getEthersSigner } from "./useEtherProvider";
-import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
+import { wagmiConfig } from "@/app/providers";
 import { ethers } from "ethers";
 import { compensatorFactoryContractInfo } from "@/constants";
 

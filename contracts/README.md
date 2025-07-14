@@ -4,7 +4,7 @@
 
 ### Variables
 - `address[] public compensators` - A list of all `Compensator` contracts created by the factory.
-- `mapping(address delegate => address compensator) public delegateToCompensator` - A mapping of delegates to their `Compensator` contracts.
+- `mapping(address owner => address compensator) public ownerToCompensator` - A mapping of owners to their `Compensator` contracts.
 - `address public immutable COMP_TOKEN` - The COMP governance token contract.
 - `address public immutable COMPOUND_GOVERNOR` - The Compound Governor contract.
 
@@ -14,11 +14,16 @@
   - Validates that both addresses are non-zero.
   - Sets the addresses as immutable variables.
 
-- **`createCompensator(address delegate, string calldata delegateName)`**  
-  Creates a `Compensator` contract for a delegate.  
+- **`createCompensator(address owner)`**  
+  Creates a `Compensator` contract for an owner.  
   - Adds the contract to the `compensators` list.  
-  - Maps the delegate to their `Compensator` contract.  
-  - Passes the COMP token and Compound Governor addresses to the new contract.
+  - Maps the owner to their `Compensator` contract.  
+  - Passes the COMP token, Compound Governor, and owner addresses to the new contract.
+  - Returns the address of the new `Compensator` contract.
+
+- **`createCompensatorForSelf()`**  
+  Creates a `Compensator` contract for the caller.
+  - Calls `createCompensator(msg.sender)`.
   - Returns the address of the new `Compensator` contract.
 
 - **`getCompensatorsCount()`**  
@@ -26,6 +31,14 @@
 
 - **`getCompensators(uint256 offset, uint256 limit)`**  
   Returns a paginated list of Compensator contract addresses.
+
+- **`hasCompensator(address owner)`**  
+  Checks if an owner already has a Compensator contract.
+  - Returns true if the owner has a Compensator, false otherwise.
+
+- **`getCompensator(address owner)`**  
+  Gets the Compensator contract address for a given owner.
+  - Returns the Compensator contract address, or address(0) if none exists.
 
 ## Compensator
 
@@ -53,7 +66,20 @@
   - `uint8 direction` - The direction of the vote (0 = Against, 1 = For)
   - `uint256 blockNumber` - The block number when the vote was cast
   - `bytes32 txHash` - The transaction hash of the vote
+  - `uint256 timestamp` - The timestamp when the vote was cast
+  - `uint256 votingPower` - The voting power used for this vote
+  - `string reason` - The reason for the vote (optional)
 - `mapping(uint256 proposalId => VoteInfo voteInfo) public voteInfo` - Mapping to track vote information for each proposal.
+- `mapping(uint256 => VoteInfo) public allVotes` - Mapping to track all votes cast by the contract (for transparency).
+- `uint256 public voteCount` - Total number of votes cast by the contract.
+- `struct DelegateInfo` - Structure to track delegate performance:
+  - `uint256 successfulVotes` - Number of successful votes
+  - `uint256 totalVotes` - Number of total votes cast
+  - `uint256 totalRewardsEarned` - Total rewards earned from successful votes
+  - `uint256 totalVotingPowerUsed` - Total voting power used across all votes
+  - `uint256 averageVotingPowerPerVote` - Average voting power per vote
+- `DelegateInfo public delegateInfo` - Tracks delegate performance metrics.
+- `uint256 constant DELEGATE_REWARD_PERCENT` - Percentage of winning stakes that go to the delegate (20%).
 - `struct ProposalStake` - Gas-optimized structure to track individual delegator stakes on proposals:
   - `uint128 forStake` - Amount staked in support of a proposal (sufficient for COMP amounts)
   - `uint128 againstStake` - Amount staked against a proposal (sufficient for COMP amounts)
@@ -82,13 +108,15 @@
 - `VoteCast(uint256 indexed proposalId, uint8 support, uint256 blockNumber, bytes32 txHash)` - Emitted when the contract casts a vote.
 - `UserRewardsUpdated(address indexed user, uint256 newRewards, uint256 totalUnclaimed)` - Emitted when a user's rewards are updated.
 - `RewardIndexUpdated(uint256 newRewardIndex, uint256 rewardsAccrued)` - Emitted when the global reward index is updated.
+- `DelegatePerformanceUpdated(uint256 successfulVotes, uint256 totalVotes, uint256 totalRewardsEarned)` - Emitted when delegate performance metrics are updated.
 
 ### Functions
-- **`constructor(address _compToken, address _compoundGovernor)`**  
-  Initializes the contract with the COMP token and Compound Governor addresses.  
+- **`constructor(address _compToken, address _compoundGovernor, address _owner)`**  
+  Initializes the contract with the COMP token, Compound Governor, and owner addresses.  
   - Sets the delegation cap to 5% of the total COMP supply.
   - Initializes the reward index at 1e18.
   - Sets the compToken and compoundGovernor as immutable variables.
+  - Sets the owner using Ownable.
   - Validates that all addresses are non-zero.
 
 - **`ownerDeposit(uint256 amount)`**  
@@ -114,13 +142,14 @@
   - Updates the reward index before setting the new rate.
   - Emits a `RewardRateUpdate` event.
 
-- **`castVote(uint256 proposalId, uint8 support)`**  
+- **`castVote(uint256 proposalId, uint8 support, string calldata reason)`**  
   Allows the owner to cast a vote on a proposal.  
   - Requires caller to be the owner.
   - Requires support to be 0 (Against) or 1 (For).
   - Requires the proposal to be in a valid voting state.
-  - Records vote information including block number and transaction hash.
+  - Records vote information including block number, transaction hash, timestamp, and voting power.
   - Casts the vote through the Compound Governor.
+  - Updates delegate performance metrics.
   - Emits a `VoteCast` event.
 
 - **`verifyVote(uint256 proposalId)`**  
@@ -150,10 +179,11 @@
   - Determines the winning support based on the proposal's actual outcome.
   - Records the proposal outcome.
   - Transfers winning stakes to the contract if they voted correctly.
+  - Updates delegate performance metrics.
   - Emits a `ProposalStakeDistributed` event.
-  - Emits a `VoteCast` event.
+  - Emits a `DelegatePerformanceUpdated` event.
 
-- **`reclaimLosingStake(uint256 proposalId)`**  
+- **`reclaimStake(uint256 proposalId)`**  
   Allows delegators to reclaim their losing stake after a proposal is resolved.  
   - Checks if the proposal needs to be auto-resolved due to timeout.
   - Requires the proposal to be resolved.
@@ -161,6 +191,13 @@
   - Updates the delegator's proposal stakes and total stakes.
   - Transfers the losing stake back to the delegator.
   - Emits a `LosingStakeReclaimed` event.
+
+- **`claimRewards()`**  
+  Allows delegators to claim their accumulated rewards.
+  - Updates rewards first, then transfers COMP to the delegator.
+  - Requires the delegator to have pending rewards.
+  - Resets unclaimed rewards before transfer to prevent reentrancy.
+  - Emits a `ClaimRewards` event.
 
 - **`getPendingRewards(address delegator)`**  
   Returns the amount of pending rewards for a delegator.  
@@ -231,6 +268,35 @@
   Overridden to prevent transfers of Compensator tokens.  
   - Always reverts with "Transfers are disabled".
 
+## System Architecture
+
+### Factory Pattern
+The system uses a factory pattern where:
+1. **CompensatorFactory** deploys individual **Compensator** contracts
+2. Each user gets their own **Compensator** instance
+3. The factory tracks all deployed compensators and owner mappings
+4. Users can create compensators for themselves or others
+
+### Delegation Flow
+1. User calls `CompensatorFactory.createCompensatorForSelf()`
+2. Factory deploys a new `Compensator` contract with the user as owner
+3. User can then deposit COMP and start earning rewards
+4. User can stake on proposals and participate in governance
+
+### Staking System
+The system allows users to stake COMP on proposal outcomes:
+1. **For Stakes**: COMP staked in support of a proposal
+2. **Against Stakes**: COMP staked against a proposal
+3. **Resolution**: After proposal ends, winning stakes go to the delegate (if they voted correctly)
+4. **Reclamation**: Losing stakes are returned to delegators
+
+### Reward System
+The system distributes rewards based on:
+1. **Time-based accrual**: Rewards accumulate based on time and rate
+2. **Stake-based distribution**: Rewards distributed proportionally to stake
+3. **Index-based calculation**: Uses reward indices for accurate accounting
+4. **Claim mechanism**: Users can claim accumulated rewards anytime
+
 ## Additional Notes
 
 - **Lock Period Mechanism**:  
@@ -280,7 +346,7 @@
 
 - **Vote Verification System**:  
   The contract implements a robust vote verification system that:
-  - Records vote direction, block number, and transaction hash in the `VoteInfo` struct
+  - Records vote direction, block number, transaction hash, timestamp, and voting power in the `VoteInfo` struct
   - Verifies votes through multiple checks:
     1. Valid proposal state (Active or Pending)
     2. Transaction hash validation
@@ -318,6 +384,15 @@
     - `RewardIndexUpdated`
     - `RewardsDistributed`
     - `UserRewardsUpdated`
+
+- **Delegate Performance Tracking**:  
+  The contract tracks delegate performance metrics:
+  - Number of successful votes
+  - Total votes cast
+  - Total rewards earned from successful votes
+  - Total voting power used
+  - Average voting power per vote
+  - Performance metrics are updated on each vote and resolution
 
 - **Key Functions**:  
   - **Vote Verification**:
@@ -378,4 +453,5 @@
   - `getProposalStake`: Get a delegator's stakes for a specific proposal
   - `getPendingRewards`: Get a delegator's pending rewards
   - `rewardsUntil`: Calculate when rewards will be distributed
+  - `getCompensator`: Get a user's compensator address from the factory
   - These functions help reduce the need for complex off-chain calculations

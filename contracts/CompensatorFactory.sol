@@ -74,7 +74,7 @@ contract CompensatorFactory {
      * @param owner The address that will own and control the Compensator
      * @return The address of the newly created Compensator contract
      */
-    function createCompensator(address owner) external returns (address) {
+    function createCompensator(address owner) public returns (address) {
         // Checks
         require(owner != address(0), "Invalid owner address");
         require(ownerToCompensator[owner] == address(0), "Owner already has a Compensator");

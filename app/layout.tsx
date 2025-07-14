@@ -1,5 +1,4 @@
-import AppProvider from "../providers/AppProvider";
-import ThemeProvider from "../providers/ThemeProvider";
+import { Providers } from "./providers";
 import "./globals.css";
 import { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
@@ -23,9 +22,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <ThemeProvider />
         <Toaster />
-        <AppProvider>{children}</AppProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

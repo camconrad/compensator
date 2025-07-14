@@ -34,7 +34,7 @@ interface ModalProps {
 
 const backdropVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2, ease: "easeInOut" } },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
 };
 
 const sidebarVariants = {
@@ -42,7 +42,7 @@ const sidebarVariants = {
   visible: {
     x: "0",
     opacity: 1,
-    transition: { duration: 0.3, ease: "easeInOut" },
+    transition: { duration: 0.3 },
   },
 };
 

@@ -324,3 +324,52 @@ body {
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Battle Bar Animations */
+@keyframes battle-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes force-push {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes force-push-reverse {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes impact-shock {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes energy-flow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.battle-pulse {
+  animation: battle-pulse 2s ease-in-out infinite;
+}
+
+.force-push-right {
+  animation: force-push 1.5s ease-in-out infinite;
+}
+
+.force-push-left {
+  animation: force-push-reverse 1.5s ease-in-out infinite;
+}
+
+.impact-shock {
+  animation: impact-shock 0.8s ease-in-out infinite;
+}
+
+.energy-flow {
+  animation: energy-flow 2s linear infinite;
+}

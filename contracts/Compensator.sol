@@ -53,6 +53,12 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint256 blockNumber;
         /// @notice The transaction hash of the vote
         bytes32 txHash;
+        /// @notice The timestamp when the vote was cast
+        uint256 timestamp;
+        /// @notice The voting power used for this vote
+        uint256 votingPower;
+        /// @notice The reason for the vote (optional)
+        string reason;
     }
 
     /// @notice Structure to track delegate performance
@@ -63,6 +69,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint256 totalVotes;
         /// @notice Total rewards earned from successful votes
         uint256 totalRewardsEarned;
+        /// @notice Total voting power used across all votes
+        uint256 totalVotingPowerUsed;
+        /// @notice Average voting power per vote
+        uint256 averageVotingPowerPerVote;
     }
 
     //////////////////////////
@@ -157,6 +167,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice Mapping to track vote information for each proposal
     mapping(uint256 proposalId => VoteInfo voteInfo) public voteInfo;
 
+    /// @notice Mapping to track all votes cast by the contract (for transparency)
+    mapping(uint256 => VoteInfo) public allVotes;
+    uint256 public voteCount;
+
     /// @notice Mapping to track delegate performance
     DelegateInfo public delegateInfo;
 
@@ -228,6 +242,16 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint8 support,
         uint256 blockNumber,
         bytes32 txHash
+    );
+
+    /// @notice Emitted when a vote is cast with reason
+    event VoteCastWithReason(
+        uint256 indexed proposalId,
+        uint8 support,
+        uint256 blockNumber,
+        bytes32 txHash,
+        uint256 votingPower,
+        string reason
     );
 
     /// @notice Emitted when a user's rewards are updated
@@ -338,6 +362,76 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     }
 
     /**
+     * @notice Returns the contract's current voting power
+     * @return The amount of COMP delegated to this contract
+     */
+    function getContractVotingPower() external view returns (uint256) {
+        return COMP_TOKEN.getCurrentVotes(address(this));
+    }
+
+    /**
+     * @notice Returns the contract's voting power at a specific block
+     * @param blockNumber The block number to check voting power at
+     * @return The amount of COMP delegated to this contract at that block
+     */
+    function getContractVotingPowerAt(uint256 blockNumber) external view returns (uint256) {
+        return COMP_TOKEN.getCurrentVotes(address(this));
+    }
+
+    /**
+     * @notice Returns the vote information for a specific proposal
+     * @param proposalId The ID of the proposal
+     * @return direction The vote direction (0 = Against, 1 = For)
+     * @return blockNumber The block number when the vote was cast
+     * @return txHash The transaction hash of the vote
+     * @return timestamp The timestamp when the vote was cast
+     * @return votingPower The voting power used for this vote
+     * @return reason The reason for the vote
+     */
+    function getVoteInfo(uint256 proposalId) external view returns (
+        uint8 direction,
+        uint256 blockNumber,
+        bytes32 txHash,
+        uint256 timestamp,
+        uint256 votingPower,
+        string memory reason
+    ) {
+        VoteInfo memory info = voteInfo[proposalId];
+        return (info.direction, info.blockNumber, info.txHash, info.timestamp, info.votingPower, info.reason);
+    }
+
+    /**
+     * @notice Returns the vote information for a specific vote by index
+     * @param voteIndex The index of the vote in the allVotes array
+     * @return direction The vote direction (0 = Against, 1 = For)
+     * @return blockNumber The block number when the vote was cast
+     * @return txHash The transaction hash of the vote
+     * @return timestamp The timestamp when the vote was cast
+     * @return votingPower The voting power used for this vote
+     * @return reason The reason for the vote
+     */
+    function getVoteByIndex(uint256 voteIndex) external view returns (
+        uint8 direction,
+        uint256 blockNumber,
+        bytes32 txHash,
+        uint256 timestamp,
+        uint256 votingPower,
+        string memory reason
+    ) {
+        require(voteIndex < voteCount, "Vote index out of bounds");
+        VoteInfo memory info = allVotes[voteIndex];
+        return (info.direction, info.blockNumber, info.txHash, info.timestamp, info.votingPower, info.reason);
+    }
+
+    /**
+     * @notice Returns the total number of votes cast by the contract
+     * @return The total number of votes cast
+     */
+    function getTotalVotesCast() external view returns (uint256) {
+        return voteCount;
+    }
+
+    /**
      * @notice Returns a delegator's stakes for a specific proposal
      * @param proposalId The ID of the proposal
      * @param delegator The address of the delegator
@@ -427,8 +521,23 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @dev Uses the contract's accumulated voting power
      * @param proposalId The ID of the proposal to vote on
      * @param support The vote direction (0 = Against, 1 = For)
+     * @param reason Optional reason for the vote
+     */
+    function castVote(uint256 proposalId, uint8 support, string memory reason) external nonReentrant {
+        _castVote(proposalId, support, reason);
+    }
+
+    /**
+     * @notice Allows the owner to cast a vote on a proposal (without reason)
+     * @dev Uses the contract's accumulated voting power
+     * @param proposalId The ID of the proposal to vote on
+     * @param support The vote direction (0 = Against, 1 = For)
      */
     function castVote(uint256 proposalId, uint8 support) external nonReentrant {
+        _castVote(proposalId, support, "");
+    }
+
+    function _castVote(uint256 proposalId, uint8 support, string memory reason) internal {
         // Checks
         require(msg.sender == owner(), "Only owner can cast votes");
         require(support <= 1, "Invalid support value");
@@ -442,20 +551,36 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             "Proposal not in voting period"
         );
 
+        // Get the contract's voting power at the proposal snapshot
+        uint256 proposalSnapshot = COMPOUND_GOVERNOR.proposalSnapshot(proposalId);
+        uint256 votingPower = COMP_TOKEN.getCurrentVotes(address(this));
+        
         // Get the current vote counts before our vote
-        uint256 beforeForVotes = COMPOUND_GOVERNOR.proposalVotes(proposalId).forVotes;
-        uint256 beforeAgainstVotes = COMPOUND_GOVERNOR.proposalVotes(proposalId).againstVotes;
+        (uint256 beforeForVotes, uint256 beforeAgainstVotes,) = COMPOUND_GOVERNOR.proposalVotes(proposalId);
 
         // Effects
         contractVoted[proposalId] = true;
         contractVoteDirection[proposalId] = support;
         
         // Store vote information
-        voteInfo[proposalId] = VoteInfo({
+        VoteInfo memory newVote = VoteInfo({
             direction: support,
             blockNumber: block.number,
-            txHash: bytes32(0) // Will be set after the vote
+            txHash: bytes32(0), // Will be set after the vote
+            timestamp: block.timestamp,
+            votingPower: votingPower,
+            reason: reason
         });
+        
+        voteInfo[proposalId] = newVote;
+        
+        // Add to all votes tracking
+        allVotes[voteCount] = newVote;
+        voteCount++;
+        
+        // Update delegate performance metrics
+        delegateInfo.totalVotingPowerUsed += votingPower;
+        delegateInfo.averageVotingPowerPerVote = delegateInfo.totalVotingPowerUsed / voteCount;
         
         // Interactions
         // The contract's voting power is automatically used since it's delegated to itself
@@ -463,8 +588,14 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         
         // Update the transaction hash after the vote
         voteInfo[proposalId].txHash = blockhash(block.number - 1);
+        allVotes[voteCount - 1].txHash = voteInfo[proposalId].txHash;
         
         emit VoteCast(proposalId, support, block.number, voteInfo[proposalId].txHash);
+        
+        // Emit additional event with reason if provided
+        if (bytes(reason).length > 0) {
+            emit VoteCastWithReason(proposalId, support, block.number, voteInfo[proposalId].txHash, votingPower, reason);
+        }
     }
 
     // Delegator functions

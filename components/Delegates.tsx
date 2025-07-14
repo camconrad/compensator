@@ -8,7 +8,7 @@ import {
   formatNameForURL,
   type Delegate,
 } from "@/lib/delegate-data";
-import compensatorServices from "@/services/compensator";
+import { compensatorService } from "@/services/compensator";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import blockies from "ethereum-blockies-png";
 import { formatUnits, isAddress } from "ethers";
@@ -57,26 +57,25 @@ const Delegates = () => {
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const swiperRef = useRef<SwiperRef | null>(null);
-  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
+  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState<any[]>([]);
   const { writeContractAsync } = useWriteContract();
 
   const handleGetDelegatesFromServer = async () => {
     try {
-      const response = await compensatorServices.getListCompensators();
-      const data = response.data || [];
-      const delegates = data.map((delegate: any, index: number) => {
+      const compensators = await compensatorService.getAllCompensators();
+      const delegates = compensators.map((compensator: any, index: number) => {
         const dataURL = blockies.createDataURL({
-          seed: delegate?.compensatorAddress || delegate?.delegate,
+          seed: compensator?.address || compensator?.owner,
         });
         return {
-          name: delegate?.name,
-          address: delegate?.compensatorAddress,
-          votingPower: Number(delegate?.votingPower || 0),
-          distributed: delegate?.totalDelegatedCOMP || 0,
-          totalDelegations: delegate?.totalDelegations || 0,
-          performance7D: delegate?.performance7D || 0,
-          rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
-          image: delegate?.image || dataURL,
+          name: compensator?.name || `Delegate ${index + 1}`,
+          address: compensator?.address,
+          votingPower: Number(compensator?.votingPower || 0),
+          distributed: compensator?.totalStakes || 0,
+          totalDelegations: 0, // Would need to calculate from delegations
+          performance7D: 0, // Would need to calculate from performance data
+          rewardAPR: "0.00%", // Would need to get from contract
+          image: dataURL,
           isServer: true,
           id: delegatesData.length + index + 1,
         };
@@ -138,20 +137,46 @@ const Delegates = () => {
     try {
       if (!address) {
         openConnectModal?.();
+        toast.error("Please connect your wallet first", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
       if (!selectedDelegate || !amount || Number.parseFloat(amount) <= 0) {
+        toast.error("Please enter a valid amount", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         throw new Error("Invalid amount or delegate");
       }
 
       if (!selectedDelegate.address || !isAddress(selectedDelegate.address)) {
+        toast.error("Invalid delegate address", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         throw new Error("Invalid delegate address");
       }
 
+      toast.success("Switching to mainnet...", {
+        style: {
+          fontWeight: "600",
+        },
+      });
       await switchChainAsync({ chainId: mainnet.id });
 
       const delegateAddress = selectedDelegate.address as `0x${string}`;
+
+      toast.success("Submitting delegation transaction...", {
+        style: {
+          fontWeight: "600",
+        },
+      });
 
       await writeContractAsync({
         address: compoundTokenContractInfo.address as `0x${string}`,
@@ -160,7 +185,7 @@ const Delegates = () => {
         args: [delegateAddress],
       });
 
-      toast.success("Delegation successful!", {
+      toast.success(`Successfully delegated to ${selectedDelegate.name}!`, {
         style: {
           fontWeight: "600",
         },

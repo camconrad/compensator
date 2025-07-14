@@ -50,4 +50,12 @@ interface IGovernor {
         uint256 forVotes,
         uint256 abstainVotes
     );
+
+    /**
+     * @notice module:voting
+     * @dev Cast a vote on a proposal.
+     * @param proposalId The ID of the proposal
+     * @param support The vote direction (0 = Against, 1 = For)
+     */
+    function castVote(uint256 proposalId, uint8 support) external;
 }

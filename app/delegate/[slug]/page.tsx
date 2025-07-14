@@ -10,7 +10,7 @@ import {
   formatNameForDisplay,
   type Delegate,
 } from "@/lib/delegate-data";
-import compensatorServices from "@/services/compensator";
+import { compensatorService } from "@/services/compensator";
 import { useSettingTheme } from "@/store/setting/selector";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import blockies from "ethereum-blockies-png";
@@ -70,32 +70,36 @@ export default function DelegatePage() {
   const [isProposalsLoading, setIsProposalsLoading] = useState<boolean>(true);
   const [isDelegationsLoading, setIsDelegationsLoading] =
     useState<boolean>(true);
-  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
+  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState<any[]>([]);
 
   const handleGetDelegatesFromServer = async () => {
     try {
-      const response = await compensatorServices.getListCompensators();
-      const data = response.data || [];
-      const delegates = data.map((delegate: any) => {
+      const compensators = await compensatorService.getAllCompensators();
+      const delegates = compensators.map((compensator: any) => {
         const dataURL = blockies.createDataURL({
-          seed: delegate?.compensatorAddress || delegate?.delegate,
+          seed: compensator?.address || compensator?.owner,
         });
         return {
-          name: delegate?.name,
-          address: delegate?.compensatorAddress,
-          votingPower: Number(delegate?.votingPower || 0),
-          distributed: delegate?.totalDelegatedCOMP || 0,
-          totalDelegations: delegate?.totalDelegations || 0,
-          performance7D: delegate?.performance7D || 0,
-          rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
-          image: delegate?.image || dataURL,
+          name: compensator?.name || "Unknown Delegate",
+          address: compensator?.address,
+          votingPower: Number(compensator?.votingPower || 0),
+          distributed: compensator?.totalStakes || 0,
+          totalDelegations: 0,
+          performance7D: 0,
+          rewardAPR: "0.00%",
+          image: dataURL,
           isServer: true,
-          id: delegate?.id,
+          id: compensator?.address,
         };
       });
       setListDelegatesFromServer(delegates);
     } catch (error) {
       console.log("error :>> ", error);
+      toast.error("Failed to load delegates from server", {
+        style: {
+          fontWeight: "600",
+        },
+      });
     }
   };
 
@@ -251,19 +255,45 @@ export default function DelegatePage() {
     try {
       if (!address) {
         openConnectModal?.();
+        toast.error("Please connect your wallet first", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         return;
       }
 
       if (!currentDelegate || !amount || Number.parseFloat(amount) <= 0) {
+        toast.error("Please enter a valid amount", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         throw new Error("Invalid amount or delegate");
       }
 
       if (!currentDelegate?.address || !isAddress(currentDelegate?.address)) {
+        toast.error("Invalid delegate address", {
+          style: {
+            fontWeight: "600",
+          },
+        });
         throw new Error("Invalid delegate address");
       }
 
+      toast.success("Switching to mainnet...", {
+        style: {
+          fontWeight: "600",
+        },
+      });
       await switchChainAsync({ chainId: mainnet.id });
       const delegateAddress = currentDelegate?.address as `0x${string}`;
+
+      toast.success("Submitting delegation transaction...", {
+        style: {
+          fontWeight: "600",
+        },
+      });
 
       await writeContractAsync({
         address: compoundTokenContractInfo.address as `0x${string}`,
@@ -272,7 +302,7 @@ export default function DelegatePage() {
         args: [delegateAddress],
       });
 
-      toast.success("Delegation successful!", {
+      toast.success(`Successfully delegated to ${currentDelegate?.name}!`, {
         style: {
           fontWeight: "600",
         },

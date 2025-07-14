@@ -6,13 +6,13 @@ import "../IGovernor.sol";
 contract MockGovernor is IGovernor {
     mapping(uint256 => ProposalState) public proposalStates;
     mapping(uint256 => uint256) public proposalSnapshots;
-    mapping(uint256 => mapping(address => bool)) public hasVoted;
-    mapping(uint256 => uint256) public forVotes;
-    mapping(uint256 => uint256) public againstVotes;
-    mapping(uint256 => uint256) public abstainVotes;
+    mapping(uint256 => mapping(address => bool)) private _hasVoted;
+    mapping(uint256 => uint256) private forVotes;
+    mapping(uint256 => uint256) private againstVotes;
+    mapping(uint256 => uint256) private abstainVotes;
 
-    function setProposalState(uint256 proposalId, ProposalState state) external {
-        proposalStates[proposalId] = state;
+    function setProposalState(uint256 proposalId, ProposalState newState) external {
+        proposalStates[proposalId] = newState;
     }
 
     function setProposalSnapshot(uint256 proposalId, uint256 snapshot) external {
@@ -20,7 +20,7 @@ contract MockGovernor is IGovernor {
     }
 
     function mockHasVoted(uint256 proposalId, address account, bool voted) external {
-        hasVoted[proposalId][account] = voted;
+        _hasVoted[proposalId][account] = voted;
     }
 
     function mockProposalVotes(
@@ -43,18 +43,30 @@ contract MockGovernor is IGovernor {
     }
 
     function hasVoted(uint256 proposalId, address account) external view override returns (bool) {
-        return hasVoted[proposalId][account];
+        return _hasVoted[proposalId][account];
     }
 
     function proposalVotes(uint256 proposalId) external view override returns (
-        uint256 againstVotes,
-        uint256 forVotes,
-        uint256 abstainVotes
+        uint256 againstVotes_,
+        uint256 forVotes_,
+        uint256 abstainVotes_
     ) {
         return (
             againstVotes[proposalId],
             forVotes[proposalId],
             abstainVotes[proposalId]
         );
+    }
+
+    function castVote(uint256 proposalId, uint8 support) external override {
+        // Mock implementation - just mark that the contract has voted
+        _hasVoted[proposalId][msg.sender] = true;
+        
+        // Update vote counts based on support
+        if (support == 1) {
+            forVotes[proposalId] += 1;
+        } else if (support == 0) {
+            againstVotes[proposalId] += 1;
+        }
     }
 } 

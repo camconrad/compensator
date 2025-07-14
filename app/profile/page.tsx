@@ -30,7 +30,7 @@ import ConnectWalletButton from "@/components/MainLayout/ConnectWalletButton";
 import Modal from "@/components/common/Modal";
 import { useGetCompensatorFactoryContract } from "@/hooks/useGetCompensatorFactoryContract";
 import { getEthersSigner } from "@/hooks/useEtherProvider";
-import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
+import { wagmiConfig } from "@/app/providers";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import toast from "react-hot-toast";
 import { mainnet } from "wagmi/chains";
@@ -76,8 +76,7 @@ export default function ProfilePage() {
   const theme = useSettingTheme();
   const { address, isConnected } = useAccount();
 
-  const [isError, setIsError] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [proposals, setProposals] = useState<Proposal[]>([]);
@@ -117,8 +116,6 @@ export default function ProfilePage() {
       ]);
     } catch (error) {
       console.error("Error loading data:", error);
-      setIsError(true);
-      setErrorMessage("Failed to load profile data. Please try again.");
     }
   }, []);
 
@@ -197,8 +194,7 @@ export default function ProfilePage() {
       });
       setIsProfileLoading(false);
     } catch (error) {
-      setIsError(true);
-      setErrorMessage("Failed to load profile data. Try again.");
+      console.error("Error fetching profile data:", error);
       setIsProfileLoading(false);
     }
   };
@@ -223,8 +219,7 @@ export default function ProfilePage() {
       ]);
       setIsDelegationsLoading(false);
     } catch (error) {
-      setIsError(true);
-      setErrorMessage("Failed to load delegations. Please try again.");
+      console.error("Error fetching delegations:", error);
       setIsDelegationsLoading(false);
     }
   };
@@ -309,19 +304,12 @@ export default function ProfilePage() {
       setProposals(proposalData as any);
       setIsProposalsLoading(false);
     } catch (error) {
-      setIsError(true);
-      setErrorMessage("Failed to load proposals. Please try again.");
+      console.error("Error fetching proposals:", error);
       setIsProposalsLoading(false);
     }
   };
 
-  const handleRetry = () => {
-    setIsError(false);
-    setErrorMessage("");
-    if (isConnected) {
-      loadAllData();
-    }
-  };
+
 
   const formatNameForURL = (name: string) => {
     return name
@@ -565,10 +553,6 @@ export default function ProfilePage() {
     } catch (error) {
       setLoading(false);
       console.error("Error creating compensator contract:", error);
-      setIsError(true);
-      setErrorMessage(
-        "Failed to create Compensator contract. Please try again."
-      );
     }
   };
 
@@ -802,32 +786,7 @@ export default function ProfilePage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
-          <AnimatePresence>
-            {isError && (
-              <motion.div
-                className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg shadow-md flex items-center"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <AlertCircle className="h-5 w-5 mr-2" />
-                <span>{errorMessage}</span>
-                <button
-                  onClick={handleRetry}
-                  className="ml-4 text-sm font-medium underline hover:text-red-800 dark:hover:text-red-300"
-                >
-                  Retry
-                </button>
-                <button
-                  onClick={() => setIsError(false)}
-                  className="ml-2 text-sm font-medium hover:text-red-800 dark:hover:text-red-300"
-                >
-                  ✕
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+
 
           <div className="mx-auto max-w-[1100px] w-full p-4 pt-8">
             <motion.div
@@ -888,8 +847,8 @@ export default function ProfilePage() {
                               </button>
                             </>
                           ) : (
-                            <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
-                              Connect your wallet to view your profile
+                            <p className="text-sm text-[#6D7C8D] font-medium dark:text-gray-400">
+                              Connect wallet to view your profile
                             </p>
                           )}
                         </div>

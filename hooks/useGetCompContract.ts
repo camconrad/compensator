@@ -1,7 +1,7 @@
 import {
     compoundTokenContractInfo
 } from "@/constants";
-import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider";
+import { wagmiConfig } from "@/app/providers";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";

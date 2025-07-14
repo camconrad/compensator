@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/MainLayout/Header";
 import { Button } from "@/components/ui/button";
 import { delegatesData, formatNameForURL } from "@/lib/delegate-data";
-import compensatorServices from "@/services/compensator";
+import { compensatorService } from "@/services/compensator";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronLeft,
@@ -80,7 +80,7 @@ const ExplorePage = () => {
     lg: 14,   // Large screens
     xl: 20    // Extra large screens
   });
-  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState([]);
+  const [listDelegatesFormFactory, setListDelegatesFromServer] = useState<any[]>([]);
 
   const truncateAddressMiddle = (
     address: string,
@@ -98,19 +98,18 @@ const ExplorePage = () => {
 
   const handleGetDelegatesFromServer = async () => {
     try {
-      const response = await compensatorServices.getListCompensators();
-      const data = response.data || [];
-      const delegates = data.map((delegate: any) => {
-        const dataURL = blockies.createDataURL({ seed: delegate?.compensatorAddress || delegate?.delegate })
+      const compensators = await compensatorService.getAllCompensators();
+      const delegates = compensators.map((compensator: any) => {
+        const dataURL = blockies.createDataURL({ seed: compensator?.address || compensator?.owner })
         return {
-          name: delegate?.name,
-          address: delegate?.compensatorAddress,
-          votingPower: Number(delegate?.votingPower || 0),
-          distributed: delegate?.totalDelegatedCOMP || 0,
-          totalDelegations: delegate?.totalDelegations || 0,
-          performance7D: delegate?.performance7D || 0,
-          rewardAPR: `${Number(delegate?.rewardRate || 0).toFixed(2)}%`,
-          image: delegate?.image || dataURL,
+          name: compensator?.name || "Unknown Delegate",
+          address: compensator?.address,
+          votingPower: Number(compensator?.votingPower || 0),
+          distributed: compensator?.totalStakes || 0,
+          totalDelegations: 0,
+          performance7D: 0,
+          rewardAPR: "0.00%",
+          image: dataURL,
         };
       });
       setListDelegatesFromServer(delegates);

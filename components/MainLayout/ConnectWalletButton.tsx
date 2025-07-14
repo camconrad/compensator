@@ -11,7 +11,7 @@ import type { MouseEvent } from "react"
 import { createPortal } from "react-dom"
 import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract"
 import { useGetCompensatorFactoryContract } from "@/hooks/useGetCompensatorFactoryContract"
-import { wagmiConfig } from "@/providers/WagmiRainbowKitProvider"
+import { wagmiConfig } from "@/app/providers"
 import { waitForTransactionReceipt } from "@wagmi/core"
 import { ethers, formatUnits } from "ethers"
 import { getEthersSigner } from "@/hooks/useEtherProvider"
@@ -30,7 +30,7 @@ const ConnectWalletButton = ({ isMobile = false }) => {
   const [showCompPopover, setShowCompPopover] = useState(false)
   const compPopoverRef = useRef<HTMLDivElement>(null)
   const compButtonRef = useRef<HTMLButtonElement>(null)
-  const [isEthereumExpanded, setIsEthereumExpanded] = useState(true)
+  const [isEthereumExpanded, setIsEthereumExpanded] = useState(false)
   const [claimSuccess, setClaimSuccess] = useState(false)
   const [pendingRewards, setPendingRewards] = useState("0.0000")
   const [walletBalance, setWalletBalance] = useState("0.0000")
@@ -119,6 +119,11 @@ const ConnectWalletButton = ({ isMobile = false }) => {
     try {
       await disconnectAsync()
       setShowPopover(false)
+      toast.success("Wallet disconnected", {
+        style: {
+          fontWeight: "600",
+        },
+      })
     } catch (error) {
       console.error("Error disconnecting wallet:", error)
     } finally {
@@ -134,6 +139,11 @@ const ConnectWalletButton = ({ isMobile = false }) => {
   const handleFaucetClaim = async () => {
     setIsFaucetLoading(true)
     try {
+      toast.success("Claiming testnet tokens...", {
+        style: {
+          fontWeight: "600",
+        },
+      })
       // TODO: Implement faucet claim logic here
       // This will be implemented when the faucet contract is ready
       await new Promise(resolve => setTimeout(resolve, 2000)) // Temporary delay for testing
@@ -156,10 +166,22 @@ const ConnectWalletButton = ({ isMobile = false }) => {
   }
 
   const handleClaimCOMP = async () => {
-    if (!address || Number.parseFloat(pendingRewards) <= 0) return
+    if (!address || Number.parseFloat(pendingRewards) <= 0) {
+      toast.error("No rewards to claim", {
+        style: {
+          fontWeight: "600",
+        },
+      })
+      return
+    }
 
     setIsClaimLoading(true)
     try {
+      toast.success("Claiming COMP rewards...", {
+        style: {
+          fontWeight: "600",
+        },
+      })
       const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
       const compensatorContract = await handleSetCompensatorContract(compensatorAddress)
       
@@ -211,6 +233,11 @@ const ConnectWalletButton = ({ isMobile = false }) => {
       navigator.clipboard.writeText(address)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+      toast.success("Address copied to clipboard", {
+        style: {
+          fontWeight: "600",
+        },
+      })
     }
   }
 
