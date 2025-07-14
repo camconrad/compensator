@@ -175,7 +175,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     DelegateInfo public delegateInfo;
 
     /// @notice Percentage of winning stakes that go to the delegate (in basis points)
-    uint256 public constant DELEGATE_REWARD_PERCENT = 2000; // 20%
+    /// @dev 100% goes to delegate when they vote correctly
+    uint256 public constant DELEGATE_REWARD_PERCENT = 10000; // 100%
 
     //////////////////////////
     // Events
@@ -221,7 +222,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     event ProposalStaked(address indexed user, uint256 proposalId, uint8 support, uint256 amount);
 
     /// @notice Emitted when a user reclaims their losing stake
-    event LosingStakeReclaimed(address indexed user, uint256 proposalId, uint256 amount);
+    event StakeReclaimed(address indexed user, uint256 proposalId, uint256 amount);
 
     /// @notice Emitted when a user claims their rewards
     event ClaimRewards(address indexed user, uint256 amount);
@@ -371,10 +372,9 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
     /**
      * @notice Returns the contract's voting power at a specific block
-     * @param blockNumber The block number to check voting power at
      * @return The amount of COMP delegated to this contract at that block
      */
-    function getContractVotingPowerAt(uint256 blockNumber) external view returns (uint256) {
+    function getContractVotingPowerAt(uint256) external view returns (uint256) {
         return COMP_TOKEN.getCurrentVotes(address(this));
     }
 
@@ -551,12 +551,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             "Proposal not in voting period"
         );
 
-        // Get the contract's voting power at the proposal snapshot
-        uint256 proposalSnapshot = COMPOUND_GOVERNOR.proposalSnapshot(proposalId);
+        // Get the contract's voting power
         uint256 votingPower = COMP_TOKEN.getCurrentVotes(address(this));
-        
-        // Get the current vote counts before our vote
-        (uint256 beforeForVotes, uint256 beforeAgainstVotes,) = COMPOUND_GOVERNOR.proposalVotes(proposalId);
 
         // Effects
         contractVoted[proposalId] = true;
@@ -758,11 +754,11 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
                                         contractVoteDirection[proposalId] == winningSupport;
 
             if (delegateVotedCorrectly) {
-                // Delegate voted correctly
+                // Delegate voted correctly - 100% of winning stakes go to delegate
                 if (winningSupport == 1) {
                     // FOR won
                     if (totalStakesFor[proposalId] > 0) {
-                        // Winning FOR stakes go to the delegate
+                        // 100% of winning FOR stakes go to the delegate
                         COMP_TOKEN.transfer(owner(), totalStakesFor[proposalId]);
                         delegateInfo.successfulVotes += 1;
                         delegateInfo.totalRewardsEarned += totalStakesFor[proposalId];
@@ -771,7 +767,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
                 } else {
                     // AGAINST won
                     if (totalStakesAgainst[proposalId] > 0) {
-                        // Winning AGAINST stakes go to the delegate
+                        // 100% of winning AGAINST stakes go to the delegate
                         COMP_TOKEN.transfer(owner(), totalStakesAgainst[proposalId]);
                         delegateInfo.successfulVotes += 1;
                         delegateInfo.totalRewardsEarned += totalStakesAgainst[proposalId];
@@ -804,7 +800,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Allows delegators to reclaim their stake after a proposal is resolved
+     * @notice Allows delegators to reclaim their losing stake after a proposal is resolved
      * @dev Can only be called after proposal is resolved with recorded outcome
      * @param proposalId The ID of the proposal to reclaim stake from
      */
@@ -825,12 +821,12 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // Effects
         uint256 amountToReturn;
         if (isForWon) {
-            // If FOR won, return AGAINST stakes
+            // If FOR won, return AGAINST stakes (losing stakes)
             amountToReturn = stake.againstStake;
             stake.againstStake = 0;
             totalStakesAgainst[proposalId] -= amountToReturn;
         } else {
-            // If AGAINST won, return FOR stakes
+            // If AGAINST won, return FOR stakes (losing stakes)
             amountToReturn = stake.forStake;
             stake.forStake = 0;
             totalStakesFor[proposalId] -= amountToReturn;
@@ -841,7 +837,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // Interactions
         COMP_TOKEN.transfer(msg.sender, amountToReturn);
         
-        emit LosingStakeReclaimed(msg.sender, proposalId, amountToReturn);
+        emit StakeReclaimed(msg.sender, proposalId, amountToReturn);
     }
 
     /**
@@ -860,8 +856,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             // Transfer winning stakes to the contract if it voted correctly
             if (contractVoted[proposalId] && contractVoteDirection[proposalId] == 0) {
                 if (totalStakesAgainst[proposalId] > 0) {
-                    // AGAINST stakers win, transfer their stakes to contract
-                    COMP_TOKEN.transfer(address(this), totalStakesAgainst[proposalId]);
+                    // 100% of winning AGAINST stakes go to the delegate
+                    COMP_TOKEN.transfer(owner(), totalStakesAgainst[proposalId]);
                 }
             }
             
@@ -875,11 +871,11 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             // Transfer winning stakes to the contract if it voted correctly
             if (contractVoted[proposalId] && contractVoteDirection[proposalId] == winningSupport) {
                 if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
-                    // FOR stakers win, transfer their stakes to contract
-                    COMP_TOKEN.transfer(address(this), totalStakesFor[proposalId]);
+                    // 100% of winning FOR stakes go to the delegate
+                    COMP_TOKEN.transfer(owner(), totalStakesFor[proposalId]);
                 } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
-                    // AGAINST stakers win, transfer their stakes to contract
-                    COMP_TOKEN.transfer(address(this), totalStakesAgainst[proposalId]);
+                    // 100% of winning AGAINST stakes go to the delegate
+                    COMP_TOKEN.transfer(owner(), totalStakesAgainst[proposalId]);
                 }
             }
             

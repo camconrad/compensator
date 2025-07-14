@@ -79,7 +79,7 @@
   - `uint256 totalVotingPowerUsed` - Total voting power used across all votes
   - `uint256 averageVotingPowerPerVote` - Average voting power per vote
 - `DelegateInfo public delegateInfo` - Tracks delegate performance metrics.
-- `uint256 constant DELEGATE_REWARD_PERCENT` - Percentage of winning stakes that go to the delegate (20%).
+- `uint256 constant DELEGATE_REWARD_PERCENT` - Percentage of winning stakes that go to the delegate (100%).
 - `struct ProposalStake` - Gas-optimized structure to track individual delegator stakes on proposals:
   - `uint128 forStake` - Amount staked in support of a proposal (sufficient for COMP amounts)
   - `uint128 againstStake` - Amount staked against a proposal (sufficient for COMP amounts)
@@ -99,7 +99,7 @@
 - `ProposalStaked(address indexed user, uint256 proposalId, uint8 support, uint256 amount)` - Emitted when a user stakes COMP for a proposal outcome.
 - `ProposalStakeDistributed(uint256 indexed proposalId, uint8 indexed winningSupport)` - Emitted when stakes are distributed after a proposal resolves.
 - `ClaimRewards(address indexed user, uint256 amount)` - Emitted when a user claims their rewards.
-- `LosingStakeReclaimed(address indexed user, uint256 proposalId, uint256 amount)` - Emitted when a user reclaims their losing stake after a proposal is resolved.
+- `StakeReclaimed(address indexed user, uint256 proposalId, uint256 amount)` - Emitted when a user reclaims their losing stake after a proposal is resolved.
 - `COMPLocked(address indexed user, uint256 unlockTime)` - Emitted when a user's COMP is locked.
 - `NewProposalDetected(uint256 indexed proposalId)` - Emitted when a new proposal is detected.
 - `ProposalActivated(uint256 indexed proposalId)` - Emitted when a proposal is marked as active.
