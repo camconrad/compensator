@@ -3,6 +3,13 @@ pragma solidity 0.8.30;
 
 import {Compensator} from "./Compensator.sol";
 
+// Custom Errors
+error InvalidCompTokenAddress();
+error InvalidCompoundGovernorAddress();
+error InvalidOwnerAddress();
+error OwnerAlreadyHasCompensator();
+error CompensatorNotCreatedByFactory();
+
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
 // \ \  \___|\ \  \|\  \ \  \\\__\ \  \ \  \|\  \ \  \|\  \ \  \\\  \ \  \\ \  \ \  \_|\ \   
@@ -71,8 +78,8 @@ contract CompensatorFactory {
         address _compToken, 
         address _compoundGovernor
     ) {
-        require(_compToken != address(0), "Invalid COMP token address");
-        require(_compoundGovernor != address(0), "Invalid Compound Governor address");
+        if (_compToken == address(0)) revert InvalidCompTokenAddress();
+        if (_compoundGovernor == address(0)) revert InvalidCompoundGovernorAddress();
         
         COMP_TOKEN = _compToken;
         COMPOUND_GOVERNOR = _compoundGovernor;
@@ -89,8 +96,8 @@ contract CompensatorFactory {
      */
     function createCompensator(address owner) public returns (address) {
         // Checks
-        require(owner != address(0), "Invalid owner address");
-        require(ownerToCompensator[owner] == address(0), "Owner already has a Compensator");
+        if (owner == address(0)) revert InvalidOwnerAddress();
+        if (ownerToCompensator[owner] != address(0)) revert OwnerAlreadyHasCompensator();
 
         // Effects & Interactions
         // Deploy a new Compensator contract with correct parameters
@@ -134,7 +141,7 @@ contract CompensatorFactory {
      */
     function onOwnershipTransferred(address oldOwner, address newOwner) external {
         // Verify this compensator was created by this factory
-        require(compensatorToOriginalOwner[msg.sender] != address(0), "Compensator not created by this factory");
+        if (compensatorToOriginalOwner[msg.sender] == address(0)) revert CompensatorNotCreatedByFactory();
         
         // Update the owner mapping
         ownerToCompensator[oldOwner] = address(0);

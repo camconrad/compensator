@@ -63,7 +63,7 @@ describe("Compensator Security Fixes", function () {
       // Try to transfer Compensator tokens - should revert
       await expect(
         compensator.connect(user1).transfer(user2.address, ethers.parseEther("50"))
-      ).to.be.revertedWith("Compensator tokens are not transferable");
+      ).to.be.revertedWithCustomError(compensator, "CompensatorTokensNotTransferable");
     });
 
     it("should prevent transferFrom of Compensator tokens", async function () {
@@ -75,14 +75,14 @@ describe("Compensator Security Fixes", function () {
       // Try to transferFrom Compensator tokens - should revert
       await expect(
         compensator.connect(user2).transferFrom(user1.address, user2.address, ethers.parseEther("50"))
-      ).to.be.revertedWith("Compensator tokens are not transferable");
+      ).to.be.revertedWithCustomError(compensator, "CompensatorTokensNotTransferable");
     });
 
     it("should prevent approve of Compensator tokens", async function () {
       // Try to approve Compensator tokens - should revert
       await expect(
         compensator.connect(user1).approve(user2.address, ethers.parseEther("100"))
-      ).to.be.revertedWith("Compensator tokens are not transferable");
+      ).to.be.revertedWithCustomError(compensator, "CompensatorTokensNotTransferable");
     });
   });
 
@@ -145,7 +145,7 @@ describe("Compensator Security Fixes", function () {
       // Try to withdraw more than available - should revert
       await expect(
         compensator.connect(owner).ownerWithdraw(ethers.parseEther("1000"))
-      ).to.be.revertedWith("Amount exceeds available rewards");
+      ).to.be.revertedWithCustomError(compensator, "AmountExceedsAvailableRewards");
     });
 
     it("should demonstrate the fix prevents withdrawing accrued rewards", async function () {
@@ -177,7 +177,7 @@ describe("Compensator Security Fixes", function () {
       // because 50 COMP should be reserved for user1's rewards
       await expect(
         compensator.connect(owner).ownerWithdraw(ethers.parseEther("1000"))
-      ).to.be.revertedWith("Amount exceeds available rewards");
+      ).to.be.revertedWithCustomError(compensator, "AmountExceedsAvailableRewards");
       
       // The owner should only be able to withdraw a conservative amount
       await expect(

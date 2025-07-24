@@ -66,7 +66,7 @@ describe("CompensatorFactory", function () {
     
     await expect(
       factory.createCompensator(ownerAddress)
-    ).to.be.revertedWith("Owner already has a Compensator");
+            ).to.be.revertedWithCustomError(factory, "OwnerAlreadyHasCompensator");
   });
   
   it("should initialize the Compensator contract correctly", async function () {

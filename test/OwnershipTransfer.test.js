@@ -47,7 +47,7 @@ describe("Ownership Transfer Fix", function () {
         it("Should prevent creating multiple compensators for the same owner", async function () {
             await expect(
                 compensatorFactory.createCompensator(owner.address)
-            ).to.be.revertedWith("Owner already has a Compensator");
+            ).to.be.revertedWithCustomError(compensatorFactory, "OwnerAlreadyHasCompensator");
         });
     });
 
@@ -107,7 +107,7 @@ describe("Ownership Transfer Fix", function () {
         it("Should prevent non-owners from calling onOwnershipTransferred", async function () {
             await expect(
                 compensatorFactory.connect(addr1).onOwnershipTransferred(owner.address, newOwner.address)
-            ).to.be.revertedWith("Compensator not created by this factory");
+            ).to.be.revertedWithCustomError(compensatorFactory, "CompensatorNotCreatedByFactory");
         });
 
         it("Should handle factory notification failure gracefully", async function () {
@@ -149,7 +149,7 @@ describe("Ownership Transfer Fix", function () {
         it("Should handle zero address ownership transfer", async function () {
             await expect(
                 compensator.transferOwnership(ethers.ZeroAddress)
-            ).to.be.revertedWith("New owner cannot be zero address");
+            ).to.be.revertedWithCustomError(compensator, "NewOwnerCannotBeZeroAddress");
         });
 
         it("Should handle transfer to same owner", async function () {

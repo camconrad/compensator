@@ -13,6 +13,35 @@ interface CompensatorFactory {
     function onOwnershipTransferred(address oldOwner, address newOwner) external;
 }
 
+// Custom Errors
+error InvalidCompTokenAddress();
+error InvalidCompoundGovernorAddress();
+error InvalidOwnerAddress();
+error InvalidCompTotalSupply();
+error DelegationCapTooSmall();
+error VoteIndexOutOfBounds();
+error AmountMustBeGreaterThanZero();
+error AmountExceedsAvailableRewards();
+error RewardRateMustBeNonNegative();
+error NewRateMustBeDifferent();
+error InvalidSupportValue();
+error AlreadyVotedOnProposal();
+error InvalidProposalState();
+error ProposalAlreadyResolved();
+error ProposalDoesNotExist();
+error ProposalNotResolvedYet();
+error NoStakeToReclaim();
+error InvalidBlocksPerDay();
+error NewOwnerCannotBeZeroAddress();
+error CompIsLocked();
+error CannotWithdrawDuringActiveProposals();
+error InsufficientBalance();
+error NoRewardsToClaim();
+error DelegationCapExceeded();
+error StakingOnlyAllowedForActiveProposals();
+error InvalidProposalId();
+error CompensatorTokensNotTransferable();
+
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
 // \ \  \___|\ \  \|\  \ \  \\\__\ \  \ \  \|\  \ \  \|\  \ \  \\\  \ \  \\ \  \ \  \_|\ \   
@@ -314,9 +343,9 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         address _compoundGovernor,
         address _owner
     ) ERC20("Compensator", "COMPENSATOR") Ownable(_owner) {
-        require(_compToken != address(0), "Invalid COMP token address");
-        require(_compoundGovernor != address(0), "Invalid Compound Governor address");
-        require(_owner != address(0), "Invalid owner address");
+        if (_compToken == address(0)) revert InvalidCompTokenAddress();
+        if (_compoundGovernor == address(0)) revert InvalidCompoundGovernorAddress();
+        if (_owner == address(0)) revert InvalidOwnerAddress();
         
         COMP_TOKEN = IComp(_compToken);
         COMPOUND_GOVERNOR = IGovernor(_compoundGovernor);
@@ -326,10 +355,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
         // Set the delegation cap to 5% of the total COMP supply
         uint256 totalSupply = COMP_TOKEN.totalSupply();
-        require(totalSupply > 0, "Invalid COMP total supply");
+        if (totalSupply == 0) revert InvalidCompTotalSupply();
         uint256 oldCap = delegationCap;
         delegationCap = (totalSupply * DELEGATION_CAP_PERCENT) / BASIS_POINTS;
-        require(delegationCap > 0, "Delegation cap too small");
+        if (delegationCap == 0) revert DelegationCapTooSmall();
         
         emit DelegationCapUpdated(oldCap, delegationCap, totalSupply);
     }
@@ -431,7 +460,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint256 votingPower,
         string memory reason
     ) {
-        require(voteIndex < voteCount, "Vote index out of bounds");
+        if (voteIndex >= voteCount) revert VoteIndexOutOfBounds();
         uint256 proposalId = voteIndexToProposalId[voteIndex];
         VoteInfo memory info = voteInfo[proposalId];
         return (info.direction, info.blockNumber, info.txHash, info.timestamp, info.votingPower, info.reason);
@@ -459,7 +488,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function ownerDeposit(uint256 amount) external onlyOwner nonReentrant {
         // Checks
-        require(amount > 0, "Amount must be greater than 0");
+        if (amount == 0) revert AmountMustBeGreaterThanZero();
         
         // Effects
         _updateRewardsIndex();
@@ -486,7 +515,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         address currentOwner = owner();
         
         uint256 withdrawableAmount = currentAvailableRewards - currentTotalPendingRewards;
-        require(amount <= withdrawableAmount, "Amount exceeds available rewards");
+        if (amount > withdrawableAmount) revert AmountExceedsAvailableRewards();
         
         // Update available rewards
         availableRewards = currentAvailableRewards - amount;
@@ -504,8 +533,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function setRewardRate(uint256 newRate) external onlyOwner {
         // Checks
-        require(newRate >= 0, "Reward rate must be non-negative");
-        require(newRate != rewardRate, "New rate must be different from current rate");
+        if (newRate < 0) revert RewardRateMustBeNonNegative();
+        if (newRate == rewardRate) revert NewRateMustBeDifferent();
         
         // Effects
         _updateRewardsIndex();
@@ -540,16 +569,15 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
     function _castVote(uint256 proposalId, uint8 support, string memory reason) private {
         // Checks
-        require(support <= 1, "Invalid support value");
-        require(!contractVoted[proposalId], "Already voted on this proposal");
+        if (support > 1) revert InvalidSupportValue();
+        if (contractVoted[proposalId]) revert AlreadyVotedOnProposal();
         
         // Verify proposal exists and is in a valid state
         IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
-        require(
-            state == IGovernor.ProposalState.Active || 
-            state == IGovernor.ProposalState.Pending,
-            "Proposal not in voting period"
-        );
+        if (
+            state != IGovernor.ProposalState.Active && 
+            state != IGovernor.ProposalState.Pending
+        ) revert InvalidProposalState();
 
         // Get the contract's voting power
         uint256 votingPower = COMP_TOKEN.getCurrentVotes(address(this));
@@ -596,8 +624,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function userDeposit(uint256 amount) external nonReentrant {
         // Checks
-        require(amount > 0, "Amount must be greater than 0");
-        require(totalDelegatedCOMP + amount <= delegationCap, "Delegation cap exceeded");
+        if (amount == 0) revert AmountMustBeGreaterThanZero();
+        if (totalDelegatedCOMP + amount > delegationCap) revert DelegationCapExceeded();
         
         // Effects
         _updateRewardsIndex();
@@ -633,10 +661,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function userWithdraw(uint256 amount) external nonReentrant {
         // Checks
-        require(amount > 0, "Amount must be greater than 0");
-        require(block.timestamp >= unlockTime[msg.sender], "COMP is locked");
-        require(!_hasActiveOrPendingProposals(), "Cannot withdraw during active or pending proposals");
-        require(amount <= balanceOf(msg.sender), "Insufficient balance");
+        if (amount == 0) revert AmountMustBeGreaterThanZero();
+        if (block.timestamp < unlockTime[msg.sender]) revert CompIsLocked();
+        if (_hasActiveOrPendingProposals()) revert CannotWithdrawDuringActiveProposals();
+        if (amount > balanceOf(msg.sender)) revert InsufficientBalance();
         
         // Effects
         _updateRewardsIndex();
@@ -662,7 +690,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         _updateUserRewards(msg.sender);
         
         uint256 amount = unclaimedRewards[msg.sender];
-        require(amount > 0, "No rewards to claim");
+        if (amount == 0) revert NoRewardsToClaim();
         
         // Reset unclaimed rewards before transfer to prevent reentrancy
         unclaimedRewards[msg.sender] = 0;
@@ -684,12 +712,12 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function stakeForProposal(uint256 proposalId, uint8 support, uint256 amount) external nonReentrant {
         // Checks
-        require(support == 0 || support == 1, "Invalid support value");
-        require(amount > 0, "Amount must be greater than 0");
-        require(proposalOutcomes[proposalId] == ProposalOutcome.NotResolved, "Proposal already resolved");
+        if (support != 0 && support != 1) revert InvalidSupportValue();
+        if (amount == 0) revert AmountMustBeGreaterThanZero();
+        if (proposalOutcomes[proposalId] != ProposalOutcome.NotResolved) revert ProposalAlreadyResolved();
 
         IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
-        require(state == IGovernor.ProposalState.Active, "Staking only allowed for active proposals");
+        if (state != IGovernor.ProposalState.Active) revert StakingOnlyAllowedForActiveProposals();
 
         // Effects
         _updateLatestProposalId(proposalId);
@@ -715,19 +743,18 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function resolveProposal(uint256 proposalId) external nonReentrant {
         // Checks
-        require(proposalOutcomes[proposalId] == ProposalOutcome.NotResolved, "Proposal already resolved");
-        require(proposalCreationTime[proposalId] > 0, "Proposal does not exist");
+        if (proposalOutcomes[proposalId] != ProposalOutcome.NotResolved) revert ProposalAlreadyResolved();
+        if (proposalCreationTime[proposalId] == 0) revert ProposalDoesNotExist();
         
         // Verify proposal exists in Governor
         try COMPOUND_GOVERNOR.state(proposalId) returns (IGovernor.ProposalState state) {
-            require(
-                state == IGovernor.ProposalState.Succeeded || 
-                state == IGovernor.ProposalState.Defeated || 
-                state == IGovernor.ProposalState.Expired ||
-                state == IGovernor.ProposalState.Canceled ||
-                state == IGovernor.ProposalState.Executed, 
-                "Proposal not yet resolved"
-            );
+            if (
+                state != IGovernor.ProposalState.Succeeded && 
+                state != IGovernor.ProposalState.Defeated && 
+                state != IGovernor.ProposalState.Expired &&
+                state != IGovernor.ProposalState.Canceled &&
+                state != IGovernor.ProposalState.Executed
+            ) revert ProposalNotResolvedYet();
 
             // Determine the winning support based on the proposal state
             uint8 winningSupport;
@@ -740,7 +767,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
             _resolveProposalInternal(proposalId, winningSupport, false);
         } catch {
-            revert("Invalid proposal ID");
+            revert InvalidProposalId();
         }
     }
 
@@ -758,7 +785,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         }
 
         ProposalOutcome outcome = proposalOutcomes[proposalId];
-        require(outcome != ProposalOutcome.NotResolved, "Proposal not resolved yet");
+        if (outcome == ProposalOutcome.NotResolved) revert ProposalNotResolvedYet();
         
         ProposalStake storage stake = proposalStakes[proposalId][msg.sender];
         bool isForWon = outcome == ProposalOutcome.ForWon;
@@ -777,7 +804,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             totalStakesFor[proposalId] -= amountToReturn;
         }
         
-        require(amountToReturn > 0, "No stake to reclaim");
+        if (amountToReturn == 0) revert NoStakeToReclaim();
         
         // Interactions
         COMP_TOKEN.transfer(msg.sender, amountToReturn);
@@ -944,7 +971,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @param _blocksPerDay The new number of blocks per day
      */
     function setBlocksPerDay(uint256 _blocksPerDay) external onlyOwner {
-        require(_blocksPerDay > 0 && _blocksPerDay < MAX_BLOCKS_PER_DAY, "Invalid blocks per day");
+        if (_blocksPerDay == 0 || _blocksPerDay >= MAX_BLOCKS_PER_DAY) revert InvalidBlocksPerDay();
         blocksPerDay = _blocksPerDay;
     }
 
@@ -1105,7 +1132,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @return Always reverts
      */
     function transfer(address /* to */, uint256 /* amount */) public virtual override returns (bool) {
-        revert("Compensator tokens are not transferable");
+        revert CompensatorTokensNotTransferable();
     }
 
     /**
@@ -1114,7 +1141,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @return Always reverts
      */
     function transferFrom(address /* from */, address /* to */, uint256 /* amount */) public virtual override returns (bool) {
-        revert("Compensator tokens are not transferable");
+        revert CompensatorTokensNotTransferable();
     }
 
     /**
@@ -1123,7 +1150,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @return Always reverts
      */
     function approve(address /* spender */, uint256 /* amount */) public virtual override returns (bool) {
-        revert("Compensator tokens are not transferable");
+        revert CompensatorTokensNotTransferable();
     }
 
     //////////////////////////
@@ -1136,7 +1163,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @param newOwner The address of the new owner
      */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
-        require(newOwner != address(0), "New owner cannot be zero address");
+        if (newOwner == address(0)) revert NewOwnerCannotBeZeroAddress();
         
         address oldOwner = owner();
         

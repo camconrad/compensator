@@ -248,7 +248,7 @@ describe("Compensator", function () {
       const withdrawAmount = ethers.parseEther("101");
       await expect(
         compensator.connect(delegate).ownerWithdraw(withdrawAmount)
-      ).to.be.revertedWith("Amount exceeds available rewards");
+              ).to.be.revertedWithCustomError(compensator, "AmountExceedsAvailableRewards");
     });
   });
 
@@ -407,7 +407,7 @@ describe("Compensator", function () {
       // Try to withdraw before lock period
       await expect(
         compensator.connect(delegator1).userWithdraw(depositAmount)
-      ).to.be.revertedWith("COMP is locked");
+      ).to.be.revertedWithCustomError(compensator, "CompIsLocked");
       
       // Advance time to just before lock period
       await ethers.provider.send("evm_increaseTime", [6 * 24 * 3600]); // 6 days
@@ -416,7 +416,7 @@ describe("Compensator", function () {
       // Should still be locked
       await expect(
         compensator.connect(delegator1).userWithdraw(depositAmount)
-      ).to.be.revertedWith("COMP is locked");
+      ).to.be.revertedWithCustomError(compensator, "CompIsLocked");
       
       // Advance time past lock period
       await ethers.provider.send("evm_increaseTime", [2 * 24 * 3600]); // 2 more days
@@ -455,7 +455,7 @@ describe("Compensator", function () {
       // Should still be locked due to active proposal
       await expect(
         compensator.connect(delegator1).userWithdraw(depositAmount)
-      ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
+      ).to.be.revertedWithCustomError(compensator, "CannotWithdrawDuringActiveProposals");
     });
 
     it("should handle multiple active proposals correctly", async function () {
@@ -488,7 +488,7 @@ describe("Compensator", function () {
       // Should still be locked due to active proposals
       await expect(
         compensator.connect(delegator1).userWithdraw(depositAmount)
-      ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
+      ).to.be.revertedWithCustomError(compensator, "CannotWithdrawDuringActiveProposals");
     });
 
     it("should handle pending proposals correctly", async function () {
@@ -519,7 +519,7 @@ describe("Compensator", function () {
       // Should still be locked due to pending proposal
       await expect(
         compensator.connect(delegator1).userWithdraw(depositAmount)
-      ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
+      ).to.be.revertedWithCustomError(compensator, "CannotWithdrawDuringActiveProposals");
     });
   });
 
@@ -529,11 +529,11 @@ describe("Compensator", function () {
       
       await expect(
         compensator.connect(delegator1).userDeposit(0)
-      ).to.be.revertedWith("Amount must be greater than 0");
+      ).to.be.revertedWithCustomError(compensator, "AmountMustBeGreaterThanZero");
       
       await expect(
         compensator.connect(delegator1).userWithdraw(0)
-      ).to.be.revertedWith("Amount must be greater than 0");
+      ).to.be.revertedWithCustomError(compensator, "AmountMustBeGreaterThanZero");
     });
 
     it("should handle delegation cap correctly", async function () {
@@ -547,7 +547,7 @@ describe("Compensator", function () {
       await compToken.connect(delegator1).approve(compensatorAddress, cap + 1n);
       await expect(
         compensator.connect(delegator1).userDeposit(cap + 1n)
-      ).to.be.revertedWith("Delegation cap exceeded");
+      ).to.be.revertedWithCustomError(compensator, "DelegationCapExceeded");
       
       // Deposit up to cap
       await compensator.connect(delegator1).userDeposit(cap);
@@ -555,7 +555,7 @@ describe("Compensator", function () {
       // Try to deposit more
       await expect(
         compensator.connect(delegator1).userDeposit(1n)
-      ).to.be.revertedWith("Delegation cap exceeded");
+      ).to.be.revertedWithCustomError(compensator, "DelegationCapExceeded");
     });
 
     it("should handle reward rate changes correctly", async function () {
@@ -943,7 +943,7 @@ describe("Compensator", function () {
         // delegator1 staked FOR, FOR won, so no losing stake to reclaim
         // delegator2 staked AGAINST, FOR won, so they can reclaim their AGAINST stake
         await expect(compensator.connect(delegator1).reclaimStake(proposalId))
-          .to.be.revertedWith("No stake to reclaim");
+          .to.be.revertedWithCustomError(compensator, "NoStakeToReclaim");
         await compensator.connect(delegator2).reclaimStake(proposalId);
         
         // Check actual balances
@@ -1004,7 +1004,7 @@ describe("Compensator", function () {
         // delegator1 staked FOR, FOR won, so no losing stake to reclaim
         // delegator2 staked AGAINST, FOR won, so they can reclaim their AGAINST stake
         await expect(compensator.connect(delegator1).reclaimStake(proposalId))
-          .to.be.revertedWith("No stake to reclaim");
+          .to.be.revertedWithCustomError(compensator, "NoStakeToReclaim");
         await compensator.connect(delegator2).reclaimStake(proposalId);
         
         // Check actual balances
