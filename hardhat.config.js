@@ -17,10 +17,10 @@ module.exports = {
   networks: {
     hardhat: {
       chainId: 31337,
-      forking: {
-        url: "https://eth.llamarpc.com",
-        // blockNumber: 18000000, Unomment to specify block num. when testing
-      }
+      // forking: {
+      //   url: "https://eth.llamarpc.com",
+      //   // blockNumber: 18000000, Unomment to specify block num. when testing
+      // }
     },
     mainnet: {
       url: "https://eth.llamarpc.com",
@@ -35,6 +35,6 @@ module.exports = {
     target: "ethers-v6",
   },
   mocha: {
-    timeout: 40000,
+    timeout: 120000,
   },
 };

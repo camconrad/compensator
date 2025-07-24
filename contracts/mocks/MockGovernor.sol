@@ -10,6 +10,21 @@ contract MockGovernor is IGovernor {
     mapping(uint256 => uint256) private forVotes;
     mapping(uint256 => uint256) private againstVotes;
     mapping(uint256 => uint256) private abstainVotes;
+    
+    uint256 private proposalCounter = 1;
+
+    function createProposal(
+        address[] memory /* targets */,
+        uint256[] memory /* values */,
+        string[] memory /* signatures */,
+        bytes[] memory /* calldatas */,
+        string memory /* description */
+    ) external returns (uint256) {
+        uint256 proposalId = proposalCounter++;
+        proposalStates[proposalId] = ProposalState.Pending;
+        proposalSnapshots[proposalId] = block.timestamp;
+        return proposalId;
+    }
 
     function setProposalState(uint256 proposalId, ProposalState newState) external {
         proposalStates[proposalId] = newState;

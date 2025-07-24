@@ -25,6 +25,7 @@ export interface MockGovernorInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "castVote"
+      | "createProposal"
       | "hasVoted"
       | "mockHasVoted"
       | "mockProposalVotes"
@@ -40,6 +41,10 @@ export interface MockGovernorInterface extends Interface {
   encodeFunctionData(
     functionFragment: "castVote",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createProposal",
+    values: [AddressLike[], BigNumberish[], string[], BytesLike[], string]
   ): string;
   encodeFunctionData(
     functionFragment: "hasVoted",
@@ -80,6 +85,10 @@ export interface MockGovernorInterface extends Interface {
   encodeFunctionData(functionFragment: "state", values: [BigNumberish]): string;
 
   decodeFunctionResult(functionFragment: "castVote", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "createProposal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "hasVoted", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mockHasVoted",
@@ -165,6 +174,18 @@ export interface MockGovernor extends BaseContract {
     "nonpayable"
   >;
 
+  createProposal: TypedContractMethod<
+    [
+      arg0: AddressLike[],
+      arg1: BigNumberish[],
+      arg2: string[],
+      arg3: BytesLike[],
+      arg4: string
+    ],
+    [bigint],
+    "nonpayable"
+  >;
+
   hasVoted: TypedContractMethod<
     [proposalId: BigNumberish, account: AddressLike],
     [boolean],
@@ -237,6 +258,19 @@ export interface MockGovernor extends BaseContract {
   ): TypedContractMethod<
     [proposalId: BigNumberish, support: BigNumberish],
     [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "createProposal"
+  ): TypedContractMethod<
+    [
+      arg0: AddressLike[],
+      arg1: BigNumberish[],
+      arg2: string[],
+      arg3: BytesLike[],
+      arg4: string
+    ],
+    [bigint],
     "nonpayable"
   >;
   getFunction(
