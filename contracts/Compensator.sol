@@ -520,7 +520,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @param support The vote direction (0 = Against, 1 = For)
      * @param reason Optional reason for the vote
      */
-    function castVote(uint256 proposalId, uint8 support, string memory reason) external onlyOwner nonReentrant {
+    function castVote(uint256 proposalId, uint8 support, string calldata reason) external onlyOwner nonReentrant {
         _castVote(proposalId, support, reason);
     }
 

@@ -83,7 +83,7 @@ interface ICompensator {
      * @param support The vote direction (0 = Against, 1 = For)
      * @param reason Optional reason for the vote
      */
-    function castVote(uint256 proposalId, uint8 support, string memory reason) external;
+    function castVote(uint256 proposalId, uint8 support, string calldata reason) external;
 
     /**
      * @notice Allows the owner to cast a vote on a proposal (without reason)
