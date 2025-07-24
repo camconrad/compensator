@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.25;
+pragma solidity 0.8.30;
 
 interface IComp {
     function balanceOf(address account) external view returns (uint256);
