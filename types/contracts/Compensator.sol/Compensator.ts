@@ -57,7 +57,6 @@ export interface CompensatorInterface extends Interface {
       | "getContractVotingPowerAt"
       | "getPendingRewards"
       | "getProposalStake"
-      | "getTotalVotesCast"
       | "getVoteByIndex"
       | "getVoteInfo"
       | "lastRewarded"
@@ -243,10 +242,6 @@ export interface CompensatorInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getProposalStake",
     values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTotalVotesCast",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getVoteByIndex",
@@ -493,10 +488,6 @@ export interface CompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getProposalStake",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTotalVotesCast",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1194,8 +1185,6 @@ export interface Compensator extends BaseContract {
     "view"
   >;
 
-  getTotalVotesCast: TypedContractMethod<[], [bigint], "view">;
-
   getVoteByIndex: TypedContractMethod<
     [voteIndex: BigNumberish],
     [
@@ -1524,9 +1513,6 @@ export interface Compensator extends BaseContract {
     [[bigint, bigint] & { forStake: bigint; againstStake: bigint }],
     "view"
   >;
-  getFunction(
-    nameOrSignature: "getTotalVotesCast"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getVoteByIndex"
   ): TypedContractMethod<

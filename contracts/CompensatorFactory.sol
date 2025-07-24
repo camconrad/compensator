@@ -200,15 +200,6 @@ contract CompensatorFactory {
     }
 
     /**
-     * @notice Gets the Compensator contract address for a given owner
-     * @param owner The owner address
-     * @return The Compensator contract address, or address(0) if none exists
-     */
-    function getCompensator(address owner) external view returns (address) {
-        return ownerToCompensator[owner];
-    }
-
-    /**
      * @notice Gets the original owner of a Compensator contract
      * @param compensator The Compensator contract address
      * @return The original owner address, or address(0) if not found

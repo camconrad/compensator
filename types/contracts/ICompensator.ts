@@ -53,7 +53,6 @@ export interface ICompensatorInterface extends Interface {
       | "castVote(uint256,uint8)"
       | "delegateInfo"
       | "getContractVotingPower"
-      | "getTotalVotesCast"
       | "getVoteByIndex"
       | "getVoteInfo"
   ): FunctionFragment;
@@ -74,10 +73,6 @@ export interface ICompensatorInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getContractVotingPower",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTotalVotesCast",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -103,10 +98,6 @@ export interface ICompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getContractVotingPower",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTotalVotesCast",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -213,8 +204,6 @@ export interface ICompensator extends BaseContract {
 
   getContractVotingPower: TypedContractMethod<[], [bigint], "view">;
 
-  getTotalVotesCast: TypedContractMethod<[], [bigint], "view">;
-
   getVoteByIndex: TypedContractMethod<
     [voteIndex: BigNumberish],
     [
@@ -268,9 +257,6 @@ export interface ICompensator extends BaseContract {
   ): TypedContractMethod<[], [ICompensator.DelegateInfoStructOutput], "view">;
   getFunction(
     nameOrSignature: "getContractVotingPower"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getTotalVotesCast"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getVoteByIndex"

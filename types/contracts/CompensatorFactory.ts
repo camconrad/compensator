@@ -32,7 +32,6 @@ export interface CompensatorFactoryInterface extends Interface {
       | "compensators"
       | "createCompensator"
       | "createCompensatorForSelf"
-      | "getCompensator"
       | "getCompensators"
       | "getCompensatorsCount"
       | "getOriginalOwner"
@@ -70,10 +69,6 @@ export interface CompensatorFactoryInterface extends Interface {
   encodeFunctionData(
     functionFragment: "createCompensatorForSelf",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCompensator",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getCompensators",
@@ -119,10 +114,6 @@ export interface CompensatorFactoryInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "createCompensatorForSelf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCompensator",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -249,8 +240,6 @@ export interface CompensatorFactory extends BaseContract {
 
   createCompensatorForSelf: TypedContractMethod<[], [string], "nonpayable">;
 
-  getCompensator: TypedContractMethod<[owner: AddressLike], [string], "view">;
-
   getCompensators: TypedContractMethod<
     [offset: BigNumberish, limit: BigNumberish],
     [string[]],
@@ -301,9 +290,6 @@ export interface CompensatorFactory extends BaseContract {
   getFunction(
     nameOrSignature: "createCompensatorForSelf"
   ): TypedContractMethod<[], [string], "nonpayable">;
-  getFunction(
-    nameOrSignature: "getCompensator"
-  ): TypedContractMethod<[owner: AddressLike], [string], "view">;
   getFunction(
     nameOrSignature: "getCompensators"
   ): TypedContractMethod<

@@ -141,12 +141,6 @@ interface ICompensator {
     );
 
     /**
-     * @notice Returns the total number of votes cast by the contract
-     * @return The total number of votes cast
-     */
-    function getTotalVotesCast() external view returns (uint256);
-
-    /**
      * @notice Returns the delegate performance information
      * @return The delegate performance struct
      */

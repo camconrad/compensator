@@ -438,14 +438,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Returns the total number of votes cast by the contract
-     * @return The total number of votes cast
-     */
-    function getTotalVotesCast() external view returns (uint256) {
-        return voteCount;
-    }
-
-    /**
      * @notice Returns a delegator's stakes for a specific proposal
      * @param proposalId The ID of the proposal
      * @param delegator The address of the delegator

@@ -41,7 +41,7 @@ describe("Ownership Transfer Fix", function () {
             expect(await compensatorFactory.ownerToCompensator(owner.address)).to.equal(compensator.target);
             expect(await compensatorFactory.compensatorToOriginalOwner(compensator.target)).to.equal(owner.address);
             expect(await compensatorFactory.hasCompensator(owner.address)).to.be.true;
-            expect(await compensatorFactory.getCompensator(owner.address)).to.equal(compensator.target);
+            expect(await compensatorFactory.ownerToCompensator(owner.address)).to.equal(compensator.target);
         });
 
         it("Should prevent creating multiple compensators for the same owner", async function () {
@@ -68,7 +68,7 @@ describe("Ownership Transfer Fix", function () {
             // Verify helper functions work correctly
             expect(await compensatorFactory.hasCompensator(owner.address)).to.be.false;
             expect(await compensatorFactory.hasCompensator(newOwner.address)).to.be.true;
-            expect(await compensatorFactory.getCompensator(newOwner.address)).to.equal(compensator.target);
+            expect(await compensatorFactory.ownerToCompensator(newOwner.address)).to.equal(compensator.target);
         });
 
         it("Should emit correct events during ownership transfer", async function () {
