@@ -1375,7 +1375,7 @@ export interface Compensator extends BaseContract {
   voteCount: TypedContractMethod<[], [bigint], "view">;
 
   voteIndexToProposalId: TypedContractMethod<
-    [arg0: BigNumberish],
+    [voteIndex: BigNumberish],
     [bigint],
     "view"
   >;
@@ -1679,7 +1679,7 @@ export interface Compensator extends BaseContract {
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "voteIndexToProposalId"
-  ): TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
+  ): TypedContractMethod<[voteIndex: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "voteInfo"
   ): TypedContractMethod<

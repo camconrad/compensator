@@ -176,7 +176,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     mapping(uint256 proposalId => VoteInfo voteInfo) public voteInfo;
 
     /// @notice Mapping to track proposal IDs by vote index (for enumeration)
-    mapping(uint256 => uint256) public voteIndexToProposalId;
+    mapping(uint256 voteIndex => uint256 proposalId) public voteIndexToProposalId;
     uint256 public voteCount;
 
     /// @notice Mapping to track delegate performance
