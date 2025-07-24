@@ -476,7 +476,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         require(msg.sender == owner(), "Only owner can withdraw");
         require(amount > 0, "Amount must be greater than 0");
         
-        // Cache frequently accessed storage variables
+        // Effects - Update rewards index FIRST to ensure accurate accounting
+        _updateRewardsIndex();
+        
+        // Cache frequently accessed storage variables AFTER updating rewards
         uint256 currentAvailableRewards = availableRewards;
         uint256 currentTotalPendingRewards = totalPendingRewards;
         address currentOwner = owner();
@@ -484,9 +487,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint256 withdrawableAmount = currentAvailableRewards - currentTotalPendingRewards;
         require(amount <= withdrawableAmount, "Amount exceeds available rewards");
         
-        // Effects
-        _updateRewardsIndex();
-        require(currentAvailableRewards >= amount, "Insufficient available rewards");
+        // Update available rewards
         availableRewards = currentAvailableRewards - amount;
         
         // Interactions

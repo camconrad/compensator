@@ -31,12 +31,16 @@ export interface MockERC20Interface extends Interface {
       | "balanceOf"
       | "burn"
       | "decimals"
+      | "delegate"
+      | "delegates"
+      | "getCurrentVotes"
       | "mint"
       | "name"
       | "symbol"
       | "totalSupply"
       | "transfer"
       | "transferFrom"
+      | "votingPower"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "Approval" | "Transfer"): EventFragment;
@@ -59,6 +63,18 @@ export interface MockERC20Interface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "delegate",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "delegates",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCurrentVotes",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "mint",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -76,12 +92,22 @@ export interface MockERC20Interface extends Interface {
     functionFragment: "transferFrom",
     values: [AddressLike, AddressLike, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "votingPower",
+    values: [AddressLike]
+  ): string;
 
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "delegate", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "delegates", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getCurrentVotes",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
@@ -92,6 +118,10 @@ export interface MockERC20Interface extends Interface {
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "votingPower",
     data: BytesLike
   ): Result;
 }
@@ -197,6 +227,16 @@ export interface MockERC20 extends BaseContract {
 
   decimals: TypedContractMethod<[], [bigint], "view">;
 
+  delegate: TypedContractMethod<[delegatee: AddressLike], [void], "nonpayable">;
+
+  delegates: TypedContractMethod<[arg0: AddressLike], [string], "view">;
+
+  getCurrentVotes: TypedContractMethod<
+    [account: AddressLike],
+    [bigint],
+    "view"
+  >;
+
   mint: TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
     [void],
@@ -220,6 +260,8 @@ export interface MockERC20 extends BaseContract {
     [boolean],
     "nonpayable"
   >;
+
+  votingPower: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -253,6 +295,15 @@ export interface MockERC20 extends BaseContract {
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "delegate"
+  ): TypedContractMethod<[delegatee: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "delegates"
+  ): TypedContractMethod<[arg0: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getCurrentVotes"
+  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "mint"
   ): TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
@@ -282,6 +333,9 @@ export interface MockERC20 extends BaseContract {
     [boolean],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "votingPower"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   getEvent(
     key: "Approval"

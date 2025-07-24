@@ -21,6 +21,9 @@ describe("Compensator", function () {
     compToken = await MockToken.deploy("COMP", "COMP");
     await compToken.waitForDeployment();
     
+    // Mint initial supply to ensure totalSupply > 0 for Compensator constructor
+    await compToken.mint(delegate.address, ethers.parseEther("1000000")); // 1M COMP initial supply
+    
     const MockGovernor = await ethers.getContractFactory("MockGovernor");
     compoundGovernor = await MockGovernor.deploy();
     await compoundGovernor.waitForDeployment();
@@ -28,17 +31,13 @@ describe("Compensator", function () {
     // Deploy Compensator contract with mock addresses
     const CompensatorFactory = await ethers.getContractFactory("Compensator");
     compensator = await CompensatorFactory.deploy(
-      await delegate.getAddress(),
-      "Test Delegate",
       await compToken.getAddress(),
       await compoundGovernor.getAddress(),
-      await voteRecorder.getAddress(),
-      await delegate.getAddress() // factory address
+      await delegate.getAddress() // owner address
     );
     await compensator.waitForDeployment();
     
-    // Fund accounts for testing
-    await compToken.mint(delegate.address, ethers.parseEther("10000"));
+    // Fund additional accounts for testing
     await compToken.mint(delegator1.address, ethers.parseEther("10000"));
     await compToken.mint(delegator2.address, ethers.parseEther("10000"));
     await compToken.mint(delegator3.address, ethers.parseEther("10000"));
@@ -63,7 +62,7 @@ describe("Compensator", function () {
       // Setup: Delegate deposits rewards and sets reward rate
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("100"));
-      await compensator.connect(delegate).delegateDeposit(ethers.parseEther("100"));
+      await compensator.connect(delegate).ownerDeposit(ethers.parseEther("100"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
     });
 
@@ -86,7 +85,7 @@ describe("Compensator", function () {
         // Setup delegator to create deficit
         const compensatorAddress = await compensator.getAddress();
         await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
-        await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+        await compensator.connect(delegator1).userDeposit(ethers.parseEther("100"));
         
         // Advance time to create deficit
         await ethers.provider.send("evm_increaseTime", [200]); // 200 seconds
@@ -104,14 +103,14 @@ describe("Compensator", function () {
         // Setup delegator
         const compensatorAddress = await compensator.getAddress();
         await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
-        await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+        await compensator.connect(delegator1).userDeposit(ethers.parseEther("100"));
         
         // Create deficit
         await ethers.provider.send("evm_increaseTime", [100]); // 100 seconds deficit
         await ethers.provider.send("evm_mine");
         
         // Add more rewards
-        await compensator.connect(delegate).delegateDeposit(ethers.parseEther("50"));
+        await compensator.connect(delegate).ownerDeposit(ethers.parseEther("50"));
         
         // Get rewardsUntil
         const rewardsUntil = await compensator.rewardsUntil();
@@ -125,7 +124,7 @@ describe("Compensator", function () {
         // Setup delegator
         const compensatorAddress = await compensator.getAddress();
         await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
-        await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+        await compensator.connect(delegator1).userDeposit(ethers.parseEther("100"));
         
         // Create deficit
         await ethers.provider.send("evm_increaseTime", [100]); // 100 seconds deficit
@@ -144,7 +143,7 @@ describe("Compensator", function () {
       // Setup delegator with tokens
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
-      await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+      await compensator.connect(delegator1).userDeposit(ethers.parseEther("100"));
       
       // Advance time to accumulate rewards
       await ethers.provider.send("evm_increaseTime", [10]);
@@ -176,7 +175,7 @@ describe("Compensator", function () {
       
       // Approve and deposit
       await compToken.connect(delegate).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegate).delegateDeposit(depositAmount);
+      await compensator.connect(delegate).ownerDeposit(depositAmount);
       
       // Check final balances
       const finalDelegateBalance = await compToken.balanceOf(delegate.address);
@@ -191,7 +190,7 @@ describe("Compensator", function () {
       const depositAmount = ethers.parseEther("100");
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegate).delegateDeposit(depositAmount);
+      await compensator.connect(delegate).ownerDeposit(depositAmount);
       
       // Then withdraw a portion
       const withdrawAmount = ethers.parseEther("50");
@@ -201,7 +200,7 @@ describe("Compensator", function () {
       const initialCompensatorBalance = await compToken.balanceOf(compensatorAddress);
       
       // Withdraw
-      await compensator.connect(delegate).delegateWithdraw(withdrawAmount);
+      await compensator.connect(delegate).ownerWithdraw(withdrawAmount);
       
       // Check final balances
       const finalDelegateBalance = await compToken.balanceOf(delegate.address);
@@ -216,12 +215,12 @@ describe("Compensator", function () {
       const depositAmount = ethers.parseEther("100");
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegate).delegateDeposit(depositAmount);
+      await compensator.connect(delegate).ownerDeposit(depositAmount);
       
       // Try to withdraw more than available
       const withdrawAmount = ethers.parseEther("101");
       await expect(
-        compensator.connect(delegate).delegateWithdraw(withdrawAmount)
+        compensator.connect(delegate).ownerWithdraw(withdrawAmount)
       ).to.be.revertedWith("Amount exceeds available rewards");
     });
   });
@@ -231,7 +230,7 @@ describe("Compensator", function () {
       // Setup: Delegate deposits rewards and sets reward rate
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
-      await compensator.connect(delegate).delegateDeposit(ethers.parseEther("1000"));
+      await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
     });
 
@@ -363,7 +362,7 @@ describe("Compensator", function () {
       // Setup: Delegate deposits rewards and sets reward rate
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
-      await compensator.connect(delegate).delegateDeposit(ethers.parseEther("1000"));
+      await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
     });
 
@@ -372,11 +371,11 @@ describe("Compensator", function () {
       const compensatorAddress = await compensator.getAddress();
       
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Try to withdraw before lock period
       await expect(
-        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+        compensator.connect(delegator1).userWithdraw(depositAmount)
       ).to.be.revertedWith("COMP is locked");
       
       // Advance time to just before lock period
@@ -385,7 +384,7 @@ describe("Compensator", function () {
       
       // Should still be locked
       await expect(
-        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+        compensator.connect(delegator1).userWithdraw(depositAmount)
       ).to.be.revertedWith("COMP is locked");
       
       // Advance time past lock period
@@ -394,7 +393,7 @@ describe("Compensator", function () {
       
       // Should be able to withdraw
       await expect(
-        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+        compensator.connect(delegator1).userWithdraw(depositAmount)
       ).to.not.be.reverted;
     });
 
@@ -408,7 +407,7 @@ describe("Compensator", function () {
       await compoundGovernor.mock.proposalSnapshot.returns(block.number + 1000);
       
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Advance time past minimum lock period
       await ethers.provider.send("evm_increaseTime", [8 * 24 * 3600]); // 8 days
@@ -416,7 +415,7 @@ describe("Compensator", function () {
       
       // Should still be locked due to active proposal
       await expect(
-        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+        compensator.connect(delegator1).userWithdraw(depositAmount)
       ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
     });
 
@@ -431,7 +430,7 @@ describe("Compensator", function () {
       await compoundGovernor.mock.state.withArgs(mockProposalId2).returns(1); // Active
       
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Advance time past minimum lock period
       await ethers.provider.send("evm_increaseTime", [8 * 24 * 3600]); // 8 days
@@ -439,7 +438,7 @@ describe("Compensator", function () {
       
       // Should still be locked due to active proposals
       await expect(
-        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+        compensator.connect(delegator1).userWithdraw(depositAmount)
       ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
     });
 
@@ -453,7 +452,7 @@ describe("Compensator", function () {
       await compoundGovernor.mock.proposalSnapshot.returns(block.number + 1000);
       
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Advance time past minimum lock period
       await ethers.provider.send("evm_increaseTime", [8 * 24 * 3600]); // 8 days
@@ -461,7 +460,7 @@ describe("Compensator", function () {
       
       // Should still be locked due to pending proposal
       await expect(
-        compensator.connect(delegator1).delegatorWithdraw(depositAmount)
+        compensator.connect(delegator1).userWithdraw(depositAmount)
       ).to.be.revertedWith("Cannot withdraw during active or pending proposals");
     });
   });
@@ -471,11 +470,11 @@ describe("Compensator", function () {
       const compensatorAddress = await compensator.getAddress();
       
       await expect(
-        compensator.connect(delegator1).delegatorDeposit(0)
+        compensator.connect(delegator1).userDeposit(0)
       ).to.be.revertedWith("Amount must be greater than 0");
       
       await expect(
-        compensator.connect(delegator1).delegatorWithdraw(0)
+        compensator.connect(delegator1).userWithdraw(0)
       ).to.be.revertedWith("Amount must be greater than 0");
     });
 
@@ -486,15 +485,15 @@ describe("Compensator", function () {
       // Try to deposit more than cap
       await compToken.connect(delegator1).approve(compensatorAddress, cap + 1);
       await expect(
-        compensator.connect(delegator1).delegatorDeposit(cap + 1)
+        compensator.connect(delegator1).userDeposit(cap + 1)
       ).to.be.revertedWith("Delegation cap exceeded");
       
       // Deposit up to cap
-      await compensator.connect(delegator1).delegatorDeposit(cap);
+      await compensator.connect(delegator1).userDeposit(cap);
       
       // Try to deposit more
       await expect(
-        compensator.connect(delegator1).delegatorDeposit(1)
+        compensator.connect(delegator1).userDeposit(1)
       ).to.be.revertedWith("Delegation cap exceeded");
     });
 
@@ -504,7 +503,7 @@ describe("Compensator", function () {
       
       // Setup initial deposit
       await compToken.connect(delegator1).approve(compensatorAddress, depositAmount);
-      await compensator.connect(delegator1).delegatorDeposit(depositAmount);
+      await compensator.connect(delegator1).userDeposit(depositAmount);
       
       // Set initial reward rate
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
@@ -597,7 +596,7 @@ describe("Compensator", function () {
       // Setup: Delegate deposits rewards and sets reward rate
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("10000"));
-      await compensator.connect(delegate).delegateDeposit(ethers.parseEther("10000"));
+      await compensator.connect(delegate).ownerDeposit(ethers.parseEther("10000"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("10"));
     });
     
@@ -606,7 +605,7 @@ describe("Compensator", function () {
       
       // Delegator 1 deposits 100 tokens
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
-      await compensator.connect(delegator1).delegatorDeposit(ethers.parseEther("100"));
+      await compensator.connect(delegator1).userDeposit(ethers.parseEther("100"));
       
       // Advance time (10 seconds)
       await ethers.provider.send("evm_increaseTime", [10]);
@@ -614,7 +613,7 @@ describe("Compensator", function () {
       
       // Delegator 2 deposits 300 tokens (3x more than delegator1)
       await compToken.connect(delegator2).approve(compensatorAddress, ethers.parseEther("300"));
-      await compensator.connect(delegator2).delegatorDeposit(ethers.parseEther("300"));
+      await compensator.connect(delegator2).userDeposit(ethers.parseEther("300"));
       
       // Advance time (10 more seconds)
       await ethers.provider.send("evm_increaseTime", [10]);
@@ -647,7 +646,7 @@ describe("Compensator", function () {
       // Setup: Delegate deposits rewards and sets reward rate
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
-      await compensator.connect(delegate).delegateDeposit(ethers.parseEther("1000"));
+      await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
       await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
     });
 
@@ -774,15 +773,15 @@ describe("Compensator", function () {
   });
 
   describe("Access Control", function () {
-    it("Only delegate can call delegateDeposit", async function () {
+    it("Only delegate can call ownerDeposit", async function () {
       const { compensator, delegate, otherAccount } = await loadFixture(deployCompensatorFixture);
-      await expect(compensator.connect(otherAccount).delegateDeposit(100))
+      await expect(compensator.connect(otherAccount).ownerDeposit(100))
         .to.be.revertedWith("Only delegate can deposit");
     });
 
-    it("Only delegate can call delegateWithdraw", async function () {
+    it("Only delegate can call ownerWithdraw", async function () {
       const { compensator, delegate, otherAccount } = await loadFixture(deployCompensatorFixture);
-      await expect(compensator.connect(otherAccount).delegateWithdraw(100))
+      await expect(compensator.connect(otherAccount).ownerWithdraw(100))
         .to.be.revertedWith("Only delegate can withdraw");
     });
 
@@ -792,20 +791,20 @@ describe("Compensator", function () {
         .to.be.revertedWith("Only delegate can set reward rate");
     });
 
-    it("Delegate can call delegateDeposit", async function () {
+    it("Delegate can call ownerDeposit", async function () {
       const { compensator, delegate, compToken } = await loadFixture(deployCompensatorFixture);
       await compToken.mint(delegate.address, 100);
       await compToken.connect(delegate).approve(compensator.address, 100);
-      await expect(compensator.connect(delegate).delegateDeposit(100))
+      await expect(compensator.connect(delegate).ownerDeposit(100))
         .to.not.be.reverted;
     });
 
-    it("Delegate can call delegateWithdraw", async function () {
+    it("Delegate can call ownerWithdraw", async function () {
       const { compensator, delegate, compToken } = await loadFixture(deployCompensatorFixture);
       await compToken.mint(delegate.address, 100);
       await compToken.connect(delegate).approve(compensator.address, 100);
-      await compensator.connect(delegate).delegateDeposit(100);
-      await expect(compensator.connect(delegate).delegateWithdraw(50))
+      await compensator.connect(delegate).ownerDeposit(100);
+      await expect(compensator.connect(delegate).ownerWithdraw(50))
         .to.not.be.reverted;
     });
 
