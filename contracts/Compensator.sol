@@ -175,8 +175,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice Mapping to track vote information for each proposal
     mapping(uint256 proposalId => VoteInfo voteInfo) public voteInfo;
 
-    /// @notice Mapping to track all votes cast by the contract (for transparency)
-    mapping(uint256 => VoteInfo) public allVotes;
+    /// @notice Mapping to track proposal IDs by vote index (for enumeration)
+    mapping(uint256 => uint256) public voteIndexToProposalId;
     uint256 public voteCount;
 
     /// @notice Mapping to track delegate performance
@@ -247,14 +247,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
     /// @notice Emitted when a vote is cast
     event VoteCast(
-        uint256 indexed proposalId,
-        uint8 support,
-        uint256 blockNumber,
-        bytes32 txHash
-    );
-
-    /// @notice Emitted when a vote is cast with reason
-    event VoteCastWithReason(
         uint256 indexed proposalId,
         uint8 support,
         uint256 blockNumber,
@@ -411,7 +403,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
     /**
      * @notice Returns the vote information for a specific vote by index
-     * @param voteIndex The index of the vote in the allVotes array
+     * @param voteIndex The index of the vote in the vote tracking array
      * @return direction The vote direction (0 = Against, 1 = For)
      * @return blockNumber The block number when the vote was cast
      * @return txHash The transaction hash of the vote
@@ -428,7 +420,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         string memory reason
     ) {
         require(voteIndex < voteCount, "Vote index out of bounds");
-        VoteInfo memory info = allVotes[voteIndex];
+        uint256 proposalId = voteIndexToProposalId[voteIndex];
+        VoteInfo memory info = voteInfo[proposalId];
         return (info.direction, info.blockNumber, info.txHash, info.timestamp, info.votingPower, info.reason);
     }
 
@@ -460,9 +453,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @dev Updates reward index before increasing available rewards
      * @param amount The amount of COMP to deposit
      */
-    function ownerDeposit(uint256 amount) external nonReentrant {
+    function ownerDeposit(uint256 amount) external onlyOwner nonReentrant {
         // Checks
-        require(msg.sender == owner(), "Only owner can deposit");
         require(amount > 0, "Amount must be greater than 0");
         
         // Effects
@@ -480,11 +472,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @dev Ensures sufficient funds remain for pending rewards before withdrawal
      * @param amount The amount of COMP to withdraw
      */
-    function ownerWithdraw(uint256 amount) external nonReentrant {
-        // Checks
-        require(msg.sender == owner(), "Only owner can withdraw");
-        require(amount > 0, "Amount must be greater than 0");
-        
+    function ownerWithdraw(uint256 amount) external onlyOwner nonReentrant {
         // Effects - Update rewards index FIRST to ensure accurate accounting
         _updateRewardsIndex();
         
@@ -510,9 +498,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @dev Updates reward index before changing rate to ensure proper accounting
      * @param newRate The new reward rate in COMP per second
      */
-    function setRewardRate(uint256 newRate) external nonReentrant {
+    function setRewardRate(uint256 newRate) external onlyOwner {
         // Checks
-        require(msg.sender == owner(), "Only owner can set reward rate");
         require(newRate >= 0, "Reward rate must be non-negative");
         require(newRate != rewardRate, "New rate must be different from current rate");
         
@@ -533,7 +520,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @param support The vote direction (0 = Against, 1 = For)
      * @param reason Optional reason for the vote
      */
-    function castVote(uint256 proposalId, uint8 support, string memory reason) external nonReentrant {
+    function castVote(uint256 proposalId, uint8 support, string memory reason) external onlyOwner nonReentrant {
         _castVote(proposalId, support, reason);
     }
 
@@ -543,13 +530,12 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @param proposalId The ID of the proposal to vote on
      * @param support The vote direction (0 = Against, 1 = For)
      */
-    function castVote(uint256 proposalId, uint8 support) external nonReentrant {
+    function castVote(uint256 proposalId, uint8 support) external onlyOwner nonReentrant {
         _castVote(proposalId, support, "");
     }
 
     function _castVote(uint256 proposalId, uint8 support, string memory reason) internal {
         // Checks
-        require(msg.sender == owner(), "Only owner can cast votes");
         require(support <= 1, "Invalid support value");
         require(!contractVoted[proposalId], "Already voted on this proposal");
         
@@ -580,8 +566,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         
         voteInfo[proposalId] = newVote;
         
-        // Add to all votes tracking
-        allVotes[voteCount] = newVote;
+        // Add to vote index tracking
+        voteIndexToProposalId[voteCount] = proposalId;
         voteCount++;
         
         // Update delegate performance metrics
@@ -594,14 +580,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         
         // Update the transaction hash after the vote
         voteInfo[proposalId].txHash = blockhash(block.number - 1);
-        allVotes[voteCount - 1].txHash = voteInfo[proposalId].txHash;
         
-        emit VoteCast(proposalId, support, block.number, voteInfo[proposalId].txHash);
-        
-        // Emit additional event with reason if provided
-        if (bytes(reason).length > 0) {
-            emit VoteCastWithReason(proposalId, support, block.number, voteInfo[proposalId].txHash, votingPower, reason);
-        }
+        emit VoteCast(proposalId, support, block.number, voteInfo[proposalId].txHash, votingPower, reason);
     }
 
     // Delegator functions
@@ -709,9 +689,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
         // Effects
         _updateLatestProposalId(proposalId);
-        if (proposalCreationTime[proposalId] == 0) {
-            proposalCreationTime[proposalId] = block.timestamp;
-        }
 
         if (support == 1) {
             proposalStakes[proposalId][msg.sender].forStake += uint128(amount);
@@ -757,53 +734,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
                 winningSupport = 0; // Against won (includes Defeated, Expired, Canceled)
             }
 
-            proposalOutcomes[proposalId] = winningSupport == 1 ? ProposalOutcome.ForWon : ProposalOutcome.AgainstWon;
-            
-            // Verify if the delegate voted correctly
-            bool delegateVotedCorrectly = contractVoted[proposalId] && 
-                                        contractVoteDirection[proposalId] == winningSupport;
-
-            if (delegateVotedCorrectly) {
-                // Delegate voted correctly - 100% of winning stakes go to delegate
-                if (winningSupport == 1) {
-                    // FOR won
-                    if (totalStakesFor[proposalId] > 0) {
-                        // 100% of winning FOR stakes go to the delegate
-                        COMP_TOKEN.transfer(owner(), totalStakesFor[proposalId]);
-                        delegateInfo.successfulVotes += 1;
-                        delegateInfo.totalRewardsEarned += totalStakesFor[proposalId];
-                    }
-                    // Losing AGAINST stakes are returned to delegators in reclaimStake
-                } else {
-                    // AGAINST won
-                    if (totalStakesAgainst[proposalId] > 0) {
-                        // 100% of winning AGAINST stakes go to the delegate
-                        COMP_TOKEN.transfer(owner(), totalStakesAgainst[proposalId]);
-                        delegateInfo.successfulVotes += 1;
-                        delegateInfo.totalRewardsEarned += totalStakesAgainst[proposalId];
-                    }
-                    // Losing FOR stakes are returned to delegators in reclaimStake
-                }
-            } else {
-                // Delegate didn't vote or voted wrong
-                // All stakes are returned to delegators in reclaimStake
-                if (totalStakesFor[proposalId] > 0) {
-                    COMP_TOKEN.transfer(address(this), totalStakesFor[proposalId]);
-                }
-                if (totalStakesAgainst[proposalId] > 0) {
-                    COMP_TOKEN.transfer(address(this), totalStakesAgainst[proposalId]);
-                }
-            }
-
-            // Update delegate's total votes
-            delegateInfo.totalVotes += 1;
-            
-            emit DelegatePerformanceUpdated(
-                delegateInfo.successfulVotes,
-                delegateInfo.totalVotes,
-                delegateInfo.totalRewardsEarned
-            );
-            emit ProposalStakeDistributed(proposalId, winningSupport);
+            _resolveProposalInternal(proposalId, winningSupport, false);
         } catch {
             revert("Invalid proposal ID");
         }
@@ -861,34 +792,69 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // If proposal is still active/pending after timeout, consider it defeated
         if (state == IGovernor.ProposalState.Active || 
             state == IGovernor.ProposalState.Pending) {
-            proposalOutcomes[proposalId] = ProposalOutcome.AgainstWon;
-            
-            // Transfer winning stakes to the contract if it voted correctly
-            if (contractVoted[proposalId] && contractVoteDirection[proposalId] == 0) {
-                if (totalStakesAgainst[proposalId] > 0) {
-                    // 100% of winning AGAINST stakes go to the delegate
-                    COMP_TOKEN.transfer(owner(), totalStakesAgainst[proposalId]);
-                }
-            }
-            
-            emit ProposalAutoResolved(proposalId, 0);
+            _resolveProposalInternal(proposalId, 0, true);
         } else {
             // Otherwise, resolve based on actual state
             uint8 winningSupport = (state == IGovernor.ProposalState.Succeeded || 
                                   state == IGovernor.ProposalState.Executed) ? 1 : 0;
-            proposalOutcomes[proposalId] = winningSupport == 1 ? ProposalOutcome.ForWon : ProposalOutcome.AgainstWon;
-            
-            // Transfer winning stakes to the contract if it voted correctly
-            if (contractVoted[proposalId] && contractVoteDirection[proposalId] == winningSupport) {
-                if (winningSupport == 1 && totalStakesFor[proposalId] > 0) {
+            _resolveProposalInternal(proposalId, winningSupport, true);
+        }
+    }
+
+    /**
+     * @notice Internal function to resolve a proposal and distribute stakes
+     * @param proposalId The ID of the proposal to resolve
+     * @param winningSupport The winning support (0 = Against, 1 = For)
+     * @param isAutoResolved Whether this is an auto-resolution
+     */
+    function _resolveProposalInternal(uint256 proposalId, uint8 winningSupport, bool isAutoResolved) internal {
+        proposalOutcomes[proposalId] = winningSupport == 1 ? ProposalOutcome.ForWon : ProposalOutcome.AgainstWon;
+        
+        // Verify if the delegate voted correctly
+        bool delegateVotedCorrectly = contractVoted[proposalId] && 
+                                    contractVoteDirection[proposalId] == winningSupport;
+
+        if (delegateVotedCorrectly) {
+            // Delegate voted correctly - 100% of winning stakes go to delegate
+            if (winningSupport == 1) {
+                // FOR won
+                if (totalStakesFor[proposalId] > 0) {
                     // 100% of winning FOR stakes go to the delegate
                     COMP_TOKEN.transfer(owner(), totalStakesFor[proposalId]);
-                } else if (winningSupport == 0 && totalStakesAgainst[proposalId] > 0) {
+                    if (!isAutoResolved) {
+                        delegateInfo.successfulVotes += 1;
+                        delegateInfo.totalRewardsEarned += totalStakesFor[proposalId];
+                    }
+                }
+                // Losing AGAINST stakes are returned to delegators in reclaimStake
+            } else {
+                // AGAINST won
+                if (totalStakesAgainst[proposalId] > 0) {
                     // 100% of winning AGAINST stakes go to the delegate
                     COMP_TOKEN.transfer(owner(), totalStakesAgainst[proposalId]);
+                    if (!isAutoResolved) {
+                        delegateInfo.successfulVotes += 1;
+                        delegateInfo.totalRewardsEarned += totalStakesAgainst[proposalId];
+                    }
                 }
+                // Losing FOR stakes are returned to delegators in reclaimStake
             }
+        } else {
+            // Delegate didn't vote or voted wrong
+            // All stakes remain in the contract and are returned to delegators via reclaimStake
+        }
+
+        if (!isAutoResolved) {
+            // Update delegate's total votes
+            delegateInfo.totalVotes += 1;
             
+            emit DelegatePerformanceUpdated(
+                delegateInfo.successfulVotes,
+                delegateInfo.totalVotes,
+                delegateInfo.totalRewardsEarned
+            );
+            emit ProposalStakeDistributed(proposalId, winningSupport);
+        } else {
             emit ProposalAutoResolved(proposalId, winningSupport);
         }
     }
@@ -1068,11 +1034,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     function _getCurrentRewardsIndex() private view returns (uint256) {
         // Cache frequently accessed storage variables
         uint256 currentAvailableRewards = availableRewards;
-        uint256 currentTotalPendingRewards = totalPendingRewards;
         uint256 currentRewardIndex = rewardIndex;
         uint256 currentRewardRate = rewardRate;
         
-        if (currentAvailableRewards <= currentTotalPendingRewards) {
+        if (currentAvailableRewards <= totalPendingRewards) {
             return currentRewardIndex;
         }
         
@@ -1081,7 +1046,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint256 supply = totalSupply();
         
         // Cap rewards to remaining available funds
-        uint256 remainingRewards = currentAvailableRewards - currentTotalPendingRewards;
+        uint256 remainingRewards = currentAvailableRewards - totalPendingRewards;
         uint256 actualRewards = potentialRewards > remainingRewards 
             ? remainingRewards 
             : potentialRewards;

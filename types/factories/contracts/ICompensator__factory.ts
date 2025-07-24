@@ -36,37 +36,6 @@ const _abi = [
         name: "txHash",
         type: "bytes32",
       },
-    ],
-    name: "VoteCast",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "proposalId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "support",
-        type: "uint8",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "blockNumber",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "txHash",
-        type: "bytes32",
-      },
       {
         indexed: false,
         internalType: "uint256",
@@ -80,7 +49,7 @@ const _abi = [
         type: "string",
       },
     ],
-    name: "VoteCastWithReason",
+    name: "VoteCast",
     type: "event",
   },
   {

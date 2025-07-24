@@ -58,9 +58,7 @@ export interface ICompensatorInterface extends Interface {
       | "getVoteInfo"
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic: "VoteCast" | "VoteCastWithReason"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VoteCast"): EventFragment;
 
   encodeFunctionData(
     functionFragment: "castVote(uint256,uint8,string)",
@@ -122,31 +120,6 @@ export interface ICompensatorInterface extends Interface {
 }
 
 export namespace VoteCastEvent {
-  export type InputTuple = [
-    proposalId: BigNumberish,
-    support: BigNumberish,
-    blockNumber: BigNumberish,
-    txHash: BytesLike
-  ];
-  export type OutputTuple = [
-    proposalId: bigint,
-    support: bigint,
-    blockNumber: bigint,
-    txHash: string
-  ];
-  export interface OutputObject {
-    proposalId: bigint;
-    support: bigint;
-    blockNumber: bigint;
-    txHash: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace VoteCastWithReasonEvent {
   export type InputTuple = [
     proposalId: BigNumberish,
     support: BigNumberish,
@@ -339,16 +312,9 @@ export interface ICompensator extends BaseContract {
     VoteCastEvent.OutputTuple,
     VoteCastEvent.OutputObject
   >;
-  getEvent(
-    key: "VoteCastWithReason"
-  ): TypedContractEvent<
-    VoteCastWithReasonEvent.InputTuple,
-    VoteCastWithReasonEvent.OutputTuple,
-    VoteCastWithReasonEvent.OutputObject
-  >;
 
   filters: {
-    "VoteCast(uint256,uint8,uint256,bytes32)": TypedContractEvent<
+    "VoteCast(uint256,uint8,uint256,bytes32,uint256,string)": TypedContractEvent<
       VoteCastEvent.InputTuple,
       VoteCastEvent.OutputTuple,
       VoteCastEvent.OutputObject
@@ -357,17 +323,6 @@ export interface ICompensator extends BaseContract {
       VoteCastEvent.InputTuple,
       VoteCastEvent.OutputTuple,
       VoteCastEvent.OutputObject
-    >;
-
-    "VoteCastWithReason(uint256,uint8,uint256,bytes32,uint256,string)": TypedContractEvent<
-      VoteCastWithReasonEvent.InputTuple,
-      VoteCastWithReasonEvent.OutputTuple,
-      VoteCastWithReasonEvent.OutputObject
-    >;
-    VoteCastWithReason: TypedContractEvent<
-      VoteCastWithReasonEvent.InputTuple,
-      VoteCastWithReasonEvent.OutputTuple,
-      VoteCastWithReasonEvent.OutputObject
     >;
   };
 }

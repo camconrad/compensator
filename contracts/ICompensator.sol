@@ -68,14 +68,6 @@ interface ICompensator {
         uint256 indexed proposalId,
         uint8 support,
         uint256 blockNumber,
-        bytes32 txHash
-    );
-
-    /// @notice Emitted when a vote is cast with reason
-    event VoteCastWithReason(
-        uint256 indexed proposalId,
-        uint8 support,
-        uint256 blockNumber,
         bytes32 txHash,
         uint256 votingPower,
         string reason
@@ -131,7 +123,7 @@ interface ICompensator {
 
     /**
      * @notice Returns the vote information for a specific vote by index
-     * @param voteIndex The index of the vote in the allVotes array
+     * @param voteIndex The index of the vote in the vote tracking array
      * @return direction The vote direction (0 = Against, 1 = For)
      * @return blockNumber The block number when the vote was cast
      * @return txHash The transaction hash of the vote

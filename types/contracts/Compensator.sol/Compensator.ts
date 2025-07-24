@@ -36,7 +36,6 @@ export interface CompensatorInterface extends Interface {
       | "MIN_LOCK_PERIOD"
       | "REWARD_PRECISION"
       | "activeProposals"
-      | "allVotes"
       | "allowance"
       | "approve"
       | "availableRewards"
@@ -91,6 +90,7 @@ export interface CompensatorInterface extends Interface {
       | "userDeposit"
       | "userWithdraw"
       | "voteCount"
+      | "voteIndexToProposalId"
       | "voteInfo"
   ): FunctionFragment;
 
@@ -120,7 +120,6 @@ export interface CompensatorInterface extends Interface {
       | "UserRewardsUpdated"
       | "UserWithdraw"
       | "VoteCast"
-      | "VoteCastWithReason"
   ): EventFragment;
 
   encodeFunctionData(
@@ -158,10 +157,6 @@ export interface CompensatorInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "activeProposals",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "allVotes",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -366,6 +361,10 @@ export interface CompensatorInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "voteCount", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "voteIndexToProposalId",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "voteInfo",
     values: [BigNumberish]
   ): string;
@@ -404,7 +403,6 @@ export interface CompensatorInterface extends Interface {
     functionFragment: "activeProposals",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "allVotes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(
@@ -588,6 +586,10 @@ export interface CompensatorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "voteCount", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "voteIndexToProposalId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "voteInfo", data: BytesLike): Result;
 }
 
@@ -973,31 +975,6 @@ export namespace VoteCastEvent {
     proposalId: BigNumberish,
     support: BigNumberish,
     blockNumber: BigNumberish,
-    txHash: BytesLike
-  ];
-  export type OutputTuple = [
-    proposalId: bigint,
-    support: bigint,
-    blockNumber: bigint,
-    txHash: string
-  ];
-  export interface OutputObject {
-    proposalId: bigint;
-    support: bigint;
-    blockNumber: bigint;
-    txHash: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace VoteCastWithReasonEvent {
-  export type InputTuple = [
-    proposalId: BigNumberish,
-    support: BigNumberish,
-    blockNumber: BigNumberish,
     txHash: BytesLike,
     votingPower: BigNumberish,
     reason: string
@@ -1088,21 +1065,6 @@ export interface Compensator extends BaseContract {
   activeProposals: TypedContractMethod<
     [proposalId: BigNumberish],
     [boolean],
-    "view"
-  >;
-
-  allVotes: TypedContractMethod<
-    [arg0: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
     "view"
   >;
 
@@ -1368,6 +1330,12 @@ export interface Compensator extends BaseContract {
 
   voteCount: TypedContractMethod<[], [bigint], "view">;
 
+  voteIndexToProposalId: TypedContractMethod<
+    [arg0: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
   voteInfo: TypedContractMethod<
     [proposalId: BigNumberish],
     [
@@ -1417,22 +1385,6 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "activeProposals"
   ): TypedContractMethod<[proposalId: BigNumberish], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "allVotes"
-  ): TypedContractMethod<
-    [arg0: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
-    "view"
-  >;
   getFunction(
     nameOrSignature: "allowance"
   ): TypedContractMethod<
@@ -1670,6 +1622,9 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "voteCount"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "voteIndexToProposalId"
+  ): TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
+  getFunction(
     nameOrSignature: "voteInfo"
   ): TypedContractMethod<
     [proposalId: BigNumberish],
@@ -1853,13 +1808,6 @@ export interface Compensator extends BaseContract {
     VoteCastEvent.InputTuple,
     VoteCastEvent.OutputTuple,
     VoteCastEvent.OutputObject
-  >;
-  getEvent(
-    key: "VoteCastWithReason"
-  ): TypedContractEvent<
-    VoteCastWithReasonEvent.InputTuple,
-    VoteCastWithReasonEvent.OutputTuple,
-    VoteCastWithReasonEvent.OutputObject
   >;
 
   filters: {
@@ -2116,7 +2064,7 @@ export interface Compensator extends BaseContract {
       UserWithdrawEvent.OutputObject
     >;
 
-    "VoteCast(uint256,uint8,uint256,bytes32)": TypedContractEvent<
+    "VoteCast(uint256,uint8,uint256,bytes32,uint256,string)": TypedContractEvent<
       VoteCastEvent.InputTuple,
       VoteCastEvent.OutputTuple,
       VoteCastEvent.OutputObject
@@ -2125,17 +2073,6 @@ export interface Compensator extends BaseContract {
       VoteCastEvent.InputTuple,
       VoteCastEvent.OutputTuple,
       VoteCastEvent.OutputObject
-    >;
-
-    "VoteCastWithReason(uint256,uint8,uint256,bytes32,uint256,string)": TypedContractEvent<
-      VoteCastWithReasonEvent.InputTuple,
-      VoteCastWithReasonEvent.OutputTuple,
-      VoteCastWithReasonEvent.OutputObject
-    >;
-    VoteCastWithReason: TypedContractEvent<
-      VoteCastWithReasonEvent.InputTuple,
-      VoteCastWithReasonEvent.OutputTuple,
-      VoteCastWithReasonEvent.OutputObject
     >;
   };
 }

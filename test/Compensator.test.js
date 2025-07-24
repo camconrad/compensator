@@ -874,17 +874,17 @@ describe("Compensator", function () {
   describe("Access Control", function () {
     it("Only delegate can call ownerDeposit", async function () {
       await expect(compensator.connect(delegator1).ownerDeposit(100))
-        .to.be.revertedWith("Only owner can deposit");
+        .to.be.revertedWithCustomError(compensator, "OwnableUnauthorizedAccount");
     });
 
     it("Only delegate can call ownerWithdraw", async function () {
       await expect(compensator.connect(delegator1).ownerWithdraw(100))
-        .to.be.revertedWith("Only owner can withdraw");
+        .to.be.revertedWithCustomError(compensator, "OwnableUnauthorizedAccount");
     });
 
     it("Only delegate can call setRewardRate", async function () {
       await expect(compensator.connect(delegator1).setRewardRate(100))
-        .to.be.revertedWith("Only owner can set reward rate");
+        .to.be.revertedWithCustomError(compensator, "OwnableUnauthorizedAccount");
     });
 
     it("Delegate can call ownerDeposit", async function () {
