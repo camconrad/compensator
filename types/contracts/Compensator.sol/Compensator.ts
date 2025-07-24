@@ -30,7 +30,6 @@ export interface CompensatorInterface extends Interface {
       | "BASIS_POINTS"
       | "COMPOUND_GOVERNOR"
       | "COMP_TOKEN"
-      | "DELEGATE_REWARD_PERCENT"
       | "DELEGATION_CAP_PERCENT"
       | "FACTORY"
       | "MAX_BLOCKS_PER_DAY"
@@ -139,10 +138,6 @@ export interface CompensatorInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "COMP_TOKEN",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "DELEGATE_REWARD_PERCENT",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -397,10 +392,6 @@ export interface CompensatorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "COMP_TOKEN", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "DELEGATE_REWARD_PERCENT",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "DELEGATION_CAP_PERCENT",
     data: BytesLike
@@ -1079,8 +1070,6 @@ export interface Compensator extends BaseContract {
 
   COMP_TOKEN: TypedContractMethod<[], [string], "view">;
 
-  DELEGATE_REWARD_PERCENT: TypedContractMethod<[], [bigint], "view">;
-
   DELEGATION_CAP_PERCENT: TypedContractMethod<[], [bigint], "view">;
 
   FACTORY: TypedContractMethod<[], [string], "view">;
@@ -1400,9 +1389,6 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "COMP_TOKEN"
   ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "DELEGATE_REWARD_PERCENT"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "DELEGATION_CAP_PERCENT"
   ): TypedContractMethod<[], [bigint], "view">;

@@ -211,10 +211,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @notice Mapping to track delegate performance
     DelegateInfo public delegateInfo;
 
-    /// @notice Percentage of winning stakes that go to the delegate (in basis points)
-    /// @dev 100% goes to delegate when they vote correctly
-    uint256 public constant DELEGATE_REWARD_PERCENT = 10000; // 100%
-
     /// @notice Additional lock period extension when active proposals exist (3 days)
     uint256 public constant ACTIVE_PROPOSAL_LOCK_EXTENSION = 3 days;
 
