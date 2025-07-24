@@ -80,103 +80,154 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 
 ```
 ├── contracts/
-│   ├── Compensator.sol       # Main contract with delegation and staking
-│   ├── CompensatorFactory.sol # Factory for deploying Compensator instances
-│   ├── IComp.sol            # COMP token interface
-│   ├── IGovernor.sol        # Governor interface
-│   └── mocks/               # Mock contracts for testing
-│       ├── MockERC20.sol    # Mock COMP token
-│       └── MockGovernor.sol # Mock Compound Governor
+│   ├── Compensator.sol              # Main contract with delegation and staking
+│   ├── CompensatorFactory.sol       # Factory for deploying instances
+│   ├── IComp.sol                    # COMP token interface
+│   ├── IGovernor.sol                # Governor interface
+│   ├── ICompensator.sol             # Compensator interface
+│   └── mocks/                       # Mock contracts for testing
 ├── test/
-│   ├── Compensator.test.js  # Main test suite
-│   └── CompensatorFactory.test.js
+│   ├── Compensator.test.js          # Core contract functionality tests
+│   ├── CompensatorFactory.test.js   # Factory deployment and management
 ├── scripts/
-│   └── deploy.js           # Deployment scripts
+│   ├── deploy.ts                    # Main deployment script
+│   └── verify-compensators.ts       # Contract verification script
 └── ... other files
 ```
 
-## Development Workflow
+## Development
 
-1. **Setup**:
-   ```bash
-   # Install dependencies
-   npm install
-   
-   # Install additional test dependencies
-   npm install --save-dev @nomicfoundation/hardhat-network-helpers
-   ```
+### Setup
+```bash
+npm install
+npx hardhat clean
+npx hardhat compile
+```
 
-2. **Local Development**:
-   ```bash
-   # Start local Ethereum network
-   npx hardhat node
-   
-   # Deploy contracts locally
-   npx hardhat run scripts/deploy.js --network localhost
-   ```
+### Local Development
+```bash
+# Start local network
+npx hardhat node
 
-3. **Testing**:
-   ```bash
-   # Run all tests
-   npx hardhat test
-   
-   # Run tests with gas reporting
-   REPORT_GAS=true npx hardhat test
-   
-   # Run specific test file
-   npx hardhat test test/Compensator.test.js
-   
-   # Check test coverage
-   npx hardhat coverage
-   ```
+# Deploy contracts locally
+npx hardhat run scripts/deploy.ts --network localhost
+```
 
-4. **Deployment**:
-   ```bash
-   # Deploy to testnet
-   npx hardhat run scripts/deploy.js --network goerli
-   
-   # Deploy to mainnet
-   npx hardhat run scripts/deploy.js --network mainnet
-   ```
+## Testing
 
-5. **Verification**:
-   ```bash
-   # Verify contract on Etherscan
-   npx hardhat verify --network <network> <contract-address> <constructor-args>
-   ```
+The test suite is organized into multiple layers for comprehensive coverage. Each test layer can be run independently for focused review:
 
-## Common Issues and Solutions
+### Test Layers
 
-1. **Test Failures**:
-   - Ensure all dependencies are installed: `npm install`
-   - Clear Hardhat cache: `npx hardhat clean`
-   - Check test environment setup in `hardhat.config.js`
-   - Verify mock contracts are properly deployed
-   - Check for proper signer setup in tests
+#### 1. Core Contract Tests (`Compensator.test.js`)
+Tests the main Compensator contract functionality:
+```bash
+npx hardhat test test/Compensator.test.js
+```
+**Covers**: Token delegation, reward distribution, proposal staking, vote verification, access control
 
-2. **Compilation Errors**:
-   - Verify Solidity version matches in all contracts (0.8.21)
-   - Check import paths are correct
-   - Ensure all dependencies are installed
-   - Clear Hardhat cache if needed: `npx hardhat clean`
+#### 2. Factory Tests (`CompensatorFactory.test.js`)
+Tests the CompensatorFactory deployment and management:
+```bash
+npx hardhat test test/CompensatorFactory.test.js
+```
+**Covers**: Factory deployment, compensator creation, owner mapping, pagination
 
-3. **Gas Issues**:
-   - Run with gas reporting: `REPORT_GAS=true npx hardhat test`
-   - Check optimizer settings in `hardhat.config.js`
-   - Review gas optimization in contract code
-   - Monitor gas usage in tests
+#### 3. Ownership Transfer Tests (`OwnershipTransfer.test.js`)
+Tests the ownership transfer security fix:
+```bash
+npx hardhat test test/OwnershipTransfer.test.js
+```
+**Covers**: Factory synchronization, callback mechanism, event emission, edge cases
 
-4. **Network Issues**:
-   - Ensure proper network configuration in `hardhat.config.js`
-   - Check RPC endpoint availability
-   - Verify network connection: `npx hardhat node`
-   - Check for proper network selection in deployment scripts
+#### 4. Security Fixes Tests (`SecurityFixes.test.js`)
+Tests specific security vulnerability fixes:
+```bash
+npx hardhat test test/SecurityFixes.test.js
+```
+**Covers**: Token transfer prevention, withdrawal limits, reentrancy protection
 
-5. **Deployment Issues**:
-   - Verify constructor arguments match contract requirements
-   - Check for sufficient gas and ETH on deployment account
-   - Ensure proper network configuration
-   - Verify contract verification parameters
+### Setup for Independent Testing
+
+#### Prerequisites
+```bash
+# Install dependencies
+npm install
+
+# Install test dependencies
+npm install --save-dev @nomicfoundation/hardhat-network-helpers
+npm install --save-dev @nomicfoundation/hardhat-chai-matchers
+npm install --save-dev chai
+```
+
+#### Environment Setup
+```bash
+# Clear cache and compile
+npx hardhat clean
+npx hardhat compile
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+npx hardhat test
+
+# Run specific test layer
+npx hardhat test test/Compensator.test.js
+
+# Run with gas reporting
+REPORT_GAS=true npx hardhat test
+
+# Generate coverage report
+npx hardhat coverage
+```
+
+### Test Validation Checklist
+
+For reviewers, each test layer validates:
+
+#### ✅ Core Functionality
+- [ ] Contract deployment and initialization
+- [ ] Token delegation and voting power
+- [ ] Reward calculation and distribution
+- [ ] Proposal staking and resolution
+- [ ] Vote casting and verification
+
+#### ✅ Security Measures
+- [ ] Ownership transfer synchronization
+- [ ] Token transfer prevention
+- [ ] Reentrancy protection
+- [ ] Access control validation
+- [ ] Withdrawal limit enforcement
+
+#### ✅ Edge Cases
+- [ ] Zero amount operations
+- [ ] Boundary conditions
+- [ ] Error scenarios
+- [ ] Gas optimization
+
+### Mock Contracts
+- **MockERC20.sol**: Simulates COMP token functionality
+- **MockGovernor.sol**: Simulates Compound Governor functionality
+
+### Deployment
+```bash
+# Deploy to testnet/mainnet
+npx hardhat run scripts/deploy.ts --network <network>
+
+# Verify contracts
+npx hardhat verify --network <network> <contract-address> <constructor-args>
+```
+
+## Troubleshooting
+
+### Common Issues
+- **Test Failures**: Clear cache with `npx hardhat clean` and reinstall dependencies
+- **Compilation Errors**: Verify Solidity version (0.8.21) and import paths
+- **Gas Issues**: Run `REPORT_GAS=true npx hardhat test` for detailed analysis
+- **Network Issues**: Check RPC endpoints and network configuration
+- **Deployment Issues**: Verify constructor arguments and account balance
 
 ## Security Features
 
@@ -192,7 +243,6 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 - **Vote direction check**: Ensures delegate voted in the winning direction before distributing stakes
 - **Auto-resolution**: Proposals automatically resolve after 30 days, preventing stuck stakes
 - **State tracking**: Comprehensive tracking of proposal states and delegate voting status
-- **Timeout protection**: Proposals auto-resolve after 30 days to prevent stuck stakes
 
 ### **Delegation and Reward Security**
 - **Delegation cap**: A 5% cap ensures no single delegate can accumulate excessive voting power
