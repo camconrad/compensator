@@ -1108,7 +1108,7 @@ export interface Compensator extends BaseContract {
   >;
 
   approve: TypedContractMethod<
-    [spender: AddressLike, value: BigNumberish],
+    [arg0: AddressLike, arg1: BigNumberish],
     [boolean],
     "nonpayable"
   >;
@@ -1324,13 +1324,13 @@ export interface Compensator extends BaseContract {
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
   transfer: TypedContractMethod<
-    [to: AddressLike, value: BigNumberish],
+    [arg0: AddressLike, arg1: BigNumberish],
     [boolean],
     "nonpayable"
   >;
 
   transferFrom: TypedContractMethod<
-    [from: AddressLike, to: AddressLike, value: BigNumberish],
+    [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish],
     [boolean],
     "nonpayable"
   >;
@@ -1435,7 +1435,7 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "approve"
   ): TypedContractMethod<
-    [spender: AddressLike, value: BigNumberish],
+    [arg0: AddressLike, arg1: BigNumberish],
     [boolean],
     "nonpayable"
   >;
@@ -1632,14 +1632,14 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "transfer"
   ): TypedContractMethod<
-    [to: AddressLike, value: BigNumberish],
+    [arg0: AddressLike, arg1: BigNumberish],
     [boolean],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "transferFrom"
   ): TypedContractMethod<
-    [from: AddressLike, to: AddressLike, value: BigNumberish],
+    [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish],
     [boolean],
     "nonpayable"
   >;

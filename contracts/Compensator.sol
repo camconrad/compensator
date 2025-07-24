@@ -1115,4 +1115,35 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
         return true;
     }
+
+    //////////////////////////
+    // ERC20 Transfer Overrides
+    //////////////////////////
+
+    /**
+     * @notice Override transfer function to prevent token transfers
+     * @dev Compensator tokens are not transferable between users
+     * @return Always reverts
+     */
+    function transfer(address /* to */, uint256 /* amount */) public virtual override returns (bool) {
+        revert("Compensator tokens are not transferable");
+    }
+
+    /**
+     * @notice Override transferFrom function to prevent token transfers
+     * @dev Compensator tokens are not transferable between users
+     * @return Always reverts
+     */
+    function transferFrom(address /* from */, address /* to */, uint256 /* amount */) public virtual override returns (bool) {
+        revert("Compensator tokens are not transferable");
+    }
+
+    /**
+     * @notice Override approve function to prevent token approvals
+     * @dev Compensator tokens are not transferable, so approvals are not needed
+     * @return Always reverts
+     */
+    function approve(address /* spender */, uint256 /* amount */) public virtual override returns (bool) {
+        revert("Compensator tokens are not transferable");
+    }
 }
