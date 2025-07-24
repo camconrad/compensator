@@ -26,14 +26,18 @@ import type {
 export interface CompensatorInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "ACTIVE_PROPOSAL_LOCK_EXTENSION"
       | "BASIS_POINTS"
       | "COMPOUND_GOVERNOR"
       | "COMP_TOKEN"
       | "DELEGATE_REWARD_PERCENT"
       | "DELEGATION_CAP_PERCENT"
       | "FACTORY"
+      | "MAX_BLOCKS_PER_DAY"
       | "MAX_PROPOSAL_RESOLUTION_TIME"
       | "MIN_LOCK_PERIOD"
+      | "PROPOSAL_CHECK_GAS_LIMIT"
+      | "RECENT_PROPOSALS_CHECK_COUNT"
       | "REWARD_PRECISION"
       | "activeProposals"
       | "allowance"
@@ -123,6 +127,10 @@ export interface CompensatorInterface extends Interface {
   ): EventFragment;
 
   encodeFunctionData(
+    functionFragment: "ACTIVE_PROPOSAL_LOCK_EXTENSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "BASIS_POINTS",
     values?: undefined
   ): string;
@@ -144,11 +152,23 @@ export interface CompensatorInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "FACTORY", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "MAX_BLOCKS_PER_DAY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "MAX_PROPOSAL_RESOLUTION_TIME",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "MIN_LOCK_PERIOD",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PROPOSAL_CHECK_GAS_LIMIT",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "RECENT_PROPOSALS_CHECK_COUNT",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -370,6 +390,10 @@ export interface CompensatorInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "ACTIVE_PROPOSAL_LOCK_EXTENSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "BASIS_POINTS",
     data: BytesLike
   ): Result;
@@ -388,11 +412,23 @@ export interface CompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "FACTORY", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "MAX_BLOCKS_PER_DAY",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "MAX_PROPOSAL_RESOLUTION_TIME",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "MIN_LOCK_PERIOD",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PROPOSAL_CHECK_GAS_LIMIT",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "RECENT_PROPOSALS_CHECK_COUNT",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1044,6 +1080,8 @@ export interface Compensator extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  ACTIVE_PROPOSAL_LOCK_EXTENSION: TypedContractMethod<[], [bigint], "view">;
+
   BASIS_POINTS: TypedContractMethod<[], [bigint], "view">;
 
   COMPOUND_GOVERNOR: TypedContractMethod<[], [string], "view">;
@@ -1056,9 +1094,15 @@ export interface Compensator extends BaseContract {
 
   FACTORY: TypedContractMethod<[], [string], "view">;
 
+  MAX_BLOCKS_PER_DAY: TypedContractMethod<[], [bigint], "view">;
+
   MAX_PROPOSAL_RESOLUTION_TIME: TypedContractMethod<[], [bigint], "view">;
 
   MIN_LOCK_PERIOD: TypedContractMethod<[], [bigint], "view">;
+
+  PROPOSAL_CHECK_GAS_LIMIT: TypedContractMethod<[], [bigint], "view">;
+
+  RECENT_PROPOSALS_CHECK_COUNT: TypedContractMethod<[], [bigint], "view">;
 
   REWARD_PRECISION: TypedContractMethod<[], [bigint], "view">;
 
@@ -1356,6 +1400,9 @@ export interface Compensator extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "ACTIVE_PROPOSAL_LOCK_EXTENSION"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "BASIS_POINTS"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -1374,10 +1421,19 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "FACTORY"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "MAX_BLOCKS_PER_DAY"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "MAX_PROPOSAL_RESOLUTION_TIME"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "MIN_LOCK_PERIOD"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "PROPOSAL_CHECK_GAS_LIMIT"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "RECENT_PROPOSALS_CHECK_COUNT"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "REWARD_PRECISION"

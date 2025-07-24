@@ -186,6 +186,18 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /// @dev 100% goes to delegate when they vote correctly
     uint256 public constant DELEGATE_REWARD_PERCENT = 10000; // 100%
 
+    /// @notice Additional lock period extension when active proposals exist (3 days)
+    uint256 public constant ACTIVE_PROPOSAL_LOCK_EXTENSION = 3 days;
+
+    /// @notice Number of recent proposals to check for active status
+    uint256 public constant RECENT_PROPOSALS_CHECK_COUNT = 10;
+
+    /// @notice Gas limit for proposal status checking to prevent excessive gas usage
+    uint256 public constant PROPOSAL_CHECK_GAS_LIMIT = 50000;
+
+    /// @notice Maximum blocks per day limit for validation
+    uint256 public constant MAX_BLOCKS_PER_DAY = 50000;
+
     //////////////////////////
     // Events
     //////////////////////////
@@ -602,7 +614,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // Set unlock time based on active proposals
         uint256 newUnlockTime = block.timestamp + MIN_LOCK_PERIOD;
         if (_hasActiveOrPendingProposals()) {
-            newUnlockTime = block.timestamp + MIN_LOCK_PERIOD + 3 days;
+            newUnlockTime = block.timestamp + MIN_LOCK_PERIOD + ACTIVE_PROPOSAL_LOCK_EXTENSION;
         }
         
         if (newUnlockTime > unlockTime[msg.sender]) {
@@ -916,14 +928,14 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @return bool True if there are any active or pending proposals
      */
     function _hasActiveOrPendingProposals() private view returns (bool) {
-        // Check the last 10 proposals for active status
+        // Check the last RECENT_PROPOSALS_CHECK_COUNT proposals for active status
         uint256 startId = latestProposalId;
-        uint256 endId = startId > 10 ? startId - 10 : 0;
+        uint256 endId = startId > RECENT_PROPOSALS_CHECK_COUNT ? startId - RECENT_PROPOSALS_CHECK_COUNT : 0;
         uint256 gasUsed = gasleft();
         
         for (uint256 i = startId; i > endId; i--) {
             // Prevent excessive gas usage
-            if (gasUsed - gasleft() > 50000) {
+            if (gasUsed - gasleft() > PROPOSAL_CHECK_GAS_LIMIT) {
                 break;
             }
             
@@ -940,7 +952,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @param _blocksPerDay The new number of blocks per day
      */
     function setBlocksPerDay(uint256 _blocksPerDay) external onlyOwner {
-        require(_blocksPerDay > 0 && _blocksPerDay < 50000, "Invalid blocks per day");
+        require(_blocksPerDay > 0 && _blocksPerDay < MAX_BLOCKS_PER_DAY, "Invalid blocks per day");
         blocksPerDay = _blocksPerDay;
     }
 
