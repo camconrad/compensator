@@ -8,6 +8,11 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+// Interface for the factory contract
+interface CompensatorFactory {
+    function onOwnershipTransferred(address oldOwner, address newOwner) external;
+}
+
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
 // \ \  \___|\ \  \|\  \ \  \\\__\ \  \ \  \|\  \ \  \|\  \ \  \\\  \ \  \\ \  \ \  \_|\ \   
@@ -84,6 +89,9 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
     /// @notice The Compound Governor contract
     IGovernor public immutable COMPOUND_GOVERNOR;
+
+    /// @notice The factory contract that created this Compensator
+    address public immutable FACTORY;
 
     /// @notice The amount of COMP deposited by the owner available for rewards to delegators
     uint256 public availableRewards;
@@ -308,6 +316,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         
         COMP_TOKEN = IComp(_compToken);
         COMPOUND_GOVERNOR = IGovernor(_compoundGovernor);
+        FACTORY = msg.sender; // The factory that deploys this contract
         
         rewardIndex = REWARD_PRECISION; // Initialize reward index at 1 with 18 decimals
 
@@ -1146,5 +1155,33 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function approve(address /* spender */, uint256 /* amount */) public virtual override returns (bool) {
         revert("Compensator tokens are not transferable");
+    }
+
+    //////////////////////////
+    // Ownership Transfer Override
+    //////////////////////////
+
+    /**
+     * @notice Override transferOwnership to notify the factory when ownership changes
+     * @dev This ensures the factory's ownerToCompensator mapping stays synchronized
+     * @param newOwner The address of the new owner
+     */
+    function transferOwnership(address newOwner) public virtual override onlyOwner {
+        require(newOwner != address(0), "New owner cannot be zero address");
+        
+        address oldOwner = owner();
+        
+        // Call the parent transferOwnership function
+        super.transferOwnership(newOwner);
+        
+        // Notify the factory about the ownership change
+        if (FACTORY != address(0)) {
+            try CompensatorFactory(FACTORY).onOwnershipTransferred(oldOwner, newOwner) {
+                // Successfully notified factory
+            } catch {
+                // Factory notification failed, but ownership transfer still succeeds
+                // This is acceptable as the factory can be updated manually if needed
+            }
+        }
     }
 }

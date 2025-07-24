@@ -28,17 +28,24 @@ export interface CompensatorFactoryInterface extends Interface {
     nameOrSignature:
       | "COMPOUND_GOVERNOR"
       | "COMP_TOKEN"
+      | "compensatorToOriginalOwner"
       | "compensators"
       | "createCompensator"
       | "createCompensatorForSelf"
       | "getCompensator"
       | "getCompensators"
       | "getCompensatorsCount"
+      | "getOriginalOwner"
       | "hasCompensator"
+      | "onOwnershipTransferred"
       | "ownerToCompensator"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "CompensatorCreated"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "CompensatorCreated"
+      | "CompensatorOwnershipTransferred"
+  ): EventFragment;
 
   encodeFunctionData(
     functionFragment: "COMPOUND_GOVERNOR",
@@ -47,6 +54,10 @@ export interface CompensatorFactoryInterface extends Interface {
   encodeFunctionData(
     functionFragment: "COMP_TOKEN",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "compensatorToOriginalOwner",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "compensators",
@@ -73,8 +84,16 @@ export interface CompensatorFactoryInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getOriginalOwner",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasCompensator",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "onOwnershipTransferred",
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "ownerToCompensator",
@@ -86,6 +105,10 @@ export interface CompensatorFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "COMP_TOKEN", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "compensatorToOriginalOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "compensators",
     data: BytesLike
@@ -111,7 +134,15 @@ export interface CompensatorFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getOriginalOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "hasCompensator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "onOwnershipTransferred",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -126,6 +157,28 @@ export namespace CompensatorCreatedEvent {
   export interface OutputObject {
     owner: string;
     compensator: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace CompensatorOwnershipTransferredEvent {
+  export type InputTuple = [
+    compensator: AddressLike,
+    oldOwner: AddressLike,
+    newOwner: AddressLike
+  ];
+  export type OutputTuple = [
+    compensator: string,
+    oldOwner: string,
+    newOwner: string
+  ];
+  export interface OutputObject {
+    compensator: string;
+    oldOwner: string;
+    newOwner: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -180,6 +233,12 @@ export interface CompensatorFactory extends BaseContract {
 
   COMP_TOKEN: TypedContractMethod<[], [string], "view">;
 
+  compensatorToOriginalOwner: TypedContractMethod<
+    [compensator: AddressLike],
+    [string],
+    "view"
+  >;
+
   compensators: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   createCompensator: TypedContractMethod<
@@ -200,7 +259,19 @@ export interface CompensatorFactory extends BaseContract {
 
   getCompensatorsCount: TypedContractMethod<[], [bigint], "view">;
 
+  getOriginalOwner: TypedContractMethod<
+    [compensator: AddressLike],
+    [string],
+    "view"
+  >;
+
   hasCompensator: TypedContractMethod<[owner: AddressLike], [boolean], "view">;
+
+  onOwnershipTransferred: TypedContractMethod<
+    [oldOwner: AddressLike, newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   ownerToCompensator: TypedContractMethod<
     [owner: AddressLike],
@@ -218,6 +289,9 @@ export interface CompensatorFactory extends BaseContract {
   getFunction(
     nameOrSignature: "COMP_TOKEN"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "compensatorToOriginalOwner"
+  ): TypedContractMethod<[compensator: AddressLike], [string], "view">;
   getFunction(
     nameOrSignature: "compensators"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
@@ -241,8 +315,18 @@ export interface CompensatorFactory extends BaseContract {
     nameOrSignature: "getCompensatorsCount"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getOriginalOwner"
+  ): TypedContractMethod<[compensator: AddressLike], [string], "view">;
+  getFunction(
     nameOrSignature: "hasCompensator"
   ): TypedContractMethod<[owner: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "onOwnershipTransferred"
+  ): TypedContractMethod<
+    [oldOwner: AddressLike, newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "ownerToCompensator"
   ): TypedContractMethod<[owner: AddressLike], [string], "view">;
@@ -253,6 +337,13 @@ export interface CompensatorFactory extends BaseContract {
     CompensatorCreatedEvent.InputTuple,
     CompensatorCreatedEvent.OutputTuple,
     CompensatorCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "CompensatorOwnershipTransferred"
+  ): TypedContractEvent<
+    CompensatorOwnershipTransferredEvent.InputTuple,
+    CompensatorOwnershipTransferredEvent.OutputTuple,
+    CompensatorOwnershipTransferredEvent.OutputObject
   >;
 
   filters: {
@@ -265,6 +356,17 @@ export interface CompensatorFactory extends BaseContract {
       CompensatorCreatedEvent.InputTuple,
       CompensatorCreatedEvent.OutputTuple,
       CompensatorCreatedEvent.OutputObject
+    >;
+
+    "CompensatorOwnershipTransferred(address,address,address)": TypedContractEvent<
+      CompensatorOwnershipTransferredEvent.InputTuple,
+      CompensatorOwnershipTransferredEvent.OutputTuple,
+      CompensatorOwnershipTransferredEvent.OutputObject
+    >;
+    CompensatorOwnershipTransferred: TypedContractEvent<
+      CompensatorOwnershipTransferredEvent.InputTuple,
+      CompensatorOwnershipTransferredEvent.OutputTuple,
+      CompensatorOwnershipTransferredEvent.OutputObject
     >;
   };
 }

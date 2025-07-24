@@ -27,6 +27,9 @@ contract CompensatorFactory {
     /// @notice Mapping from owner addresses to their corresponding Compensator contract addresses
     mapping(address owner => address compensator) public ownerToCompensator;
 
+    /// @notice Reverse mapping from compensator addresses to their original owner (for ownership transfer tracking)
+    mapping(address compensator => address originalOwner) public compensatorToOriginalOwner;
+
     /// @notice The COMP governance token contract
     address public immutable COMP_TOKEN;
 
@@ -43,6 +46,16 @@ contract CompensatorFactory {
     event CompensatorCreated(
         address indexed owner, 
         address indexed compensator
+    );
+
+    /// @notice Emitted when ownership of a Compensator is transferred
+    /// @param compensator The address of the Compensator contract
+    /// @param oldOwner The previous owner address
+    /// @param newOwner The new owner address
+    event CompensatorOwnershipTransferred(
+        address indexed compensator,
+        address indexed oldOwner,
+        address indexed newOwner
     );
 
     //////////////////////////
@@ -95,6 +108,9 @@ contract CompensatorFactory {
         // Map the owner to their Compensator contract address
         ownerToCompensator[owner] = compensatorAddress;
 
+        // Store the original owner for ownership transfer tracking
+        compensatorToOriginalOwner[compensatorAddress] = owner;
+
         // Emit the CompensatorCreated event
         emit CompensatorCreated(owner, compensatorAddress);
 
@@ -108,6 +124,26 @@ contract CompensatorFactory {
      */
     function createCompensatorForSelf() external returns (address) {
         return createCompensator(msg.sender);
+    }
+
+    /**
+     * @notice Called by a Compensator contract when ownership is transferred
+     * @dev This function can only be called by a Compensator contract that was created by this factory
+     * @param oldOwner The previous owner address
+     * @param newOwner The new owner address
+     */
+    function onOwnershipTransferred(address oldOwner, address newOwner) external {
+        // Verify this compensator was created by this factory
+        require(compensatorToOriginalOwner[msg.sender] != address(0), "Compensator not created by this factory");
+        
+        // Update the owner mapping
+        ownerToCompensator[oldOwner] = address(0);
+        ownerToCompensator[newOwner] = msg.sender;
+        
+        // Update the original owner mapping to track the new owner
+        compensatorToOriginalOwner[msg.sender] = newOwner;
+        
+        emit CompensatorOwnershipTransferred(msg.sender, oldOwner, newOwner);
     }
 
     //////////////////////////
@@ -170,5 +206,14 @@ contract CompensatorFactory {
      */
     function getCompensator(address owner) external view returns (address) {
         return ownerToCompensator[owner];
+    }
+
+    /**
+     * @notice Gets the original owner of a Compensator contract
+     * @param compensator The Compensator contract address
+     * @return The original owner address, or address(0) if not found
+     */
+    function getOriginalOwner(address compensator) external view returns (address) {
+        return compensatorToOriginalOwner[compensator];
     }
 }

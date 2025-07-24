@@ -24,7 +24,7 @@ describe("CompensatorFactory", function () {
     await compoundGovernor.waitForDeployment();
     compoundGovernorAddress = await compoundGovernor.getAddress();
     
-    const CompensatorFactory = await ethers.getContractFactory("CompensatorFactory");
+    const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
     factory = await CompensatorFactory.deploy(
       await compToken.getAddress(),
       await compoundGovernor.getAddress()
@@ -126,10 +126,11 @@ describe("CompensatorFactory", function () {
     });
 
     it("should handle empty result set", async function () {
-      const emptyFactory = await ethers.deployContract("CompensatorFactory", [
+      const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
+      const emptyFactory = await CompensatorFactory.deploy(
         await compToken.getAddress(),
         await compoundGovernor.getAddress()
-      ]);
+      );
       const page = await emptyFactory.getCompensators(0, PAGE_SIZE);
       expect(page.length).to.equal(0);
     });

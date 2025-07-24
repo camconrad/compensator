@@ -66,6 +66,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CompensatorFactory__factory>;
     getContractFactory(
+      name: "CompensatorFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CompensatorFactory__factory>;
+    getContractFactory(
       name: "IComp",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IComp__factory>;
@@ -152,6 +156,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.CompensatorFactory>;
     getContractAt(
+      name: "CompensatorFactory",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CompensatorFactory>;
+    getContractAt(
       name: "IComp",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -225,6 +234,10 @@ declare module "hardhat/types/runtime" {
       name: "Compensator",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Compensator>;
+    deployContract(
+      name: "CompensatorFactory",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.CompensatorFactory>;
     deployContract(
       name: "CompensatorFactory",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -310,6 +323,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Compensator>;
+    deployContract(
+      name: "CompensatorFactory",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.CompensatorFactory>;
     deployContract(
       name: "CompensatorFactory",
       args: any[],
