@@ -534,7 +534,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         _castVote(proposalId, support, "");
     }
 
-    function _castVote(uint256 proposalId, uint8 support, string memory reason) internal {
+    function _castVote(uint256 proposalId, uint8 support, string memory reason) private {
         // Checks
         require(support <= 1, "Invalid support value");
         require(!contractVoted[proposalId], "Already voted on this proposal");
@@ -786,7 +786,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @dev Internal function called by reclaimStake when timeout is reached
      * @param proposalId The ID of the proposal to auto-resolve
      */
-    function _autoResolveProposal(uint256 proposalId) internal {
+    function _autoResolveProposal(uint256 proposalId) private {
         IGovernor.ProposalState state = COMPOUND_GOVERNOR.state(proposalId);
         
         // If proposal is still active/pending after timeout, consider it defeated
@@ -863,7 +863,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @notice Updates the latest proposal ID and tracks its state
      * @param proposalId The proposal ID to check
      */
-    function _updateLatestProposalId(uint256 proposalId) internal {
+    function _updateLatestProposalId(uint256 proposalId) private {
         if (proposalId > latestProposalId) {
             latestProposalId = proposalId;
             emit NewProposalDetected(proposalId);
@@ -915,7 +915,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @dev Includes gas limit protection to prevent excessive gas usage
      * @return bool True if there are any active or pending proposals
      */
-    function _hasActiveOrPendingProposals() internal view returns (bool) {
+    function _hasActiveOrPendingProposals() private view returns (bool) {
         // Check the last 10 proposals for active status
         uint256 startId = latestProposalId;
         uint256 endId = startId > 10 ? startId - 10 : 0;

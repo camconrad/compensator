@@ -154,7 +154,7 @@ contract CompensatorFactory {
      * @notice Retrieves the total number of deployed Compensator contracts
      * @return The total count of Compensator contracts
      */
-    function getCompensatorsCount() public view returns (uint256) {
+    function getCompensatorsCount() external view returns (uint256) {
         return compensators.length;
     }
 
