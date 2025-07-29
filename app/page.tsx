@@ -19,7 +19,7 @@ import Headroom from "react-headroom";
 export const dynamic = 'force-dynamic';
 
 export default function Home() {
-  const [authorized, setAuthorized] = useState(false);
+  const [authorized, setAuthorized] = useState(true);
   const [passcode, setPasscode] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [error, setError] = useState("");
@@ -49,14 +49,15 @@ export default function Home() {
     },
   };
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const auth = localStorage.getItem("compensatorAuthorized");
-      if (auth === "true") {
-        setAuthorized(true);
-      }
-    }
-  }, []);
+  // Password gate localStorage check temporarily disabled
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     const auth = localStorage.getItem("compensatorAuthorized");
+  //     if (auth === "true") {
+  //       setAuthorized(true);
+  //     }
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -66,24 +67,25 @@ export default function Home() {
     }
   }, [theme]);
 
-  const handlePasscodeSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+  // Password gate submit handler temporarily disabled
+  // const handlePasscodeSubmit = (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   setLoading(true);
 
-    setTimeout(() => {
-      if (passcode === correctPasscode) {
-        setAuthorized(true);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem("compensatorAuthorized", "true");
-        }
-        setError("");
-      } else {
-        setError("Invalid passcode. Please try again.");
-        setPasscode("");
-      }
-      setLoading(false);
-    }, 600);
-  };
+  //   setTimeout(() => {
+  //     if (passcode === correctPasscode) {
+  //       setAuthorized(true);
+  //       if (typeof window !== 'undefined') {
+  //         localStorage.setItem("compensatorAuthorized", "true");
+  //       }
+  //       setError("");
+  //     } else {
+  //       setError("Invalid passcode. Please try again.");
+  //       setPasscode("");
+  //     }
+  //     setLoading(false);
+  //   }, 600);
+  // };
 
   return (
     <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
