@@ -47,3 +47,6 @@ artifacts/
 typechain-types/
 coverage/
 coverage.json
+
+# Cursor rules
+.cursor/
