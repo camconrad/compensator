@@ -179,14 +179,14 @@ contract CreateCompensator is CompensatorFactoryTest {
 }
 
 contract CreateCompensatorForSelf is CompensatorFactoryTest {
-    function test_CreatesCompensatorForCaller() public {
-        address caller = makeAddr("caller");
+    function testFuzz_CreatesCompensatorForArbitraryCaller(address _caller) public {
+        _assumeSafeAddress(_caller);
         
-        vm.prank(caller);
+        vm.prank(_caller);
         address compensatorAddress = compensatorFactory.createCompensatorForSelf();
 
-        assertEq(compensatorFactory.ownerToCompensator(caller), compensatorAddress);
-        assertEq(Compensator(compensatorAddress).owner(), caller);
+        assertEq(compensatorFactory.ownerToCompensator(_caller), compensatorAddress);
+        assertEq(Compensator(compensatorAddress).owner(), _caller);
     }
 
     function testFuzz_EmitsCompensatorCreatedEventForCaller(address _caller) public {
@@ -247,6 +247,22 @@ contract OnOwnershipTransferred is CompensatorFactoryTest {
         assertEq(compensatorFactory.compensatorToOriginalOwner(compensatorAddress), owner2);
     }
 
+    function testFuzz_UpdatesOwnerMappingsWithArbitraryAddresses(
+        address _oldOwner,
+        address _newOwner
+    ) public {
+        _assumeSafeAddress(_oldOwner);
+        _assumeSafeAddress(_newOwner);
+        vm.assume(_oldOwner != _newOwner);
+
+        vm.prank(compensatorAddress);
+        compensatorFactory.onOwnershipTransferred(_oldOwner, _newOwner);
+
+        assertEq(compensatorFactory.ownerToCompensator(_oldOwner), address(0));
+        assertEq(compensatorFactory.ownerToCompensator(_newOwner), compensatorAddress);
+        assertEq(compensatorFactory.compensatorToOriginalOwner(compensatorAddress), _newOwner);
+    }
+
     function test_EmitsCompensatorOwnershipTransferredEvent() public {
         vm.expectEmit(true, true, true, false);
         emit CompensatorFactory.CompensatorOwnershipTransferred(compensatorAddress, owner1, owner2);
@@ -262,22 +278,6 @@ contract OnOwnershipTransferred is CompensatorFactoryTest {
         vm.prank(_notCompensator);
         vm.expectRevert(CompensatorNotCreatedByFactory.selector);
         compensatorFactory.onOwnershipTransferred(owner1, owner2);
-    }
-
-    function testFuzz_UpdatesOwnerMappingsWithArbitraryAddresses(
-        address _oldOwner,
-        address _newOwner
-    ) public {
-        _assumeSafeAddress(_oldOwner);
-        _assumeSafeAddress(_newOwner);
-        vm.assume(_oldOwner != _newOwner);
-
-        vm.prank(compensatorAddress);
-        compensatorFactory.onOwnershipTransferred(_oldOwner, _newOwner);
-
-        assertEq(compensatorFactory.ownerToCompensator(_oldOwner), address(0));
-        assertEq(compensatorFactory.ownerToCompensator(_newOwner), compensatorAddress);
-        assertEq(compensatorFactory.compensatorToOriginalOwner(compensatorAddress), _newOwner);
     }
 }
 
@@ -316,74 +316,102 @@ contract GetCompensatorsCount is CompensatorFactoryTest {
 }
 
 contract GetCompensators is CompensatorFactoryTest {
-    address[] compensators;
-
-    function setUp() public override {
-        super.setUp();
+    function _createCompensators(uint256 _count) internal returns (address[] memory) {
+        address[] memory _compensators = new address[](_count);
         
-        // Create 5 compensators for testing
-        for (uint256 i = 0; i < 5; i++) {
+        for (uint256 i = 0; i < _count; i++) {
             address owner = address(uint160(i + 1000));
             address compensator = compensatorFactory.createCompensator(owner);
-            compensators.push(compensator);
+            _compensators[i] = compensator;
         }
+        
+        return _compensators;
     }
 
-    function test_ReturnsEmptyArrayWhenNoCompensators() public {
+    function testFuzz_ReturnsEmptyArrayWhenNoCompensators(uint256 _offset, uint256 _limit) public {
         CompensatorFactory emptyFactory = new CompensatorFactory(
             address(compToken),
             address(compoundGovernor)
         );
 
-        address[] memory result = emptyFactory.getCompensators(0, 10);
+        _offset = bound(_offset, 0, type(uint256).max);
+        _limit = bound(_limit, 0, type(uint256).max);
+
+        address[] memory result = emptyFactory.getCompensators(_offset, _limit);
         assertEq(result.length, 0);
     }
 
-    function test_ReturnsEmptyArrayWhenOffsetExceedsTotalCount() public view {
-        address[] memory result = compensatorFactory.getCompensators(10, 5);
+    function testFuzz_ReturnsEmptyArrayWhenOffsetExceedsTotalCount(uint256 _offset, uint256 _limit) public view {
+        _offset = bound(_offset, compensatorFactory.getCompensatorsCount() + 1, type(uint256).max);
+        _limit = bound(_limit, 0, type(uint256).max);
+
+        address[] memory result = compensatorFactory.getCompensators(_offset, _limit);
         assertEq(result.length, 0);
     }
 
-    function test_ReturnsAllCompensatorsWhenLimitExceedsCount() public view {
-        address[] memory result = compensatorFactory.getCompensators(0, 10);
-        assertEq(result.length, 5);
+    function testFuzz_ReturnsAllCompensatorsWhenLimitExceedsCount(uint256 _count, uint256 _limit) public {
+        _count = bound(_count, 1, 50); // Reasonable number for testing
+        _limit = bound(_limit, _count + 1, type(uint256).max);
         
-        for (uint256 i = 0; i < 5; i++) {
+        address[] memory compensators = _createCompensators(_count);
+        
+        address[] memory result = compensatorFactory.getCompensators(0, _limit);
+        assertEq(result.length, _count);
+        
+        for (uint256 i = 0; i < _count; i++) {
             assertEq(result[i], compensators[i]);
         }
     }
 
-    function test_ReturnsCorrectSubsetWithOffsetAndLimit() public view {
-        address[] memory result = compensatorFactory.getCompensators(1, 3);
-        assertEq(result.length, 3);
+    function testFuzz_ReturnsCorrectSubsetWithOffsetAndLimit(uint256 _count, uint256 _offset, uint256 _limit) public {
+        _count = bound(_count, 10, 50); // Need enough compensators for meaningful subset testing
+        _offset = bound(_offset, 1, _count - 5); // Ensure we have room for a subset
+        _limit = bound(_limit, 3, 5); // Reasonable subset size
         
-        assertEq(result[0], compensators[1]);
-        assertEq(result[1], compensators[2]);
-        assertEq(result[2], compensators[3]);
+        address[] memory compensators = _createCompensators(_count);
+        
+        address[] memory result = compensatorFactory.getCompensators(_offset, _limit);
+        assertEq(result.length, _limit);
+        
+        for (uint256 i = 0; i < _limit; i++) {
+            assertEq(result[i], compensators[_offset + i]);
+        }
     }
 
-    function test_ReturnsPartialArrayWhenLimitExceedsRemainingItems() public view {
-        address[] memory result = compensatorFactory.getCompensators(3, 5);
-        assertEq(result.length, 2);
+    function testFuzz_ReturnsPartialArrayWhenLimitExceedsRemainingItems(uint256 _count, uint256 _offset, uint256 _limit) public {
+        _count = bound(_count, 10, 50); // Need enough compensators
+        _offset = bound(_offset, 3, _count - 3); // Ensure we have some remaining items
+        uint256 remainingItems = _count - _offset;
+        _limit = bound(_limit, remainingItems + 1, remainingItems + 100); // Limit exceeds remaining but not too much
         
-        assertEq(result[0], compensators[3]);
-        assertEq(result[1], compensators[4]);
+        address[] memory compensators = _createCompensators(_count);
+        
+        address[] memory result = compensatorFactory.getCompensators(_offset, _limit);
+        assertEq(result.length, _count - _offset);
+        
+        for (uint256 i = 0; i < result.length; i++) {
+            assertEq(result[i], compensators[_offset + i]);
+        }
     }
 
     function testFuzz_ReturnsCorrectPaginationResults(
+        uint256 _count,
         uint256 _offset,
         uint256 _limit
-    ) public view {
-        _offset = bound(_offset, 0, 10);
-        _limit = bound(_limit, 0, 10);
+    ) public {
+        _count = bound(_count, 1, 50);
+        _offset = bound(_offset, 0, _count + 10); // Allow offset to exceed count for testing
+        _limit = bound(_limit, 0, 20);
 
+        address[] memory compensators = _createCompensators(_count);
+        
         address[] memory result = compensatorFactory.getCompensators(_offset, _limit);
 
-        if (_offset >= compensators.length) {
+        if (_offset >= _count) {
             assertEq(result.length, 0);
         } else {
-            uint256 expectedLength = _offset + _limit > compensators.length 
-                ? compensators.length - _offset 
+            uint256 expectedLength = _offset + _limit > _count 
+                ? _count - _offset 
                 : _limit;
             assertEq(result.length, expectedLength);
             
@@ -395,15 +423,15 @@ contract GetCompensators is CompensatorFactoryTest {
 }
 
 contract HasCompensator is CompensatorFactoryTest {
-    function test_ReturnsFalseForAddressWithoutCompensator() public view {
-        address owner = address(0x1234);
-        assertFalse(compensatorFactory.hasCompensator(owner));
+    function testFuzz_ReturnsFalseForAddressWithoutCompensator(address _owner) public view {
+        _assumeSafeAddress(_owner);
+        assertFalse(compensatorFactory.hasCompensator(_owner));
     }
 
-    function test_ReturnsTrueForAddressWithCompensator() public {
-        address owner = makeAddr("owner");
-        compensatorFactory.createCompensator(owner);
-        assertTrue(compensatorFactory.hasCompensator(owner));
+    function testFuzz_ReturnsTrueForAddressWithCompensator(address _owner) public {
+        _assumeSafeAddress(_owner);
+        compensatorFactory.createCompensator(_owner);
+        assertTrue(compensatorFactory.hasCompensator(_owner));
     }
 
     function testFuzz_ReturnsFalseForArbitraryAddressWithoutCompensator(address _owner) public view {
@@ -417,9 +445,10 @@ contract HasCompensator is CompensatorFactoryTest {
         assertTrue(compensatorFactory.hasCompensator(_owner));
     }
 
-    function test_ReturnsFalseAfterOwnershipTransfer() public {
-        address owner1 = makeAddr("owner1");
-        address owner2 = makeAddr("owner2");
+    function testFuzz_ReturnsFalseAfterOwnershipTransfer(address owner1, address owner2) public {
+        _assumeSafeAddress(owner1);
+        _assumeSafeAddress(owner2);
+        vm.assume(owner1 != owner2);
         
         address compensatorAddress = compensatorFactory.createCompensator(owner1);
         assertTrue(compensatorFactory.hasCompensator(owner1));
@@ -433,16 +462,17 @@ contract HasCompensator is CompensatorFactoryTest {
 }
 
 contract GetOriginalOwner is CompensatorFactoryTest {
-    function test_ReturnsZeroAddressForNonExistentCompensator() public view {
-        address fakeCompensator = address(0x1234);
-        assertEq(compensatorFactory.getOriginalOwner(fakeCompensator), address(0));
+    function testFuzz_ReturnsZeroAddressForNonExistentCompensator(address _fakeCompensator) public view {
+        _assumeSafeAddress(_fakeCompensator);
+        vm.assume(_fakeCompensator != address(0));
+        assertEq(compensatorFactory.getOriginalOwner(_fakeCompensator), address(0));
     }
 
-    function test_ReturnsOriginalOwnerForValidCompensator() public {
-        address owner = makeAddr("owner");
-        address compensatorAddress = compensatorFactory.createCompensator(owner);
+    function testFuzz_ReturnsOriginalOwnerForValidCompensator(address _owner) public {
+        _assumeSafeAddress(_owner);
         
-        assertEq(compensatorFactory.getOriginalOwner(compensatorAddress), owner);
+        address compensatorAddress = compensatorFactory.createCompensator(_owner);
+        assertEq(compensatorFactory.getOriginalOwner(compensatorAddress), _owner);
     }
 
     function testFuzz_ReturnsOriginalOwnerForArbitraryOwner(address _owner) public {
@@ -452,17 +482,18 @@ contract GetOriginalOwner is CompensatorFactoryTest {
         assertEq(compensatorFactory.getOriginalOwner(compensatorAddress), _owner);
     }
 
-    function test_ReturnsUpdatedOwnerAfterTransfer() public {
-        address owner1 = makeAddr("owner1");
-        address owner2 = makeAddr("owner2");
+    function testFuzz_ReturnsUpdatedOwnerAfterTransfer(address _owner1, address _owner2) public {
+        _assumeSafeAddress(_owner1);
+        _assumeSafeAddress(_owner2);
+        vm.assume(_owner1 != _owner2);
         
-        address compensatorAddress = compensatorFactory.createCompensator(owner1);
-        assertEq(compensatorFactory.getOriginalOwner(compensatorAddress), owner1);
+        address compensatorAddress = compensatorFactory.createCompensator(_owner1);
+        assertEq(compensatorFactory.getOriginalOwner(compensatorAddress), _owner1);
         
         vm.prank(compensatorAddress);
-        compensatorFactory.onOwnershipTransferred(owner1, owner2);
+        compensatorFactory.onOwnershipTransferred(_owner1, _owner2);
         
-        assertEq(compensatorFactory.getOriginalOwner(compensatorAddress), owner2);
+        assertEq(compensatorFactory.getOriginalOwner(compensatorAddress), _owner2);
     }
 
     function testFuzz_ReturnsZeroAddressForArbitraryNonExistentAddress(address _fakeAddress) public view {
