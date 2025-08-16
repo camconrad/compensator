@@ -1,0 +1,448 @@
+{
+  "generatedAt": 1755372497917,
+  "generatedAtISO": "2025-08-16T19:28:17.917Z",
+  "reportName": "compensatorDetailedGasReport",
+  "summary": {
+    "totalOperations": 11,
+    "totalBaselines": 2,
+    "lastUpdated": "2025-08-16T19:27:55.176Z",
+    "reportGenerated": "2025-08-16T19:28:17.917Z"
+  },
+  "baselines": {
+    "userDeposit": {
+      "gasUsed": "240327",
+      "parameters": {
+        "amount": "100000000000000000000",
+        "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+      },
+      "timestamp": 1755372475126,
+      "version": "1.0.0",
+      "date": "2025-08-16T19:27:55.126Z"
+    },
+    "setRewardRate": {
+      "gasUsed": "62597",
+      "parameters": {
+        "rate": "1000000000000000000",
+        "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      },
+      "timestamp": 1755372475127,
+      "version": "1.0.0",
+      "date": "2025-08-16T19:27:55.127Z"
+    }
+  },
+  "operations": {
+    "userDeposit": {
+      "totalOperations": 12,
+      "recentOperations": [
+        {
+          "gasUsed": "240327",
+          "parameters": {
+            "amount": "50000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475131,
+          "date": "2025-08-16T19:27:55.131Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "240315",
+          "parameters": {
+            "amount": "10000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "iteration": 0
+          },
+          "timestamp": 1755372475135,
+          "date": "2025-08-16T19:27:55.135Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "20000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "iteration": 1
+          },
+          "timestamp": 1755372475137,
+          "date": "2025-08-16T19:27:55.137Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "30000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "iteration": 2
+          },
+          "timestamp": 1755372475140,
+          "date": "2025-08-16T19:27:55.140Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "40000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "iteration": 3
+          },
+          "timestamp": 1755372475142,
+          "date": "2025-08-16T19:27:55.142Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "50000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "iteration": 4
+          },
+          "timestamp": 1755372475143,
+          "date": "2025-08-16T19:27:55.143Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "240315",
+          "parameters": {
+            "amount": "10000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475146,
+          "date": "2025-08-16T19:27:55.146Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "50000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475147,
+          "date": "2025-08-16T19:27:55.147Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "100000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475148,
+          "date": "2025-08-16T19:27:55.148Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "240315",
+          "parameters": {
+            "amount": "10000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475152,
+          "date": "2025-08-16T19:27:55.152Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "50000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475153,
+          "date": "2025-08-16T19:27:55.153Z",
+          "dateKey": "2025-08-16"
+        },
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "100000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475155,
+          "date": "2025-08-16T19:27:55.155Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 12,
+        "min": 100115,
+        "max": 240327,
+        "average": 146849,
+        "median": 100115,
+        "standardDeviation": 66092
+      },
+      "trends": {
+        "recentAverage": 128155,
+        "previousAverage": 240321,
+        "change": -112166,
+        "percentageChange": -46.67,
+        "trend": "decreasing"
+      }
+    },
+    "userDeposit_small": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "240315",
+          "parameters": {
+            "amount": "1000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475159,
+          "date": "2025-08-16T19:27:55.159Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 240315,
+        "max": 240315,
+        "average": 240315,
+        "median": 240315,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "userDeposit_medium": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "100000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475160,
+          "date": "2025-08-16T19:27:55.160Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 100115,
+        "max": 100115,
+        "average": 100115,
+        "median": 100115,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "userDeposit_large": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "100115",
+          "parameters": {
+            "amount": "500000000000000000000",
+            "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+          },
+          "timestamp": 1755372475161,
+          "date": "2025-08-16T19:27:55.161Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 100115,
+        "max": 100115,
+        "average": 100115,
+        "median": 100115,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "setRewardRate_0": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "78164",
+          "parameters": {
+            "rate": "100000000000000000",
+            "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+          },
+          "timestamp": 1755372475163,
+          "date": "2025-08-16T19:27:55.163Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 78164,
+        "max": 78164,
+        "average": 78164,
+        "median": 78164,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "setRewardRate_1": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "43964",
+          "parameters": {
+            "rate": "1000000000000000000",
+            "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+          },
+          "timestamp": 1755372475164,
+          "date": "2025-08-16T19:27:55.164Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 43964,
+        "max": 43964,
+        "average": 43964,
+        "median": 43964,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "setRewardRate_2": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "43964",
+          "parameters": {
+            "rate": "10000000000000000000",
+            "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+          },
+          "timestamp": 1755372475164,
+          "date": "2025-08-16T19:27:55.164Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 43964,
+        "max": 43964,
+        "average": 43964,
+        "median": 43964,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "setRewardRate_3": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "39092",
+          "parameters": {
+            "rate": "0",
+            "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+          },
+          "timestamp": 1755372475165,
+          "date": "2025-08-16T19:27:55.165Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 39092,
+        "max": 39092,
+        "average": 39092,
+        "median": 39092,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "sequence_deposit1": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "240327",
+          "parameters": {
+            "operation": "deposit1",
+            "sequence": "multi_operation_test"
+          },
+          "timestamp": 1755372475167,
+          "date": "2025-08-16T19:27:55.167Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 240327,
+        "max": 240327,
+        "average": 240327,
+        "median": 240327,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "sequence_deposit2": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "153957",
+          "parameters": {
+            "operation": "deposit2",
+            "sequence": "multi_operation_test"
+          },
+          "timestamp": 1755372475168,
+          "date": "2025-08-16T19:27:55.168Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 153957,
+        "max": 153957,
+        "average": 153957,
+        "median": 153957,
+        "standardDeviation": 0
+      },
+      "trends": null
+    },
+    "sequence_setRate": {
+      "totalOperations": 1,
+      "recentOperations": [
+        {
+          "gasUsed": "62597",
+          "parameters": {
+            "operation": "setRate",
+            "sequence": "multi_operation_test"
+          },
+          "timestamp": 1755372475169,
+          "date": "2025-08-16T19:27:55.169Z",
+          "dateKey": "2025-08-16"
+        }
+      ],
+      "statistics": {
+        "count": 1,
+        "min": 62597,
+        "max": 62597,
+        "average": 62597,
+        "median": 62597,
+        "standardDeviation": 0
+      },
+      "trends": null
+    }
+  },
+  "analysis": {
+    "highGasOperations": [
+      {
+        "operation": "userDeposit",
+        "gasUsed": 240327,
+        "priority": "HIGH",
+        "suggestion": "Critical optimization needed - gas usage above 200k"
+      }
+    ],
+    "gasRegressions": [],
+    "optimizationOpportunities": [],
+    "stableOperations": []
+  },
+  "recommendations": [
+    {
+      "type": "CRITICAL_OPTIMIZATION",
+      "operation": "userDeposit",
+      "currentGas": 240327,
+      "target": "Reduce to under 150k gas",
+      "priority": "HIGH",
+      "suggestions": [
+        "Review contract logic for unnecessary operations",
+        "Consider batching operations",
+        "Optimize storage access patterns",
+        "Use more efficient data structures"
+      ]
+    }
+  ]
+}

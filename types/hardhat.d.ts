@@ -70,6 +70,18 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CompensatorFactory__factory>;
     getContractFactory(
+      name: "CompensatorFake",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CompensatorFake__factory>;
+    getContractFactory(
+      name: "ERC20Fake",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Fake__factory>;
+    getContractFactory(
+      name: "GovernorFake",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.GovernorFake__factory>;
+    getContractFactory(
       name: "IComp",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IComp__factory>;
@@ -161,6 +173,21 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.CompensatorFactory>;
     getContractAt(
+      name: "CompensatorFake",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CompensatorFake>;
+    getContractAt(
+      name: "ERC20Fake",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Fake>;
+    getContractAt(
+      name: "GovernorFake",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.GovernorFake>;
+    getContractAt(
       name: "IComp",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -243,6 +270,18 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.CompensatorFactory>;
     deployContract(
+      name: "CompensatorFake",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.CompensatorFake>;
+    deployContract(
+      name: "ERC20Fake",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20Fake>;
+    deployContract(
+      name: "GovernorFake",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.GovernorFake>;
+    deployContract(
       name: "IComp",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IComp>;
@@ -333,6 +372,21 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.CompensatorFactory>;
+    deployContract(
+      name: "CompensatorFake",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.CompensatorFake>;
+    deployContract(
+      name: "ERC20Fake",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20Fake>;
+    deployContract(
+      name: "GovernorFake",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.GovernorFake>;
     deployContract(
       name: "IComp",
       args: any[],

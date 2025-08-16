@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as compensatorSol from "./Compensator.sol";
+export * as fakes from "./fakes";
 export * as mocks from "./mocks";
 export { CompensatorFactory__factory } from "./CompensatorFactory__factory";
 export { IComp__factory } from "./IComp__factory";

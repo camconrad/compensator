@@ -1,0 +1,89 @@
+{
+  "generatedAt": 1755372497919,
+  "generatedAtISO": "2025-08-16T19:28:17.919Z",
+  "reportName": "compensatorGasSummary",
+  "summary": {
+    "totalOperations": 11,
+    "totalBaselines": 2,
+    "lastUpdated": "2025-08-16T19:27:55.176Z"
+  },
+  "topOperations": [
+    {
+      "operation": "userDeposit",
+      "gasUsed": "240327",
+      "timestamp": 1755372475126,
+      "date": "2025-08-16T19:27:55.126Z"
+    },
+    {
+      "operation": "setRewardRate",
+      "gasUsed": "62597",
+      "timestamp": 1755372475127,
+      "date": "2025-08-16T19:27:55.127Z"
+    }
+  ],
+  "recentActivity": [
+    {
+      "operation": "userDeposit",
+      "operationsToday": 12,
+      "lastOperation": "2025-08-16T19:27:55.155Z"
+    },
+    {
+      "operation": "userDeposit_small",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.159Z"
+    },
+    {
+      "operation": "userDeposit_medium",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.160Z"
+    },
+    {
+      "operation": "userDeposit_large",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.161Z"
+    },
+    {
+      "operation": "setRewardRate_0",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.163Z"
+    },
+    {
+      "operation": "setRewardRate_1",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.164Z"
+    },
+    {
+      "operation": "setRewardRate_2",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.164Z"
+    },
+    {
+      "operation": "setRewardRate_3",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.165Z"
+    },
+    {
+      "operation": "sequence_deposit1",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.167Z"
+    },
+    {
+      "operation": "sequence_deposit2",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.168Z"
+    },
+    {
+      "operation": "sequence_setRate",
+      "operationsToday": 1,
+      "lastOperation": "2025-08-16T19:27:55.169Z"
+    }
+  ],
+  "alerts": [
+    {
+      "level": "CRITICAL",
+      "message": "Operation \"userDeposit\" uses 240327 gas - critical optimization needed",
+      "operation": "userDeposit",
+      "gasUsed": 240327
+    }
+  ]
+}

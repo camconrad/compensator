@@ -1004,7 +1004,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /**
      * @notice Updates the reward index based on elapsed time and reward rate
      * @dev Caps rewards to available funds to prevent overdistribution
-     * @dev Relies on Solidity 0.8.x built-in overflow protection for arithmetic operations
      */
     function _updateRewardsIndex() private {
         // Cache state variables to prevent reentrancy

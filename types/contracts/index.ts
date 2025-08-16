@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as compensatorSol from "./Compensator.sol";
 export type { compensatorSol };
+import type * as fakes from "./fakes";
+export type { fakes };
 import type * as mocks from "./mocks";
 export type { mocks };
 export type { CompensatorFactory } from "./CompensatorFactory";

@@ -7,7 +7,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "npx hardhat test",
+    "test:fork": "node scripts/test-fork.js",
+    "test:all": "npx hardhat test test/main.js",
+    "test:core": "npx hardhat test test/core/",
+    "test:security": "npx hardhat test test/core/compensator/security.test.js",
+    "test:gas": "npx hardhat test test/core/compensator/gas-optimization.test.js",
+    "test:performance": "npx hardhat test test/core/compensator/performance.test.js"
   },
   "dependencies": {
     "@bigmi/react": "^0.3.1",
@@ -69,6 +76,7 @@
     "hardhat": "^2.22.19",
     "pino-pretty": "^13.0.0",
     "postcss": "^8",
+    "solidity-coverage": "^0.8.16",
     "tailwindcss": "^3.4.1",
     "typechain": "^8.3.2",
     "typescript": "^5"

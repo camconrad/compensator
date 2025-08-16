@@ -24,11 +24,30 @@ contract MockERC20 is ERC20 {
     }
 
     function delegate(address delegatee) external {
-        delegates[msg.sender] = delegatee;
-        // Transfer voting power to delegatee
-        if (delegatee != address(0)) {
-            votingPower[delegatee] += balanceOf(msg.sender);
+        address currentDelegate = delegates[msg.sender];
+        uint256 currentBalance = balanceOf(msg.sender);
+        
+        // If currently delegated to someone, remove their voting power
+        if (currentDelegate != address(0)) {
+            // Only subtract if the current delegate has enough voting power
+            if (votingPower[currentDelegate] >= currentBalance) {
+                votingPower[currentDelegate] -= currentBalance;
+            } else {
+                // If they don't have enough, just set it to 0
+                votingPower[currentDelegate] = 0;
+            }
         }
+        
+        // Update delegation
+        delegates[msg.sender] = delegatee;
+        
+        // Transfer voting power to new delegatee
+        if (delegatee != address(0)) {
+            votingPower[delegatee] += currentBalance;
+        }
+        
+        // Remove voting power from delegator
+        votingPower[msg.sender] = 0;
     }
 
     function getCurrentVotes(address account) external view returns (uint256) {
