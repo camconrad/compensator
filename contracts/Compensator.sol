@@ -13,35 +13,6 @@ interface CompensatorFactory {
     function onOwnershipTransferred(address oldOwner, address newOwner) external;
 }
 
-// Custom Errors
-error InvalidCompTokenAddress();
-error InvalidCompoundGovernorAddress();
-error InvalidOwnerAddress();
-error InvalidCompTotalSupply();
-error DelegationCapTooSmall();
-error VoteIndexOutOfBounds();
-error AmountMustBeGreaterThanZero();
-error AmountExceedsAvailableRewards();
-error RewardRateMustBeNonNegative();
-error NewRateMustBeDifferent();
-error InvalidSupportValue();
-error AlreadyVotedOnProposal();
-error InvalidProposalState();
-error ProposalAlreadyResolved();
-error ProposalDoesNotExist();
-error ProposalNotResolvedYet();
-error NoStakeToReclaim();
-error InvalidBlocksPerDay();
-error NewOwnerCannotBeZeroAddress();
-error CompIsLocked();
-error CannotWithdrawDuringActiveProposals();
-error InsufficientBalance();
-error NoRewardsToClaim();
-error DelegationCapExceeded();
-error StakingOnlyAllowedForActiveProposals();
-error InvalidProposalId();
-error CompensatorTokensNotTransferable();
-
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
 // \ \  \___|\ \  \|\  \ \  \\\__\ \  \ \  \|\  \ \  \|\  \ \  \\\  \ \  \\ \  \ \  \_|\ \   
@@ -323,6 +294,37 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         uint256 rewardIndex,
         uint256 timestamp
     );
+
+    //////////////////////////
+    // Custom Errors
+    //////////////////////////
+
+    error InvalidCompTokenAddress();
+    error InvalidCompoundGovernorAddress();
+    error InvalidOwnerAddress();
+    error InvalidCompTotalSupply();
+    error DelegationCapTooSmall();
+    error VoteIndexOutOfBounds();
+    error AmountMustBeGreaterThanZero();
+    error AmountExceedsAvailableRewards();
+    error RewardRateMustBeNonNegative();
+    error NewRateMustBeDifferent();
+    error InvalidSupportValue();
+    error AlreadyVotedOnProposal();
+    error InvalidProposalState();
+    error ProposalAlreadyResolved();
+    error ProposalDoesNotExist();
+    error ProposalNotResolvedYet();
+    error NoStakeToReclaim();
+    error InvalidBlocksPerDay();
+    error CompIsLocked();
+    error CannotWithdrawDuringActiveProposals();
+    error InsufficientBalance();
+    error NoRewardsToClaim();
+    error DelegationCapExceeded();
+    error StakingOnlyAllowedForActiveProposals();
+    error InvalidProposalId();
+    error CompensatorTokensNotTransferable();
 
     //////////////////////////
     // Constructor
@@ -1158,9 +1160,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      * @dev This ensures the factory's ownerToCompensator mapping stays synchronized
      * @param newOwner The address of the new owner
      */
-    function transferOwnership(address newOwner) public virtual override onlyOwner {
-        if (newOwner == address(0)) revert NewOwnerCannotBeZeroAddress();
-        
+    function transferOwnership(address newOwner) public virtual override onlyOwner {        
         address oldOwner = owner();
         
         // Call the parent transferOwnership function

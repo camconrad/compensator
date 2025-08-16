@@ -10,8 +10,10 @@ contract MockGovernor is IGovernor {
     mapping(uint256 => uint256) private forVotes;
     mapping(uint256 => uint256) private againstVotes;
     mapping(uint256 => uint256) private abstainVotes;
+    mapping(uint256 => bool) public proposalExists;
     
     uint256 private proposalCounter = 1;
+    bool private shouldRevert = false;
 
     function createProposal(
         address[] memory /* targets */,
@@ -22,16 +24,27 @@ contract MockGovernor is IGovernor {
     ) external returns (uint256) {
         uint256 proposalId = proposalCounter++;
         proposalStates[proposalId] = ProposalState.Pending;
-        proposalSnapshots[proposalId] = block.timestamp;
+        proposalSnapshots[proposalId] = block.number + 1; // Set to next block
+        proposalExists[proposalId] = true;
         return proposalId;
+    }
+
+    function setState(uint256 proposalId, ProposalState newState) external {
+        proposalStates[proposalId] = newState;
+        proposalExists[proposalId] = true;
     }
 
     function setProposalState(uint256 proposalId, ProposalState newState) external {
         proposalStates[proposalId] = newState;
+        proposalExists[proposalId] = true;
     }
 
     function setProposalSnapshot(uint256 proposalId, uint256 snapshot) external {
         proposalSnapshots[proposalId] = snapshot;
+    }
+
+    function setShouldRevert(bool _shouldRevert) external {
+        shouldRevert = _shouldRevert;
     }
 
     function mockHasVoted(uint256 proposalId, address account, bool voted) external {
@@ -50,10 +63,19 @@ contract MockGovernor is IGovernor {
     }
 
     function state(uint256 proposalId) external view override returns (ProposalState) {
+        if (shouldRevert) {
+            revert("MockGovernor: forced revert");
+        }
+        if (!proposalExists[proposalId]) {
+            revert("MockGovernor: proposal does not exist");
+        }
         return proposalStates[proposalId];
     }
 
     function proposalSnapshot(uint256 proposalId) external view override returns (uint256) {
+        if (shouldRevert) {
+            revert("MockGovernor: forced revert");
+        }
         return proposalSnapshots[proposalId];
     }
 
@@ -74,7 +96,6 @@ contract MockGovernor is IGovernor {
     }
 
     function castVote(uint256 proposalId, uint8 support) external override {
-        // Mock implementation - just mark that the contract has voted
         _hasVoted[proposalId][msg.sender] = true;
         
         // Update vote counts based on support
