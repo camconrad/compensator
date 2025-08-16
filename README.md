@@ -76,25 +76,6 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 5. **Claim Rewards**: Claim your proportionally accrued COMP rewards at any time
 6. **Reclaim Stakes**: Reclaim losing stakes after proposal resolution
 
-## Project Structure
-
-```
-├── contracts/
-│   ├── Compensator.sol              # Main contract with delegation and staking
-│   ├── CompensatorFactory.sol       # Factory for deploying instances
-│   ├── IComp.sol                    # COMP token interface
-│   ├── IGovernor.sol                # Governor interface
-│   ├── ICompensator.sol             # Compensator interface
-│   └── mocks/                       # Mock contracts for testing
-├── test/
-│   ├── Compensator.test.js          # Core contract functionality tests
-│   ├── CompensatorFactory.test.js   # Factory deployment and management
-├── scripts/
-│   ├── deploy.ts                    # Main deployment script
-│   └── verify-compensators.ts       # Contract verification script
-└── ... other files
-```
-
 ## Development
 
 ### Setup
