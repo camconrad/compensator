@@ -237,7 +237,7 @@ const ExplorePage = () => {
                           : "text-[#6D7C8D] dark:text-gray-400 hover:text-[#030303] dark:hover:text-gray-200"
                       }`}
                     >
-                      All Delegates
+                      Popularity
                     </TabsTrigger>
                     <TabsTrigger
                       value="performance"

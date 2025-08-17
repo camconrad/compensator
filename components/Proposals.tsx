@@ -898,7 +898,7 @@ const Proposals = () => {
             <div className="mb-6">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm font-medium text-[#6D7C8D]">Total Stakes</span>
-                <span className="text-sm font-semibold text-[#6D7C8D]">
+                <span className="text-sm font-medium text-[#6D7C8D]">
                   {totalStakes >= 1000000 ? `${(totalStakes / 1000000).toFixed(1)}M` : totalStakes >= 1000 ? `${(totalStakes / 1000).toFixed(1)}K` : totalStakes.toFixed(0)} COMP
                 </span>
               </div>

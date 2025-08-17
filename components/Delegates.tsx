@@ -457,22 +457,9 @@ const Delegates = () => {
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Reward Rate</div>
               <div className="">
-                {selectedDelegate?.rewardAPR}
+                {selectedDelegate?.rewardAPR} APR
               </div>
             </div>
-            {/* <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">Last active</div>
-              <div className="">7 days ago</div>
-            </div>
-            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">Profile</div>
-              <Link
-                href={`/delegate/${selectedDelegate.address}`}
-                className="text-sm lowercase cursor-pointer font-medium text-emerald-600 dark:text-emerald-500 focus:outline-none"
-              >
-                @{formatNameForDisplay(selectedDelegate.name)}
-              </Link>
-            </div> */}
           </div>
         </Modal>
       )}
