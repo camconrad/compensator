@@ -326,7 +326,7 @@ const Delegates = () => {
       </div>
 
       {isModalOpen && selectedDelegate && (
-        <Modal handleClose={handleModalClose} open={isModalOpen}>
+        <Modal handleClose={handleModalClose} open={isModalOpen} title="Delegate">
           <div className="">
             <div className="relative h-14 w-14 flex-shrink-0 mb-4 rounded-full overflow-hidden">
               <Image

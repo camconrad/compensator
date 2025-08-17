@@ -655,15 +655,9 @@ const Proposals = () => {
       </div>
 
       {isModalOpen && selectedProposal && (
-        <Modal handleClose={() => setIsModalOpen(false)} open={isModalOpen}>
+        <Modal handleClose={() => setIsModalOpen(false)} open={isModalOpen} title="Stake">
           <div className="">
-            <h2 className="text-xl font-semibold mb-4 dark:text-white" style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white truncate">
               Stake COMP {selectedOutcome} {selectedProposal?.title.replace(/^#\s*/, '')}
             </h2>
 
@@ -1014,7 +1008,7 @@ const Proposals = () => {
         </Modal>
       )}
       {isVoteModalOpen && selectedVoteProposal && (
-        <Modal handleClose={() => setIsVoteModalOpen(false)} open={isVoteModalOpen}>
+        <Modal handleClose={() => setIsVoteModalOpen(false)} open={isVoteModalOpen} title="Vote">
           <div className="">
             <h2 className="text-xl font-semibold mb-4 dark:text-white truncate">
               {selectedVoteProposal?.title.replace(/^#\s*/, '')}
