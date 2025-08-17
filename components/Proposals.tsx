@@ -1011,21 +1011,8 @@ const Proposals = () => {
         <Modal handleClose={() => setIsVoteModalOpen(false)} open={isVoteModalOpen} title="Vote">
           <div className="">
             <h2 className="text-xl font-semibold mb-4 dark:text-white truncate">
-              {selectedVoteProposal?.title.replace(/^#\s*/, '')}
+              Vote {selectedVote} {selectedVoteProposal?.title.replace(/^#\s*/, '')}
             </h2>
-            
-            {/* Selected Vote Display */}
-            <div className="mb-6 flex items-center justify-center">
-              {selectedVote === "For" ? (
-                <div className="flex-1 py-3 px-4 bg-[#10b981e0] border border-[#10b981] uppercase text-white rounded-full flex justify-center items-center relative">
-                  <ThumbsUp className="w-4 h-4" />
-                </div>
-              ) : (
-                <div className="flex-1 py-3 px-4 bg-[#f54a4a] border border-[#f54a4a] uppercase text-white rounded-full flex justify-center items-center relative">
-                  <ThumbsDown className="w-4 h-4" />
-                </div>
-              )}
-            </div>
             
             {/* Vote Amount Input - Matching Stake Modal */}
             <div className="relative mb-4">
@@ -1131,7 +1118,7 @@ const Proposals = () => {
               disabled={!selectedVote || !voteAmount || parseFloat(voteAmount) <= 0}
               className={`w-full py-3 rounded-full font-semibold transition-colors ${selectedVote && voteAmount && parseFloat(voteAmount) > 0 ? "bg-[#10b981] text-white hover:bg-emerald-600" : "bg-[#10b981] text-white opacity-50 cursor-not-allowed"}`}
             >
-              Submit Vote
+              Submit Vote {selectedVote}
             </button>
 
             {/* Available Rewards Display */}
@@ -1141,7 +1128,7 @@ const Proposals = () => {
                   <span className="text-sm font-medium text-[#6D7C8D]">Available Rewards</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-sm font-semibold text-[#6D7C8D]">
+                  <span className="text-sm font-medium text-[#6D7C8D]">
                     {userCompensatorAddress ? (
                       `${parseFloat(availableRewards).toLocaleString()} COMP`
                     ) : (
@@ -1159,7 +1146,7 @@ const Proposals = () => {
                   <span className="text-sm font-medium text-[#6D7C8D]">Voting Power</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-sm font-semibold text-[#6D7C8D]">
+                  <span className="text-sm font-medium text-[#6D7C8D]">
                     {userCompensatorAddress ? (
                       `${formattedContractVotingPower.toLocaleString()} COMP`
                     ) : (
