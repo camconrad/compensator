@@ -176,14 +176,16 @@ export default function TermsOfService() {
                   9. Contact Us
                 </h2>
                 <p>
-                  If you have any questions about these Terms, our delegate marketplace, or how to participate in Compound governance through our platform, please contact us
-                  at{" "}
+                  If you have any questions about these Terms, our delegate marketplace, or how to participate in Compound governance through our platform, please join the{" "}
                   <a 
-                    href="mailto:support@compensator.io"
+                    href="https://discord.com/invite/rps4rfjeGz"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-[#11D48E] hover:underline"
                   >
-                    support@compensator.io
-                  </a>.
+                    Compound Discord
+                  </a>{" "}
+                  for support.
                 </p>
               </div>
             </div>

@@ -128,14 +128,19 @@ export default function PrivacyPolicy() {
             {/* Section 6 */}
             <div>
               <h2 className="text-2xl font-bold text-[#030303] dark:text-white mb-3">6. Your Rights</h2>
-              <p>
-                You have the right to access, update, or delete your personal information that is not stored on the
-                blockchain. If you wish to exercise these rights, please contact us at{" "}
-                <a href="mailto:support@compensator.io" className="text-[#11D48E] hover:underline">
-                  support@compensator.io
-                </a>
-                .
-              </p>
+                              <p>
+                  You have the right to access, update, or delete your personal information that is not stored on the
+                  blockchain. If you wish to exercise these rights, please join the{" "}
+                  <a 
+                    href="https://discord.com/invite/rps4rfjeGz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#11D48E] hover:underline"
+                  >
+                    Compound Discord
+                  </a>{" "}
+                  for support.
+                </p>
             </div>
 
             {/* Section 7 */}
@@ -152,14 +157,19 @@ export default function PrivacyPolicy() {
             {/* Section 8 */}
             <div>
               <h2 className="text-2xl font-bold text-[#030303] dark:text-white mb-3">8. Contact Us</h2>
-              <p>
-                If you have any questions about this Privacy Policy, our delegate marketplace, or how we handle your
-                data, please contact us at{" "}
-                <a href="mailto:support@compensator.io" className="text-[#11D48E] hover:underline">
-                  support@compensator.io
-                </a>
-                .
-              </p>
+                              <p>
+                  If you have any questions about this Privacy Policy, our delegate marketplace, or how we handle your
+                  data, please join the{" "}
+                  <a 
+                    href="https://discord.com/invite/rps4rfjeGz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#11D48E] hover:underline"
+                  >
+                    Compound Discord
+                  </a>{" "}
+                  for support.
+                </p>
             </div>
           </div>
         </div>
