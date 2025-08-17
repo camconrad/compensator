@@ -6,6 +6,16 @@ import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 
+interface DelegationReward {
+  delegate: string;
+  rewards: string;
+}
+
+interface DelegationRewards {
+  totalRewards: number;
+  delegationRewards: DelegationReward[];
+}
+
 export function useDelegations(address?: string) {
   const { address: connectedAddress } = useAccount();
   const targetAddress = address || connectedAddress;
@@ -71,7 +81,7 @@ export const useDelegationRewards = (delegatorAddress?: string) => {
   const targetAddress = delegatorAddress || connectedAddress;
   const { compensatorFactoryContract } = useGetCompensatorFactoryContract();
   const { handleSetCompensatorContract } = useGetCompensatorContract();
-  const [rewards, setRewards] = useState({ totalRewards: 0, delegationRewards: [] });
+  const [rewards, setRewards] = useState<DelegationRewards>({ totalRewards: 0, delegationRewards: [] });
   const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {

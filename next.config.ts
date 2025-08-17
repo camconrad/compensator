@@ -4,7 +4,6 @@ const nextConfig: NextConfig = {
   // Disable SSR entirely to prevent hydration mismatches
   experimental: {
     // Force client-side rendering for all pages
-    appDir: true,
   },
   images: {
     domains: ['via.placeholder.com', 'coin-images.coingecko.com'],

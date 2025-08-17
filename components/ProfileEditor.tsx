@@ -73,14 +73,14 @@ export default function ProfileEditor() {
     if (preferences) {
       setPreferencesData({
         theme: preferences.theme || "auto",
-        notifications: preferences.notifications || {
-          delegationUpdates: true,
-          proposalUpdates: true,
-          rewardUpdates: true,
+        notifications: {
+          delegationUpdates: preferences.notifications?.delegationUpdates ?? true,
+          proposalUpdates: preferences.notifications?.proposalUpdates ?? true,
+          rewardUpdates: preferences.notifications?.rewardUpdates ?? true,
         },
-        displaySettings: preferences.displaySettings || {
-          compactMode: false,
-          showAdvancedMetrics: false,
+        displaySettings: {
+          compactMode: preferences.displaySettings?.compactMode ?? false,
+          showAdvancedMetrics: preferences.displaySettings?.showAdvancedMetrics ?? false,
         },
       });
     }

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import TallyService from '@/services/tally';
+import { useState, useEffect } from 'react';
+import TallyService, { TallyProposal } from '@/services/tally';
 
 export interface UseTallyProposalsOptions {
   limit?: number;
@@ -33,7 +34,7 @@ export function useTallyProposals(options: UseTallyProposalsOptions = {}): UseTa
     proposals,
     isLoading,
     error,
-    refetch,
+    refetch: () => refetch(),
   };
 }
 

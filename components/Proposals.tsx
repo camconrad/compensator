@@ -25,6 +25,7 @@ import { FreeMode, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useAccount, useReadContract } from "wagmi";
 import { motion, AnimatePresence, easeInOut } from "framer-motion";
+import { TallyProposal } from "@/services/tally";
 
 // Empty proposals array - will be populated by Tally API
 const proposals: any[] = [];
@@ -138,11 +139,11 @@ const Proposals = () => {
     popularity: 0,
     // Additional Tally data
     votesFor: tallyProposal.voteStats
-      .filter(stat => stat.type === "for")
-      .reduce((sum, stat) => sum + parseFloat(stat.votesCount), 0),
+      .filter((stat: TallyProposal['voteStats'][0]) => stat.type === "for")
+      .reduce((sum: number, stat: TallyProposal['voteStats'][0]) => sum + parseFloat(stat.votesCount), 0),
     votesAgainst: tallyProposal.voteStats
-      .filter(stat => stat.type === "against")
-      .reduce((sum, stat) => sum + parseFloat(stat.votesCount), 0),
+      .filter((stat: TallyProposal['voteStats'][0]) => stat.type === "against")
+      .reduce((sum: number, stat: TallyProposal['voteStats'][0]) => sum + parseFloat(stat.votesCount), 0),
     eta: undefined, // Not available in this schema
     governorName: tallyProposal.governor.name
   })) : [];
