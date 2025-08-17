@@ -14,25 +14,25 @@ test/
 ├── fuzzing/                # Property-based and edge case tests
 ├── integration/            # End-to-end system tests
 ├── edge-cases/             # Boundary condition tests
-├── fakes/                  # Fake contracts for testing
 ├── mocks/                  # Mock contract implementations
 ├── fork/                   # Mainnet forking tests
 ├── helpers/                # Test utility classes
 ├── gas-reports/            # Gas usage analysis
 └── main.js                 # Main test runner
+
+> **Note**: Fake contracts are compiled from `contracts/fakes/` and available as TypeScript types for testing. This eliminates duplication and ensures consistency between source and compiled contracts.
 ```
 
 ## 🧪 Test Categories & Results
 
 | Category | Tests | Status | Description |
 |----------|-------|---------|-------------|
-| **Core Tests** | 66 | ✅ | Delegate functions, views, factory operations |
+| **Core Tests** | 136 | ✅ | Delegate functions, views, factory operations |
 | **Invariants** | 12 | ✅ | System properties and mathematical consistency |
-| **Fuzzing** | 5 | ✅ | Property-based testing with random inputs |
-| **Integration** | 4 | ✅ | End-to-end system workflows |
-| **Edge Cases** | 12 | ✅ | Boundary conditions and error handling |
-| **Fake Contracts** | 15 | ✅ | Advanced testing contracts |
-| **Mock Contracts** | 22 | ✅ | ERC20 and Governor mocks |
+| **Fuzzing** | 7 | ✅ | Property-based testing with random inputs |
+| **Integration** | 7 | ✅ | End-to-end system workflows |
+| **Edge Cases** | 11 | ✅ | Boundary conditions and error handling |
+| **Mock Contracts** | 35 | ✅ | ERC20 and Governor mocks |
 | **Factory Tests** | 20+ | ✅ | Factory deployment and management |
 | **Views Tests** | 15+ | ✅ | Contract view functions |
 | **Security Tests** | 3+ | ✅ | Access control and security |
@@ -40,7 +40,7 @@ test/
 | **Gas Tests** | 6+ | ✅ | Gas usage tracking and regression |
 | **Fork Tests** | 5 | ✅ | Mainnet forking and real contracts |
 
-**Total: 224+ tests** 🎉
+**Total: 212 tests** 🎉
 
 ## 🚀 Running Tests
 
@@ -65,9 +65,6 @@ npx hardhat test test/integration/
 
 # Edge cases and boundaries
 npx hardhat test test/edge-cases/
-
-# Advanced testing contracts
-npx hardhat test test/fakes/
 
 # Mock implementations
 npx hardhat test test/mocks/

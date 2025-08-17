@@ -41,9 +41,8 @@ require('./integration/Integration.test.js');
 console.log("⚠️  Loading Edge Case Tests...");
 require('./edge-cases/EdgeCases.test.js');
 
-// Fake Contract Tests
-console.log("🎭 Loading Fake Contract Tests...");
-require('./fakes/FakeContractsAdvancedTests.test.js');
+// Fake Contract Tests (using compiled contracts from contracts/fakes/)
+console.log("🎭 Fake contracts available via compiled contracts in contracts/fakes/");
 
 // Mock Contract Tests
 console.log("🎨 Loading Mock Contract Tests...");

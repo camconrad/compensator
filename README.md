@@ -100,25 +100,32 @@ test/
 ├── fuzzing/                # Property-based and edge case tests
 ├── integration/            # End-to-end system workflows
 ├── edge-cases/             # Boundary condition tests
-├── fakes/                  # Advanced testing contracts
 ├── mocks/                  # Mock contract implementations
 ├── fork/                   # Mainnet forking tests
 ├── helpers/                # Test utility classes
 ├── gas-reports/            # Gas usage analysis
 └── main.js                 # Main test runner
+
+### 📁 Fake Contracts Architecture
+The project includes sophisticated fake contracts in `contracts/fakes/` for advanced testing scenarios:
+- **`CompensatorFake.sol`** - Full-featured fake with realistic behavior and edge case simulation
+- **`ERC20Fake.sol`** - Configurable ERC20 token for testing various scenarios  
+- **`GovernorFake.sol`** - Fake governor with testing hooks and failure modes
+
+These contracts are compiled by Hardhat and available as TypeScript types and factory contracts for comprehensive testing.
+
 ```
 
 ### 🧪 Test Categories & Coverage
 
 | Category | Tests | Status | Description |
 |----------|-------|---------|-------------|
-| **Core Tests** | 66+ | ✅ | Delegate functions, views, factory operations |
+| **Core Tests** | 136 | ✅ | Delegate functions, views, factory operations |
 | **Invariants** | 12 | ✅ | System properties and mathematical consistency |
-| **Fuzzing** | 5 | ✅ | Property-based testing with random inputs |
-| **Integration** | 4 | ✅ | End-to-end system workflows |
-| **Edge Cases** | 12 | ✅ | Boundary conditions and error handling |
-| **Fake Contracts** | 15 | ✅ | Advanced testing contracts |
-| **Mock Contracts** | 22 | ✅ | ERC20 and Governor mocks |
+| **Fuzzing** | 7 | ✅ | Property-based testing with random inputs |
+| **Integration** | 7 | ✅ | End-to-end system workflows |
+| **Edge Cases** | 11 | ✅ | Boundary conditions and error handling |
+| **Mock Contracts** | 35 | ✅ | ERC20 and Governor mocks |
 | **Factory Tests** | 20+ | ✅ | Factory deployment and management |
 | **Views Tests** | 15+ | ✅ | Contract view functions |
 | **Security Tests** | 3+ | ✅ | Access control and security |
@@ -126,7 +133,7 @@ test/
 | **Gas Tests** | 6+ | ✅ | Gas usage tracking and regression |
 | **Fork Tests** | 5 | ✅ | Mainnet forking and real contracts |
 
-**Total: 224+ tests** 🎉
+**Total: 212 tests** 🎉
 
 ### 🚀 Running Tests
 
@@ -151,9 +158,6 @@ npx hardhat test test/integration/
 
 # Edge cases and boundaries
 npx hardhat test test/edge-cases/
-
-# Advanced testing contracts
-npx hardhat test test/fakes/
 
 # Mock implementations
 npx hardhat test test/mocks/
@@ -192,10 +196,10 @@ npx hardhat test --verbose
 
 #### **Mock & Fake Contracts**
 - **`MockERC20.sol`** - Simulates COMP token functionality
+- **`CompensatorFake.sol`** - Advanced testing contract (located in `contracts/fakes/`)
+- **`ERC20Fake.sol`** - Fake ERC20 for testing (located in `contracts/fakes/`)
+- **`GovernorFake.sol`** - Fake Governor for testing (located in `contracts/fakes/`)
 - **`MockGovernor.sol`** - Simulates Compound Governor functionality
-- **`CompensatorFake.sol`** - Advanced testing contract with edge cases
-- **`ERC20Fake.sol`** - Token contract with testing hooks
-- **`GovernorFake.sol`** - Governor contract with testing capabilities
 
 ### 📊 Coverage & Quality Metrics
 
@@ -246,7 +250,7 @@ npx hardhat test --verbose
 
 ### 🏆 Test Results
 
-**All 224+ tests pass successfully** with comprehensive coverage across:
+**All 212 tests pass successfully** with comprehensive coverage across:
 - Core contract functionality
 - Security mechanisms
 - Performance characteristics
@@ -295,6 +299,11 @@ For reviewers, each test category validates:
 - **Gas Optimization**: Further optimize gas usage for reward calculations and delegator interactions
 - **Advanced Analytics**: Enhanced delegate performance metrics and analytics
 - **Governance Integration**: Direct integration with Compound governance proposals
+
+## Recent Improvements
+- **✅ Eliminated Duplicate Fake Contracts**: Removed duplicate `test/fakes/` folder and consolidated all fake contracts in `contracts/fakes/` for better maintainability and consistency
+- **✅ Updated Documentation**: All README files now correctly reference the single source of fake contracts
+- **✅ Maintained Test Functionality**: Tests now use compiled contracts from the canonical source location
 - **Mobile Support**: Mobile-optimized interface for delegation and staking
 
 ## Acknowledgments
