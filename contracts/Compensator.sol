@@ -24,6 +24,7 @@ error AmountMustBeGreaterThanZero();
 error AmountExceedsAvailableRewards();
 error RewardRateMustBeNonNegative();
 error NewRateMustBeDifferent();
+error RewardRateTooHigh();
 error InvalidSupportValue();
 error AlreadyVotedOnProposal();
 error InvalidProposalState();
@@ -34,7 +35,7 @@ error NoStakeToReclaim();
 error InvalidBlocksPerDay();
 error NewOwnerCannotBeZeroAddress();
 error CompIsLocked();
-error CannotWithdrawDuringActiveProposals();
+error CannotWithdrawWithActiveStakes();
 error InsufficientBalance();
 error NoRewardsToClaim();
 error DelegationCapExceeded();
@@ -222,6 +223,9 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
 
     /// @notice Maximum blocks per day limit for validation
     uint256 public constant MAX_BLOCKS_PER_DAY = 50000;
+
+    /// @notice Maximum reward rate (100% APR max)
+    uint256 public constant MAX_REWARD_RATE = 3.17e10; // 100% APR max (1 COMP per year per 1 COMP staked)
 
     //////////////////////////
     // Events
@@ -529,8 +533,8 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function setRewardRate(uint256 newRate) external onlyOwner {
         // Checks
-        if (newRate < 0) revert RewardRateMustBeNonNegative();
         if (newRate == rewardRate) revert NewRateMustBeDifferent();
+        if (newRate > MAX_REWARD_RATE) revert RewardRateTooHigh(); // Prevent setting extremely high rates
         
         // Effects
         _updateRewardsIndex();
@@ -629,7 +633,9 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         
         // Set unlock time based on active proposals
         uint256 newUnlockTime = block.timestamp + MIN_LOCK_PERIOD;
-        if (_hasActiveOrPendingProposals()) {
+        
+        // Only extend lock if user doesn't already have an extended lock
+        if (_hasRelevantActiveProposals() && unlockTime[msg.sender] <= block.timestamp + MIN_LOCK_PERIOD) {
             newUnlockTime = block.timestamp + MIN_LOCK_PERIOD + ACTIVE_PROPOSAL_LOCK_EXTENSION;
         }
         
@@ -659,7 +665,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // Checks
         if (amount == 0) revert AmountMustBeGreaterThanZero();
         if (block.timestamp < unlockTime[msg.sender]) revert CompIsLocked();
-        if (_hasActiveOrPendingProposals()) revert CannotWithdrawDuringActiveProposals();
+        if (_hasUserActiveStakes(msg.sender)) revert CannotWithdrawWithActiveStakes();
         if (amount > balanceOf(msg.sender)) revert InsufficientBalance();
         
         // Effects
@@ -938,8 +944,9 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Checks if there are any active or pending proposals
-     * @dev Includes gas limit protection to prevent excessive gas usage
+     * @notice Checks if there are any active or pending proposals (DEPRECATED)
+     * @dev This function is deprecated and kept for backward compatibility.
+     *      Use _hasUserActiveStakes() for withdrawal checks and _hasRelevantActiveProposals() for lock period extensions.
      * @return bool True if there are any active or pending proposals
      */
     function _hasActiveOrPendingProposals() private view returns (bool) {
@@ -956,6 +963,78 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
             
             if (activeProposals[i] || pendingProposals[i]) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @notice Checks if a user can withdraw their COMP
+     * @param user The address of the user to check
+     * @return canWithdraw True if the user can withdraw
+     * @return reason The reason why withdrawal is blocked (if applicable)
+     */
+    function canUserWithdraw(address user) external view returns (bool canWithdraw, string memory reason) {
+        if (block.timestamp < unlockTime[user]) {
+            return (false, "COMP is still locked");
+        }
+        if (_hasUserActiveStakes(user)) {
+            return (false, "User has active stakes on unresolved proposals");
+        }
+        return (true, "User can withdraw");
+    }
+
+    /**
+     * @notice Checks if a user has any active or pending stakes on proposals
+     * @param user The address of the user to check
+     * @return bool True if the user has active or pending stakes
+     */
+    function _hasUserActiveStakes(address user) private view returns (bool) {
+        // Check the last RECENT_PROPOSALS_CHECK_COUNT proposals for active status
+        uint256 startId = latestProposalId;
+        uint256 endId = startId > RECENT_PROPOSALS_CHECK_COUNT ? startId - RECENT_PROPOSALS_CHECK_COUNT : 0;
+        uint256 gasUsed = gasleft();
+        
+        for (uint256 i = startId; i > endId; i--) {
+            // Prevent excessive gas usage
+            if (gasUsed - gasleft() > PROPOSAL_CHECK_GAS_LIMIT) {
+                break;
+            }
+            
+            if (activeProposals[i] || pendingProposals[i]) {
+                // If any active or pending proposal exists, check if the user has stakes
+                if (proposalStakes[i][user].forStake > 0 || proposalStakes[i][user].againstStake > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @notice Checks if there are any active or pending proposals that are relevant to the user's potential staking.
+     * @dev This is a more specific check to extend lock periods only for proposals that are likely to be staked on.
+     * @return bool True if there are any active or pending proposals that are relevant to staking.
+     */
+    function _hasRelevantActiveProposals() private view returns (bool) {
+        // Check the last RECENT_PROPOSALS_CHECK_COUNT proposals for active status
+        uint256 startId = latestProposalId;
+        uint256 endId = startId > RECENT_PROPOSALS_CHECK_COUNT ? startId - RECENT_PROPOSALS_CHECK_COUNT : 0;
+        uint256 gasUsed = gasleft();
+        
+        for (uint256 i = startId; i > endId; i--) {
+            // Prevent excessive gas usage
+            if (gasUsed - gasleft() > PROPOSAL_CHECK_GAS_LIMIT) {
+                break;
+            }
+            
+            // Check if the proposal is active or pending
+            if (activeProposals[i] || pendingProposals[i]) {
+                // Check if the proposal is likely to be staked on
+                // This is a heuristic: if it's active or pending, and not too old, it's likely relevant
+                if (block.timestamp - proposalCreationTime[i] < MAX_PROPOSAL_RESOLUTION_TIME) {
+                    return true;
+                }
             }
         }
         return false;

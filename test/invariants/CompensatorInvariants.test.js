@@ -88,7 +88,7 @@ describe("Compensator Invariant Tests", function () {
       const rewardPool = ethers.parseEther("1000");
       await compToken.connect(delegate).approve(compensatorAddress, rewardPool);
       await compensator.connect(delegate).ownerDeposit(rewardPool);
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000002"));
       
       // Multiple users stake
       const users = [delegator1, delegator2];
@@ -130,13 +130,13 @@ describe("Compensator Invariant Tests", function () {
       expect(currentRate).to.be.gte(0);
       
       // Test various reward rates (start with a different rate)
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.5"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000002"));
       
       const testRates = [
-        ethers.parseEther("0.000001"), // Very small rate
-        ethers.parseEther("0.1"), // Small rate
-        ethers.parseEther("1"), // Normal rate
-        ethers.parseEther("10") // High rate
+        ethers.parseEther("0.000000001"), // Very small rate
+        ethers.parseEther("0.000000005"), // Small rate (unique)
+        ethers.parseEther("0.00000001"), // Medium rate (reduced from 1)
+        ethers.parseEther("0.00000002") // High rate (reduced to stay within secure limits)
       ];
       
       for (const rate of testRates) {
@@ -198,13 +198,13 @@ describe("Compensator Invariant Tests", function () {
         
         // setRewardRate should fail
         await expect(
-          compensator.connect(user).setRewardRate(ethers.parseEther("1"))
+          compensator.connect(user).setRewardRate(ethers.parseEther("0.00000001"))
         ).to.be.reverted;
       }
       
       // Delegate should be able to call these functions
       await expect(
-        compensator.connect(delegate).setRewardRate(ethers.parseEther("1"))
+        compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"))
       ).to.not.be.reverted;
     });
 
@@ -284,7 +284,7 @@ describe("Compensator Invariant Tests", function () {
       // Setup rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // User stakes
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));

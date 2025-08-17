@@ -36,7 +36,7 @@ describe("Compensator Integration Tests", function () {
       // Setup rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // Multiple users stake
       const users = [delegator1, delegator2];
@@ -62,7 +62,7 @@ describe("Compensator Integration Tests", function () {
       // Setup initial rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // User stakes
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
@@ -87,7 +87,7 @@ describe("Compensator Integration Tests", function () {
       // Setup rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("10000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("10000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // Multiple users stake simultaneously
       const users = [delegator1, delegator2, delegator3];
@@ -113,7 +113,7 @@ describe("Compensator Integration Tests", function () {
       // Setup rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // User 1 joins
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
@@ -146,7 +146,7 @@ describe("Compensator Integration Tests", function () {
       // Setup rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // Users stake different amounts
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
@@ -175,7 +175,7 @@ describe("Compensator Integration Tests", function () {
       // Setup initial rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // User stakes
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
@@ -186,7 +186,7 @@ describe("Compensator Integration Tests", function () {
       const rewards1 = await compensator.getPendingRewards(delegator1.address);
       
       // Change reward rate
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("2"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000002"));
       
       // Second reward period
       await testBase.timeTravel(500);

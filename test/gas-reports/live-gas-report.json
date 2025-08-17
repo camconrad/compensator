@@ -1,436 +1,1138 @@
 {
-  "generatedAt": 1755372716399,
+  "generatedAt": 1755413326434,
   "reportName": "compensatorGasReport",
   "summary": {
     "totalOperations": 12,
     "totalBaselines": 2,
-    "lastUpdated": "2025-08-16T19:31:56.399Z"
+    "lastUpdated": "2025-08-17T06:48:46.434Z"
   },
   "baselines": {
     "userDeposit": {
-      "gasUsed": "246752",
+      "gasUsed": "240347",
       "parameters": {
         "amount": "100000000000000000000",
         "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
       },
-      "timestamp": 1755372716231,
+      "timestamp": 1755413326382,
       "version": "1.0.0"
     },
     "setRewardRate": {
-      "gasUsed": "65225",
+      "gasUsed": "62621",
       "parameters": {
-        "rate": "1000000000000000000",
+        "rate": "10000000000",
         "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
       },
-      "timestamp": 1755372716234,
+      "timestamp": 1755413326383,
       "version": "1.0.0"
     }
   },
   "recentOperations": {
     "userDeposit": [
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "20000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
           "iteration": 1
         },
-        "timestamp": 1755372716260,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326392,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "30000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
           "iteration": 2
         },
-        "timestamp": 1755372716267,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326393,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "40000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
           "iteration": 3
         },
-        "timestamp": 1755372716277,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326394,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "50000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
           "iteration": 4
         },
-        "timestamp": 1755372716284,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326396,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "246740",
+        "gasUsed": "240335",
         "parameters": {
           "amount": "10000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716295,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326400,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "50000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716302,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326401,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "100000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716311,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326402,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "246740",
+        "gasUsed": "240335",
         "parameters": {
           "amount": "10000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716320,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326407,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "50000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716328,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326408,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "100000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716336,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413326409,
+        "dateKey": "2025-08-17"
       }
     ],
     "userDeposit_small": [
       {
-        "gasUsed": "240315",
+        "gasUsed": "240311",
         "parameters": {
-          "amount": "1000000000000000000",
+          "amount": "10000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372475159,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984482,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "240315",
+        "gasUsed": "240311",
         "parameters": {
-          "amount": "1000000000000000000",
+          "amount": "10000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372702022,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990580,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "246740",
+        "gasUsed": "240311",
         "parameters": {
-          "amount": "1000000000000000000",
+          "amount": "10000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716350,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044143,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413051783,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413096476,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413115076,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413233189,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413240703,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413294674,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413326417,
+        "dateKey": "2025-08-17"
       }
     ],
     "userDeposit_medium": [
       {
-        "gasUsed": "100115",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "100000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372475160,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984483,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "100115",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "100000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372702022,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990581,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "100000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716359,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044144,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413051784,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413096477,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413115076,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413233190,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413240704,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413294675,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413326418,
+        "dateKey": "2025-08-17"
       }
     ],
     "userDeposit_large": [
       {
-        "gasUsed": "100115",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "500000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372475161,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984485,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "100115",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "500000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372702024,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990581,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "108239",
+        "gasUsed": "100135",
         "parameters": {
           "amount": "500000000000000000000",
           "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         },
-        "timestamp": 1755372716366,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044145,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413051785,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413096477,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413115077,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413233191,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413240705,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413294676,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "timestamp": 1755413326419,
+        "dateKey": "2025-08-17"
       }
     ],
     "setRewardRate_0": [
       {
-        "gasUsed": "78164",
+        "gasUsed": "78176",
         "parameters": {
-          "rate": "100000000000000000",
+          "rate": "1000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372475163,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984488,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "78164",
+        "gasUsed": "78176",
         "parameters": {
-          "rate": "100000000000000000",
+          "rate": "1000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372702027,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990584,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "79849",
+        "gasUsed": "78176",
         "parameters": {
-          "rate": "100000000000000000",
+          "rate": "1000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372716369,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044148,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413051788,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413096480,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413115080,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413233194,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413240708,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413294680,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413326424,
+        "dateKey": "2025-08-17"
       }
     ],
     "setRewardRate_1": [
       {
-        "gasUsed": "43964",
+        "gasUsed": "43988",
         "parameters": {
-          "rate": "1000000000000000000",
+          "rate": "10000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372475164,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984489,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "43964",
+        "gasUsed": "43988",
         "parameters": {
-          "rate": "1000000000000000000",
+          "rate": "10000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372702028,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990584,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "45649",
+        "gasUsed": "43988",
         "parameters": {
-          "rate": "1000000000000000000",
+          "rate": "10000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372716371,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044149,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413051789,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413096481,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413115081,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413233195,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413240709,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413294681,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413326424,
+        "dateKey": "2025-08-17"
       }
     ],
     "setRewardRate_2": [
       {
-        "gasUsed": "43964",
+        "gasUsed": "43988",
         "parameters": {
-          "rate": "10000000000000000000",
+          "rate": "20000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372475164,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984489,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "43964",
+        "gasUsed": "43988",
         "parameters": {
-          "rate": "10000000000000000000",
+          "rate": "20000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372702028,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990585,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "45649",
+        "gasUsed": "43988",
         "parameters": {
-          "rate": "10000000000000000000",
+          "rate": "20000000000",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372716373,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044149,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413051789,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413096482,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413115081,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413233195,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413240709,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413294681,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413326425,
+        "dateKey": "2025-08-17"
       }
     ],
     "setRewardRate_3": [
       {
-        "gasUsed": "39092",
+        "gasUsed": "39140",
         "parameters": {
           "rate": "0",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372475165,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984490,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "39092",
+        "gasUsed": "39140",
         "parameters": {
           "rate": "0",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372702029,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990586,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "40777",
+        "gasUsed": "39140",
         "parameters": {
           "rate": "0",
           "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         },
-        "timestamp": 1755372716376,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044150,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413051790,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413096483,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413115082,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413233196,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413240710,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413294682,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "timestamp": 1755413326425,
+        "dateKey": "2025-08-17"
       }
     ],
     "sequence_deposit1": [
       {
-        "gasUsed": "240327",
+        "gasUsed": "240347",
         "parameters": {
           "operation": "deposit1",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372475167,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984494,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "240327",
+        "gasUsed": "240347",
         "parameters": {
           "operation": "deposit1",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372702031,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990589,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "246752",
+        "gasUsed": "240347",
         "parameters": {
           "operation": "deposit1",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372716385,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044156,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413051794,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413096488,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413115087,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413233200,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413240715,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413294688,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413326430,
+        "dateKey": "2025-08-17"
       }
     ],
     "sequence_deposit2": [
       {
-        "gasUsed": "153957",
+        "gasUsed": "153977",
         "parameters": {
           "operation": "deposit2",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372475168,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984495,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "153957",
+        "gasUsed": "153977",
         "parameters": {
           "operation": "deposit2",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372702032,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990590,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "161493",
+        "gasUsed": "153977",
         "parameters": {
           "operation": "deposit2",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372716394,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044157,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413051794,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413096489,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413115087,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413233201,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413240716,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413294689,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413326430,
+        "dateKey": "2025-08-17"
       }
     ],
     "sequence_setRate": [
       {
-        "gasUsed": "62597",
+        "gasUsed": "62621",
         "parameters": {
           "operation": "setRate",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372475169,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984496,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "62597",
+        "gasUsed": "62621",
         "parameters": {
           "operation": "setRate",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372702033,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990591,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "65225",
+        "gasUsed": "62621",
         "parameters": {
           "operation": "setRate",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372716396,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755413044158,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413051795,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413096490,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413115088,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413233202,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413240716,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413294690,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413326431,
+        "dateKey": "2025-08-17"
       }
     ],
     "sequence_setRate2": [
       {
-        "gasUsed": "45497",
+        "gasUsed": "45521",
         "parameters": {
           "operation": "setRate2",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372702034,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412984496,
+        "dateKey": "2025-08-17"
       },
       {
-        "gasUsed": "48125",
+        "gasUsed": "45521",
         "parameters": {
           "operation": "setRate2",
           "sequence": "multi_operation_test"
         },
-        "timestamp": 1755372716398,
-        "dateKey": "2025-08-16"
+        "timestamp": 1755412990592,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413044159,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413051796,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413096490,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413115089,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413233202,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413240717,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413294690,
+        "dateKey": "2025-08-17"
+      },
+      {
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "timestamp": 1755413326432,
+        "dateKey": "2025-08-17"
       }
     ]
   },
@@ -438,13 +1140,13 @@
     {
       "type": "HIGH_GAS",
       "operation": "userDeposit",
-      "gasUsed": "246752",
+      "gasUsed": "240347",
       "suggestion": "Consider optimizing this operation - gas usage is above 200k"
     },
     {
       "type": "MEDIUM_GAS",
       "operation": "userDeposit",
-      "gasUsed": "246752",
+      "gasUsed": "240347",
       "suggestion": "Monitor gas usage - consider optimizations for better efficiency"
     }
   ]

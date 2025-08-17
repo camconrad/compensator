@@ -145,4 +145,12 @@ interface ICompensator {
      * @return The delegate performance struct
      */
     function delegateInfo() external view returns (DelegateInfo memory);
+
+    /**
+     * @notice Checks if a user can withdraw their COMP
+     * @param user The address of the user to check
+     * @return canWithdraw True if the user can withdraw
+     * @return reason The reason why withdrawal is blocked (if applicable)
+     */
+    function canUserWithdraw(address user) external view returns (bool canWithdraw, string memory reason);
 } 

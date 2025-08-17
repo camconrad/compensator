@@ -57,7 +57,7 @@ describe("Compensator Delegate Functions", function () {
 
   describe("Reward Rate Management", function () {
     it("should allow setting reward rate", async function () {
-      const newRate = ethers.parseEther("2");
+      const newRate = ethers.parseEther("0.00000001");
       await compensator.connect(delegate).setRewardRate(newRate);
       
       const currentRate = await compensator.rewardRate();
@@ -134,7 +134,7 @@ describe("Compensator Delegate Functions", function () {
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // Setup users with stakes
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
@@ -261,7 +261,7 @@ describe("Compensator Delegate Functions", function () {
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // Setup users with stakes
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
@@ -351,7 +351,7 @@ describe("Compensator Delegate Functions", function () {
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
     });
 
     describe("setBlocksPerDay", function () {
@@ -475,12 +475,11 @@ describe("Compensator Delegate Functions", function () {
       });
 
       it("should handle maximum reward rate edge case", async function () {
-        // Test setting a very high reward rate
+        // Test that extremely high reward rates are rejected for security
         const maxRewardRate = ethers.MaxUint256;
-        await compensator.connect(delegate).setRewardRate(maxRewardRate);
-        
-        const currentRewardRate = await compensator.rewardRate();
-        expect(currentRewardRate).to.equal(maxRewardRate);
+        await expect(
+          compensator.connect(delegate).setRewardRate(maxRewardRate)
+        ).to.be.revertedWithCustomError(compensator, "RewardRateTooHigh");
       });
 
       it("should handle blocksPerDay edge cases", async function () {
@@ -550,7 +549,7 @@ describe("Compensator Delegate Functions", function () {
         
         // Check current reward rate and set a different one
         const currentRate = await compensator.rewardRate();
-        const rewardRate = currentRate === 0n ? ethers.parseEther("1") : currentRate + ethers.parseEther("1");
+        const rewardRate = currentRate === 0n ? ethers.parseEther("0.00000001") : currentRate + ethers.parseEther("0.00000001");
         await compensator.connect(delegate).setRewardRate(rewardRate);
         
         // User deposits some COMP to earn rewards
@@ -748,7 +747,7 @@ describe("Compensator Delegate Functions", function () {
         
         // Check current reward rate and set a different one
         const currentRate = await compensator.rewardRate();
-        const rewardRate = currentRate === 0n ? ethers.parseEther("1") : currentRate + ethers.parseEther("1");
+        const rewardRate = currentRate === 0n ? ethers.parseEther("0.00000001") : currentRate + ethers.parseEther("0.00000001");
         await compensator.connect(delegate).setRewardRate(rewardRate);
         
         // User deposits COMP
@@ -781,7 +780,7 @@ describe("Compensator Delegate Functions", function () {
         
         // Check current reward rate and set a different one
         const currentRate = await compensator.rewardRate();
-        const rewardRate = currentRate === 0n ? ethers.parseEther("1") : currentRate + ethers.parseEther("1");
+        const rewardRate = currentRate === 0n ? ethers.parseEther("0.00000001") : currentRate + ethers.parseEther("0.00000001");
         await compensator.connect(delegate).setRewardRate(rewardRate);
         
         // Advance time to trigger reward index update
@@ -804,7 +803,7 @@ describe("Compensator Delegate Functions", function () {
         
         // Check current reward rate and set a different one
         const currentRate = await compensator.rewardRate();
-        const rewardRate = currentRate === 0n ? ethers.parseEther("1") : currentRate + ethers.parseEther("1");
+        const rewardRate = currentRate === 0n ? ethers.parseEther("0.00000001") : currentRate + ethers.parseEther("0.00000001");
         await compensator.connect(delegate).setRewardRate(rewardRate);
         
         // Since _getCurrentRewardsIndex is private, we can't call it directly
@@ -901,12 +900,14 @@ describe("Compensator Delegate Functions", function () {
         expect(await compensator.rewardRate()).to.equal(0);
         
         // Test setting to a very large value
-        const largeRate = ethers.parseEther("1000000");
+        const largeRate = ethers.parseEther("0.00000001"); // Use a rate within our secure 100% APR limit
         await compensator.connect(delegate).setRewardRate(largeRate);
         expect(await compensator.rewardRate()).to.equal(largeRate);
         
-        // Restore original rate
-        await compensator.connect(delegate).setRewardRate(currentRate);
+        // Restore original rate only if it's different from current rate
+        if (currentRate !== largeRate) {
+          await compensator.connect(delegate).setRewardRate(currentRate);
+        }
       });
 
       it("should handle edge cases in deposit validation", async function () {

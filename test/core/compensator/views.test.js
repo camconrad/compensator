@@ -70,7 +70,7 @@ describe("Compensator Views", function () {
       // Setup: Delegate deposits rewards and sets reward rate
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("100"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("100"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // User stakes
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));
@@ -91,7 +91,7 @@ describe("Compensator Views", function () {
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("100"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("100"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
     });
 
     it("should return lastRewarded when rewardRate is zero", async function () {
@@ -117,7 +117,7 @@ describe("Compensator Views", function () {
       const compensatorAddress = await compensator.getAddress();
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // Setup users with stakes
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("100"));

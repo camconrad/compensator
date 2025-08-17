@@ -55,6 +55,30 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "canUserWithdraw",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "canWithdraw",
+        type: "bool",
+      },
+      {
+        internalType: "string",
+        name: "reason",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "proposalId",
         type: "uint256",

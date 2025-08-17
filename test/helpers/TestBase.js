@@ -76,7 +76,7 @@ class TestBase {
     const compensatorAddress = await this.compensator.getAddress();
     await this.compToken.connect(this.delegate).approve(compensatorAddress, ethers.parseEther("100"));
     await this.compensator.connect(this.delegate).ownerDeposit(ethers.parseEther("100"));
-    await this.compensator.connect(this.delegate).setRewardRate(ethers.parseEther("1"));
+    await this.compensator.connect(this.delegate).setRewardRate(ethers.parseEther("0.00000001"));
     
     return {
       compensator: this.compensator,
@@ -155,7 +155,7 @@ class TestBase {
   // Helper for testing with different amounts
   getTestAmounts() {
     return {
-      small: ethers.parseEther("0.1"),
+      small: ethers.parseEther("0.00000001"),
       medium: ethers.parseEther("100"),
       large: ethers.parseEther("10000"),
       veryLarge: ethers.parseEther("1000000")

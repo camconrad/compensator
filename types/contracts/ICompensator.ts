@@ -9,6 +9,7 @@ import type {
   Result,
   Interface,
   EventFragment,
+  AddressLike,
   ContractRunner,
   ContractMethod,
   Listener,
@@ -49,6 +50,7 @@ export declare namespace ICompensator {
 export interface ICompensatorInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "canUserWithdraw"
       | "castVote(uint256,uint8,string)"
       | "castVote(uint256,uint8)"
       | "delegateInfo"
@@ -59,6 +61,10 @@ export interface ICompensatorInterface extends Interface {
 
   getEvent(nameOrSignatureOrTopic: "VoteCast"): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "canUserWithdraw",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "castVote(uint256,uint8,string)",
     values: [BigNumberish, BigNumberish, string]
@@ -84,6 +90,10 @@ export interface ICompensatorInterface extends Interface {
     values: [BigNumberish]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "canUserWithdraw",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "castVote(uint256,uint8,string)",
     data: BytesLike
@@ -184,6 +194,12 @@ export interface ICompensator extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  canUserWithdraw: TypedContractMethod<
+    [user: AddressLike],
+    [[boolean, string] & { canWithdraw: boolean; reason: string }],
+    "view"
+  >;
+
   "castVote(uint256,uint8,string)": TypedContractMethod<
     [proposalId: BigNumberish, support: BigNumberish, reason: string],
     [void],
@@ -238,6 +254,13 @@ export interface ICompensator extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "canUserWithdraw"
+  ): TypedContractMethod<
+    [user: AddressLike],
+    [[boolean, string] & { canWithdraw: boolean; reason: string }],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "castVote(uint256,uint8,string)"
   ): TypedContractMethod<

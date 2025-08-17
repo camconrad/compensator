@@ -64,7 +64,7 @@ describe("Compensator Security Testing", function () {
     it("should test access control mechanisms", async function () {
       // Test owner-only functions
       const ownerFunctions = [
-        { name: "setRewardRate", args: [ethers.parseEther("2")] },
+        { name: "setRewardRate", args: [ethers.parseEther("0.00000002")] },
         { name: "ownerDeposit", args: [ethers.parseEther("100")] },
         { name: "ownerWithdraw", args: [ethers.parseEther("50")] }
       ];

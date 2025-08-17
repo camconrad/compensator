@@ -65,7 +65,7 @@ describe("Compensator Fuzzing and Property-Based Tests", function () {
       // Setup rewards
       await compToken.connect(delegate).approve(compensatorAddress, ethers.parseEther("1000"));
       await compensator.connect(delegate).ownerDeposit(ethers.parseEther("1000"));
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       
       // Multiple users stake
       const users = [delegator1, delegator2];
@@ -123,14 +123,14 @@ describe("Compensator Fuzzing and Property-Based Tests", function () {
     it("should handle various reward rates correctly", async function () {
       // Test with various reward rates to ensure system stability
       // Start with a different rate than the default
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.5"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000002"));
       
       const testRates = [
-        ethers.parseEther("0.000001"), // Very small rate
-        ethers.parseEther("0.1"), // Small rate
-        ethers.parseEther("1"), // Normal rate
-        ethers.parseEther("5"), // High rate (but reasonable)
-        ethers.parseEther("0.01") // Very small rate
+        ethers.parseEther("0.000000001"), // Very small rate
+        ethers.parseEther("0.00000001"), // Small rate
+        ethers.parseEther("0.000000015"), // Medium rate (unique)
+        ethers.parseEther("0.00000002"), // High rate (but within secure limits)
+        ethers.parseEther("0.000000025") // Very high rate (unique, within limits)
       ];
       
       for (const rate of testRates) {

@@ -4,7 +4,7 @@ const { ethers } = require("ethers");
 const TEST_CONSTANTS = {
   // Token amounts
   ZERO_AMOUNT: ethers.parseEther("0"),
-  SMALL_AMOUNT: ethers.parseEther("0.1"),
+  SMALL_AMOUNT: ethers.parseEther("0.00000001"),
   MEDIUM_AMOUNT: ethers.parseEther("100"),
   LARGE_AMOUNT: ethers.parseEther("10000"),
   VERY_LARGE_AMOUNT: ethers.parseEther("1000000"),
@@ -18,9 +18,9 @@ const TEST_CONSTANTS = {
   ONE_YEAR: 31536000,
   
   // Reward rates
-  LOW_REWARD_RATE: ethers.parseEther("0.1"),
-  MEDIUM_REWARD_RATE: ethers.parseEther("1"),
-  HIGH_REWARD_RATE: ethers.parseEther("10"),
+  LOW_REWARD_RATE: ethers.parseEther("0.000000001"),
+  MEDIUM_REWARD_RATE: ethers.parseEther("0.00000001"),
+  HIGH_REWARD_RATE: ethers.parseEther("0.00000005"),
   
   // Precision and tolerance
   PRECISION: ethers.parseEther("0.000001"),

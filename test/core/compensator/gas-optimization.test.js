@@ -65,11 +65,11 @@ describe("Compensator Gas Optimization", function () {
       });
       
       // Set baseline for setRewardRate
-      const rewardRateTx = await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      const rewardRateTx = await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       const rewardRateReceipt = await rewardRateTx.wait();
       
       gasRegressionDetector.setBaseline("setRewardRate", rewardRateReceipt.gasUsed, {
-        rate: ethers.parseEther("1").toString(),
+        rate: ethers.parseEther("0.00000001").toString(),
         caller: delegate.address
       });
       
@@ -192,11 +192,11 @@ describe("Compensator Gas Optimization", function () {
       
       // Test small deposit
       await compToken.connect(delegator1).approve(compensatorAddress, ethers.parseEther("1000"));
-      const smallDepositTx = await compensator.connect(delegator1).userDeposit(ethers.parseEther("1"));
+      const smallDepositTx = await compensator.connect(delegator1).userDeposit(ethers.parseEther("0.00000001"));
       const smallDepositReceipt = await smallDepositTx.wait();
       
       gasRegressionDetector.recordGasUsage("userDeposit_small", smallDepositReceipt.gasUsed, {
-        amount: ethers.parseEther("1").toString(),
+        amount: ethers.parseEther("0.00000001").toString(),
         user: delegator1.address
       });
 
@@ -224,10 +224,10 @@ describe("Compensator Gas Optimization", function () {
     it("should test gas usage for reward rate changes", async function () {
       // Test setting different reward rates
       const rates = [
-        ethers.parseEther("0.1"),
-        ethers.parseEther("1"),
-        ethers.parseEther("10"),
-        ethers.parseEther("0")
+        ethers.parseEther("0.000000001"), // Very small rate
+        ethers.parseEther("0.00000001"), // Small rate
+        ethers.parseEther("0.00000002"), // Medium rate (reduced to stay within secure limits)
+        ethers.parseEther("0") // Zero rate
       ];
 
       for (let i = 0; i < rates.length; i++) {
@@ -253,9 +253,9 @@ describe("Compensator Gas Optimization", function () {
       const operations = [
         { name: "deposit1", fn: () => compensator.connect(delegator1).userDeposit(ethers.parseEther("50")) },
         { name: "deposit2", fn: () => compensator.connect(delegator2).userDeposit(ethers.parseEther("75")) },
-        { name: "setRate", fn: () => compensator.connect(delegate).setRewardRate(ethers.parseEther("2")) },
+        { name: "setRate", fn: () => compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000002")) },
         { name: "getPending", fn: () => compensator.connect(delegator1).getPendingRewards() },
-        { name: "setRate2", fn: () => compensator.connect(delegate).setRewardRate(ethers.parseEther("1")) }
+        { name: "setRate2", fn: () => compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001")) }
       ];
 
       for (const operation of operations) {

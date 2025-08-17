@@ -34,6 +34,7 @@ export interface CompensatorInterface extends Interface {
       | "FACTORY"
       | "MAX_BLOCKS_PER_DAY"
       | "MAX_PROPOSAL_RESOLUTION_TIME"
+      | "MAX_REWARD_RATE"
       | "MIN_LOCK_PERIOD"
       | "PROPOSAL_CHECK_GAS_LIMIT"
       | "RECENT_PROPOSALS_CHECK_COUNT"
@@ -44,6 +45,7 @@ export interface CompensatorInterface extends Interface {
       | "availableRewards"
       | "balanceOf"
       | "blocksPerDay"
+      | "canUserWithdraw"
       | "castVote(uint256,uint8,string)"
       | "castVote(uint256,uint8)"
       | "claimRewards"
@@ -154,6 +156,10 @@ export interface CompensatorInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "MAX_REWARD_RATE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "MIN_LOCK_PERIOD",
     values?: undefined
   ): string;
@@ -192,6 +198,10 @@ export interface CompensatorInterface extends Interface {
   encodeFunctionData(
     functionFragment: "blocksPerDay",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canUserWithdraw",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "castVote(uint256,uint8,string)",
@@ -406,6 +416,10 @@ export interface CompensatorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "MAX_REWARD_RATE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "MIN_LOCK_PERIOD",
     data: BytesLike
   ): Result;
@@ -434,6 +448,10 @@ export interface CompensatorInterface extends Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "blocksPerDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canUserWithdraw",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1078,6 +1096,8 @@ export interface Compensator extends BaseContract {
 
   MAX_PROPOSAL_RESOLUTION_TIME: TypedContractMethod<[], [bigint], "view">;
 
+  MAX_REWARD_RATE: TypedContractMethod<[], [bigint], "view">;
+
   MIN_LOCK_PERIOD: TypedContractMethod<[], [bigint], "view">;
 
   PROPOSAL_CHECK_GAS_LIMIT: TypedContractMethod<[], [bigint], "view">;
@@ -1109,6 +1129,12 @@ export interface Compensator extends BaseContract {
   balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
 
   blocksPerDay: TypedContractMethod<[], [bigint], "view">;
+
+  canUserWithdraw: TypedContractMethod<
+    [user: AddressLike],
+    [[boolean, string] & { canWithdraw: boolean; reason: string }],
+    "view"
+  >;
 
   "castVote(uint256,uint8,string)": TypedContractMethod<
     [proposalId: BigNumberish, support: BigNumberish, reason: string],
@@ -1402,6 +1428,9 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "MAX_PROPOSAL_RESOLUTION_TIME"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "MAX_REWARD_RATE"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "MIN_LOCK_PERIOD"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -1439,6 +1468,13 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "blocksPerDay"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "canUserWithdraw"
+  ): TypedContractMethod<
+    [user: AddressLike],
+    [[boolean, string] & { canWithdraw: boolean; reason: string }],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "castVote(uint256,uint8,string)"
   ): TypedContractMethod<

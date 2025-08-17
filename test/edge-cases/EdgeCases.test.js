@@ -58,7 +58,7 @@ describe("Compensator Edge Cases", function () {
 
     it("should handle zero reward rate setting", async function () {
       // First set a non-zero rate, then set it to zero
-      await compensator.connect(delegate).setRewardRate(ethers.parseEther("1"));
+      await compensator.connect(delegate).setRewardRate(ethers.parseEther("0.00000001"));
       await expect(
         compensator.connect(delegate).setRewardRate(0)
       ).to.not.be.reverted;
@@ -87,12 +87,10 @@ describe("Compensator Edge Cases", function () {
     it("should handle very large reward rates", async function () {
       const largeRewardRate = ethers.parseEther("1000000000"); // 1B tokens per second
       
+      // Large reward rates should be rejected for security reasons
       await expect(
         compensator.connect(delegate).setRewardRate(largeRewardRate)
-      ).to.not.be.reverted;
-      
-      const rewardRate = await compensator.rewardRate();
-      expect(rewardRate).to.equal(largeRewardRate);
+      ).to.be.revertedWithCustomError(compensator, "RewardRateTooHigh");
     });
   });
 
@@ -151,10 +149,18 @@ describe("Compensator Edge Cases", function () {
   describe("State Transitions", function () {
     it("should handle rapid state changes", async function () {
       // Rapidly change reward rate
-      for (let i = 1; i <= 5; i++) {
-        await compensator.connect(delegate).setRewardRate(ethers.parseEther(i.toString()));
+      const rates = [
+        ethers.parseEther("0.00000001"), // 1
+        ethers.parseEther("0.00000002"), // 2
+        ethers.parseEther("0.00000003"), // 3
+        ethers.parseEther("0.00000001"), // 4 (reuse rate 1 to stay within limits)
+        ethers.parseEther("0.00000002")  // 5 (reuse rate 2 to stay within limits)
+      ];
+      
+      for (let i = 0; i < rates.length; i++) {
+        await compensator.connect(delegate).setRewardRate(rates[i]);
         const rewardRate = await compensator.rewardRate();
-        expect(rewardRate).to.equal(ethers.parseEther(i.toString()));
+        expect(rewardRate).to.equal(rates[i]);
       }
     });
 

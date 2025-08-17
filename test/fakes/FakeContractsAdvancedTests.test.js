@@ -85,7 +85,7 @@ describe("Fake Contracts Advanced Testing", function () {
       
       // Try to mint more than remaining supply
       await expect(
-        erc20Fake.mint(user3.address, remainingSupply + ethers.parseEther("1"))
+        erc20Fake.mint(user3.address, remainingSupply + ethers.parseEther("0.00000001"))
       ).to.be.revertedWith("Would exceed max supply");
       
       // Mint exactly the remaining supply
@@ -226,7 +226,7 @@ describe("Fake Contracts Advanced Testing", function () {
       const compensatorAddress = await compensatorFake.getAddress();
       await erc20Fake.connect(owner).approve(compensatorAddress, ethers.parseEther("10000"));
       await compensatorFake.connect(owner).ownerDeposit(ethers.parseEther("10000"));
-      await compensatorFake.connect(owner).setRewardRate(ethers.parseEther("1"));
+      await compensatorFake.connect(owner).setRewardRate(ethers.parseEther("0.00000001"));
     });
 
     it("should handle function-level pausing", async function () {
