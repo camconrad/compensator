@@ -53,7 +53,7 @@ export function useProposalVotes(proposalId: string) {
 }
 
 export function useRecentVotingActivity() {
-  const recentActivity = useQuery(api.voting.getRecentVotingActivity);
+  const recentActivity = useQuery(api.voting.getRecentVotingActivity, { limit: 20 });
   
   return {
     recentActivity,

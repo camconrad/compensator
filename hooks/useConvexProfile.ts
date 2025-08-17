@@ -26,8 +26,8 @@ export function useProfile(address?: string) {
 }
 
 export function useProfileSearch() {
-  const searchProfiles = useQuery(api.profiles.searchProfiles);
-  const getTopDelegates = useQuery(api.profiles.getTopDelegates);
+  const searchProfiles = useQuery(api.profiles.searchProfiles, { query: "" });
+  const getTopDelegates = useQuery(api.profiles.getTopDelegates, { limit: 10 });
   
   return {
     searchProfiles,

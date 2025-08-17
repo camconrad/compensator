@@ -6,24 +6,24 @@ export function useAnalytics() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        const analyticsService = AnalyticsService.getInstance();
-        const data = await analyticsService.getCompoundGovernanceMetrics();
-        
-        setAnalytics(data);
-      } catch (err) {
-        console.error('Error fetching analytics:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchAnalytics = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const analyticsService = AnalyticsService.getInstance();
+      const data = await analyticsService.getCompoundGovernanceMetrics();
+      
+      setAnalytics(data);
+    } catch (err) {
+      console.error('Error fetching analytics:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAnalytics();
   }, []);
 

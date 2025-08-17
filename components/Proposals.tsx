@@ -431,7 +431,7 @@ const Proposals = () => {
             proposalId: selectedProposal.proposalId,
             staker: address,
             support: selectedOutcome === "For" ? 1 : 0,
-            amount: parseFloat(amount),
+            amount: amount,
             transactionHash: stakeReceipt.hash,
           });
         }

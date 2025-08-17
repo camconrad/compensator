@@ -14,7 +14,7 @@ export const useProposalStakes = (proposalId: number) => {
 // Hook for getting staker stakes
 export const useStakerStakes = (stakerAddress?: string) => {
   const stakes = useQuery(
-    stakerAddress ? api.staking.getStakerStakes : "skip",
+    api.staking.getStakerStakes,
     stakerAddress ? { stakerAddress } : "skip"
   );
   
@@ -64,7 +64,7 @@ export const useMarkStakeClaimed = () => {
 // Hook for getting user staking statistics
 export const useUserStakingStats = (stakerAddress?: string) => {
   const stats = useQuery(
-    stakerAddress ? api.staking.getUserStakingStats : "skip",
+    api.staking.getUserStakingStats,
     stakerAddress ? { stakerAddress } : "skip"
   );
   

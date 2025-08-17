@@ -30,7 +30,7 @@ export class AnalyticsService {
   public async getCompoundGovernanceMetrics(): Promise<AnalyticsData> {
     try {
       // Get real proposals data from Tally
-      const proposals = await this.tallyService.getProposals();
+      const proposals = await TallyService.getProposals();
       
       // Calculate real proposal statistics
       const totalProposals = proposals.length;

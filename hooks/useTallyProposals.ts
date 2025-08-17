@@ -12,7 +12,7 @@ export interface UseTallyProposalsReturn {
   proposals: TallyProposal[];
   isLoading: boolean;
   error: Error | null;
-  refetch: () => Promise<void>;
+  refetch: () => Promise<any>;
 }
 
 export function useTallyProposals(options: UseTallyProposalsOptions = {}): UseTallyProposalsReturn {

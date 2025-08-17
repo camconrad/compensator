@@ -67,12 +67,13 @@ export function useDelegations(address?: string) {
 }
 
 export function useDelegationActions() {
-  const createDelegation = useMutation(api.delegations.createDelegation);
-  const updateDelegationStatus = useMutation(api.delegations.updateDelegationStatus);
+  // TODO: Implement delegation mutations when the API is ready
+  // const createDelegation = useMutation(api.delegations.createDelegation);
+  // const updateDelegationStatus = useMutation(api.delegations.updateDelegationStatus);
   
   return {
-    createDelegation,
-    updateDelegationStatus,
+    createDelegation: null,
+    updateDelegationStatus: null,
   };
 }
 
