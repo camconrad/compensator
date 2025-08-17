@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
 import { NumericFormat } from "react-number-format";
 import { erc20Abi } from "viem";
+import NumberFlow from '@number-flow/react';
 import { useAccount } from "wagmi";
 
 interface ModalProps {
@@ -554,13 +555,9 @@ const Modal = ({
                         }}
                         thousandSeparator
                       />
-                      <NumericFormat
-                        displayType="text"
-                        className="text-xs text-[#6D7C8D]"
-                        value={parseFloat(fromAmount) * fromTokenPrice || 0}
-                        decimalScale={2}
-                        prefix="$"
-                      />
+                      <div className="text-xs text-[#6D7C8D]">
+                        $<NumberFlow value={parseFloat(fromAmount) * fromTokenPrice || 0} />
+                      </div>
                     </div>
                     <div className="flex flex-col gap-4">
                       <div className="relative flex items-center">
@@ -628,12 +625,7 @@ const Modal = ({
                           <path d="M2.273 5.625A4.483 4.483 0 015.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 3H5.25a3 3 0 00-2.977 2.625zM2.273 8.625A4.483 4.483 0 015.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 6H5.25a3 3 0 00-2.977 2.625zM5.25 9a3 3 0 00-3 3v6a3 3 0 003 3h13.5a3 3 0 003-3v-6a3 3 0 00-3-3H15a.75.75 0 01-.75-.75 1.5 1.5 0 00-1.5-1.5H9a1.5 1.5 0 00-1.5 1.5A.75.75 0 016 9H5.25z" />
                         </svg>
 
-                        <NumericFormat
-                          displayType="text"
-                          value={tokenBalances[fromToken?.symbol] || 0}
-                          decimalScale={4}
-                          fixedDecimalScale
-                        />
+                        <NumberFlow value={tokenBalances[fromToken?.symbol] || 0} />
                       </p>
                     </div>
                   </div>
@@ -686,13 +678,9 @@ const Modal = ({
                         }}
                         thousandSeparator
                       />
-                      <NumericFormat
-                        displayType="text"
-                        className="text-xs text-[#6D7C8D]"
-                        value={parseFloat(toAmount) * toTokenPrice || 0}
-                        decimalScale={2}
-                        prefix="$"
-                      />
+                      <div className="text-xs text-[#6D7C8D]">
+                        $<NumberFlow value={parseFloat(toAmount) * toTokenPrice || 0} />
+                      </div>
                     </div>
                     <div className="flex flex-col gap-4">
                       <div className="relative">
@@ -749,12 +737,7 @@ const Modal = ({
                         >
                           <path d="M2.273 5.625A4.483 4.483 0 015.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 3H5.25a3 3 0 00-2.977 2.625zM2.273 8.625A4.483 4.483 0 015.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0018.75 6H5.25a3 3 0 00-2.977 2.625zM5.25 9a3 3 0 00-3 3v6a3 3 0 003 3h13.5a3 3 0 003-3v-6a3 3 0 00-3-3H15a.75.75 0 01-.75-.75 1.5 1.5 0 00-1.5-1.5H9a1.5 1.5 0 00-1.5 1.5A.75.75 0 016 9H5.25z" />
                         </svg>
-                        <NumericFormat
-                          displayType="text"
-                          value={tokenBalances[toToken?.symbol] || 0}
-                          decimalScale={4}
-                          fixedDecimalScale
-                        />
+                        <NumberFlow value={tokenBalances[toToken?.symbol] || 0} />
                       </p>
                     </div>
                   </div>
