@@ -42,20 +42,6 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - **Trustless resolution** through Compound Governor state verification
 - **Automatic timeout** after 30 days to prevent stuck stakes
 
-### **Enhanced Vote Verification**
-- **Multi-layered verification** of delegate voting through Compound Governor
-- Records vote direction, block number, transaction hash, timestamp, and voting power
-- Verifies votes were cast in valid proposal states
-- Prevents vote manipulation through on-chain verification
-- **Delegate performance tracking** with success rate metrics
-
-### **Reward Management**
-- **Claim mechanism**: Users can claim accumulated rewards anytime
-- **Reward preservation** during deposits and withdrawals
-- **Separate tracking** of accrued and unclaimed rewards
-- **Precision safeguards** with high-precision calculations
-- **Reentrancy protection** with state variable caching
-
 See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contracts/README.md) for more detail.
 
 ## User Workflow
@@ -95,8 +81,6 @@ npx hardhat run scripts/deploy.ts --network localhost
 ```
 
 ## Testing
-
-The Compensator test suite is a **world-class, enterprise-grade testing framework** with **224+ passing tests** organized into multiple specialized categories for comprehensive coverage and quality assurance.
 
 ### 🏗️ Test Architecture
 
@@ -304,8 +288,6 @@ For reviewers, each test category validates:
 - [ ] Regression detection
 - [ ] Memory efficiency
 - [ ] Computational complexity
-
-This test suite represents a **world-class, enterprise-grade testing framework** that ensures the Compensator system's reliability, security, and performance across all scenarios and edge cases.
 
 ## Future Improvements
 - **Multi-Chain Support**: Allow delegates and delegators to effectively interact from desired chains
