@@ -4023,6 +4023,155 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463254,
+        "dateKey": "2025-08-17",
+        "gasUsed": "240347",
+        "parameters": {
+          "amount": "50000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463258,
+        "dateKey": "2025-08-17",
+        "gasUsed": "240335",
+        "parameters": {
+          "amount": "10000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+          "iteration": 0
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463259,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "20000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+          "iteration": 1
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463260,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "30000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+          "iteration": 2
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463261,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "40000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+          "iteration": 3
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463262,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "50000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+          "iteration": 4
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463266,
+        "dateKey": "2025-08-17",
+        "gasUsed": "240335",
+        "parameters": {
+          "amount": "10000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463267,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "50000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463267,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463272,
+        "dateKey": "2025-08-17",
+        "gasUsed": "240335",
+        "parameters": {
+          "amount": "10000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463273,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "50000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463274,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "userDeposit_small": [
@@ -4340,6 +4489,18 @@
       },
       {
         "timestamp": 1755413326417,
+        "dateKey": "2025-08-17",
+        "gasUsed": "240311",
+        "parameters": {
+          "amount": "10000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463281,
         "dateKey": "2025-08-17",
         "gasUsed": "240311",
         "parameters": {
@@ -4675,6 +4836,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463282,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "100000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "userDeposit_large": [
@@ -5001,6 +5174,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463283,
+        "dateKey": "2025-08-17",
+        "gasUsed": "100135",
+        "parameters": {
+          "amount": "500000000000000000000",
+          "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "setRewardRate_0": [
@@ -5306,6 +5491,18 @@
       },
       {
         "timestamp": 1755413326424,
+        "dateKey": "2025-08-17",
+        "gasUsed": "78176",
+        "parameters": {
+          "rate": "1000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463286,
         "dateKey": "2025-08-17",
         "gasUsed": "78176",
         "parameters": {
@@ -5629,6 +5826,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463286,
+        "dateKey": "2025-08-17",
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "10000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "setRewardRate_2": [
@@ -5847,6 +6056,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463287,
+        "dateKey": "2025-08-17",
+        "gasUsed": "43988",
+        "parameters": {
+          "rate": "20000000000",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "setRewardRate_3": [
@@ -6056,6 +6277,18 @@
       },
       {
         "timestamp": 1755413326425,
+        "dateKey": "2025-08-17",
+        "gasUsed": "39140",
+        "parameters": {
+          "rate": "0",
+          "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463288,
         "dateKey": "2025-08-17",
         "gasUsed": "39140",
         "parameters": {
@@ -6391,6 +6624,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463293,
+        "dateKey": "2025-08-17",
+        "gasUsed": "240347",
+        "parameters": {
+          "operation": "deposit1",
+          "sequence": "multi_operation_test"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "sequence_deposit2": [
@@ -6717,6 +6962,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463294,
+        "dateKey": "2025-08-17",
+        "gasUsed": "153977",
+        "parameters": {
+          "operation": "deposit2",
+          "sequence": "multi_operation_test"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "sequence_setRate": [
@@ -7007,6 +7264,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463295,
+        "dateKey": "2025-08-17",
+        "gasUsed": "62621",
+        "parameters": {
+          "operation": "setRate",
+          "sequence": "multi_operation_test"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ],
     "sequence_setRate2": [
@@ -7285,6 +7554,18 @@
         "metadata": {},
         "blockNumber": 0,
         "transactionHash": null
+      },
+      {
+        "timestamp": 1755451463295,
+        "dateKey": "2025-08-17",
+        "gasUsed": "45521",
+        "parameters": {
+          "operation": "setRate2",
+          "sequence": "multi_operation_test"
+        },
+        "metadata": {},
+        "blockNumber": 0,
+        "transactionHash": null
       }
     ]
   },
@@ -7295,7 +7576,7 @@
         "amount": "100000000000000000000",
         "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
       },
-      "timestamp": 1755413326382,
+      "timestamp": 1755451463247,
       "version": "1.0.0"
     },
     "setRewardRate": {
@@ -7304,9 +7585,9 @@
         "rate": "10000000000",
         "caller": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
       },
-      "timestamp": 1755413326383,
+      "timestamp": 1755451463248,
       "version": "1.0.0"
     }
   },
-  "lastUpdated": 1755413326432
+  "lastUpdated": 1755451463295
 }

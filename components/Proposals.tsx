@@ -71,7 +71,7 @@ const Proposals = () => {
     title: string;
   } | null>(null);
   const [selectedVote, setSelectedVote] = useState<"For" | "Against" | null>(null);
-  const [voteAmount, setVoteAmount] = useState(0);
+  const [voteAmount, setVoteAmount] = useState("");
   const [availableRewards, setAvailableRewards] = useState<string>("0");
   
   // New state for delegate selection
@@ -664,7 +664,7 @@ const Proposals = () => {
               overflow: 'hidden',
               textOverflow: 'ellipsis'
             }}>
-              Stake COMP {selectedOutcome} {selectedProposal?.title}
+              Stake COMP {selectedOutcome} {selectedProposal?.title.replace(/^#\s*/, '')}
             </h2>
 
             {/* Delegate Selection */}
@@ -861,12 +861,51 @@ const Proposals = () => {
               ))}
             </div>
 
+            {/* Submit Button */}
+            <button
+              onClick={() => {
+                if (!selectedDelegate) {
+                  toast.error("Please select a delegate", {
+                    style: {
+                      fontWeight: "600",
+                    },
+                  });
+                  return;
+                }
+                if (!amount || parseFloat(amount) <= 0) {
+                  toast.error("Please enter a stake amount", {
+                    style: {
+                      fontWeight: "600",
+                    },
+                  });
+                  return;
+                }
+                if (parseFloat(amount) > formattedCompBalance) {
+                  toast.error("Insufficient COMP balance", {
+                    style: {
+                      fontWeight: "600",
+                    },
+                  });
+                  return;
+                }
+                handleSubmitStake(parseFloat(amount));
+              }}
+              disabled={!selectedDelegate || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > formattedCompBalance}
+              className={`w-full py-3 rounded-full font-semibold transition-colors mb-6 ${
+                selectedDelegate && amount && parseFloat(amount) > 0 && parseFloat(amount) <= formattedCompBalance
+                  ? "bg-[#10b981] text-white hover:bg-emerald-600"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              Submit Stake {selectedOutcome}
+            </button>
+
             {/* Enhanced Visual Stake Bar */}
             <div className="mb-6">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm font-medium text-[#6D7C8D]">Total Stakes</span>
-                <span className="text-sm font-semibold text-[#030303] dark:text-white">
-                  {totalStakes.toLocaleString()} COMP
+                <span className="text-sm font-semibold text-[#6D7C8D]">
+                  {totalStakes >= 1000000 ? `${(totalStakes / 1000000).toFixed(1)}M` : totalStakes >= 1000 ? `${(totalStakes / 1000).toFixed(1)}K` : totalStakes.toFixed(0)} COMP
                 </span>
               </div>
               
@@ -954,13 +993,13 @@ const Proposals = () => {
                     <div className="w-3 h-3 bg-[#10b981] rounded-full shadow-lg"></div>
                     <div className="absolute inset-0 w-3 h-3 bg-[#10b981] rounded-full animate-ping opacity-75"></div>
                   </div>
-                  <span className="text-xs font-semibold text-[#10b981] flex items-center gap-1">
-                    For: {stakedFor.toFixed(0)} COMP ({forPercentage.toFixed(0)}%)
+                  <span className="text-sm font-medium text-[#6D7C8D] flex items-center gap-1">
+                    {stakedFor >= 1000000 ? `${(stakedFor / 1000000).toFixed(1)}M` : stakedFor >= 1000 ? `${(stakedFor / 1000).toFixed(1)}K` : stakedFor.toFixed(0)} COMP ({forPercentage.toFixed(0)}%)
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-[#f54a4a] flex items-center gap-1">
-                    Against: {stakedAgainst.toFixed(0)} COMP ({againstPercentage.toFixed(0)}%)
+                  <span className="text-sm font-medium text-[#6D7C8D] flex items-center gap-1">
+                    {stakedAgainst >= 1000000 ? `${(stakedAgainst / 1000000).toFixed(1)}M` : stakedAgainst >= 1000 ? `${(stakedAgainst / 1000).toFixed(1)}K` : stakedAgainst.toFixed(0)} COMP ({againstPercentage.toFixed(0)}%)
                   </span>
                   <div className="relative">
                     <div className="w-3 h-3 bg-[#f54a4a] rounded-full shadow-lg"></div>
@@ -970,85 +1009,7 @@ const Proposals = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button
-              onClick={() => {
-                if (!selectedDelegate) {
-                  toast.error("Please select a delegate", {
-                    style: {
-                      fontWeight: "600",
-                    },
-                  });
-                  return;
-                }
-                if (!amount || parseFloat(amount) <= 0) {
-                  toast.error("Please enter a stake amount", {
-                    style: {
-                      fontWeight: "600",
-                    },
-                  });
-                  return;
-                }
-                if (parseFloat(amount) > formattedCompBalance) {
-                  toast.error("Insufficient COMP balance", {
-                    style: {
-                      fontWeight: "600",
-                    },
-                  });
-                  return;
-                }
-                handleSubmitStake(parseFloat(amount));
-              }}
-              disabled={
-                !amount ||
-                parseFloat(amount) <= 0 ||
-                parseFloat(amount) > formattedCompBalance ||
-                loading ||
-                !selectedDelegate
-              }
-              className={`${
-                loading ||
-                !amount ||
-                parseFloat(amount) <= 0 ||
-                parseFloat(amount) > formattedCompBalance ||
-                !selectedDelegate
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-emerald-600"
-              } transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 w-full text-sm bg-[#10b981e0] text-white py-3 text-center rounded-full flex justify-center items-center ${
-                parseFloat(amount) > formattedCompBalance
-                  ? "bg-red-500 hover:bg-red-600"
-                  : ""
-              }`}
-            >
-              {loading ? (
-                <svg
-                  className="animate-spin h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : parseFloat(amount) > formattedCompBalance ? (
-                "Insufficient Balance"
-              ) : !selectedDelegate ? (
-                "Select a Delegate"
-              ) : (
-                `Submit Stake ${selectedOutcome}`
-              )}
-            </button>
+
           </div>
         </Modal>
       )}
@@ -1056,7 +1017,7 @@ const Proposals = () => {
         <Modal handleClose={() => setIsVoteModalOpen(false)} open={isVoteModalOpen}>
           <div className="">
             <h2 className="text-xl font-semibold mb-4 dark:text-white truncate">
-              {selectedVoteProposal?.title}
+              {selectedVoteProposal?.title.replace(/^#\s*/, '')}
             </h2>
             
             {/* Selected Vote Display */}
@@ -1081,14 +1042,14 @@ const Proposals = () => {
                       type="number"
                       placeholder="0.00"
                       value={voteAmount}
-                      onChange={(e) => setVoteAmount(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setVoteAmount(e.target.value)}
                       className="w-full bg-transparent font-semibold dark:text-gray-100 focus:outline-none text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <div className="flex items-center mr-3 ml-2">
                       <button 
                         onClick={() => {
                           const maxAmount = userCompensatorAddress ? formattedContractVotingPower : 0;
-                          setVoteAmount(maxAmount);
+                          setVoteAmount(maxAmount.toString());
                           if (maxAmount > 0) {
                             toast.success(`Set to maximum: ${maxAmount.toFixed(4)} COMP`, {
                               style: {
@@ -1115,8 +1076,8 @@ const Proposals = () => {
                   </div>
                   <div className="flex justify-between items-center mt-2 font-medium">
                     <p className="text-xs text-[#6D7C8D]">
-                      {voteAmount
-                        ? `$${(voteAmount * compPrice).toFixed(2)}`
+                      {voteAmount && parseFloat(voteAmount) > 0
+                        ? `$${(parseFloat(voteAmount) * compPrice).toFixed(2)}`
                         : "$0.00"}
                     </p>
                     <p className="text-xs text-[#6D7C8D] flex items-center gap-1">
@@ -1137,7 +1098,7 @@ const Proposals = () => {
                   key={percent}
                   onClick={() => {
                     const selectedAmount = (percent / 100) * (userCompensatorAddress ? formattedContractVotingPower : 0);
-                    setVoteAmount(selectedAmount);
+                    setVoteAmount(selectedAmount.toString());
                     if (selectedAmount > 0) {
                       toast.success(`Set to ${percent}%: ${selectedAmount.toFixed(4)} COMP`, {
                         style: {
@@ -1163,7 +1124,7 @@ const Proposals = () => {
                   });
                   return;
                 }
-                if (voteAmount <= 0) {
+                if (!voteAmount || parseFloat(voteAmount) <= 0) {
                   toast.error("Please enter a vote amount", {
                     style: {
                       fontWeight: "600",
@@ -1186,13 +1147,11 @@ const Proposals = () => {
                   <span className="text-sm font-medium text-[#6D7C8D]">Available Rewards</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-sm font-semibold text-[#030303] dark:text-white">
+                  <span className="text-sm font-semibold text-[#6D7C8D]">
                     {userCompensatorAddress ? (
                       `${parseFloat(availableRewards).toLocaleString()} COMP`
                     ) : (
-                      <div className="flex items-center gap-1">
-                        <span className="text-[#6D7C8D]">Loading..</span>
-                      </div>
+                      "0.00 COMP"
                     )}
                   </span>
                 </div>
@@ -1206,13 +1165,11 @@ const Proposals = () => {
                   <span className="text-sm font-medium text-[#6D7C8D]">Voting Power</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-sm font-semibold text-[#030303] dark:text-white">
+                  <span className="text-sm font-semibold text-[#6D7C8D]">
                     {userCompensatorAddress ? (
                       `${formattedContractVotingPower.toLocaleString()} COMP`
                     ) : (
-                      <div className="flex items-center gap-1">
-                        <span className="text-[#6D7C8D]">Loading..</span>
-                      </div>
+                      "0.00 COMP"
                     )}
                   </span>
                 </div>

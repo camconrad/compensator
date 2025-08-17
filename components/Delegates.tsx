@@ -449,18 +449,18 @@ const Delegates = () => {
               )}
             </button>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
-              <div className="">Reward Rate</div>
-              <div className="">
-                {selectedDelegate?.rewardAPR}
-              </div>
-            </div>
-            <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Delegated votes</div>
               <div className="">
                 {Number(selectedDelegate?.distributed || "0").toFixed(2)} COMP
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
+              <div className="">Reward Rate</div>
+              <div className="">
+                {selectedDelegate?.rewardAPR}
+              </div>
+            </div>
+            {/* <div className="flex justify-between items-center mt-4 text-sm font-medium text-[#6D7C8D]">
               <div className="">Last active</div>
               <div className="">7 days ago</div>
             </div>
@@ -472,7 +472,7 @@ const Delegates = () => {
               >
                 @{formatNameForDisplay(selectedDelegate.name)}
               </Link>
-            </div>
+            </div> */}
           </div>
         </Modal>
       )}

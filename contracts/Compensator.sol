@@ -225,7 +225,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     uint256 public constant MAX_BLOCKS_PER_DAY = 50000;
 
     /// @notice Maximum reward rate (100% APR max)
-    uint256 public constant MAX_REWARD_RATE = 3.17e10; // 100% APR max (1 COMP per year per 1 COMP staked)
+    uint256 public constant MAX_REWARD_RATE = 3.17e10; // 1 COMP per year per 1 COMP staked
 
     //////////////////////////
     // Events
@@ -944,35 +944,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Checks if there are any active or pending proposals (DEPRECATED)
-     * @dev This function is deprecated and kept for backward compatibility.
-     *      Use _hasUserActiveStakes() for withdrawal checks and _hasRelevantActiveProposals() for lock period extensions.
-     * @return bool True if there are any active or pending proposals
-     */
-    function _hasActiveOrPendingProposals() private view returns (bool) {
-        // Check the last RECENT_PROPOSALS_CHECK_COUNT proposals for active status
-        uint256 startId = latestProposalId;
-        uint256 endId = startId > RECENT_PROPOSALS_CHECK_COUNT ? startId - RECENT_PROPOSALS_CHECK_COUNT : 0;
-        uint256 gasUsed = gasleft();
-        
-        for (uint256 i = startId; i > endId; i--) {
-            // Prevent excessive gas usage
-            if (gasUsed - gasleft() > PROPOSAL_CHECK_GAS_LIMIT) {
-                break;
-            }
-            
-            if (activeProposals[i] || pendingProposals[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * @notice Checks if a user can withdraw their COMP
      * @param user The address of the user to check
      * @return canWithdraw True if the user can withdraw
-     * @return reason The reason why withdrawal is blocked (if applicable)
+     * @return reason The reason why withdrawal is blocked
      */
     function canUserWithdraw(address user) external view returns (bool canWithdraw, string memory reason) {
         if (block.timestamp < unlockTime[user]) {
@@ -985,7 +960,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Checks if a user has any active or pending stakes on proposals
+     * @notice Checks if a user has any active or pending stakes
      * @param user The address of the user to check
      * @return bool True if the user has active or pending stakes
      */
@@ -1250,7 +1225,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
                 // Successfully notified factory
             } catch {
                 // Factory notification failed, but ownership transfer still succeeds
-                // This is acceptable as the factory can be updated manually if needed
             }
         }
     }
