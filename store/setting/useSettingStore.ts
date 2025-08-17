@@ -45,13 +45,26 @@ export const useSettingStore = create<
     }),
     {
       name: "bs-setting",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => {
+        // Check if we're in a browser environment
+        if (typeof window !== 'undefined') {
+          return localStorage;
+        }
+        // Return a mock storage for server-side rendering
+        return {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        };
+      }),
       partialize: ({ theme }) => ({
         theme,
       }),
       onRehydrateStorage: (state) => () => {
         state.actions.hydrate();
       },
+      // Skip hydration on server to prevent mismatches
+      skipHydration: true,
     }
   )
 );

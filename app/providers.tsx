@@ -7,6 +7,7 @@ import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { mainnet } from 'wagmi/chains'
 import { useSettingTheme } from '@/store/setting/selector'
+import ConvexProviderWrapper from '@/providers/ConvexProvider'
 
 export const wagmiConfig = getDefaultConfig({
   chains: [mainnet],
@@ -78,9 +79,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProviderWithTheme>
-          <div style={{ visibility: mounted ? 'visible' : 'hidden' }}>
-            {children}
-          </div>
+          <ConvexProviderWrapper>
+            <div style={{ visibility: mounted ? 'visible' : 'hidden' }}>
+              {children}
+            </div>
+          </ConvexProviderWrapper>
         </RainbowKitProviderWithTheme>
       </QueryClientProvider>
     </WagmiProvider>

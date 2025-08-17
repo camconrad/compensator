@@ -36,7 +36,7 @@ const Header = () => {
     {
       name: "Home",
       href: "/",
-      icon: <FaHome className="w-[14px] h-[14px] text-[#6D7D8E] mr-2" />,
+      icon: <FaHome className="w-[16px] h-[16px] text-[#6D7D8E] mr-2" />,
     },
     {
       name: "Explore",

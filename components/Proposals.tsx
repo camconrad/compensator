@@ -5,6 +5,9 @@ import { compoundTokenContractInfo, compensatorContractInfo } from "@/constants"
 import { getEthersSigner } from "@/hooks/useEtherProvider";
 import { useGetCompoundContract } from "@/hooks/useGetCompContract";
 import { useCompensatorService } from "@/hooks/useCompensatorService";
+import { useProposalStakeTotals, useCreateStake } from "@/hooks/useConvexStaking";
+import { useVoting, useVotingActions, useProposalVotes } from "@/hooks/useConvexVoting";
+import { useTallyProposals } from "@/hooks/useTallyProposals";
 import { delegatesData } from "@/lib/delegate-data";
 
 import { wagmiConfig } from "@/app/providers";
@@ -23,72 +26,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useAccount, useReadContract } from "wagmi";
 import { motion, AnimatePresence, easeInOut } from "framer-motion";
 
-const proposals = [
-  {
-    id: 1,
-    proposalId: 422,
-    title: "[Gauntlet] - Interest Rate Curve Recommendations (03/25)",
-    status: "Pending",
-    createdAt: "2025-03-25",
-    popularity: 120,
-  },
-  {
-    id: 2,
-    proposalId: 421,
-    title: "[Gauntlet] - Cap recommendations (03/24/25)",
-    status: "Active",
-    createdAt: "2025-03-24",
-    popularity: 120,
-  },
-  {
-    id: 3,
-    proposalId: 420, 
-    title: "Initialize cWETHv3 on Ronin",
-    status: "Pending",
-    createdAt: "2025-03-18",
-    popularity: 80,
-  },
-  {
-    id: 4,
-    proposalId: 419, 
-    title: "Add wsuperOETHb as collateral into cWETHv3 on Base",
-    status: "Pending",
-    createdAt: "2025-03-14",
-    popularity: 150,
-  },
-  {
-    id: 5,
-    proposalId: 418, 
-    title: "Add tETH as collateral into cWETHv3 on Mainnet",
-    status: "Executed",
-    createdAt: "2025-03-10",
-    popularity: 60,
-  },
-  {
-    id: 6,
-    proposalId: 423, 
-    title: "Renew Proposal Guardian Role for the Community Multisig",
-    status: "Executed",
-    createdAt: "2025-03-11",
-    popularity: 200,
-  },
-  {
-    id: 7,
-    proposalId: 417, 
-    title: "[Gauntlet] - Rewards Top Up for Ethereum, Base and Optimism (10/3/25)",
-    status: "Executed",
-    createdAt: "2025-03-10",
-    popularity: 200,
-  },
-  {
-    id: 8,
-    proposalId: 415, 
-    title: "Add weETH as collateral into cUSDTv3 on Mainnet",
-    status: "Executed",
-    createdAt: "2025-03-06",
-    popularity: 200,
-  },
-];
+// Empty proposals array - will be populated by Tally API
+const proposals: any[] = [];
 
 const Proposals = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,8 +48,10 @@ const Proposals = () => {
   const [amount, setAmount] = useState("");
   const [hasSelectedPercentage, setHasSelectedPercentage] = useState(false);
 
-  const [stakedFor, setStakedFor] = useState(0.0);
-  const [stakedAgainst, setStakedAgainst] = useState(0.0);
+  // Use Convex staking data instead of local state
+  const { totals: stakeTotals } = useProposalStakeTotals(selectedProposal?.proposalId || 0);
+  const stakedFor = stakeTotals?.totalStakesFor || 0;
+  const stakedAgainst = stakeTotals?.totalStakesAgainst || 0;
   const { compoundContract } = useGetCompoundContract();
   const { 
     userCompensatorAddress, 
@@ -120,6 +61,7 @@ const Proposals = () => {
     createCompensator,
     refreshUserData 
   } = useCompensatorService();
+  const { createStake } = useCreateStake();
 
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false);
   const [selectedVoteProposal, setSelectedVoteProposal] = useState<{
@@ -130,11 +72,25 @@ const Proposals = () => {
   const [selectedVote, setSelectedVote] = useState<"For" | "Against" | null>(null);
   const [voteAmount, setVoteAmount] = useState(0);
   const [availableRewards, setAvailableRewards] = useState<string>("0");
-
+  
   // New state for delegate selection
   const [selectedDelegate, setSelectedDelegate] = useState<any>(null);
   const [isDelegateDropdownOpen, setIsDelegateDropdownOpen] = useState(false);
   const [userDelegations, setUserDelegations] = useState<any[]>([]);
+  const [useTallyAPI, setUseTallyAPI] = useState(false);
+  
+  // Voting hooks
+  const { votingHistory, votingStats } = useVoting(address);
+  const { recordVote } = useVotingActions();
+  const { proposalVotes } = useProposalVotes(selectedVoteProposal?.proposalId?.toString() || "");
+  
+  // Tally API hook
+  const { proposals: tallyProposals, isLoading: isTallyLoading, error: tallyError, refetch: refetchTally } = useTallyProposals({
+    limit: 20,
+    enabled: true
+  });
+  
+
 
   const { data: userBalance, refetch: refetchCompBalance } = useReadContract({
     address: compoundTokenContractInfo.address as `0x${string}`,
@@ -170,7 +126,31 @@ const Proposals = () => {
 
   const compPrice = 41.44;
 
-  const sortedProposals = [...proposals].sort((a, b) => {
+  // Convert Tally API proposals to our internal format
+  const convertedTallyProposals = tallyProposals && tallyProposals.length > 0 ? tallyProposals.map(tallyProposal => ({
+    id: parseInt(tallyProposal.id),
+    proposalId: parseInt(tallyProposal.onchainId),
+    title: tallyProposal.metadata?.title || `Compound Proposal ${tallyProposal.onchainId}`,
+    status: tallyProposal.status === "active" ? "active" : 
+             tallyProposal.status === "executed" ? "executed" : 
+             tallyProposal.status === "canceled" ? "defeated" : "active",
+    createdAt: new Date().toISOString(),
+    popularity: 0,
+    // Additional Tally data
+    votesFor: tallyProposal.voteStats
+      .filter(stat => stat.type === "for")
+      .reduce((sum, stat) => sum + parseFloat(stat.votesCount), 0),
+    votesAgainst: tallyProposal.voteStats
+      .filter(stat => stat.type === "against")
+      .reduce((sum, stat) => sum + parseFloat(stat.votesCount), 0),
+    eta: undefined, // Not available in this schema
+    governorName: tallyProposal.governor.name
+  })) : [];
+  
+  // Use converted Tally proposals if available, otherwise fall back to hardcoded
+  const displayProposals = convertedTallyProposals.length > 0 ? convertedTallyProposals : proposals;
+  
+  const sortedProposals = [...displayProposals].sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -255,6 +235,25 @@ const Proposals = () => {
       );
       
       if (transactionReceipt?.status === "success") {
+        // Record vote in Convex database
+        if (address) {
+          try {
+            await recordVote({
+              voter: address,
+              proposalId: selectedVoteProposal.proposalId.toString(),
+              proposalTitle: selectedVoteProposal.title,
+              voteDirection: selectedVote === "For" ? "for" : "against",
+              votingPower: formattedContractVotingPower,
+              transactionHash: voteReceipt.hash,
+              status: "active",
+              rewardsEarned: 0
+            });
+          } catch (convexError) {
+            console.log("Failed to record vote in Convex:", convexError);
+            // Continue even if Convex recording fails
+          }
+        }
+        
         setIsVoteModalOpen(false);
         toast.success(`Successfully voted ${selectedVote} on proposal ${selectedVoteProposal.title}`);
       }
@@ -270,27 +269,59 @@ const Proposals = () => {
     }
   };
 
-  // Get user's delegations
+  // Get user's delegations from smart contracts
   useEffect(() => {
     const getUserDelegations = async () => {
-      if (address) {
+      if (address && userCompensatorAddress) {
         try {
-          // TODO: Implement real delegation fetching from contracts
-          // For now, show empty state when no real delegations exist
-          setUserDelegations([]);
-          setSelectedDelegate(null);
+          // Get delegations from the user's Compensator contract
+          const { signer } = await getEthersSigner(wagmiConfig);
+          const compensatorContract = new ethers.Contract(
+            userCompensatorAddress,
+            compensatorContractInfo.abi,
+            signer
+          );
+          
+          // Get total delegated COMP
+          const totalDelegated = await compensatorContract.totalDelegatedCOMP();
+          const formattedTotalDelegated = parseFloat(formatUnits(totalDelegated.toString(), 18));
+          
+          if (formattedTotalDelegated > 0) {
+            // User has delegations - create a delegation record
+            const delegation = {
+              delegate: address, // User is delegating to themselves
+              delegateImage: "/logo.png",
+              amount: `${formattedTotalDelegated.toFixed(2)} COMP`,
+              date: new Date().toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+              }),
+              address: address,
+              amountValue: formattedTotalDelegated
+            };
+            
+            setUserDelegations([delegation]);
+            setSelectedDelegate(delegation);
+          } else {
+            // No delegations found
+            setUserDelegations([]);
+            setSelectedDelegate(null);
+          }
         } catch (error) {
           console.log("Error getting user delegations:", error);
-          toast.error("Failed to load delegates", {
-            style: {
-              fontWeight: "600",
-            },
-          });
+          // Fallback to empty state
+          setUserDelegations([]);
+          setSelectedDelegate(null);
         }
+      } else {
+        // No address or compensator address
+        setUserDelegations([]);
+        setSelectedDelegate(null);
       }
     };
     getUserDelegations();
-  }, [address]);
+  }, [address, userCompensatorAddress]);
 
   // Close delegate dropdown when clicking outside
   useEffect(() => {
@@ -393,17 +424,21 @@ const Proposals = () => {
       );
       
       if (transactionStakeReceipt?.status === "success") {
+        // Create stake record in Convex database
+        if (address) {
+          await createStake({
+            proposalId: selectedProposal.proposalId,
+            staker: address,
+            support: selectedOutcome === "For" ? 1 : 0,
+            amount: parseFloat(amount),
+            transactionHash: stakeReceipt.hash,
+          });
+        }
+
         toast.success("Stake submitted successfully!");
         setIsModalOpen(false);
         setAmount("");
         setSelectedOutcome(null);
-        
-        // Update stake amounts
-        if (selectedOutcome === "For") {
-          setStakedFor((prev) => prev + amount);
-        } else {
-          setStakedAgainst((prev) => prev + amount);
-        }
         
         // Refresh user data
         await refreshUserData();
@@ -432,15 +467,7 @@ const Proposals = () => {
     try {
       if (!userCompensatorAddress) return;
       
-      // This would typically come from your backend or contract events
-      // For now, we'll set to 0 and let the real data populate
-      setStakedFor(0);
-      setStakedAgainst(0);
-      
-      // TODO: Implement real stake fetching logic using the service
-      // const stakes = await compensatorService.getProposalTotalStakes(proposalId);
-      // setStakedFor(parseFloat(stakes.forStakes));
-      // setStakedAgainst(parseFloat(stakes.againstStakes));
+      // Stake amounts are now managed by Convex - no need to fetch or reset local state
     } catch (error) {
       console.error("Error fetching proposal stakes:", error);
       toast.error("Failed to fetch proposal stakes", {
@@ -510,7 +537,13 @@ const Proposals = () => {
           <h2 className="text-[24px] sm:text-2xl font-bold text-[#030303] dark:text-white  mb-[-10px] md:mb-[-12px]">
             Proposals
           </h2>
+          {tallyError && (
+            <div className="text-red-500 text-sm">
+              Error: {tallyError.message}
+            </div>
+          )}
           <div className="flex items-center gap-2 transition-all duration-100 ease-linear">
+
             <div className="flex mb-[-6px] font-semibold md:mb-[0px] bg-white shadow-sm dark:bg-[#1D2833] rounded-full p-1">
               <button
                 onClick={() => setSortBy("stake")}
@@ -535,6 +568,8 @@ const Proposals = () => {
             </div>
           </div>
         </div>
+        
+
 
         <div className="relative">
           <Swiper
@@ -563,9 +598,9 @@ const Proposals = () => {
             {sortedProposals.map((proposal) => (
               <SwiperSlide key={proposal.id} className="">
                 {sortBy === "stake" ? (
-                  <div className="bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between min-h-[280px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5">
+                  <div className="bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between min-h-[200px] sm:min-h-[280px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5">
                     <h3 className="text-xl font-semibold text-[#030303] dark:text-white mb-4 sm:line-clamp-none line-clamp-3">
-                      {proposal.title}
+                      {proposal.title.replace(/^#\s*/, '')}
                     </h3>
                     <div className="flex flex-col gap-2 font-medium text-xs">
                       <button
@@ -583,9 +618,9 @@ const Proposals = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between min-h-[280px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5">
+                  <div className="bg-white border border-[#efefef] dark:border-[#28303e] flex flex-col justify-between min-h-[200px] sm:min-h-[280px] w-full dark:bg-[#1D2833] rounded-lg shadow-sm p-5">
                     <h3 className="text-xl font-semibold text-[#030303] dark:text-white mb-4 sm:line-clamp-none line-clamp-3">
-                      {proposal.title}
+                      {proposal.title.replace(/^#\s*/, '')}
                     </h3>
                     <div className="flex flex-col gap-2 font-medium text-xs">
                       <button
@@ -1019,14 +1054,8 @@ const Proposals = () => {
       {isVoteModalOpen && selectedVoteProposal && (
         <Modal handleClose={() => setIsVoteModalOpen(false)} open={isVoteModalOpen}>
           <div className="">
-            <h2 className="text-xl font-semibold mb-4 dark:text-white" style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
-              Vote on {selectedVoteProposal?.title}
+            <h2 className="text-xl font-semibold mb-4 dark:text-white truncate">
+              {selectedVoteProposal?.title}
             </h2>
             
             {/* Selected Vote Display */}
@@ -1034,12 +1063,10 @@ const Proposals = () => {
               {selectedVote === "For" ? (
                 <div className="flex-1 py-3 px-4 bg-[#10b981e0] border border-[#10b981] uppercase text-white rounded-full flex justify-center items-center relative">
                   <ThumbsUp className="w-4 h-4" />
-                  <span className="absolute right-4 text-white text-xs uppercase font-bold">Selected</span>
                 </div>
               ) : (
                 <div className="flex-1 py-3 px-4 bg-[#f54a4a] border border-[#f54a4a] uppercase text-white rounded-full flex justify-center items-center relative">
                   <ThumbsDown className="w-4 h-4" />
-                  <span className="absolute right-4 text-white text-xs uppercase font-bold">Selected</span>
                 </div>
               )}
             </div>
@@ -1169,16 +1196,6 @@ const Proposals = () => {
                   </span>
                 </div>
               </div>
-              {userCompensatorAddress && (
-                <div className="mt-2 text-xs text-[#6D7C8D]">
-                  COMP available for distribution to stakers from successful votes
-                </div>
-              )}
-              {userCompensatorAddress && parseFloat(availableRewards) > 0 && (
-                <div className="mt-2 p-2 bg-[#f59e0b] bg-opacity-10 border border-[#f59e0b] border-opacity-20 rounded text-xs text-[#f59e0b] font-medium">
-                  💰 You have rewards to distribute! Stakers will earn from your successful votes.
-                </div>
-              )}
             </div>
             
             {/* Delegate Voting Power Display */}
@@ -1199,19 +1216,45 @@ const Proposals = () => {
                   </span>
                 </div>
               </div>
-              {userCompensatorAddress && (
-                <div className="mt-2 text-xs text-[#6D7C8D]">
-                  Total COMP delegated to your contract for voting
-                </div>
-              )}
-              {userCompensatorAddress && formattedContractVotingPower > 0 && (
-                <div className="mt-2 p-2 bg-[#10b981] bg-opacity-10 border border-[#10b981] border-opacity-20 rounded text-xs text-[#10b981] font-medium">
-                  🎯 You have significant voting power! Your vote will have a real impact on this proposal.
-                </div>
-              )}
+
             </div>
           </div>
         </Modal>
+      )}
+      
+      {/* Voting History Section */}
+      {votingHistory && votingHistory.length > 0 && (
+        <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Recent Voting History
+          </h3>
+          <div className="space-y-3">
+            {votingHistory.slice(0, 5).map((vote, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    {vote.proposalTitle}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Voted {vote.voteDirection} • {new Date(vote.timestamp).toLocaleDateString()}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    vote.voteDirection === "for" 
+                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                  }`}>
+                    {vote.voteDirection === "for" ? "For" : "Against"}
+                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {vote.votingPower.toFixed(2)} COMP
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
     </div>

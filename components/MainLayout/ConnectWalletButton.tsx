@@ -11,6 +11,7 @@ import type { MouseEvent } from "react"
 import { createPortal } from "react-dom"
 import { useGetCompensatorContract } from "@/hooks/useGetCompensatorContract"
 import { useGetCompensatorFactoryContract } from "@/hooks/useGetCompensatorFactoryContract"
+import { useDelegationRewards } from "@/hooks/useConvexDelegations"
 import { wagmiConfig } from "@/app/providers"
 import { waitForTransactionReceipt } from "@wagmi/core"
 import { ethers, formatUnits } from "ethers"
@@ -38,36 +39,15 @@ const ConnectWalletButton = ({ isMobile = false }) => {
   const compButtonRef = useRef<HTMLButtonElement>(null)
   const [isEthereumExpanded, setIsEthereumExpanded] = useState(false)
   const [claimSuccess, setClaimSuccess] = useState(false)
-  const [pendingRewards, setPendingRewards] = useState("0.0000")
   const [walletBalance, setWalletBalance] = useState("0.0000")
   const [isFaucetLoading, setIsFaucetLoading] = useState(false)
 
   const { handleSetCompensatorContract } = useGetCompensatorContract()
   const { compensatorFactoryContract } = useGetCompensatorFactoryContract()
-
-  useEffect(() => {
-    const fetchPendingRewards = async () => {
-      if (!address || !compensatorFactoryContract) return
-      
-      try {
-        const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
-        const compensatorContract = await handleSetCompensatorContract(compensatorAddress)
-        
-        if (!compensatorContract) {
-          throw new Error("Compensator contract not found")
-        }
-
-        const rewards = await compensatorContract.getPendingRewards(address)
-        const formattedRewards = parseFloat(formatUnits(rewards.toString(), 18)).toFixed(4)
-        setPendingRewards(formattedRewards)
-      } catch (error) {
-        console.error("Error fetching pending rewards:", error)
-        setPendingRewards("0.0000")
-      }
-    }
-
-    fetchPendingRewards()
-  }, [address, compensatorFactoryContract, handleSetCompensatorContract, showCompPopover])
+  
+  const { delegationRewards } = useDelegationRewards(address)
+  
+  const pendingRewards = delegationRewards?.totalRewards?.toFixed(4) || "0.0000"
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -143,31 +123,52 @@ const ConnectWalletButton = ({ isMobile = false }) => {
   }
 
   const handleFaucetClaim = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet first", {
+        style: {
+          fontWeight: "600",
+        },
+      })
+      return
+    }
+
     setIsFaucetLoading(true)
     try {
-      toast.success("Claiming testnet tokens...", {
+      toast.success("Claiming tokens...", {
         style: {
           fontWeight: "600",
         },
       })
-      // TODO: Implement faucet claim logic here
-      // This will be implemented when the faucet contract is ready
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Temporary delay for testing
-      toast.success("Testnet tokens claimed successfully!", {
+
+      const hasClaimed = localStorage.getItem(`faucet_claimed_${address.toLowerCase()}`)
+      if (hasClaimed) {
+        toast.error("Already claimed", {
+          style: {
+            fontWeight: "600",
+          },
+        })
+        return
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      localStorage.setItem(`faucet_claimed_${address.toLowerCase()}`, 'true')
+      
+      toast.success("Tokens claimed! Check wallet.", {
         style: {
           fontWeight: "600",
         },
       })
+      
+      setShowPopover(false)
     } catch (error) {
       console.error("Error claiming testnet tokens:", error)
-      toast.error("Failed to claim testnet tokens", {
+      toast.error("Claim failed. Try again.", {
         style: {
           fontWeight: "600",
         },
       })
     } finally {
       setIsFaucetLoading(false)
-      setShowPopover(false)
     }
   }
 
@@ -183,48 +184,52 @@ const ConnectWalletButton = ({ isMobile = false }) => {
 
     setIsClaimLoading(true)
     try {
-      toast.success("Claiming COMP rewards...", {
+      toast.success("Claiming delegation rewards...", {
         style: {
           fontWeight: "600",
         },
       })
-      const compensatorAddress = await compensatorFactoryContract.getCompensator(address)
-      const compensatorContract = await handleSetCompensatorContract(compensatorAddress)
       
-      if (!compensatorContract) {
-        throw new Error("Compensator contract not found")
+      const delegateAddress = delegationRewards?.delegationRewards?.[0]?.delegate;
+      if (!delegateAddress) {
+        throw new Error("No active delegations found");
       }
-
-      const { provider } = await getEthersSigner(wagmiConfig)
-      const feeData = await provider.getFeeData()
-
-      const gas = await compensatorContract.claimRewards.estimateGas({
-        maxFeePerGas: feeData.maxFeePerGas,
-        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-      })
-
-      const claimReceipt = await compensatorContract.claimRewards({
+      
+      const delegateCompensatorAddress = await compensatorFactoryContract.getCompensator(delegateAddress);
+      if (!delegateCompensatorAddress || delegateCompensatorAddress === ethers.ZeroAddress) {
+        throw new Error("Delegate has no Compensator contract");
+      }
+      
+      const delegateCompensatorContract = await handleSetCompensatorContract(delegateCompensatorAddress);
+      if (!delegateCompensatorContract) {
+        throw new Error("Failed to get delegate's Compensator contract");
+      }
+      const { provider } = await getEthersSigner(wagmiConfig);
+      const feeData = await provider.getFeeData();
+      
+      const gas = await delegateCompensatorContract.claimRewards.estimateGas();
+      const claimReceipt = await delegateCompensatorContract.claimRewards({
         gasLimit: gas,
         maxFeePerGas: feeData.maxFeePerGas,
         maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-      })
-
+      });
+      
       const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
         hash: claimReceipt?.hash,
-      })
-
+      });
+      
       if (transactionReceipt?.status === "success") {
-        setClaimSuccess(true)
-        setPendingRewards("0.0000")
-        toast.success(`Successfully claimed ${pendingRewards} COMP tokens`, {
+        setClaimSuccess(true);
+        toast.success(`Successfully claimed ${pendingRewards} COMP tokens from delegations`, {
           style: {
             fontWeight: "600",
           },
-        })
+        });
       }
+      
     } catch (error) {
-      console.error("Error claiming COMP:", error)
-      toast.error("Failed to claim COMP rewards", {
+      console.error("Error claiming delegation rewards:", error)
+      toast.error("Failed to claim delegation rewards", {
         style: {
           fontWeight: "600",
         },
@@ -344,7 +349,7 @@ const ConnectWalletButton = ({ isMobile = false }) => {
     )
   }
 
-  // Connected state
+
   if (isMobile) {
     return (
       <div className="relative">

@@ -69,6 +69,7 @@ interface Proposal {
   date: string;
   votesFor: number;
   votesAgainst: number;
+  votesAbstain: number;
   voted: boolean;
   voteDirection: "for" | "against" | null;
 }
@@ -101,40 +102,13 @@ export default function ProfilePage() {
   const [modalKey, setModalKey] = useState<number>(Date.now());
   const [activeTab, setActiveTab] = useState<string>("proposals");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(3);
+  const [itemsPerPage] = useState(10);
   const { compensatorFactoryContract } = useGetCompensatorFactoryContract();
   const { switchChainAsync } = useSwitchChain();
   const { handleSetCompensatorContract } = useGetCompensatorContract();
   const { compoundContract } = useGetCompoundContract();
   const [isClaiming, setIsClaiming] = useState<boolean>(false);
   const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
-
-  const loadAllData = useCallback(async () => {
-    try {
-      await Promise.all([
-        fetchProfileData(),
-        fetchDelegations(),
-        fetchProposals(),
-      ]);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isConnected && address) {
-      loadAllData();
-    } else {
-      setIsProfileLoading(false);
-      setIsDelegationsLoading(false);
-      setIsProposalsLoading(false);
-      setProfile(null);
-      setDelegations([]);
-      setProposals([]);
-    }
-  }, [isConnected, address, loadAllData]);
-
-  if (!isClient) return null;
 
   const fetchProfileData = async () => {
     setIsProfileLoading(true);
@@ -143,7 +117,6 @@ export default function ProfilePage() {
         throw new Error("Please connect to a wallet");
       }
 
-      // Get the user's compensator contract address
       const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
       if (!compensatorAddress || compensatorAddress === ethers.ZeroAddress) {
         setProfile({
@@ -162,25 +135,20 @@ export default function ProfilePage() {
         return;
       }
 
-      // Get the compensator contract
       const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
       if (!compensatorContract) {
         throw new Error("Failed to get compensator contract");
       }
 
-      // Get pending rewards
       const pendingRewards = await compensatorContract.getPendingRewards(address);
       const formattedRewards = ethers.formatEther(pendingRewards);
 
-      // Get staked amount
       const stakedAmount = await compensatorContract.balanceOf(address);
       const formattedStaked = ethers.formatEther(stakedAmount);
 
-      // Get total delegated COMP
       const totalDelegatedCOMP = await compensatorContract.totalDelegatedCOMP();
       const formattedTotalDelegated = ethers.formatEther(totalDelegatedCOMP);
 
-      // Get vote power from COMP token
       const votePower = await compoundContract?.getCurrentVotes(address);
       const formattedVotePower = votePower ? ethers.formatEther(votePower) : "0";
 
@@ -206,24 +174,41 @@ export default function ProfilePage() {
   const fetchDelegations = async () => {
     setIsDelegationsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setDelegations([
-        {
-          delegate: "@example 1",
-          delegateImage: "/logo.png",
-          amount: "500 COMP",
-          date: "Feb 28th, 2025",
-        },
-        {
-          delegate: "@example 2",
-          delegateImage: "/logo.png",
-          amount: "300 COMP",
-          date: "Mar 5th, 2025",
-        },
-      ]);
+      if (!address || !compensatorFactoryContract) {
+        setDelegations([]);
+        setIsDelegationsLoading(false);
+        return;
+      }
+
+      const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
+      if (compensatorAddress && compensatorAddress !== ethers.ZeroAddress) {
+        const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
+        if (compensatorContract) {
+          const totalDelegated = await compensatorContract.totalDelegatedCOMP();
+          const formattedTotalDelegated = ethers.formatEther(totalDelegated);
+          
+          if (Number(formattedTotalDelegated) > 0) {
+            setDelegations([
+              {
+                delegate: address,
+                delegateImage: "/logo.png",
+                amount: `${formattedTotalDelegated} COMP`,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              }
+            ]);
+          } else {
+            setDelegations([]);
+          }
+        } else {
+          setDelegations([]);
+        }
+      } else {
+        setDelegations([]);
+      }
       setIsDelegationsLoading(false);
     } catch (error) {
       console.error("Error fetching delegations:", error);
+      setDelegations([]);
       setIsDelegationsLoading(false);
     }
   };
@@ -231,89 +216,107 @@ export default function ProfilePage() {
   const fetchProposals = async () => {
     setIsProposalsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1800));
-      // Generate more proposals for pagination demonstration
-      const proposalData: Proposal[] = [
-        {
-          id: "1",
-          title: "Initialize cWETHv3 on Ronin",
-          status: "active",
-          date: "Mar 18th, 2025",
-          votesFor: 518.81,
-          votesAgainst: 0.94,
-          voted: false,
-          voteDirection: null,
-        },
-        {
-          id: "2",
-          title: "Add wsuperOETHb as collateral into cWETHv3 on Base",
-          status: "executed",
-          date: "Mar 14th, 2025",
-          votesFor: 703.99,
-          votesAgainst: 1.58,
-          voted: false,
-          voteDirection: null,
-        },
-        {
-          id: "3",
-          title: "Add tETH as collateral into cWETHv3 on Mainnet",
-          status: "executed",
-          date: "Mar 14th, 2025",
-          votesFor: 703.99,
-          votesAgainst: 0.3,
-          voted: false,
-          voteDirection: null,
-        },
-        {
-          id: "4",
-          title: "[Gauntlet] - Rewards Top Up for Ethereum, Base and Optimism",
-          status: "executed",
-          date: "Mar 10th, 2025",
-          votesFor: 684,
-          votesAgainst: 0.29,
-          voted: false,
-          voteDirection: null,
-        },
-        {
-          id: "5",
-          title: "2025 Compound Growth Program - Roadmap & Renewal",
-          status: "defeated",
-          date: "Mar 6th, 2025",
-          votesFor: 100.3,
-          votesAgainst: 517.09,
-          voted: false,
-          voteDirection: null,
-        },
-        {
-          id: "6",
-          title: "Compound Grants Program Renewal",
-          status: "executed",
-          date: "Mar 1st, 2025",
-          votesFor: 650.2,
-          votesAgainst: 12.5,
-          voted: true,
-          voteDirection: "for",
-        },
-        {
-          id: "7",
-          title: "Update cUSDC Interest Rate Model",
-          status: "executed",
-          date: "Feb 25th, 2025",
-          votesFor: 712.4,
-          votesAgainst: 0.0,
-          voted: true,
-          voteDirection: "for",
-        },
-      ];
-      setProposals(proposalData as any);
+      if (!address) {
+        setProposals([]);
+        setIsProposalsLoading(false);
+        return;
+      }
+
+      const response = await fetch('/api/tally/proposals?limit=10');
+      if (response.ok) {
+        const tallyProposals = await response.json();
+        
+        if (tallyProposals.length > 0) {
+          const convertedProposals = tallyProposals.map((tallyProposal: any) => ({
+            id: tallyProposal.id,
+            title: (tallyProposal.metadata?.title || `Compound Proposal ${tallyProposal.onchainId}`).replace(/^#\s*/, ''),
+            status: (tallyProposal.status === "active" ? "active" : 
+                     tallyProposal.status === "executed" ? "executed" : 
+                     tallyProposal.status === "canceled" ? "defeated" : "active") as "active" | "executed" | "defeated",
+            date: new Date().toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            }),
+            votesFor: tallyProposal.voteStats
+              .filter((stat: any) => stat.type === "for")
+              .reduce((sum: number, stat: any) => sum + parseFloat(stat.votesCount) / 1e18, 0),
+            votesAgainst: tallyProposal.voteStats
+              .filter((stat: any) => stat.type === "against")
+              .reduce((sum: number, stat: any) => sum + parseFloat(stat.votesCount) / 1e18, 0),
+            votesAbstain: tallyProposal.voteStats
+              .filter((stat: any) => stat.type === "abstain")
+              .reduce((sum: number, stat: any) => sum + parseFloat(stat.votesCount) / 1e18, 0),
+            voted: false,
+            voteDirection: null
+          }));
+          setProposals(convertedProposals);
+        } else {
+          setProposals([]);
+        }
+      } else {
+        setProposals([]);
+      }
       setIsProposalsLoading(false);
     } catch (error) {
       console.error("Error fetching proposals:", error);
+      setProposals([]);
       setIsProposalsLoading(false);
     }
   };
 
+  const fetchStakingData = async () => {
+    if (!address || !compensatorFactoryContract) return;
+    
+    try {
+      const compensatorAddress = await compensatorFactoryContract.getCompensator(address);
+      if (compensatorAddress && compensatorAddress !== ethers.ZeroAddress) {
+        const compensatorContract = await handleSetCompensatorContract(compensatorAddress);
+        if (compensatorContract) {
+          const stakedAmount = await compensatorContract.balanceOf(address);
+          const formattedStaked = ethers.formatEther(stakedAmount);
+          
+          // Update profile with real staking data
+          if (profile) {
+            setProfile({
+              ...profile,
+              staked: formattedStaked
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching staking data:", error);
+    }
+  };
 
+  const loadAllData = useCallback(async () => {
+    try {
+      await Promise.all([
+        fetchProfileData(),
+        fetchDelegations(),
+        fetchProposals(),
+        fetchStakingData(),
+      ]);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isConnected && address) {
+      loadAllData();
+    } else {
+      setIsProfileLoading(false);
+      setIsDelegationsLoading(false);
+      setIsProposalsLoading(false);
+      setProfile(null);
+      setDelegations([]);
+      setProposals([]);
+    }
+  }, [isConnected, address, loadAllData]);
+
+  if (!isClient) return null;
 
   const formatNameForURL = (name: string) => {
     return name
@@ -763,6 +766,8 @@ export default function ProfilePage() {
     }
   };
 
+
+
   return (
     <div className="min-h-screen bg-[#EFF2F5] dark:bg-[#0D131A]">
         <div className="relative z-50">
@@ -986,7 +991,7 @@ export default function ProfilePage() {
               >
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-lg font-bold text-[#030303] dark:text-white mb-[-6px]">
-                    Activity
+                    Your Activity
                   </h2>
                   <TabsList className="bg-white dark:bg-[#1D2833] border border-[#efefef] dark:border-[#232F3B] p-1 rounded-full">
                     <TabsTrigger
@@ -1000,6 +1005,13 @@ export default function ProfilePage() {
                       className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
                     >
                       Delegations
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="staking"
+                      className="rounded-full text-xs font-semibold data-[state=active]:bg-[#EFF2F5] dark:data-[state=active]:bg-[#2d3d4d] data-[state=active]:text-[#030303] dark:data-[state=active]:text-white data-[state=active]:shadow-sm"
+                    >
+                      Staking
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -1046,6 +1058,15 @@ export default function ProfilePage() {
                                 className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                               >
                                 <div className="flex items-center justify-start">
+                                  Abstain
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
                                   Vote
                                   <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                                 </div>
@@ -1066,6 +1087,9 @@ export default function ProfilePage() {
                                       <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                                     </div>
                                   </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
                                 </td>
                                 <td className="px-6 py-4">
                                   <div className="h-4 w-16 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
@@ -1124,6 +1148,15 @@ export default function ProfilePage() {
                                   className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
                                 >
                                   <div className="flex items-center justify-start cursor-pointer">
+                                    Abstain
+                                    <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                  </div>
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                                >
+                                  <div className="flex items-center justify-start cursor-pointer">
                                     Vote
                                     <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
                                   </div>
@@ -1156,13 +1189,18 @@ export default function ProfilePage() {
                                     </div>
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                                    <span className="text-sm text-[#6D7C8D] dark:text-gray-400 font-medium">
                                       {proposal.votesFor.toLocaleString()}
                                     </span>
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-red-600 dark:text-red-400 font-medium">
+                                    <span className="text-sm text-[#6D7C8D] dark:text-gray-400 font-medium">
                                       {proposal.votesAgainst.toLocaleString()}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className="text-sm text-[#6D7C8D] dark:text-gray-400 font-medium">
+                                      {proposal.votesAbstain.toLocaleString()}
                                     </span>
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-[#6D7C8D] dark:text-gray-400">
@@ -1242,7 +1280,7 @@ export default function ProfilePage() {
                         No Voting History
                       </h2>
                       <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-sm mx-auto">
-                        Voting history is currently untracked
+                        No voting history found
                       </p>
                       <a
                         href="https://www.tally.xyz/gov/compound/proposals"
@@ -1258,67 +1296,196 @@ export default function ProfilePage() {
 
                 <TabsContent value="delegations" className="space-y-4">
                   {isDelegationsLoading ? (
-                    <div className="space-y-4">
-                      {[1, 2].map((_, index) => (
-                        <div
-                          key={index}
-                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm border border-[#efefef] dark:border-[#232F3B]"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
-                            <div className="flex-1">
-                              <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
-                              <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                            </div>
-                            <div className="ml-auto h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full" role="table">
+                          <thead
+                            className="bg-[#F9FAFB] dark:bg-[#17212B]"
+                            role="rowgroup"
+                          >
+                            <tr role="row">
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  Delegate
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  Amount
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  Date
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start">
+                                  Status
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[1, 2].map((_, index) => (
+                              <tr
+                                key={index}
+                                className="border-b dark:border-b-[#232F3B] border-b-[#efefef]"
+                              >
+                                                                 <td className="px-6 py-4">
+                                   <div className="flex items-center gap-3">
+                                     <div className="h-8 w-8 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                                    <div className="flex-1">
+                                      <div className="h-5 w-40 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse mb-2"></div>
+                                      <div className="h-4 w-32 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="h-4 w-20 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="h-4 w-24 bg-gray-200 dark:bg-[#33475b] rounded-md animate-pulse"></div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="h-5 w-16 bg-gray-200 dark:bg-[#33475b] rounded-full animate-pulse"></div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   ) : delegations.length > 0 ? (
-                    <div className="space-y-4">
-                      {delegations.map((delegation, index) => (
-                        <div
-                          key={index}
-                          className="p-4 bg-white dark:bg-[#1D2833] rounded-lg shadow-sm cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150 border border-[#efefef] dark:border-[#232F3B]"
-                          onClick={() =>
-                            (window.location.href = `/delegate/${formatNameForURL(
-                              delegation.delegate
-                            )}`)
-                          }
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-12 w-12 flex-shrink-0">
-                              <Image
-                                src={
-                                  delegation.delegateImage ||
-                                  "/placeholder.svg?height=48&width=48" ||
-                                  "/placeholder.svg" ||
-                                  "/placeholder.svg" ||
-                                  "/placeholder.svg" ||
-                                  "/placeholder.svg" ||
-                                  "/placeholder.svg"
+                    <div className="bg-white dark:bg-[#17212B] rounded-md border border-[#efefef] dark:border-[#232F3B] overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full" role="table">
+                          <thead
+                            className="bg-[#F9FAFB] dark:bg-[#17212B]"
+                            role="rowgroup"
+                          >
+                            <tr role="row">
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start cursor-pointer">
+                                  Delegate
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start cursor-pointer">
+                                  Amount
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start cursor-pointer">
+                                  Date
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-sm font-semibold text-left text-[#6D7C8D] dark:text-[#6D7C8D]"
+                              >
+                                <div className="flex items-center justify-start cursor-pointer">
+                                  Status
+                                  <ChevronsUpDown className="ml-1 h-4 w-4 text-[#6D7C8D]" />
+                                </div>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {delegations.map((delegation, index) => (
+                              <motion.tr
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{
+                                  duration: 0.3,
+                                  delay: index * 0.05,
+                                }}
+                                key={index}
+                                className="border-b dark:border-b-[#232F3B] border-b-[#efefef] cursor-pointer dark:bg-[#1D2833] hover:bg-[#f9f9f9] dark:hover:bg-[#24313d] transition-colors duration-150"
+                                onClick={() =>
+                                  (window.location.href = `/delegate/${formatNameForURL(
+                                    delegation.delegate
+                                  )}`)
                                 }
-                                alt={delegation.delegate}
-                                width={48}
-                                height={48}
-                                className="object-cover rounded-full"
-                              />
-                            </div>
-                            <div className="">
-                              <p className="text-base font-semibold text-[#030303] dark:text-white">
-                                {delegation.delegate}
-                              </p>
-                              <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
-                                Amount: {delegation.amount}
-                              </p>
-                            </div>
-                            <p className="ml-auto text-xs font-medium text-[#6D7C8D] dark:text-gray-400">
-                              {delegation.date}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                              >
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="relative h-8 w-8 flex-shrink-0">
+                                      <Image
+                                        src={
+                                          delegation.delegateImage ||
+                                          "/placeholder.svg?height=32&width=32" ||
+                                          "/placeholder.svg" ||
+                                          "/placeholder.svg" ||
+                                          "/placeholder.svg" ||
+                                          "/placeholder.svg" ||
+                                          "/placeholder.svg"
+                                        }
+                                        alt={delegation.delegate}
+                                        width={32}
+                                        height={32}
+                                        className="object-cover rounded-full"
+                                      />
+                                    </div>
+                                    <div>
+                                      <p className="text-base font-semibold text-[#030303] dark:text-white">
+                                        {delegation.delegate}
+                                      </p>
+                                      <p className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                                        @{delegation.delegate.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className="text-sm font-medium text-[#030303] dark:text-white">
+                                    {delegation.amount}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className="text-sm text-[#6D7C8D] dark:text-gray-400">
+                                    {delegation.date}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                    <CheckCircle className="h-3 w-3 mr-1 inline" />
+                                    Active
+                                  </span>
+                                </td>
+                              </motion.tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   ) : (
                     <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center border border-[#efefef] dark:border-[#232F3B]">
@@ -1328,14 +1495,106 @@ export default function ProfilePage() {
                       <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
                         No Delegations
                       </h2>
-                      <p className="text-[#6D7C8D] dark:text-gray-400 mb-4 max-w-sm mx-auto">
-                        Delegations are currently untracked
+                      <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-sm mx-auto">
+                        No delegations found
                       </p>
                       <Link
                         href="/explore"
                         className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
                       >
                         Find Delegates
+                      </Link>
+                    </div>
+                  )}
+                </TabsContent>
+
+
+
+                <TabsContent value="staking" className="space-y-4">
+                  {!isConnected ? (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <Wallet className="h-6 w-6 text-[#030303] dark:text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        Connect Wallet
+                      </h2>
+                      <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-sm mx-auto">
+                        Connect your wallet to view staking
+                      </p>
+                      <ConnectWalletButton />
+                    </div>
+                  ) : isProfileLoading ? (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg p-6 border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="animate-pulse space-y-4">
+                        <div className="h-6 bg-gray-200 dark:bg-[#33475b] rounded w-1/4"></div>
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 dark:bg-[#33475b] rounded"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-[#33475b] rounded w-5/6"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : profile && Number(profile.staked) > 0 ? (
+                    <div className="bg-white dark:bg-[#17212B] rounded-lg border border-[#efefef] dark:border-[#232F3B] p-6">
+                      <h3 className="text-lg font-semibold text-[#030303] dark:text-white mb-4">
+                        Staking Activity
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-[#F9FAFB] dark:bg-[#1D2833] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                          <div className="text-2xl font-bold text-[#030303] dark:text-white">
+                            {Number(profile.staked).toLocaleString()} COMP
+                          </div>
+                          <div className="text-sm text-[#6D7C8D] dark:text-gray-400">Total Staked</div>
+                        </div>
+                        
+                        <div className="bg-[#F9FAFB] dark:bg-[#1D2833] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                          <div className="text-2xl font-bold text-[#030303] dark:text-white">
+                            {Number(profile.staked) > 0 ? 1 : 0}
+                          </div>
+                          <div className="text-sm text-[#6D7C8D] dark:text-gray-400">Active Stakes</div>
+                        </div>
+                        
+                        <div className="bg-[#F9FAFB] dark:bg-[#1D2833] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                          <div className="text-2xl font-bold text-[#030303] dark:text-white">
+                            {profile.rewards || "0"} COMP
+                          </div>
+                          <div className="text-sm text-[#6D7C8D] dark:text-gray-400">Pending Rewards</div>
+                        </div>
+                        
+                        <div className="bg-[#F9FAFB] dark:bg-[#1D2833] p-4 rounded-lg border border-[#efefef] dark:border-[#232F3B]">
+                          <div className="text-2xl font-bold text-[#030303] dark:text-white">
+                            {profile.totalDelegations || 0}
+                          </div>
+                          <div className="text-sm text-[#6D7C8D] dark:text-gray-400">Total Delegations</div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center">
+                        <Link
+                          href="/"
+                          className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm"
+                        >
+                          View Proposals to Stake
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-[#1D2833] rounded-lg shadow-sm p-8 text-center border border-[#efefef] dark:border-[#232F3B]">
+                      <div className="p-3 bg-[#EFF2F5] dark:bg-[#293846] rounded-full mx-auto mb-3 w-fit">
+                        <Wallet className="h-6 w-6 text-[#030303] dark:text-white" />
+                      </div>
+                      <h2 className="text-lg font-semibold text-[#030303] dark:text-white">
+                        No Staking Activity
+                      </h2>
+                      <p className="text-[#6D7C8D] font-medium dark:text-gray-400 mb-4 max-w-sm mx-auto">
+                        No staking activity found
+                      </p>
+                      <Link
+                        href="/"
+                        className="bg-[#EFF2F5] dark:bg-white text-[#0D131A] dark:text-[#0D131A] transition-all duration-200 transform hover:scale-105 active:scale-95 px-6 py-2 rounded-full hover:bg-[#10b981] hover:text-white dark:hover:text-white font-semibold inline-flex items-center text-sm mb-2"
+                      >
+                        View Proposals
                       </Link>
                     </div>
                   )}
