@@ -888,7 +888,7 @@ const Proposals = () => {
               className={`w-full py-3 rounded-full font-semibold transition-colors mb-6 ${
                 selectedDelegate && amount && parseFloat(amount) > 0 && parseFloat(amount) <= formattedCompBalance
                   ? "bg-[#10b981] text-white hover:bg-emerald-600"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#10b981] text-white opacity-50 cursor-not-allowed"
               }`}
             >
               Submit Stake {selectedOutcome}
@@ -1129,7 +1129,7 @@ const Proposals = () => {
                 handleSubmitVote();
               }}
               disabled={!selectedVote || !voteAmount || parseFloat(voteAmount) <= 0}
-              className={`w-full py-3 rounded-full font-semibold transition-colors ${selectedVote && voteAmount && parseFloat(voteAmount) > 0 ? "bg-[#10b981] text-white hover:bg-emerald-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+              className={`w-full py-3 rounded-full font-semibold transition-colors ${selectedVote && voteAmount && parseFloat(voteAmount) > 0 ? "bg-[#10b981] text-white hover:bg-emerald-600" : "bg-[#10b981] text-white opacity-50 cursor-not-allowed"}`}
             >
               Submit Vote
             </button>
