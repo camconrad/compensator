@@ -10,21 +10,23 @@ async function main() {
   console.log("COMP Token:", COMP_TOKEN_ADDRESS);
 
   // Deploy CompensatorFactory with required constructor parameters
-  const CompensatorFactory = await ethers.getContractFactory("CompensatorFactory");
+  // @ts-expect-error - Types not configured for scripts
+  const CompensatorFactory = await hre.ethers.getContractFactory("CompensatorFactory");
   const compensatorFactory = await CompensatorFactory.deploy(
     COMP_TOKEN_ADDRESS
   );
   
-  await compensatorFactory.deployed();
+  await compensatorFactory.waitForDeployment();
   
-  console.log("✅ CompensatorFactory deployed to:", compensatorFactory.address);
+  const address = await compensatorFactory.getAddress();
+  console.log("✅ CompensatorFactory deployed to:", address);
   console.log("✅ Factory is ready to create Compensator instances");
   
   // Verify the deployment
   console.log("\n🔍 Verifying contract on Etherscan...");
   try {
     await hre.run("verify:verify", {
-      address: compensatorFactory.address,
+      address: address,
       constructorArguments: [COMP_TOKEN_ADDRESS],
     });
     console.log("✅ Contract verified on Etherscan");
@@ -34,12 +36,12 @@ async function main() {
     } else {
       console.log("⚠️ Verification failed:", error.message);
       console.log("💡 You can manually verify with:");
-      console.log(`yarn hardhat verify --network mainnet ${compensatorFactory.address} ${COMP_TOKEN_ADDRESS}`);
+      console.log(`yarn hardhat verify --network mainnet ${address} ${COMP_TOKEN_ADDRESS}`);
     }
   }
 
   console.log("\n📋 Deployment Summary:");
-  console.log("Factory Address:", compensatorFactory.address);
+  console.log("Factory Address:", address);
   console.log("COMP Token:", COMP_TOKEN_ADDRESS);
   console.log("\n🚀 Ready for production use!");
 }

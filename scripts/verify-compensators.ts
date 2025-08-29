@@ -22,6 +22,7 @@ async function main() {
     console.log(`Verifying Compensator at ${instanceAddress}...`);
     try {
       // Get the Compensator contract to read its constructor parameters
+      // @ts-expect-error - Types not configured for scripts
       const compensator = await hre.ethers.getContractAt("Compensator", instanceAddress);
       const compToken = await compensator.COMP_TOKEN();
       const owner = await compensator.owner();

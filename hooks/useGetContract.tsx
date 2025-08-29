@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { useAccount, useChainId, useReadContract, useWriteContract } from "wagmi";
-import { compensatorFactoryContractInfo, compoundTokenContractInfo, compoundGovernorContractInfo } from "@/constants";
+import { compensatorFactoryContractInfo, compoundTokenContractInfo } from "@/constants";
 
 export const useGetContract = () => {
   const { address } = useAccount();
@@ -41,13 +41,4 @@ export const useGetContract = () => {
     getReadContract,
     getWriteContract,
   };
-};
-
-export const useGetGovernorContract = () => {
-  const governorContractConfig = {
-    address: compoundGovernorContractInfo.address as `0x${string}`,
-    abi: compoundGovernorContractInfo.abi,
-  };
-
-  return { governorContractConfig };
 };
