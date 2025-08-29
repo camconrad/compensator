@@ -322,13 +322,7 @@ describe("Compensator Delegate Functions", function () {
       });
     });
 
-    describe("getContractVotingPowerAt", function () {
-      it("should return voting power at specific block", async function () {
-        const currentBlock = await ethers.provider.getBlockNumber();
-        const votingPower = await compensator.getContractVotingPowerAt(currentBlock);
-        expect(votingPower).to.be.a("bigint");
-      });
-    });
+
   });
 
   describe("Transfer Restrictions", function () {

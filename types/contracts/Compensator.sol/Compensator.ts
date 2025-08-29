@@ -40,7 +40,6 @@ export interface CompensatorInterface extends Interface {
       | "decimals"
       | "delegationCap"
       | "getContractVotingPower"
-      | "getContractVotingPowerAt"
       | "getPendingRewards"
       | "lastRewarded"
       | "name"
@@ -131,10 +130,6 @@ export interface CompensatorInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getContractVotingPower",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getContractVotingPowerAt",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getPendingRewards",
@@ -252,10 +247,6 @@ export interface CompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getContractVotingPower",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getContractVotingPowerAt",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -621,12 +612,6 @@ export interface Compensator extends BaseContract {
 
   getContractVotingPower: TypedContractMethod<[], [bigint], "view">;
 
-  getContractVotingPowerAt: TypedContractMethod<
-    [arg0: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
   getPendingRewards: TypedContractMethod<
     [delegator: AddressLike],
     [bigint],
@@ -769,9 +754,6 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "getContractVotingPower"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getContractVotingPowerAt"
-  ): TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "getPendingRewards"
   ): TypedContractMethod<[delegator: AddressLike], [bigint], "view">;

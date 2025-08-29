@@ -186,19 +186,7 @@ describe("Compensator Views", function () {
     });
   });
 
-  describe("getContractVotingPowerAt", function () {
-    it("should return voting power at a specific block", async function () {
-      const currentBlock = await ethers.provider.getBlockNumber();
-      const votingPower = await compensator.getContractVotingPowerAt(currentBlock);
-      expect(votingPower).to.be.a("bigint");
-    });
 
-    it("should return zero for blocks before any delegation", async function () {
-      const currentBlock = await ethers.provider.getBlockNumber();
-      const votingPower = await compensator.getContractVotingPowerAt(currentBlock);
-      expect(votingPower).to.equal(0);
-    });
-  });
 
   describe("Contract State Views", function () {
     it("should return correct owner address", async function () {
