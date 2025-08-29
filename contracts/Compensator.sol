@@ -18,7 +18,6 @@ error InvalidCompTotalSupply();
 error DelegationCapTooSmall();
 error AmountMustBeGreaterThanZero();
 error AmountExceedsAvailableRewards();
-error RewardRateMustBeNonNegative();
 error NewRateMustBeDifferent();
 error RewardRateTooHigh();
 error NewOwnerCannotBeZeroAddress();
