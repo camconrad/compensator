@@ -8,6 +8,7 @@ error InvalidCompTokenAddress();
 error InvalidOwnerAddress();
 error OwnerAlreadyHasCompensator();
 error CompensatorNotCreatedByFactory();
+error NewOwnerAlreadyHasCompensator();
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
@@ -135,6 +136,9 @@ contract CompensatorFactory {
     function onOwnershipTransferred(address oldOwner, address newOwner) external {
         // Verify this compensator was created by this factory
         if (compensatorToOriginalOwner[msg.sender] == address(0)) revert CompensatorNotCreatedByFactory();
+        
+        // Check if newOwner already has a compensator to prevent mapping overwrite
+        if (ownerToCompensator[newOwner] != address(0)) revert NewOwnerAlreadyHasCompensator();
         
         // Update the owner mapping
         ownerToCompensator[oldOwner] = address(0);
