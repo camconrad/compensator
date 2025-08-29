@@ -227,14 +227,6 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         return COMP_TOKEN.getCurrentVotes(address(this));
     }
 
-    /**
-     * @notice Returns the contract's voting power at a specific block
-     * @return The amount of COMP delegated to this contract at that block
-     */
-    function getContractVotingPowerAt(uint256) external view returns (uint256) {
-        return COMP_TOKEN.getCurrentVotes(address(this));
-    }
-
     // Owner functions
     /**
      * @notice Allows the owner to deposit COMP to be used for rewards
