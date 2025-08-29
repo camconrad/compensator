@@ -175,11 +175,10 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // Set the delegation cap to 5% of the total COMP supply
         uint256 totalSupply = COMP_TOKEN.totalSupply();
         if (totalSupply == 0) revert InvalidCompTotalSupply();
-        uint256 oldCap = delegationCap;
         delegationCap = (totalSupply * DELEGATION_CAP_PERCENT) / BASIS_POINTS;
         if (delegationCap == 0) revert DelegationCapTooSmall();
         
-        emit DelegationCapUpdated(oldCap, delegationCap, totalSupply);
+        emit DelegationCapUpdated(0, delegationCap, totalSupply);
     }
 
     //////////////////////////
