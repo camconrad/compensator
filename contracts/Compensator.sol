@@ -2,7 +2,6 @@
 pragma solidity 0.8.30;
 
 import {IComp} from "./IComp.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -43,7 +42,6 @@ error CompensatorTokensNotTransferable();
  * @custom:security-contact support@compensator.io
  */
 contract Compensator is ERC20, ReentrancyGuard, Ownable {
-    using SafeERC20 for IComp;
 
     //////////////////////////
     // Type Declarations
