@@ -698,6 +698,9 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         unclaimedRewards[msg.sender] = 0;
         totalPendingRewards -= amount;
         
+        // Decrement availableRewards
+        availableRewards -= amount;
+        
         // Interactions
         COMP_TOKEN.transfer(msg.sender, amount);
         
