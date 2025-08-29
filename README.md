@@ -7,11 +7,11 @@
 | Name       | Address       |
 | -------------  | ------------- |
 | Compensator Factory      | [#](https://etherscan.io/address/#) |
-| Compound Governor     | [0x309a862bbC1A00e45506cB8A802D1ff10004c8C0](https://etherscan.io/address/0x309a862bbC1A00e45506cB8A802D1ff10004c8C0) |
+
 | Compound (COMP)    | [0xc00e94Cb662C3520282E6f5717214004A7f26888](https://etherscan.io/address/0xc00e94Cb662C3520282E6f5717214004A7f26888) |
 
 ## Overview
-Compensator is a dedicated delegate marketplace for the Compound DAO, designed to address low voter turnout and lack of incentivization in governance. It enables COMP holders to delegate voting power in exchange for transparent rewards, fostering greater participation in vote outcomes. Delegates attract voting power through competitive compensation, creating a vibrant and efficient governance ecosystem.
+Compensator is a dedicated delegate marketplace for the Compound DAO, designed to address low voter turnout and lack of incentivization in governance. It enables COMP holders to delegate COMP in exchange for transparent rewards, fostering greater participation in governance. Delegates attract COMP through competitive rates, creating a vibrant and efficient ecosystem focused on delegation and reward distribution.
 
 ## Core Features
 
@@ -24,23 +24,16 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 ### **Delegation and Rewards**
 - Delegates supply COMP into their `Compensator` contract to fund rewards for delegators
 - Delegates set a reward rate (in COMP/second) to distribute rewards proportionally
-- COMP holders delegate votes to the delegate's `Compensator` contract
+- COMP holders delegate COMP tokens to the delegate's `Compensator` contract
 - Delegators earn rewards based on their share of delegated COMP
 - **Index-based reward distribution** ensures fair and accurate reward calculation
-- **Time-based accrual** with proportional stake distribution
+- **Time-based accrual** with proportional delegation distribution
 
-### **Proposal Staking and Vote Compensation**
-- Delegators can stake COMP on proposal outcomes (For/Against)
-- **For Stakes**: COMP staked in support of a proposal
-- **Against Stakes**: COMP staked against a proposal
-- After proposal resolution, stakes are distributed based on outcome:
-  - If delegate voted correctly:
-    - Winning stakes go to the delegate (20% reward)
-    - Losing stakes are returned to delegators
-  - If delegate didn't vote or voted wrong:
-    - All stakes are returned to delegators
-- **Trustless resolution** through Compound Governor state verification
-- **Automatic timeout** after 30 days to prevent stuck stakes
+### **Reward Distribution System**
+- Delegators earn rewards based on their share of delegated COMP
+- **Index-based reward distribution** ensures fair and accurate reward calculation
+- **Time-based accrual** with proportional delegation distribution
+- Rewards are distributed continuously based on the delegate's set rate
 
 See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contracts/README.md) for more detail.
 
@@ -50,17 +43,15 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 1. **Create Compensator**: Call `CompensatorFactory.createCompensatorForSelf()` to deploy your contract
 2. **Supply COMP**: Supply COMP into your `Compensator` contract to fund delegator rewards
 3. **Set Reward Rate**: Define the reward rate (in COMP per second) to distribute rewards
-4. **Vote on Proposals**: Cast votes on Compound governance proposals
-5. **Earn from Stakes**: Receive winning stakes when you vote correctly on proposals
-6. **Withdraw COMP**: Withdraw unused COMP as needed (pending rewards reserved)
+4. **Manage Rewards**: Monitor and adjust reward distribution as needed
+5. **Withdraw COMP**: Withdraw unused COMP as needed (pending rewards reserved)
 
 ### For Delegators
-1. **Find a Delegate**: Browse available delegates and their performance metrics
-2. **Delegate COMP**: Delegate COMP to a delegate's `Compensator` contract to start earning
-3. **Stake on Proposals**: Stake COMP on proposal outcomes (For/Against) to incentivize voting
-4. **Monitor Performance**: Track delegate voting success and reward rates
-5. **Claim Rewards**: Claim your proportionally accrued COMP rewards at any time
-6. **Reclaim Stakes**: Reclaim losing stakes after proposal resolution
+1. **Find a Delegate**: Browse available delegates and their reward rates
+2. **Delegate COMP**: Delegate COMP tokens to a delegate's `Compensator` contract to start earning
+3. **Monitor Rewards**: Track your accrued rewards and delegate performance
+4. **Claim Rewards**: Claim your proportionally accrued COMP rewards at any time
+5. **Withdraw COMP**: Withdraw your delegated COMP tokens when desired
 
 ## Development
 
@@ -82,19 +73,18 @@ npx hardhat run scripts/deploy.ts --network localhost
 
 ## Testing
 
-### 🏗️ Test Architecture
+### Test Architecture
 
 ```
 test/
 ├── core/                    # Core functionality tests
 │   ├── compensator/        # Main Compensator contract tests
-│   │   ├── delegate-functions.test.js    # Delegation & staking (1100+ lines)
+│   │   ├── delegate-functions.test.js    # Delegation & rewards
 │   │   ├── views.test.js                 # View functions & data retrieval
 │   │   ├── factory.test.js               # Factory operations & management
 │   │   ├── security.test.js              # Access control & security
 │   │   ├── performance.test.js           # Performance benchmarking
-│   │   ├── gas-optimization.test.js      # Gas usage & optimization
-│   │   └── branch-coverage.test.js       # Edge case coverage
+│   │   └── gas-optimization.test.js      # Gas usage & optimization
 │   └── factory/            # CompensatorFactory tests
 ├── invariants/             # Critical system property tests
 ├── fuzzing/                # Property-based and edge case tests
@@ -110,32 +100,31 @@ test/
 The project includes sophisticated fake contracts in `contracts/fakes/` for advanced testing scenarios:
 - **`CompensatorFake.sol`** - Full-featured fake with realistic behavior and edge case simulation
 - **`ERC20Fake.sol`** - Configurable ERC20 token for testing various scenarios  
-- **`GovernorFake.sol`** - Fake governor with testing hooks and failure modes
 
 These contracts are compiled by Hardhat and available as TypeScript types and factory contracts for comprehensive testing.
 
 ```
 
-### 🧪 Test Categories & Coverage
+### Test Categories & Coverage
 
 | Category | Tests | Status | Description |
 |----------|-------|---------|-------------|
-| **Core Tests** | 136 | ✅ | Delegate functions, views, factory operations |
+| **Core Tests** | 30 | ✅ | Delegate functions, views, factory operations |
 | **Invariants** | 12 | ✅ | System properties and mathematical consistency |
 | **Fuzzing** | 7 | ✅ | Property-based testing with random inputs |
 | **Integration** | 7 | ✅ | End-to-end system workflows |
 | **Edge Cases** | 11 | ✅ | Boundary conditions and error handling |
-| **Mock Contracts** | 35 | ✅ | ERC20 and Governor mocks |
-| **Factory Tests** | 20+ | ✅ | Factory deployment and management |
-| **Views Tests** | 15+ | ✅ | Contract view functions |
-| **Security Tests** | 3+ | ✅ | Access control and security |
-| **Performance Tests** | 2+ | ✅ | Benchmarking and optimization |
-| **Gas Tests** | 6+ | ✅ | Gas usage tracking and regression |
+| **Mock Contracts** | 35 | ✅ | ERC20 mocks |
+| **Factory Tests** | 16 | ✅ | Factory deployment and management |
+| **Views Tests** | 15 | ✅ | Contract view functions |
+| **Security Tests** | 3 | ✅ | Access control and security |
+| **Performance Tests** | 2 | ✅ | Benchmarking and optimization |
+| **Gas Tests** | 6 | ✅ | Gas usage tracking and regression |
 | **Fork Tests** | 5 | ✅ | Mainnet forking and real contracts |
 
-**Total: 212 tests** 🎉
+**Total: 157 tests** 🎉
 
-### 🚀 Running Tests
+### Running Tests
 
 #### Run All Tests
 ```bash
@@ -198,25 +187,6 @@ npx hardhat test --verbose
 - **`MockERC20.sol`** - Simulates COMP token functionality
 - **`CompensatorFake.sol`** - Advanced testing contract (located in `contracts/fakes/`)
 - **`ERC20Fake.sol`** - Fake ERC20 for testing (located in `contracts/fakes/`)
-- **`GovernorFake.sol`** - Fake Governor for testing (located in `contracts/fakes/`)
-- **`MockGovernor.sol`** - Simulates Compound Governor functionality
-
-### 📊 Coverage & Quality Metrics
-
-#### **Current Coverage**
-- **Overall**: 83.54%
-- **Statements**: 86.58%
-- **Branches**: 62.62%
-- **Functions**: 97.56%
-- **Lines**: 84.16%
-
-#### **Quality Standards**
-- ✅ **100% function coverage** for critical functions
-- ✅ **Comprehensive edge case testing**
-- ✅ **Security vulnerability detection**
-- ✅ **Gas optimization tracking**
-- ✅ **Performance benchmarking**
-- ✅ **Mainnet forking validation**
 
 ### 🎯 Key Testing Features
 
@@ -250,7 +220,7 @@ npx hardhat test --verbose
 
 ### 🏆 Test Results
 
-**All 212 tests pass successfully** with comprehensive coverage across:
+**All 157 tests pass successfully** with comprehensive coverage across:
 - Core contract functionality
 - Security mechanisms
 - Performance characteristics
@@ -264,10 +234,9 @@ For reviewers, each test category validates:
 
 #### ✅ Core Functionality
 - [ ] Contract deployment and initialization
-- [ ] Token delegation and voting power
+- [ ] COMP token delegation and management
 - [ ] Reward calculation and distribution
-- [ ] Proposal staking and resolution
-- [ ] Vote casting and verification
+- [ ] Reward rate management
 - [ ] Factory operations and management
 
 #### ✅ Security Measures
@@ -298,13 +267,6 @@ For reviewers, each test category validates:
 - **Reward Redirection**: Allow delegators to redirect their rewards to the delegate as a form of support
 - **Gas Optimization**: Further optimize gas usage for reward calculations and delegator interactions
 - **Advanced Analytics**: Enhanced delegate performance metrics and analytics
-- **Governance Integration**: Direct integration with Compound governance proposals
-
-## Recent Improvements
-- **✅ Eliminated Duplicate Fake Contracts**: Removed duplicate `test/fakes/` folder and consolidated all fake contracts in `contracts/fakes/` for better maintainability and consistency
-- **✅ Updated Documentation**: All README files now correctly reference the single source of fake contracts
-- **✅ Maintained Test Functionality**: Tests now use compiled contracts from the canonical source location
-- **Mobile Support**: Mobile-optimized interface for delegation and staking
 
 ## Acknowledgments
 Many thanks to long-time Compound community member [Mike Ghen](https://github.com/mikeghen), who created this concept and won a hackathon grant for it from Compound 2 years ago. We also thank Compound contributors heading the grants program, who've allowed Compensator to be furthered and surfaced in the community. Lastly, we thank the Compound community as a whole for the opportunity to drive greater outcomes for Compound.

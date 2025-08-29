@@ -78,29 +78,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Fake__factory>;
     getContractFactory(
-      name: "GovernorFake",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GovernorFake__factory>;
-    getContractFactory(
       name: "IComp",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IComp__factory>;
     getContractFactory(
-      name: "ICompensator",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ICompensator__factory>;
-    getContractFactory(
-      name: "IGovernor",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IGovernor__factory>;
-    getContractFactory(
       name: "MockERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockERC20__factory>;
-    getContractFactory(
-      name: "MockGovernor",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.MockGovernor__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -183,35 +167,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20Fake>;
     getContractAt(
-      name: "GovernorFake",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GovernorFake>;
-    getContractAt(
       name: "IComp",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IComp>;
     getContractAt(
-      name: "ICompensator",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ICompensator>;
-    getContractAt(
-      name: "IGovernor",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IGovernor>;
-    getContractAt(
       name: "MockERC20",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.MockERC20>;
-    getContractAt(
-      name: "MockGovernor",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.MockGovernor>;
 
     deployContract(
       name: "Ownable",
@@ -278,29 +242,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC20Fake>;
     deployContract(
-      name: "GovernorFake",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.GovernorFake>;
-    deployContract(
       name: "IComp",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IComp>;
     deployContract(
-      name: "ICompensator",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ICompensator>;
-    deployContract(
-      name: "IGovernor",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IGovernor>;
-    deployContract(
       name: "MockERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockERC20>;
-    deployContract(
-      name: "MockGovernor",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.MockGovernor>;
 
     deployContract(
       name: "Ownable",
@@ -383,35 +331,15 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC20Fake>;
     deployContract(
-      name: "GovernorFake",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.GovernorFake>;
-    deployContract(
       name: "IComp",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IComp>;
     deployContract(
-      name: "ICompensator",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ICompensator>;
-    deployContract(
-      name: "IGovernor",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IGovernor>;
-    deployContract(
       name: "MockERC20",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockERC20>;
-    deployContract(
-      name: "MockGovernor",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.MockGovernor>;
 
     // default types
     getContractFactory(

@@ -47,7 +47,6 @@ console.log("🎭 Fake contracts available via compiled contracts in contracts/f
 // Mock Contract Tests
 console.log("🎨 Loading Mock Contract Tests...");
 require('./mocks/MockERC20.test.js');
-require('./mocks/MockGovernor.test.js');
 
 
 

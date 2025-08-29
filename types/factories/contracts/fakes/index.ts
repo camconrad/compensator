@@ -3,4 +3,3 @@
 /* eslint-disable */
 export { CompensatorFake__factory } from "./CompensatorFake__factory";
 export { ERC20Fake__factory } from "./ERC20Fake__factory";
-export { GovernorFake__factory } from "./GovernorFake__factory";

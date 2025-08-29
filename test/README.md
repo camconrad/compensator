@@ -1,6 +1,6 @@
 # Compensator Test Suite
 
-A comprehensive, professionally organized test suite for the Compensator system with **224 passing tests**.
+A comprehensive, professionally organized test suite for the Compensator system with **157 passing tests**.
 
 ## 🏗️ Test Structure
 
@@ -27,20 +27,20 @@ test/
 
 | Category | Tests | Status | Description |
 |----------|-------|---------|-------------|
-| **Core Tests** | 136 | ✅ | Delegate functions, views, factory operations |
+| **Core Tests** | 30 | ✅ | Delegate functions, views, factory operations |
 | **Invariants** | 12 | ✅ | System properties and mathematical consistency |
 | **Fuzzing** | 7 | ✅ | Property-based testing with random inputs |
 | **Integration** | 7 | ✅ | End-to-end system workflows |
 | **Edge Cases** | 11 | ✅ | Boundary conditions and error handling |
-| **Mock Contracts** | 35 | ✅ | ERC20 and Governor mocks |
-| **Factory Tests** | 20+ | ✅ | Factory deployment and management |
-| **Views Tests** | 15+ | ✅ | Contract view functions |
-| **Security Tests** | 3+ | ✅ | Access control and security |
-| **Performance Tests** | 2+ | ✅ | Benchmarking and optimization |
-| **Gas Tests** | 6+ | ✅ | Gas usage tracking and regression |
+| **Mock Contracts** | 35 | ✅ | ERC20 mocks |
+| **Factory Tests** | 16 | ✅ | Factory deployment and management |
+| **Views Tests** | 15 | ✅ | Contract view functions |
+| **Security Tests** | 3 | ✅ | Access control and security |
+| **Performance Tests** | 2 | ✅ | Benchmarking and optimization |
+| **Gas Tests** | 6 | ✅ | Gas usage tracking and regression |
 | **Fork Tests** | 5 | ✅ | Mainnet forking and real contracts |
 
-**Total: 212 tests** 🎉
+**Total: 157 tests** 🎉
 
 ## 🚀 Running Tests
 
@@ -131,7 +131,7 @@ npx hardhat test test/fork/
 
 ## 🏆 Test Results
 
-**All 224 tests pass successfully** with comprehensive coverage across:
+**All 157 tests pass successfully** with comprehensive coverage across:
 - Core contract functionality
 - Security mechanisms
 - Performance characteristics

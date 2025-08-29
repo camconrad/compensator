@@ -5,7 +5,6 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 describe("CompensatorFactory Operations", function () {
   let compensatorFactory;
   let compToken;
-  let compoundGovernor;
   let owner, user1, user2;
 
   async function deployFactoryFixture() {
@@ -19,26 +18,20 @@ describe("CompensatorFactory Operations", function () {
     // Mint initial supply to ensure totalSupply > 0 for Compensator constructor
     await compToken.mint(owner.address, ethers.parseEther("1000000")); // 1M COMP initial supply
     
-    const MockGovernor = await ethers.getContractFactory("MockGovernor");
-    compoundGovernor = await MockGovernor.deploy();
-    await compoundGovernor.waitForDeployment();
-    
     // Deploy factory
     const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
     compensatorFactory = await CompensatorFactory.deploy(
-      await compToken.getAddress(),
-      await compoundGovernor.getAddress()
+      await compToken.getAddress()
     );
     await compensatorFactory.waitForDeployment();
     
-    return { compensatorFactory, compToken, compoundGovernor, owner, user1, user2 };
+    return { compensatorFactory, compToken, owner, user1, user2 };
   }
 
   beforeEach(async function () {
     const fixture = await loadFixture(deployFactoryFixture);
     compensatorFactory = fixture.compensatorFactory;
     compToken = fixture.compToken;
-    compoundGovernor = fixture.compoundGovernor;
     owner = fixture.owner;
     user1 = fixture.user1;
     user2 = fixture.user2;
@@ -93,11 +86,9 @@ describe("CompensatorFactory Operations", function () {
       
       // Verify initialization
       const tokenAddress = await compensator.COMP_TOKEN();
-      const governorAddress = await compensator.COMPOUND_GOVERNOR();
       const ownerAddress = await compensator.owner();
       
       expect(tokenAddress).to.equal(await compToken.getAddress());
-      expect(governorAddress).to.equal(await compoundGovernor.getAddress());
       expect(ownerAddress).to.equal(user1.address);
     });
   });

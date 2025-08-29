@@ -15,6 +15,11 @@ contract MockERC20 is ERC20 {
         _mint(to, amount);
         // Update voting power when tokens are minted
         votingPower[to] += amount;
+        
+        // If the recipient has a delegate, update their voting power too
+        if (delegates[to] != address(0)) {
+            votingPower[delegates[to]] += amount;
+        }
     }
 
     function burn(address from, uint256 amount) external {
@@ -48,6 +53,32 @@ contract MockERC20 is ERC20 {
         
         // Remove voting power from delegator
         votingPower[msg.sender] = 0;
+    }
+
+    // Override transfer to update voting power
+    function _update(address from, address to, uint256 value) internal virtual override {
+        super._update(from, to, value);
+        
+        // Update voting power when tokens are transferred
+        if (from != address(0)) {
+            // If from address has a delegate, update their voting power
+            address fromDelegate = delegates[from];
+            if (fromDelegate != address(0)) {
+                if (votingPower[fromDelegate] >= value) {
+                    votingPower[fromDelegate] -= value;
+                } else {
+                    votingPower[fromDelegate] = 0;
+                }
+            }
+        }
+        
+        if (to != address(0)) {
+            // If to address has a delegate, update their voting power
+            address toDelegate = delegates[to];
+            if (toDelegate != address(0)) {
+                votingPower[toDelegate] += value;
+            }
+        }
     }
 
     function getCurrentVotes(address account) external view returns (uint256) {

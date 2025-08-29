@@ -5,7 +5,6 @@ import {Compensator} from "./Compensator.sol";
 
 // Custom Errors
 error InvalidCompTokenAddress();
-error InvalidCompoundGovernorAddress();
 error InvalidOwnerAddress();
 error OwnerAlreadyHasCompensator();
 error CompensatorNotCreatedByFactory();
@@ -40,8 +39,7 @@ contract CompensatorFactory {
     /// @notice The COMP governance token contract
     address public immutable COMP_TOKEN;
 
-    /// @notice The Compound Governor contract
-    address public immutable COMPOUND_GOVERNOR;
+
 
     //////////////////////////
     // Events
@@ -70,19 +68,15 @@ contract CompensatorFactory {
     //////////////////////////
 
     /**
-     * @notice Constructor that initializes the factory with the COMP token and Compound Governor addresses
+     * @notice Constructor that initializes the factory with the COMP token address
      * @param _compToken The address of the COMP token contract
-     * @param _compoundGovernor The address of the Compound Governor contract
      */
     constructor(
-        address _compToken, 
-        address _compoundGovernor
+        address _compToken
     ) {
         if (_compToken == address(0)) revert InvalidCompTokenAddress();
-        if (_compoundGovernor == address(0)) revert InvalidCompoundGovernorAddress();
         
         COMP_TOKEN = _compToken;
-        COMPOUND_GOVERNOR = _compoundGovernor;
     }
 
     //////////////////////////
@@ -103,7 +97,6 @@ contract CompensatorFactory {
         // Deploy a new Compensator contract with correct parameters
         Compensator compensator = new Compensator(
             COMP_TOKEN,         // COMP token address
-            COMPOUND_GOVERNOR,  // Governor address  
             owner              // Owner address
         );
 

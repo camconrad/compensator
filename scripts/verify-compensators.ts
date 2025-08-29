@@ -21,17 +21,25 @@ async function main() {
   for (const instanceAddress of deployedInstances) {
     console.log(`Verifying Compensator at ${instanceAddress}...`);
     try {
+      // Get the Compensator contract to read its constructor parameters
+      const compensator = await hre.ethers.getContractAt("Compensator", instanceAddress);
+      const compToken = await compensator.COMP_TOKEN();
+      const owner = await compensator.owner();
+      
+      console.log(`  - COMP Token: ${compToken}`);
+      console.log(`  - Owner: ${owner}`);
+      
       // @ts-ignore
       await hre.run("verify:verify", {
         address: instanceAddress,
-        constructorArguments: []
+        constructorArguments: [compToken, owner]
       });
-      console.log(`Successfully verified ${instanceAddress}`);
+      console.log(`✅ Successfully verified ${instanceAddress}`);
     } catch (error: any) {
       if (error.message && error.message.includes("Already Verified")) {
-        console.log(`Contract at ${instanceAddress} is already verified`);
+        console.log(`✅ Contract at ${instanceAddress} is already verified`);
       } else {
-        console.error(`Verification failed for ${instanceAddress}:`, error);
+        console.error(`❌ Verification failed for ${instanceAddress}:`, error.message);
       }
     }
   }

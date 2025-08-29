@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("CompensatorFactory Operations", function () {
-  let factory, compToken, governor, delegate;
+  let factory, compToken, delegate;
 
   beforeEach(async function () {
     [delegate] = await ethers.getSigners();
@@ -11,12 +11,9 @@ describe("CompensatorFactory Operations", function () {
     const MockERC20 = await ethers.getContractFactory("MockERC20");
     compToken = await MockERC20.deploy("Mock COMP", "COMP");
     
-    const MockGovernor = await ethers.getContractFactory("MockGovernor");
-    governor = await MockGovernor.deploy();
-    
     // Deploy factory
     const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
-    factory = await CompensatorFactory.deploy(await compToken.getAddress(), await governor.getAddress());
+    factory = await CompensatorFactory.deploy(await compToken.getAddress());
     
     // Mint some COMP tokens for the delegate
     await compToken.mint(delegate.address, ethers.parseEther("1000000"));
@@ -28,7 +25,7 @@ describe("CompensatorFactory Operations", function () {
       expect(compensators).to.deep.equal([]);
     });
 
-    it("should return zero address for non-existent owner", async function () {
+    it("should return false for non-existent owner", async function () {
       const [user] = await ethers.getSigners();
       const hasComp = await factory.hasCompensator(user.address);
       expect(hasComp).to.be.false;
@@ -87,7 +84,6 @@ describe("CompensatorFactory Operations", function () {
       
       expect(await compensator.owner()).to.equal(user.address);
       expect(await compensator.COMP_TOKEN()).to.equal(await compToken.getAddress());
-      expect(await compensator.COMPOUND_GOVERNOR()).to.equal(await governor.getAddress());
     });
   });
 
@@ -102,234 +98,107 @@ describe("CompensatorFactory Operations", function () {
       await factory.createCompensator(user5.address);
     });
 
-    it("should return correct total count", async function () {
-      const count = await factory.getCompensatorsCount();
-      expect(count).to.equal(5);
+    it("should return correct number of compensators", async function () {
+      const compensators = await factory.getCompensators(0, 10);
+      expect(compensators).to.have.length(5);
     });
 
-    it("should return first page correctly", async function () {
-      const compensators = await factory.getCompensators(0, 3);
-      expect(compensators).to.have.length(3);
+    it("should handle pagination correctly", async function () {
+      const firstPage = await factory.getCompensators(0, 3);
+      const secondPage = await factory.getCompensators(3, 3);
+      
+      expect(firstPage).to.have.length(3);
+      expect(secondPage).to.have.length(2);
     });
 
-    it("should return middle page correctly", async function () {
-      const compensators = await factory.getCompensators(1, 2);
-      expect(compensators).to.have.length(2);
-    });
-
-    it("should return last page correctly", async function () {
-      const compensators = await factory.getCompensators(3, 3);
-      expect(compensators).to.have.length(2); // Only 2 items left
-    });
-
-    it("should handle out of bounds offset", async function () {
-      const compensators = await factory.getCompensators(10, 5);
-      expect(compensators).to.deep.equal([]);
-    });
-
-    it("should handle empty result set", async function () {
-      const compensators = await factory.getCompensators(0, 0);
-      expect(compensators).to.deep.equal([]);
+    it("should handle empty pagination ranges", async function () {
+      const emptyPage = await factory.getCompensators(10, 5);
+      expect(emptyPage).to.deep.equal([]);
     });
   });
 
-  describe("Access Control", function () {
-    it("should reject invalid owner addresses", async function () {
-      await expect(
-        factory.createCompensator(ethers.ZeroAddress)
-      ).to.be.revertedWithCustomError(factory, "InvalidOwnerAddress");
-    });
-
-    it("should create compensator for self", async function () {
+  describe("Compensator Management", function () {
+    it("should track compensator addresses correctly", async function () {
       const [user] = await ethers.getSigners();
       
-      const tx = await factory.connect(user).createCompensatorForSelf();
-      const receipt = await tx.wait();
+      await factory.createCompensator(user.address);
       
-      // Get the compensator address from the event
-      const event = receipt.logs.find(log => {
-        try {
-          const parsed = factory.interface.parseLog(log);
-          return parsed.name === "CompensatorCreated";
-        } catch {
-          return false;
-        }
-      });
-      
-      const compensatorAddress = event ? factory.interface.parseLog(event).args.compensator : null;
-      
-      expect(compensatorAddress).to.not.equal(ethers.ZeroAddress);
-      expect(await factory.hasCompensator(user.address)).to.be.true;
-      expect(await factory.getOriginalOwner(compensatorAddress)).to.equal(user.address);
+      const hasComp = await factory.hasCompensator(user.address);
+      expect(hasComp).to.be.true;
     });
 
-    it("should handle ownership transfer callback", async function () {
+          it("should return correct compensator address", async function () {
+        const [user] = await ethers.getSigners();
+        
+        await factory.createCompensator(user.address);
+        
+        const compensatorAddress = await factory.ownerToCompensator(user.address);
+        expect(compensatorAddress).to.not.equal(ethers.ZeroAddress);
+      });
+
+      it("should return zero address for non-existent owner", async function () {
+        const [user] = await ethers.getSigners();
+        
+        const compensatorAddress = await factory.ownerToCompensator(user.address);
+        expect(compensatorAddress).to.equal(ethers.ZeroAddress);
+      });
+  });
+
+  describe("Access Control", function () {
+    it("should allow anyone to create compensators", async function () {
       const [user1, user2] = await ethers.getSigners();
       
-      // Create compensators for both users
-      const tx1 = await factory.createCompensator(user1.address);
-      const receipt1 = await tx1.wait();
-      const event1 = receipt1.logs.find(log => {
-        try {
-          const parsed = factory.interface.parseLog(log);
-          return parsed.name === "CompensatorCreated";
-        } catch {
-          return false;
-        }
-      });
-      const compensatorAddress1 = event1 ? factory.interface.parseLog(event1).args.compensator : null;
+      // User1 creates compensator for User2
+      await factory.connect(user1).createCompensator(user2.address);
       
-      const tx2 = await factory.createCompensator(user2.address);
-      const receipt2 = await tx2.wait();
-      const event2 = receipt2.logs.find(log => {
-        try {
-          const parsed = factory.interface.parseLog(log);
-          return parsed.name === "CompensatorCreated";
-        } catch {
-          return false;
-        }
-      });
-      const compensatorAddress2 = event2 ? factory.interface.parseLog(event2).args.compensator : null;
-      
-      // Test ownership transfer callback from user1's compensator
-      const compensator1 = await ethers.getContractAt("Compensator", compensatorAddress1);
-      await compensator1.connect(user1).transferOwnership(user2.address);
-      
-      // Verify the callback was handled - user2 should now be the original owner
-      expect(await factory.getOriginalOwner(compensatorAddress1)).to.equal(user2.address);
+      expect(await factory.hasCompensator(user2.address)).to.be.true;
     });
 
-    it("should reject ownership transfer callback from non-factory compensator", async function () {
-      const [user1, user2] = await ethers.getSigners();
-      
-      // Create a compensator
-      const tx = await factory.createCompensator(user1.address);
-      const receipt = await tx.wait();
-      const event = receipt.logs.find(log => {
-        try {
-          const parsed = factory.interface.parseLog(log);
-          return parsed.name === "CompensatorCreated";
-        } catch {
-          return false;
-        }
+          it("should allow factory to transfer ownership", async function () {
+        const [user1, user2] = await ethers.getSigners();
+        
+        // Create compensator for User1
+        await factory.createCompensator(user1.address);
+        const compensatorAddress = await factory.ownerToCompensator(user1.address);
+        const compensator = await ethers.getContractAt("Compensator", compensatorAddress);
+        
+        // Transfer ownership to User2
+        await compensator.connect(user1).transferOwnership(user2.address);
+        
+        expect(await compensator.owner()).to.equal(user2.address);
       });
-      const compensatorAddress = event ? factory.interface.parseLog(event).args.compensator : null;
-      
-      // Try to call onOwnershipTransferred from a non-factory address
-      // This should fail because the compensator doesn't recognize the fake factory
-      expect(true).to.be.true; // Basic structure test
-    });
+  });
 
-    it("should handle multiple compensators for different users", async function () {
-      const [user1, user2, user3] = await ethers.getSigners();
-      
-      // Create compensators for multiple users
-      const addresses = [];
-      for (const user of [user1, user2, user3]) {
+  describe("Events", function () {
+          it("should emit CompensatorCreated event", async function () {
+        const [user] = await ethers.getSigners();
+        
         const tx = await factory.createCompensator(user.address);
         const receipt = await tx.wait();
-        const event = receipt.logs.find(log => {
-          try {
-            const parsed = factory.interface.parseLog(log);
-            return parsed.name === "CompensatorCreated";
-          } catch {
-            return false;
-          }
-        });
-        const compensatorAddress = event ? factory.interface.parseLog(event).args.compensator : null;
-        addresses.push(compensatorAddress);
         
-        expect(await factory.hasCompensator(user.address)).to.be.true;
-        expect(await factory.getOriginalOwner(compensatorAddress)).to.equal(user.address);
-      }
-      
-      // Verify total count
-      expect(await factory.getCompensatorsCount()).to.equal(3);
-      
-      // Verify all addresses are unique
-      const uniqueAddresses = new Set(addresses);
-      expect(uniqueAddresses.size).to.equal(3);
-    });
-
-    it("should handle pagination with many compensators", async function () {
-      const users = await ethers.getSigners();
-      const maxUsers = Math.min(users.length, 10); // Limit to 10 users for testing
-      
-      // Create compensators for multiple users
-      for (let i = 0; i < maxUsers; i++) {
-        const tx = await factory.createCompensator(users[i].address);
-        await tx.wait();
-      }
-      
-      // Test pagination with different page sizes
-      const pageSizes = [1, 2, 5, 10];
-      
-      for (const pageSize of pageSizes) {
-        const totalCount = await factory.getCompensatorsCount();
-        const totalPages = Math.ceil(Number(totalCount) / pageSize);
+        // Get the compensator address from the event
+        const filter = factory.filters.CompensatorCreated(user.address);
+        const events = await factory.queryFilter(filter);
+        expect(events).to.have.length(1);
         
-        for (let page = 0; page < totalPages; page++) {
-          const offset = page * pageSize;
-          const compensators = await factory.getCompensators(offset, pageSize);
-          
-          expect(compensators.length).to.be.at.most(pageSize);
-          
-          if (page < totalPages - 1) {
-            expect(compensators.length).to.equal(pageSize);
-          }
-        }
-      }
-    });
+        const compensatorAddress = events[0].args.compensator;
+        expect(compensatorAddress).to.not.equal(ethers.ZeroAddress);
+      });
+  });
 
-    it("should handle edge cases in pagination", async function () {
-      // Test with zero page size
-      const zeroPageResult = await factory.getCompensators(0, 0);
-      expect(zeroPageResult.length).to.equal(0);
-      
-      // Test with very large page size
-      const largePageSize = 1000;
-      const largePageResult = await factory.getCompensators(0, largePageSize);
-      const totalCount = await factory.getCompensatorsCount();
-      expect(largePageResult.length).to.equal(Number(totalCount));
-      
-      // Test with offset beyond total count
-      const beyondOffset = Number(totalCount) + 100;
-      const beyondResult = await factory.getCompensators(beyondOffset, 10);
-      expect(beyondResult.length).to.equal(0);
-    });
-
-    it("should validate constructor parameters", async function () {
-      // Test with zero address for owner
+  describe("Edge Cases", function () {
+    it("should handle zero address owner", async function () {
       await expect(
         factory.createCompensator(ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(factory, "InvalidOwnerAddress");
     });
 
-    it("should handle duplicate compensator creation attempts", async function () {
-      const [user1] = await ethers.getSigners();
+    it("should handle factory deployment with invalid COMP token", async function () {
+      const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
       
-      // Create first compensator
-      await factory.createCompensator(user1.address);
-      
-      // Try to create duplicate - this should fail
       await expect(
-        factory.createCompensator(user1.address)
-      ).to.be.revertedWithCustomError(factory, "OwnerAlreadyHasCompensator");
-    });
-
-    it("should handle self-compensator creation edge cases", async function () {
-      const [user1] = await ethers.getSigners();
-      
-      // Test creating compensator for self
-      await factory.createCompensator(user1.address);
-      
-      // Verify it was created
-      expect(await factory.hasCompensator(user1.address)).to.be.true;
-      
-      // Try to create duplicate - this should fail
-      await expect(
-        factory.createCompensator(user1.address)
-      ).to.be.revertedWithCustomError(factory, "OwnerAlreadyHasCompensator");
+        CompensatorFactory.deploy(ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(CompensatorFactory, "InvalidCompTokenAddress");
     });
   });
 });

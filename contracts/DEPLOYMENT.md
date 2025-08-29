@@ -16,6 +16,7 @@
    # .env file
    PRIVATE_KEY=your_deployment_private_key
    ETHERSCAN_API_KEY=your_etherscan_api_key
+   MAINNET_RPC_URL=your_mainnet_rpc_url
    ```
 
 ## Production Deployment
@@ -29,18 +30,18 @@ yarn hardhat run scripts/deploy.ts --network mainnet
 
 This will deploy the `CompensatorFactory` with the correct production addresses:
 - **COMP Token**: `0xc00e94cb662c3520282e6f5717214004a7f26888`
-- **Compound Governor**: `0x309a862bbC1A00e45506cB8A802D1ff10004c8C0`
 
-### Step 2: Update Frontend Configuration
 
-After deployment, update the factory address in `constants/index.ts`:
+### Step 2: Update Environment Configuration
 
-```typescript
-export const compensatorFactoryContractInfo: IContractInfo = {
-  abi: compensatorFactoryAbi,
-  address: "YOUR_DEPLOYED_FACTORY_ADDRESS", // Update this
-};
+After deployment, add the factory address to your `.env` file:
+
+```bash
+# .env file
+FACTORY_ADDRESS=your_deployed_factory_address
 ```
+
+The frontend will automatically use this address from the environment variable.
 
 ### Step 3: Create Compensator Instances
 
@@ -56,18 +57,28 @@ function createCompensatorForSelf() external returns (address)
 | Contract | Address | Description |
 |----------|---------|-------------|
 | COMP Token | `0xc00e94cb662c3520282e6f5717214004a7f26888` | Compound governance token |
-| Compound Governor | `0x309a862bbC1A00e45506cB8A802D1ff10004c8C0` | Compound governance contract |
+
 | CompensatorFactory | `[DEPLOYED]` | Factory for creating Compensator instances |
 
 ## Verification
 
-The deployment script automatically verifies the contract on Etherscan with the correct constructor arguments. If verification fails, you can manually verify:
+### Factory Verification
+The deployment script verifies the factory contract on Etherscan with the correct constructor arguments. If verification fails, you can manually verify:
 
 ```bash
-yarn hardhat verify --network mainnet FACTORY_ADDRESS COMP_TOKEN_ADDRESS COMPOUND_GOVERNOR_ADDRESS
+yarn hardhat verify --network mainnet FACTORY_ADDRESS COMP_TOKEN_ADDRESS
 ```
 
-**Note**: The constructor arguments (COMP_TOKEN_ADDRESS and COMPOUND_GOVERNOR_ADDRESS) are required for verification because they're used in the factory's constructor.
+**Note**: The constructor arguments (COMP_TOKEN_ADDRESS) are required for verification because they're used in the factory's constructor.
+
+### Compensator Instance Verification
+To verify individual Compensator instances created by the factory:
+
+```bash
+npx hardhat run scripts/verify-compensators.ts --network mainnet FACTORY_ADDRESS
+```
+
+**Note**: The verification script automatically reads the constructor arguments (COMP_TOKEN_ADDRESS and owner address) from each deployed Compensator instance.
 
 ## Post-Deployment Checklist
 
@@ -76,11 +87,11 @@ yarn hardhat verify --network mainnet FACTORY_ADDRESS COMP_TOKEN_ADDRESS COMPOUN
 - [ ] Frontend configuration updated
 - [ ] Test delegate creation
 - [ ] Test COMP delegation
-- [ ] Test voting mechanism
+
 
 ## Security Notes
 
-- The factory uses immutable addresses for COMP token and Compound Governor
+- The factory uses immutable addresses for COMP token
 - Each delegate gets their own isolated Compensator instance
 - All critical functions use ReentrancyGuard
 - Delegation is capped at 5% of total COMP supply per instance 

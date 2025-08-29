@@ -3,4 +3,3 @@
 /* eslint-disable */
 export type { CompensatorFake } from "./CompensatorFake";
 export type { ERC20Fake } from "./ERC20Fake";
-export type { GovernorFake } from "./GovernorFake";

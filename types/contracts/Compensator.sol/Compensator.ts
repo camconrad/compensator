@@ -26,116 +26,64 @@ import type {
 export interface CompensatorInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "ACTIVE_PROPOSAL_LOCK_EXTENSION"
       | "BASIS_POINTS"
-      | "COMPOUND_GOVERNOR"
       | "COMP_TOKEN"
       | "DELEGATION_CAP_PERCENT"
       | "FACTORY"
-      | "MAX_BLOCKS_PER_DAY"
-      | "MAX_PROPOSAL_RESOLUTION_TIME"
       | "MAX_REWARD_RATE"
-      | "MIN_LOCK_PERIOD"
-      | "PROPOSAL_CHECK_GAS_LIMIT"
-      | "RECENT_PROPOSALS_CHECK_COUNT"
       | "REWARD_PRECISION"
-      | "activeProposals"
       | "allowance"
       | "approve"
       | "availableRewards"
       | "balanceOf"
-      | "blocksPerDay"
-      | "canUserWithdraw"
-      | "castVote(uint256,uint8,string)"
-      | "castVote(uint256,uint8)"
       | "claimRewards"
-      | "contractVoteDirection"
-      | "contractVoted"
       | "decimals"
-      | "delegateInfo"
       | "delegationCap"
       | "getContractVotingPower"
       | "getContractVotingPowerAt"
       | "getPendingRewards"
-      | "getProposalStake"
-      | "getVoteByIndex"
-      | "getVoteInfo"
       | "lastRewarded"
-      | "latestProposalId"
       | "name"
       | "owner"
       | "ownerDeposit"
       | "ownerWithdraw"
-      | "pendingProposals"
-      | "proposalCreationTime"
-      | "proposalOutcomes"
-      | "proposalStakes"
-      | "reclaimStake"
       | "renounceOwnership"
-      | "resolveProposal"
       | "rewardIndex"
       | "rewardRate"
       | "rewardsUntil"
-      | "setBlocksPerDay"
       | "setRewardRate"
-      | "stakeForProposal"
       | "startRewardIndex"
       | "symbol"
       | "totalDelegatedCOMP"
       | "totalPendingRewards"
-      | "totalStakesAgainst"
-      | "totalStakesFor"
       | "totalSupply"
       | "transfer"
       | "transferFrom"
       | "transferOwnership"
       | "unclaimedRewards"
-      | "unlockTime"
       | "userDeposit"
       | "userWithdraw"
-      | "voteCount"
-      | "voteIndexToProposalId"
-      | "voteInfo"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
       | "Approval"
-      | "COMPLocked"
       | "ClaimRewards"
-      | "DelegatePerformanceUpdated"
       | "DelegationCapUpdated"
-      | "NewProposalDetected"
       | "OwnerDeposit"
       | "OwnerWithdraw"
       | "OwnershipTransferred"
-      | "ProposalActivated"
-      | "ProposalAutoResolved"
-      | "ProposalDeactivated"
-      | "ProposalStakeDistributed"
-      | "ProposalStaked"
-      | "ProposalStateChanged"
       | "RewardIndexUpdated"
       | "RewardRateUpdate"
       | "RewardsDistributed"
-      | "StakeReclaimed"
       | "Transfer"
       | "UserDeposit"
       | "UserRewardsUpdated"
       | "UserWithdraw"
-      | "VoteCast"
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "ACTIVE_PROPOSAL_LOCK_EXTENSION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "BASIS_POINTS",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "COMPOUND_GOVERNOR",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -148,36 +96,12 @@ export interface CompensatorInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "FACTORY", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "MAX_BLOCKS_PER_DAY",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "MAX_PROPOSAL_RESOLUTION_TIME",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "MAX_REWARD_RATE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "MIN_LOCK_PERIOD",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PROPOSAL_CHECK_GAS_LIMIT",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "RECENT_PROPOSALS_CHECK_COUNT",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "REWARD_PRECISION",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "activeProposals",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "allowance",
@@ -196,38 +120,10 @@ export interface CompensatorInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "blocksPerDay",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "canUserWithdraw",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "castVote(uint256,uint8,string)",
-    values: [BigNumberish, BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "castVote(uint256,uint8)",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "claimRewards",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "contractVoteDirection",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contractVoted",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "delegateInfo",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "delegationCap",
     values?: undefined
@@ -245,23 +141,7 @@ export interface CompensatorInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getProposalStake",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getVoteByIndex",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getVoteInfo",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "lastRewarded",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "latestProposalId",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
@@ -275,32 +155,8 @@ export interface CompensatorInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "pendingProposals",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalCreationTime",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalOutcomes",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalStakes",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reclaimStake",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "resolveProposal",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "rewardIndex",
@@ -315,16 +171,8 @@ export interface CompensatorInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setBlocksPerDay",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setRewardRate",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stakeForProposal",
-    values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "startRewardIndex",
@@ -338,14 +186,6 @@ export interface CompensatorInterface extends Interface {
   encodeFunctionData(
     functionFragment: "totalPendingRewards",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalStakesAgainst",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalStakesFor",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -368,10 +208,6 @@ export interface CompensatorInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "unlockTime",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "userDeposit",
     values: [BigNumberish]
   ): string;
@@ -379,26 +215,9 @@ export interface CompensatorInterface extends Interface {
     functionFragment: "userWithdraw",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "voteCount", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "voteIndexToProposalId",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "voteInfo",
-    values: [BigNumberish]
-  ): string;
 
   decodeFunctionResult(
-    functionFragment: "ACTIVE_PROPOSAL_LOCK_EXTENSION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "BASIS_POINTS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "COMPOUND_GOVERNOR",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "COMP_TOKEN", data: BytesLike): Result;
@@ -408,35 +227,11 @@ export interface CompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "FACTORY", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "MAX_BLOCKS_PER_DAY",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "MAX_PROPOSAL_RESOLUTION_TIME",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "MAX_REWARD_RATE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "MIN_LOCK_PERIOD",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PROPOSAL_CHECK_GAS_LIMIT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "RECENT_PROPOSALS_CHECK_COUNT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "REWARD_PRECISION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "activeProposals",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
@@ -447,38 +242,10 @@ export interface CompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "blocksPerDay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "canUserWithdraw",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "castVote(uint256,uint8,string)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "castVote(uint256,uint8)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "claimRewards",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "contractVoteDirection",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contractVoted",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "delegateInfo",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "delegationCap",
     data: BytesLike
@@ -496,23 +263,7 @@ export interface CompensatorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getProposalStake",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getVoteByIndex",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getVoteInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "lastRewarded",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "latestProposalId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -526,31 +277,7 @@ export interface CompensatorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "pendingProposals",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalCreationTime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalOutcomes",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalStakes",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reclaimStake",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "resolveProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -563,15 +290,7 @@ export interface CompensatorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setBlocksPerDay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setRewardRate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "stakeForProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -585,14 +304,6 @@ export interface CompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "totalPendingRewards",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalStakesAgainst",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalStakesFor",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -612,7 +323,6 @@ export interface CompensatorInterface extends Interface {
     functionFragment: "unclaimedRewards",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "unlockTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "userDeposit",
     data: BytesLike
@@ -621,12 +331,6 @@ export interface CompensatorInterface extends Interface {
     functionFragment: "userWithdraw",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "voteCount", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "voteIndexToProposalId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "voteInfo", data: BytesLike): Result;
 }
 
 export namespace ApprovalEvent {
@@ -647,47 +351,12 @@ export namespace ApprovalEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace COMPLockedEvent {
-  export type InputTuple = [delegator: AddressLike, unlockTime: BigNumberish];
-  export type OutputTuple = [delegator: string, unlockTime: bigint];
-  export interface OutputObject {
-    delegator: string;
-    unlockTime: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace ClaimRewardsEvent {
   export type InputTuple = [user: AddressLike, amount: BigNumberish];
   export type OutputTuple = [user: string, amount: bigint];
   export interface OutputObject {
     user: string;
     amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace DelegatePerformanceUpdatedEvent {
-  export type InputTuple = [
-    successfulVotes: BigNumberish,
-    totalVotes: BigNumberish,
-    totalRewardsEarned: BigNumberish
-  ];
-  export type OutputTuple = [
-    successfulVotes: bigint,
-    totalVotes: bigint,
-    totalRewardsEarned: bigint
-  ];
-  export interface OutputObject {
-    successfulVotes: bigint;
-    totalVotes: bigint;
-    totalRewardsEarned: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -710,18 +379,6 @@ export namespace DelegationCapUpdatedEvent {
     oldCap: bigint;
     newCap: bigint;
     totalSupply: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace NewProposalDetectedEvent {
-  export type InputTuple = [proposalId: BigNumberish];
-  export type OutputTuple = [proposalId: bigint];
-  export interface OutputObject {
-    proposalId: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -761,109 +418,6 @@ export namespace OwnershipTransferredEvent {
   export interface OutputObject {
     previousOwner: string;
     newOwner: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ProposalActivatedEvent {
-  export type InputTuple = [proposalId: BigNumberish];
-  export type OutputTuple = [proposalId: bigint];
-  export interface OutputObject {
-    proposalId: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ProposalAutoResolvedEvent {
-  export type InputTuple = [
-    proposalId: BigNumberish,
-    winningSupport: BigNumberish
-  ];
-  export type OutputTuple = [proposalId: bigint, winningSupport: bigint];
-  export interface OutputObject {
-    proposalId: bigint;
-    winningSupport: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ProposalDeactivatedEvent {
-  export type InputTuple = [proposalId: BigNumberish];
-  export type OutputTuple = [proposalId: bigint];
-  export interface OutputObject {
-    proposalId: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ProposalStakeDistributedEvent {
-  export type InputTuple = [
-    proposalId: BigNumberish,
-    winningSupport: BigNumberish
-  ];
-  export type OutputTuple = [proposalId: bigint, winningSupport: bigint];
-  export interface OutputObject {
-    proposalId: bigint;
-    winningSupport: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ProposalStakedEvent {
-  export type InputTuple = [
-    user: AddressLike,
-    proposalId: BigNumberish,
-    support: BigNumberish,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [
-    user: string,
-    proposalId: bigint,
-    support: bigint,
-    amount: bigint
-  ];
-  export interface OutputObject {
-    user: string;
-    proposalId: bigint;
-    support: bigint;
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ProposalStateChangedEvent {
-  export type InputTuple = [
-    proposalId: BigNumberish,
-    oldState: BigNumberish,
-    newState: BigNumberish
-  ];
-  export type OutputTuple = [
-    proposalId: bigint,
-    oldState: bigint,
-    newState: bigint
-  ];
-  export interface OutputObject {
-    proposalId: bigint;
-    oldState: bigint;
-    newState: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -915,24 +469,6 @@ export namespace RewardsDistributedEvent {
     totalRewards: bigint;
     rewardIndex: bigint;
     timestamp: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace StakeReclaimedEvent {
-  export type InputTuple = [
-    user: AddressLike,
-    proposalId: BigNumberish,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [user: string, proposalId: bigint, amount: bigint];
-  export interface OutputObject {
-    user: string;
-    proposalId: bigint;
-    amount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -1006,37 +542,6 @@ export namespace UserWithdrawEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace VoteCastEvent {
-  export type InputTuple = [
-    proposalId: BigNumberish,
-    support: BigNumberish,
-    blockNumber: BigNumberish,
-    txHash: BytesLike,
-    votingPower: BigNumberish,
-    reason: string
-  ];
-  export type OutputTuple = [
-    proposalId: bigint,
-    support: bigint,
-    blockNumber: bigint,
-    txHash: string,
-    votingPower: bigint,
-    reason: string
-  ];
-  export interface OutputObject {
-    proposalId: bigint;
-    support: bigint;
-    blockNumber: bigint;
-    txHash: string;
-    votingPower: bigint;
-    reason: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export interface Compensator extends BaseContract {
   connect(runner?: ContractRunner | null): Compensator;
   waitForDeployment(): Promise<this>;
@@ -1080,11 +585,7 @@ export interface Compensator extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  ACTIVE_PROPOSAL_LOCK_EXTENSION: TypedContractMethod<[], [bigint], "view">;
-
   BASIS_POINTS: TypedContractMethod<[], [bigint], "view">;
-
-  COMPOUND_GOVERNOR: TypedContractMethod<[], [string], "view">;
 
   COMP_TOKEN: TypedContractMethod<[], [string], "view">;
 
@@ -1092,25 +593,9 @@ export interface Compensator extends BaseContract {
 
   FACTORY: TypedContractMethod<[], [string], "view">;
 
-  MAX_BLOCKS_PER_DAY: TypedContractMethod<[], [bigint], "view">;
-
-  MAX_PROPOSAL_RESOLUTION_TIME: TypedContractMethod<[], [bigint], "view">;
-
   MAX_REWARD_RATE: TypedContractMethod<[], [bigint], "view">;
 
-  MIN_LOCK_PERIOD: TypedContractMethod<[], [bigint], "view">;
-
-  PROPOSAL_CHECK_GAS_LIMIT: TypedContractMethod<[], [bigint], "view">;
-
-  RECENT_PROPOSALS_CHECK_COUNT: TypedContractMethod<[], [bigint], "view">;
-
   REWARD_PRECISION: TypedContractMethod<[], [bigint], "view">;
-
-  activeProposals: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [boolean],
-    "view"
-  >;
 
   allowance: TypedContractMethod<
     [owner: AddressLike, spender: AddressLike],
@@ -1128,55 +613,9 @@ export interface Compensator extends BaseContract {
 
   balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
 
-  blocksPerDay: TypedContractMethod<[], [bigint], "view">;
-
-  canUserWithdraw: TypedContractMethod<
-    [user: AddressLike],
-    [[boolean, string] & { canWithdraw: boolean; reason: string }],
-    "view"
-  >;
-
-  "castVote(uint256,uint8,string)": TypedContractMethod<
-    [proposalId: BigNumberish, support: BigNumberish, reason: string],
-    [void],
-    "nonpayable"
-  >;
-
-  "castVote(uint256,uint8)": TypedContractMethod<
-    [proposalId: BigNumberish, support: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   claimRewards: TypedContractMethod<[], [void], "nonpayable">;
 
-  contractVoteDirection: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  contractVoted: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [boolean],
-    "view"
-  >;
-
   decimals: TypedContractMethod<[], [bigint], "view">;
-
-  delegateInfo: TypedContractMethod<
-    [],
-    [
-      [bigint, bigint, bigint, bigint, bigint] & {
-        successfulVotes: bigint;
-        totalVotes: bigint;
-        totalRewardsEarned: bigint;
-        totalVotingPowerUsed: bigint;
-        averageVotingPowerPerVote: bigint;
-      }
-    ],
-    "view"
-  >;
 
   delegationCap: TypedContractMethod<[], [bigint], "view">;
 
@@ -1194,45 +633,7 @@ export interface Compensator extends BaseContract {
     "view"
   >;
 
-  getProposalStake: TypedContractMethod<
-    [proposalId: BigNumberish, delegator: AddressLike],
-    [[bigint, bigint] & { forStake: bigint; againstStake: bigint }],
-    "view"
-  >;
-
-  getVoteByIndex: TypedContractMethod<
-    [voteIndex: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
-    "view"
-  >;
-
-  getVoteInfo: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
-    "view"
-  >;
-
   lastRewarded: TypedContractMethod<[], [bigint], "view">;
-
-  latestProposalId: TypedContractMethod<[], [bigint], "view">;
 
   name: TypedContractMethod<[], [string], "view">;
 
@@ -1250,43 +651,7 @@ export interface Compensator extends BaseContract {
     "nonpayable"
   >;
 
-  pendingProposals: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [boolean],
-    "view"
-  >;
-
-  proposalCreationTime: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  proposalOutcomes: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  proposalStakes: TypedContractMethod<
-    [proposalId: BigNumberish, delegator: AddressLike],
-    [[bigint, bigint] & { forStake: bigint; againstStake: bigint }],
-    "view"
-  >;
-
-  reclaimStake: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
-
-  resolveProposal: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
 
   rewardIndex: TypedContractMethod<[], [bigint], "view">;
 
@@ -1294,20 +659,8 @@ export interface Compensator extends BaseContract {
 
   rewardsUntil: TypedContractMethod<[], [bigint], "view">;
 
-  setBlocksPerDay: TypedContractMethod<
-    [_blocksPerDay: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   setRewardRate: TypedContractMethod<
     [newRate: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  stakeForProposal: TypedContractMethod<
-    [proposalId: BigNumberish, support: BigNumberish, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -1323,18 +676,6 @@ export interface Compensator extends BaseContract {
   totalDelegatedCOMP: TypedContractMethod<[], [bigint], "view">;
 
   totalPendingRewards: TypedContractMethod<[], [bigint], "view">;
-
-  totalStakesAgainst: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  totalStakesFor: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
 
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
@@ -1362,8 +703,6 @@ export interface Compensator extends BaseContract {
     "view"
   >;
 
-  unlockTime: TypedContractMethod<[delegator: AddressLike], [bigint], "view">;
-
   userDeposit: TypedContractMethod<
     [amount: BigNumberish],
     [void],
@@ -1376,42 +715,13 @@ export interface Compensator extends BaseContract {
     "nonpayable"
   >;
 
-  voteCount: TypedContractMethod<[], [bigint], "view">;
-
-  voteIndexToProposalId: TypedContractMethod<
-    [voteIndex: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  voteInfo: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
-    "view"
-  >;
-
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
-    nameOrSignature: "ACTIVE_PROPOSAL_LOCK_EXTENSION"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "BASIS_POINTS"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "COMPOUND_GOVERNOR"
-  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "COMP_TOKEN"
   ): TypedContractMethod<[], [string], "view">;
@@ -1422,29 +732,11 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "FACTORY"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "MAX_BLOCKS_PER_DAY"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "MAX_PROPOSAL_RESOLUTION_TIME"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "MAX_REWARD_RATE"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "MIN_LOCK_PERIOD"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "PROPOSAL_CHECK_GAS_LIMIT"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "RECENT_PROPOSALS_CHECK_COUNT"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "REWARD_PRECISION"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "activeProposals"
-  ): TypedContractMethod<[proposalId: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "allowance"
   ): TypedContractMethod<
@@ -1466,56 +758,11 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "balanceOf"
   ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "blocksPerDay"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "canUserWithdraw"
-  ): TypedContractMethod<
-    [user: AddressLike],
-    [[boolean, string] & { canWithdraw: boolean; reason: string }],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "castVote(uint256,uint8,string)"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish, support: BigNumberish, reason: string],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "castVote(uint256,uint8)"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish, support: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "claimRewards"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "contractVoteDirection"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "contractVoted"
-  ): TypedContractMethod<[proposalId: BigNumberish], [boolean], "view">;
-  getFunction(
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "delegateInfo"
-  ): TypedContractMethod<
-    [],
-    [
-      [bigint, bigint, bigint, bigint, bigint] & {
-        successfulVotes: bigint;
-        totalVotes: bigint;
-        totalRewardsEarned: bigint;
-        totalVotingPowerUsed: bigint;
-        averageVotingPowerPerVote: bigint;
-      }
-    ],
-    "view"
-  >;
   getFunction(
     nameOrSignature: "delegationCap"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -1529,49 +776,7 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "getPendingRewards"
   ): TypedContractMethod<[delegator: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getProposalStake"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish, delegator: AddressLike],
-    [[bigint, bigint] & { forStake: bigint; againstStake: bigint }],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "getVoteByIndex"
-  ): TypedContractMethod<
-    [voteIndex: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "getVoteInfo"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "lastRewarded"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "latestProposalId"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "name"
@@ -1586,30 +791,8 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "ownerWithdraw"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "pendingProposals"
-  ): TypedContractMethod<[proposalId: BigNumberish], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "proposalCreationTime"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "proposalOutcomes"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "proposalStakes"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish, delegator: AddressLike],
-    [[bigint, bigint] & { forStake: bigint; againstStake: bigint }],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "reclaimStake"
-  ): TypedContractMethod<[proposalId: BigNumberish], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "resolveProposal"
-  ): TypedContractMethod<[proposalId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "rewardIndex"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -1620,18 +803,8 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "rewardsUntil"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "setBlocksPerDay"
-  ): TypedContractMethod<[_blocksPerDay: BigNumberish], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "setRewardRate"
   ): TypedContractMethod<[newRate: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "stakeForProposal"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish, support: BigNumberish, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "startRewardIndex"
   ): TypedContractMethod<[delegator: AddressLike], [bigint], "view">;
@@ -1644,12 +817,6 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "totalPendingRewards"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "totalStakesAgainst"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "totalStakesFor"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "totalSupply"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -1674,36 +841,11 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "unclaimedRewards"
   ): TypedContractMethod<[delegator: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "unlockTime"
-  ): TypedContractMethod<[delegator: AddressLike], [bigint], "view">;
-  getFunction(
     nameOrSignature: "userDeposit"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "userWithdraw"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "voteCount"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "voteIndexToProposalId"
-  ): TypedContractMethod<[voteIndex: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "voteInfo"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish],
-    [
-      [bigint, bigint, string, bigint, bigint, string] & {
-        direction: bigint;
-        blockNumber: bigint;
-        txHash: string;
-        timestamp: bigint;
-        votingPower: bigint;
-        reason: string;
-      }
-    ],
-    "view"
-  >;
 
   getEvent(
     key: "Approval"
@@ -1713,13 +855,6 @@ export interface Compensator extends BaseContract {
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "COMPLocked"
-  ): TypedContractEvent<
-    COMPLockedEvent.InputTuple,
-    COMPLockedEvent.OutputTuple,
-    COMPLockedEvent.OutputObject
-  >;
-  getEvent(
     key: "ClaimRewards"
   ): TypedContractEvent<
     ClaimRewardsEvent.InputTuple,
@@ -1727,25 +862,11 @@ export interface Compensator extends BaseContract {
     ClaimRewardsEvent.OutputObject
   >;
   getEvent(
-    key: "DelegatePerformanceUpdated"
-  ): TypedContractEvent<
-    DelegatePerformanceUpdatedEvent.InputTuple,
-    DelegatePerformanceUpdatedEvent.OutputTuple,
-    DelegatePerformanceUpdatedEvent.OutputObject
-  >;
-  getEvent(
     key: "DelegationCapUpdated"
   ): TypedContractEvent<
     DelegationCapUpdatedEvent.InputTuple,
     DelegationCapUpdatedEvent.OutputTuple,
     DelegationCapUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "NewProposalDetected"
-  ): TypedContractEvent<
-    NewProposalDetectedEvent.InputTuple,
-    NewProposalDetectedEvent.OutputTuple,
-    NewProposalDetectedEvent.OutputObject
   >;
   getEvent(
     key: "OwnerDeposit"
@@ -1769,48 +890,6 @@ export interface Compensator extends BaseContract {
     OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "ProposalActivated"
-  ): TypedContractEvent<
-    ProposalActivatedEvent.InputTuple,
-    ProposalActivatedEvent.OutputTuple,
-    ProposalActivatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ProposalAutoResolved"
-  ): TypedContractEvent<
-    ProposalAutoResolvedEvent.InputTuple,
-    ProposalAutoResolvedEvent.OutputTuple,
-    ProposalAutoResolvedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ProposalDeactivated"
-  ): TypedContractEvent<
-    ProposalDeactivatedEvent.InputTuple,
-    ProposalDeactivatedEvent.OutputTuple,
-    ProposalDeactivatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ProposalStakeDistributed"
-  ): TypedContractEvent<
-    ProposalStakeDistributedEvent.InputTuple,
-    ProposalStakeDistributedEvent.OutputTuple,
-    ProposalStakeDistributedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ProposalStaked"
-  ): TypedContractEvent<
-    ProposalStakedEvent.InputTuple,
-    ProposalStakedEvent.OutputTuple,
-    ProposalStakedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ProposalStateChanged"
-  ): TypedContractEvent<
-    ProposalStateChangedEvent.InputTuple,
-    ProposalStateChangedEvent.OutputTuple,
-    ProposalStateChangedEvent.OutputObject
-  >;
-  getEvent(
     key: "RewardIndexUpdated"
   ): TypedContractEvent<
     RewardIndexUpdatedEvent.InputTuple,
@@ -1830,13 +909,6 @@ export interface Compensator extends BaseContract {
     RewardsDistributedEvent.InputTuple,
     RewardsDistributedEvent.OutputTuple,
     RewardsDistributedEvent.OutputObject
-  >;
-  getEvent(
-    key: "StakeReclaimed"
-  ): TypedContractEvent<
-    StakeReclaimedEvent.InputTuple,
-    StakeReclaimedEvent.OutputTuple,
-    StakeReclaimedEvent.OutputObject
   >;
   getEvent(
     key: "Transfer"
@@ -1866,13 +938,6 @@ export interface Compensator extends BaseContract {
     UserWithdrawEvent.OutputTuple,
     UserWithdrawEvent.OutputObject
   >;
-  getEvent(
-    key: "VoteCast"
-  ): TypedContractEvent<
-    VoteCastEvent.InputTuple,
-    VoteCastEvent.OutputTuple,
-    VoteCastEvent.OutputObject
-  >;
 
   filters: {
     "Approval(address,address,uint256)": TypedContractEvent<
@@ -1886,17 +951,6 @@ export interface Compensator extends BaseContract {
       ApprovalEvent.OutputObject
     >;
 
-    "COMPLocked(address,uint256)": TypedContractEvent<
-      COMPLockedEvent.InputTuple,
-      COMPLockedEvent.OutputTuple,
-      COMPLockedEvent.OutputObject
-    >;
-    COMPLocked: TypedContractEvent<
-      COMPLockedEvent.InputTuple,
-      COMPLockedEvent.OutputTuple,
-      COMPLockedEvent.OutputObject
-    >;
-
     "ClaimRewards(address,uint256)": TypedContractEvent<
       ClaimRewardsEvent.InputTuple,
       ClaimRewardsEvent.OutputTuple,
@@ -1908,17 +962,6 @@ export interface Compensator extends BaseContract {
       ClaimRewardsEvent.OutputObject
     >;
 
-    "DelegatePerformanceUpdated(uint256,uint256,uint256)": TypedContractEvent<
-      DelegatePerformanceUpdatedEvent.InputTuple,
-      DelegatePerformanceUpdatedEvent.OutputTuple,
-      DelegatePerformanceUpdatedEvent.OutputObject
-    >;
-    DelegatePerformanceUpdated: TypedContractEvent<
-      DelegatePerformanceUpdatedEvent.InputTuple,
-      DelegatePerformanceUpdatedEvent.OutputTuple,
-      DelegatePerformanceUpdatedEvent.OutputObject
-    >;
-
     "DelegationCapUpdated(uint256,uint256,uint256)": TypedContractEvent<
       DelegationCapUpdatedEvent.InputTuple,
       DelegationCapUpdatedEvent.OutputTuple,
@@ -1928,17 +971,6 @@ export interface Compensator extends BaseContract {
       DelegationCapUpdatedEvent.InputTuple,
       DelegationCapUpdatedEvent.OutputTuple,
       DelegationCapUpdatedEvent.OutputObject
-    >;
-
-    "NewProposalDetected(uint256)": TypedContractEvent<
-      NewProposalDetectedEvent.InputTuple,
-      NewProposalDetectedEvent.OutputTuple,
-      NewProposalDetectedEvent.OutputObject
-    >;
-    NewProposalDetected: TypedContractEvent<
-      NewProposalDetectedEvent.InputTuple,
-      NewProposalDetectedEvent.OutputTuple,
-      NewProposalDetectedEvent.OutputObject
     >;
 
     "OwnerDeposit(address,uint256)": TypedContractEvent<
@@ -1974,72 +1006,6 @@ export interface Compensator extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "ProposalActivated(uint256)": TypedContractEvent<
-      ProposalActivatedEvent.InputTuple,
-      ProposalActivatedEvent.OutputTuple,
-      ProposalActivatedEvent.OutputObject
-    >;
-    ProposalActivated: TypedContractEvent<
-      ProposalActivatedEvent.InputTuple,
-      ProposalActivatedEvent.OutputTuple,
-      ProposalActivatedEvent.OutputObject
-    >;
-
-    "ProposalAutoResolved(uint256,uint8)": TypedContractEvent<
-      ProposalAutoResolvedEvent.InputTuple,
-      ProposalAutoResolvedEvent.OutputTuple,
-      ProposalAutoResolvedEvent.OutputObject
-    >;
-    ProposalAutoResolved: TypedContractEvent<
-      ProposalAutoResolvedEvent.InputTuple,
-      ProposalAutoResolvedEvent.OutputTuple,
-      ProposalAutoResolvedEvent.OutputObject
-    >;
-
-    "ProposalDeactivated(uint256)": TypedContractEvent<
-      ProposalDeactivatedEvent.InputTuple,
-      ProposalDeactivatedEvent.OutputTuple,
-      ProposalDeactivatedEvent.OutputObject
-    >;
-    ProposalDeactivated: TypedContractEvent<
-      ProposalDeactivatedEvent.InputTuple,
-      ProposalDeactivatedEvent.OutputTuple,
-      ProposalDeactivatedEvent.OutputObject
-    >;
-
-    "ProposalStakeDistributed(uint256,uint8)": TypedContractEvent<
-      ProposalStakeDistributedEvent.InputTuple,
-      ProposalStakeDistributedEvent.OutputTuple,
-      ProposalStakeDistributedEvent.OutputObject
-    >;
-    ProposalStakeDistributed: TypedContractEvent<
-      ProposalStakeDistributedEvent.InputTuple,
-      ProposalStakeDistributedEvent.OutputTuple,
-      ProposalStakeDistributedEvent.OutputObject
-    >;
-
-    "ProposalStaked(address,uint256,uint8,uint256)": TypedContractEvent<
-      ProposalStakedEvent.InputTuple,
-      ProposalStakedEvent.OutputTuple,
-      ProposalStakedEvent.OutputObject
-    >;
-    ProposalStaked: TypedContractEvent<
-      ProposalStakedEvent.InputTuple,
-      ProposalStakedEvent.OutputTuple,
-      ProposalStakedEvent.OutputObject
-    >;
-
-    "ProposalStateChanged(uint256,uint8,uint8)": TypedContractEvent<
-      ProposalStateChangedEvent.InputTuple,
-      ProposalStateChangedEvent.OutputTuple,
-      ProposalStateChangedEvent.OutputObject
-    >;
-    ProposalStateChanged: TypedContractEvent<
-      ProposalStateChangedEvent.InputTuple,
-      ProposalStateChangedEvent.OutputTuple,
-      ProposalStateChangedEvent.OutputObject
-    >;
-
     "RewardIndexUpdated(uint256,uint256)": TypedContractEvent<
       RewardIndexUpdatedEvent.InputTuple,
       RewardIndexUpdatedEvent.OutputTuple,
@@ -2071,17 +1037,6 @@ export interface Compensator extends BaseContract {
       RewardsDistributedEvent.InputTuple,
       RewardsDistributedEvent.OutputTuple,
       RewardsDistributedEvent.OutputObject
-    >;
-
-    "StakeReclaimed(address,uint256,uint256)": TypedContractEvent<
-      StakeReclaimedEvent.InputTuple,
-      StakeReclaimedEvent.OutputTuple,
-      StakeReclaimedEvent.OutputObject
-    >;
-    StakeReclaimed: TypedContractEvent<
-      StakeReclaimedEvent.InputTuple,
-      StakeReclaimedEvent.OutputTuple,
-      StakeReclaimedEvent.OutputObject
     >;
 
     "Transfer(address,address,uint256)": TypedContractEvent<
@@ -2126,17 +1081,6 @@ export interface Compensator extends BaseContract {
       UserWithdrawEvent.InputTuple,
       UserWithdrawEvent.OutputTuple,
       UserWithdrawEvent.OutputObject
-    >;
-
-    "VoteCast(uint256,uint8,uint256,bytes32,uint256,string)": TypedContractEvent<
-      VoteCastEvent.InputTuple,
-      VoteCastEvent.OutputTuple,
-      VoteCastEvent.OutputObject
-    >;
-    VoteCast: TypedContractEvent<
-      VoteCastEvent.InputTuple,
-      VoteCastEvent.OutputTuple,
-      VoteCastEvent.OutputObject
     >;
   };
 }

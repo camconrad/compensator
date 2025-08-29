@@ -26,7 +26,6 @@ import type {
 export interface CompensatorFactoryInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "COMPOUND_GOVERNOR"
       | "COMP_TOKEN"
       | "compensatorToOriginalOwner"
       | "compensators"
@@ -46,10 +45,6 @@ export interface CompensatorFactoryInterface extends Interface {
       | "CompensatorOwnershipTransferred"
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "COMPOUND_GOVERNOR",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "COMP_TOKEN",
     values?: undefined
@@ -95,10 +90,6 @@ export interface CompensatorFactoryInterface extends Interface {
     values: [AddressLike]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "COMPOUND_GOVERNOR",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "COMP_TOKEN", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "compensatorToOriginalOwner",
@@ -220,8 +211,6 @@ export interface CompensatorFactory extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  COMPOUND_GOVERNOR: TypedContractMethod<[], [string], "view">;
-
   COMP_TOKEN: TypedContractMethod<[], [string], "view">;
 
   compensatorToOriginalOwner: TypedContractMethod<
@@ -272,9 +261,6 @@ export interface CompensatorFactory extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
-  getFunction(
-    nameOrSignature: "COMPOUND_GOVERNOR"
-  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "COMP_TOKEN"
   ): TypedContractMethod<[], [string], "view">;

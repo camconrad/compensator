@@ -5,7 +5,7 @@ const ForkTestBase = require("../helpers/ForkTestBase");
 
 describe("Compensator Fork Tests", function () {
   let forkTestBase;
-  let compensator, compToken, compoundGovernor;
+  let compensator, compToken;
   let delegate, delegator1, delegator2, delegator3;
   
   // Test configuration
@@ -33,10 +33,6 @@ describe("Compensator Fork Tests", function () {
     compToken = await MockToken.deploy("COMP", "COMP");
     await compToken.waitForDeployment();
     
-    const MockGovernor = await ethers.getContractFactory("MockGovernor");
-    compoundGovernor = await MockGovernor.deploy();
-    await compoundGovernor.waitForDeployment();
-    
     // IMPORTANT: Mint initial supply BEFORE deploying Compensator
     // Compensator constructor calls totalSupply() and requires it to be > 0
     await compToken.mint(delegate.address, ethers.parseEther("1000000"));
@@ -52,7 +48,6 @@ describe("Compensator Fork Tests", function () {
     const Compensator = await ethers.getContractFactory("Compensator");
     compensator = await Compensator.deploy(
       await compToken.getAddress(),
-      await compoundGovernor.getAddress(),
       delegate.address
     );
     await compensator.waitForDeployment();
@@ -65,7 +60,6 @@ describe("Compensator Fork Tests", function () {
     return { 
       compensator, 
       compToken, 
-      compoundGovernor, 
       delegate, 
       delegator1, 
       delegator2, 
@@ -78,7 +72,6 @@ describe("Compensator Fork Tests", function () {
     const fixture = await loadFixture(setupFixture);
     compensator = fixture.compensator;
     compToken = fixture.compToken;
-    compoundGovernor = fixture.compoundGovernor;
     delegate = fixture.delegate;
     delegator1 = fixture.delegator1;
     delegator2 = fixture.delegator2;
@@ -95,7 +88,6 @@ describe("Compensator Fork Tests", function () {
       
       if (forkInfo.isForked) {
         expect(forkInfo.mainnetContracts).to.include("COMP_TOKEN");
-        expect(forkInfo.mainnetContracts).to.include("COMPOUND_GOVERNOR");
       }
     });
   });
@@ -103,11 +95,9 @@ describe("Compensator Fork Tests", function () {
   describe("Basic Functionality on Fork", function () {
     it("should deploy and initialize correctly", async function () {
       const tokenAddress = await compensator.COMP_TOKEN();
-      const governorAddress = await compensator.COMPOUND_GOVERNOR();
       const owner = await compensator.owner();
       
       expect(tokenAddress).to.equal(await compToken.getAddress());
-      expect(governorAddress).to.equal(await compoundGovernor.getAddress());
       expect(owner).to.equal(delegate.address);
       
       console.log("✅ Compensator deployed successfully");

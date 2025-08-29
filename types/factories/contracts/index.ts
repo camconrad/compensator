@@ -6,5 +6,3 @@ export * as fakes from "./fakes";
 export * as mocks from "./mocks";
 export { CompensatorFactory__factory } from "./CompensatorFactory__factory";
 export { IComp__factory } from "./IComp__factory";
-export { ICompensator__factory } from "./ICompensator__factory";
-export { IGovernor__factory } from "./IGovernor__factory";

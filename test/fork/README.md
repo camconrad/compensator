@@ -5,7 +5,7 @@ This directory contains fork-based integration tests that test your Compensator 
 ## 🚀 What is Fork Testing?
 
 Fork testing allows you to:
-- **Test against real mainnet contracts** (COMP token, Compound Governor, etc.)
+- **Test against real mainnet contracts** (COMP token, etc.)
 - **Simulate real network conditions** (gas prices, block times, etc.)
 - **Catch integration issues early** before deployment
 - **Test with real token mechanics** and governance systems
@@ -112,7 +112,7 @@ Pre-configured real mainnet addresses:
 ```javascript
 mainnetContracts: {
   COMP_TOKEN: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
-  COMPOUND_GOVERNOR: "0x309a862bbC1A00e45506cB8A802D1ff10004c8C0",
+  
   USDC: "0xA0b86a33E6441b8c4C8C0b4b4C8C0b4b4C8C0b4b",
   WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
   UNISWAP_V2_ROUTER: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
@@ -127,7 +127,7 @@ mainnetContracts: {
 
 ### 2. Real Contract Integration
 - Tests against real COMP token
-- Tests against real Compound Governor
+
 - Verifies real contract functionality
 
 ### 3. Compensator on Fork
