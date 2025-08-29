@@ -534,6 +534,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /**
      * @notice Override transferOwnership to notify the factory when ownership changes
      * @dev This ensures the factory's ownerToCompensator mapping stays synchronized
+     * @dev Reverts if factory notification fails to maintain data consistency
      * @param newOwner The address of the new owner
      */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
@@ -546,11 +547,7 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         
         // Notify the factory about the ownership change
         if (FACTORY != address(0)) {
-            try CompensatorFactory(FACTORY).onOwnershipTransferred(oldOwner, newOwner) {
-                // Successfully notified factory
-            } catch {
-                // Factory notification failed, but ownership transfer still succeeds
-            }
+            CompensatorFactory(FACTORY).onOwnershipTransferred(oldOwner, newOwner);
         }
     }
 }
