@@ -7,7 +7,6 @@
 | Name       | Address       |
 | -------------  | ------------- |
 | Compensator Factory      | [#](https://etherscan.io/address/#) |
-
 | Compound (COMP)    | [0xc00e94Cb662C3520282E6f5717214004A7f26888](https://etherscan.io/address/0xc00e94Cb662C3520282E6f5717214004A7f26888) |
 
 ## Overview
