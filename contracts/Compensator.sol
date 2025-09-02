@@ -55,13 +55,13 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     //////////////////////////
 
     /// @notice The COMP governance token contract
-IComp public immutable COMP_TOKEN;
+    IComp public immutable COMP_TOKEN;
 
-/// @notice The Compound Governor contract
-IGovernor public immutable GOVERNOR;
+    /// @notice The Compound Governor contract
+    IGovernor public immutable GOVERNOR;
 
-/// @notice The factory contract that created this Compensator
-address public immutable FACTORY;
+    /// @notice The factory contract that created this Compensator
+    address public immutable FACTORY;
 
     /// @notice The amount of COMP deposited by the owner available for rewards to delegators
     uint256 public availableRewards;
@@ -91,13 +91,13 @@ address public immutable FACTORY;
     mapping(address delegator => uint256 index) public startRewardIndex;
 
     /// @notice Tracks previously accrued but unclaimed rewards for each delegator
-mapping(address delegator => uint256 amount) public unclaimedRewards;
+    mapping(address delegator => uint256 amount) public unclaimedRewards;
 
-/// @notice Tracks votes cast by this contract
-mapping(uint256 => bool) public contractVoted;
+    /// @notice Tracks votes cast by this contract
+    mapping(uint256 => bool) public contractVoted;
 
-/// @notice Tracks the vote direction for each proposal
-mapping(uint256 => uint8) public contractVoteDirection;
+    /// @notice Tracks the vote direction for each proposal
+    mapping(uint256 => uint8) public contractVoteDirection;
 
     /// @notice Precision factor for reward calculations (18 decimals)
     uint256 public constant REWARD_PRECISION = 1e18;
@@ -155,14 +155,14 @@ mapping(uint256 => uint8) public contractVoteDirection;
     );
 
     /// @notice Emitted when rewards are distributed to users
-event RewardsDistributed(
-    uint256 totalRewards,
-    uint256 rewardIndex,
-    uint256 timestamp
-);
+    event RewardsDistributed(
+        uint256 totalRewards,
+        uint256 rewardIndex,
+        uint256 timestamp
+    );
 
-/// @notice Emitted when the contract casts a vote
-event VoteCast(uint256 indexed proposalId, uint8 support, string reason);
+    /// @notice Emitted when the contract casts a vote
+    event VoteCast(uint256 indexed proposalId, uint8 support, string reason);
 
     //////////////////////////
     // Constructor
