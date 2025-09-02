@@ -32,6 +32,53 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "uint8",
+        name: "support",
+        type: "uint8",
+      },
+      {
+        internalType: "string",
+        name: "reason",
+        type: "string",
+      },
+    ],
+    name: "castVoteWithReason",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "blockNumber",
+        type: "uint256",
+      },
+    ],
+    name: "getVotes",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "proposalId",
+        type: "uint256",
+      },
+      {
         internalType: "address",
         name: "account",
         type: "address",

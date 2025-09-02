@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { MockERC20__factory } from "./MockERC20__factory";
+export { MockGovernor__factory } from "./MockGovernor__factory";

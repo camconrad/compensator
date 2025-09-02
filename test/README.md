@@ -1,6 +1,6 @@
 # Compensator Test Suite
 
-A comprehensive, professionally organized test suite for the Compensator system with **157 passing tests**.
+A comprehensive, professionally organized test suite for the Compensator system with **166 passing tests**.
 
 ## 🏗️ Test Structure
 
@@ -8,6 +8,7 @@ A comprehensive, professionally organized test suite for the Compensator system 
 test/
 ├── core/                    # Core functionality tests
 │   ├── compensator/        # Main Compensator contract tests
+│   │   ├── voting.test.js  # Governance voting functionality tests
 │   ├── factory/            # CompensatorFactory tests
 │   └── index.js            # Core test index
 ├── invariants/             # Critical system property tests
@@ -27,7 +28,7 @@ test/
 
 | Category | Tests | Status | Description |
 |----------|-------|---------|-------------|
-| **Core Tests** | 30 | ✅ | Delegate functions, views, factory operations |
+| **Core Tests** | 39 | ✅ | Delegate functions, views, factory operations, voting |
 | **Invariants** | 12 | ✅ | System properties and mathematical consistency |
 | **Fuzzing** | 7 | ✅ | Property-based testing with random inputs |
 | **Integration** | 7 | ✅ | End-to-end system workflows |
@@ -40,7 +41,7 @@ test/
 | **Gas Tests** | 6 | ✅ | Gas usage tracking and regression |
 | **Fork Tests** | 5 | ✅ | Mainnet forking and real contracts |
 
-**Total: 157 tests** 🎉
+**Total: 166 tests** 🎉
 
 ## 🚀 Running Tests
 
@@ -111,6 +112,12 @@ npx hardhat test test/fork/
 - Input validation
 - Vulnerability assessment
 
+### **Governance Testing**
+- Voting functionality validation
+- Abstain vote support verification
+- Proposal state validation
+- Vote tracking and transparency
+
 ### **Performance Testing**
 - Gas usage tracking
 - Regression detection
@@ -131,7 +138,7 @@ npx hardhat test test/fork/
 
 ## 🏆 Test Results
 
-**All 157 tests pass successfully** with comprehensive coverage across:
+**All 166 tests pass successfully** with comprehensive coverage across:
 - Core contract functionality
 - Security mechanisms
 - Performance characteristics

@@ -20,13 +20,26 @@ describe("Compensator Views", function () {
     // Mint initial supply to ensure totalSupply > 0 for Compensator constructor
     await compToken.mint(delegate.address, ethers.parseEther("1000000")); // 1M COMP initial supply
     
-    // Deploy Compensator contract with mock addresses
-    const CompensatorFactory = await ethers.getContractFactory("Compensator");
-    compensator = await CompensatorFactory.deploy(
+    // Deploy MockGovernor
+    const MockGovernor = await ethers.getContractFactory("contracts/mocks/MockGovernor.sol:MockGovernor");
+    const mockGovernor = await MockGovernor.deploy();
+    await mockGovernor.waitForDeployment();
+    
+    // Deploy CompensatorFactory
+    const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
+    const compensatorFactory = await CompensatorFactory.deploy(
       await compToken.getAddress(),
-      await delegate.getAddress() // owner address
+      await mockGovernor.getAddress()
     );
-    await compensator.waitForDeployment();
+    await compensatorFactory.waitForDeployment();
+    
+    // Create a compensator for the delegate
+    await compensatorFactory.createCompensator(delegate.address);
+    const compensatorAddress = await compensatorFactory.ownerToCompensator(delegate.address);
+    
+    // Attach to the deployed compensator
+    const Compensator = await ethers.getContractFactory("Compensator");
+    compensator = await Compensator.attach(compensatorAddress);
     
     // Fund additional accounts for testing
     await compToken.mint(delegator1.address, ethers.parseEther("10000"));

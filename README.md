@@ -7,10 +7,11 @@
 | Name       | Address       |
 | -------------  | ------------- |
 | Compensator Factory      | [#](https://etherscan.io/address/#) |
+| Compound Governor     | [0x309a862bbC1A00e45506cB8A802D1ff10004c8C0](https://etherscan.io/address/0x309a862bbC1A00e45506cB8A802D1ff10004c8C0) |
 | Compound (COMP)    | [0xc00e94Cb662C3520282E6f5717214004A7f26888](https://etherscan.io/address/0xc00e94Cb662C3520282E6f5717214004A7f26888) |
 
 ## Overview
-Compensator is a dedicated delegate marketplace for the Compound DAO, designed to address low voter turnout and lack of incentivization in governance. It enables COMP holders to delegate COMP in exchange for transparent rewards, fostering greater participation in governance. Delegates attract COMP through competitive rates, creating a vibrant and efficient ecosystem focused on delegation and reward distribution.
+Compensator is a dedicated delegate marketplace for the Compound DAO, designed to address low voter turnout and lack of incentivization in governance. It enables COMP holders to delegate COMP in exchange for transparent rewards, fostering greater participation in governance. Delegates attract COMP through competitive rates and can use the accumulated voting power to participate in Compound governance, creating a vibrant and efficient ecosystem focused on delegation, reward distribution, and governance participation.
 
 ## Core Features
 
@@ -34,6 +35,13 @@ Compensator is a dedicated delegate marketplace for the Compound DAO, designed t
 - **Time-based accrual** with proportional delegation distribution
 - Rewards are distributed continuously based on the delegate's set rate
 
+### **Governance Participation**
+- Delegates can vote using the accumulated voting power from all delegators
+- **Full governance support**: Against (0), For (1), and Abstain (2) votes
+- **Vote tracking**: All votes are recorded and transparent
+- **Owner-only access**: Only the delegate can cast votes using the contract's voting power
+- **Proposal validation**: Ensures votes are only cast on valid, active proposals
+
 See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contracts/README.md) for more detail.
 
 ## User Workflow
@@ -43,7 +51,8 @@ See [Protocol Specs](https://github.com/camconrad/compensator/blob/main/contract
 2. **Supply COMP**: Supply COMP into your `Compensator` contract to fund delegator rewards
 3. **Set Reward Rate**: Define the reward rate (in COMP per second) to distribute rewards
 4. **Manage Rewards**: Monitor and adjust reward distribution as needed
-5. **Withdraw COMP**: Withdraw unused COMP as needed (pending rewards reserved)
+5. **Participate in Governance**: Vote on Compound proposals using accumulated voting power
+6. **Withdraw COMP**: Withdraw unused COMP as needed (pending rewards reserved)
 
 ### For Delegators
 1. **Find a Delegate**: Browse available delegates and their reward rates
@@ -121,7 +130,7 @@ These contracts are compiled by Hardhat and available as TypeScript types and fa
 | **Gas Tests** | 6 | ✅ | Gas usage tracking and regression |
 | **Fork Tests** | 5 | ✅ | Mainnet forking and real contracts |
 
-**Total: 157 tests** 🎉
+**Total: 166 tests** 🎉
 
 ### Running Tests
 
@@ -219,7 +228,7 @@ npx hardhat test --verbose
 
 ### Test Results
 
-**All 157 tests pass successfully** with comprehensive coverage across:
+**All 166 tests pass successfully** with comprehensive coverage across:
 - Core contract functionality
 - Security mechanisms
 - Performance characteristics

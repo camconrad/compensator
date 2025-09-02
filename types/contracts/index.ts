@@ -9,3 +9,4 @@ import type * as mocks from "./mocks";
 export type { mocks };
 export type { CompensatorFactory } from "./CompensatorFactory";
 export type { IComp } from "./IComp";
+export type { IGovernor } from "./IGovernor";

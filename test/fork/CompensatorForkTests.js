@@ -44,13 +44,26 @@ describe("Compensator Fork Tests", function () {
       throw new Error("Mock COMP token must have non-zero supply for Compensator constructor");
     }
     
-    // Now deploy Compensator (after token has supply)
-    const Compensator = await ethers.getContractFactory("Compensator");
-    compensator = await Compensator.deploy(
+    // Deploy MockGovernor
+    const MockGovernor = await ethers.getContractFactory("contracts/mocks/MockGovernor.sol:MockGovernor");
+    const mockGovernor = await MockGovernor.deploy();
+    await mockGovernor.waitForDeployment();
+    
+    // Deploy CompensatorFactory
+    const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
+    const compensatorFactory = await CompensatorFactory.deploy(
       await compToken.getAddress(),
-      delegate.address
+      await mockGovernor.getAddress()
     );
-    await compensator.waitForDeployment();
+    await compensatorFactory.waitForDeployment();
+    
+    // Create a compensator for the delegate
+    await compensatorFactory.createCompensator(delegate.address);
+    const compensatorAddress = await compensatorFactory.ownerToCompensator(delegate.address);
+    
+    // Attach to the deployed compensator
+    const Compensator = await ethers.getContractFactory("Compensator");
+    compensator = await Compensator.attach(compensatorAddress);
     
     // Mint additional supply for test accounts
     await compToken.mint(delegator1.address, ethers.parseEther("10000"));

@@ -5,6 +5,7 @@ import {IComp} from "./IComp.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IGovernor} from "./IGovernor.sol";
 
 // Interface for the factory contract
 interface CompensatorFactory {
@@ -25,6 +26,9 @@ error InsufficientBalance();
 error NoRewardsToClaim();
 error DelegationCapExceeded();
 error CompensatorTokensNotTransferable();
+error InvalidSupportValue();
+error AlreadyVotedOnProposal();
+error InvalidProposalState();
 
 //  ________  ________  _____ ______   ________  ________  ___  ___  ________   ________     
 // |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\  \|\  \|\   ___  \|\   ___ \    
@@ -51,10 +55,13 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     //////////////////////////
 
     /// @notice The COMP governance token contract
-    IComp public immutable COMP_TOKEN;
+IComp public immutable COMP_TOKEN;
 
-    /// @notice The factory contract that created this Compensator
-    address public immutable FACTORY;
+/// @notice The Compound Governor contract
+IGovernor public immutable GOVERNOR;
+
+/// @notice The factory contract that created this Compensator
+address public immutable FACTORY;
 
     /// @notice The amount of COMP deposited by the owner available for rewards to delegators
     uint256 public availableRewards;
@@ -84,7 +91,13 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     mapping(address delegator => uint256 index) public startRewardIndex;
 
     /// @notice Tracks previously accrued but unclaimed rewards for each delegator
-    mapping(address delegator => uint256 amount) public unclaimedRewards;
+mapping(address delegator => uint256 amount) public unclaimedRewards;
+
+/// @notice Tracks votes cast by this contract
+mapping(uint256 => bool) public contractVoted;
+
+/// @notice Tracks the vote direction for each proposal
+mapping(uint256 => uint8) public contractVoteDirection;
 
     /// @notice Precision factor for reward calculations (18 decimals)
     uint256 public constant REWARD_PRECISION = 1e18;
@@ -142,11 +155,14 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     );
 
     /// @notice Emitted when rewards are distributed to users
-    event RewardsDistributed(
-        uint256 totalRewards,
-        uint256 rewardIndex,
-        uint256 timestamp
-    );
+event RewardsDistributed(
+    uint256 totalRewards,
+    uint256 rewardIndex,
+    uint256 timestamp
+);
+
+/// @notice Emitted when the contract casts a vote
+event VoteCast(uint256 indexed proposalId, uint8 support, string reason);
 
     //////////////////////////
     // Constructor
@@ -155,16 +171,20 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
     /**
      * @notice Constructor that initializes the contract
      * @param _compToken The address of the COMP token contract
+     * @param _governor The address of the Compound Governor contract
      * @param _owner The address of the owner for factory deployment
      */
     constructor(
         address _compToken,
+        address _governor,
         address _owner
     ) ERC20("Compensator", "COMPENSATOR") Ownable(_owner) {
         if (_compToken == address(0)) revert InvalidCompTokenAddress();
+        if (_governor == address(0)) revert InvalidOwnerAddress();
         if (_owner == address(0)) revert InvalidOwnerAddress();
         
         COMP_TOKEN = IComp(_compToken);
+        GOVERNOR = IGovernor(_governor);
         FACTORY = msg.sender; // The factory that deploys this contract
         
         rewardIndex = REWARD_PRECISION; // Initialize reward index at 1 with 18 decimals
@@ -225,6 +245,24 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
      */
     function getContractVotingPower() external view returns (uint256) {
         return COMP_TOKEN.getCurrentVotes(address(this));
+    }
+
+    /**
+     * @notice Check if this contract has voted on a proposal
+     * @param proposalId The proposal ID to check
+     * @return Whether this contract has voted
+     */
+    function hasVoted(uint256 proposalId) external view returns (bool) {
+        return GOVERNOR.hasVoted(proposalId, address(this));
+    }
+
+    /**
+     * @notice Get the voting power of this contract at a specific block
+     * @param blockNumber The block number to check
+     * @return The voting power at that block
+     */
+    function getVotingPowerAt(uint256 blockNumber) external view returns (uint256) {
+        return GOVERNOR.getVotes(address(this), blockNumber);
     }
 
     // Owner functions
@@ -294,6 +332,74 @@ contract Compensator is ERC20, ReentrancyGuard, Ownable {
         // No external calls
         
         emit RewardRateUpdate(owner(), newRate);
+    }
+
+    /**
+     * @notice Allows the owner to cast votes using the contract's voting power
+     * @dev Only the contract owner can call this function
+     * @param proposalId The ID of the proposal to vote on
+     * @param support The vote direction (0 = Against, 1 = For, 2 = Abstain)
+     * @param reason The reason for the vote
+     */
+    function castVote(
+        uint256 proposalId,
+        uint8 support,
+        string memory reason
+    ) external onlyOwner {
+        // Validate support value (0 = Against, 1 = For, 2 = Abstain)
+        if (support > 2) revert InvalidSupportValue();
+        
+        // Check if contract has already voted on this proposal
+        if (contractVoted[proposalId]) revert AlreadyVotedOnProposal();
+        
+        // Verify proposal exists and is in a valid state
+        IGovernor.ProposalState state = GOVERNOR.state(proposalId);
+        if (
+            state != IGovernor.ProposalState.Active && 
+            state != IGovernor.ProposalState.Pending
+        ) revert InvalidProposalState();
+        
+        // Cast vote on the governor
+        GOVERNOR.castVoteWithReason(proposalId, support, reason);
+        
+        // Track the vote
+        contractVoted[proposalId] = true;
+        contractVoteDirection[proposalId] = support;
+        
+        emit VoteCast(proposalId, support, reason);
+    }
+
+    /**
+     * @notice Allows the owner to cast votes using the contract's voting power (without reason)
+     * @dev Only the contract owner can call this function
+     * @param proposalId The ID of the proposal to vote on
+     * @param support The vote direction (0 = Against, 1 = For, 2 = Abstain)
+     */
+    function castVote(
+        uint256 proposalId,
+        uint8 support
+    ) external onlyOwner {
+        // Validate support value (0 = Against, 1 = For, 2 = Abstain)
+        if (support > 2) revert InvalidSupportValue();
+        
+        // Check if contract has already voted on this proposal
+        if (contractVoted[proposalId]) revert AlreadyVotedOnProposal();
+        
+        // Verify proposal exists and is in a valid state
+        IGovernor.ProposalState state = GOVERNOR.state(proposalId);
+        if (
+            state != IGovernor.ProposalState.Active && 
+            state != IGovernor.ProposalState.Pending
+        ) revert InvalidProposalState();
+        
+        // Cast vote on the governor
+        GOVERNOR.castVote(proposalId, support);
+        
+        // Track the vote
+        contractVoted[proposalId] = true;
+        contractVoteDirection[proposalId] = support;
+        
+        emit VoteCast(proposalId, support, "");
     }
 
     // Delegator functions

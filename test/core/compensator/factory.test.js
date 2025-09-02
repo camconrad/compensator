@@ -11,9 +11,17 @@ describe("CompensatorFactory Operations", function () {
     const MockERC20 = await ethers.getContractFactory("MockERC20");
     compToken = await MockERC20.deploy("Mock COMP", "COMP");
     
+    // Deploy MockGovernor
+    const MockGovernor = await ethers.getContractFactory("contracts/mocks/MockGovernor.sol:MockGovernor");
+    const mockGovernor = await MockGovernor.deploy();
+    await mockGovernor.waitForDeployment();
+    
     // Deploy factory
     const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
-    factory = await CompensatorFactory.deploy(await compToken.getAddress());
+    factory = await CompensatorFactory.deploy(
+      await compToken.getAddress(),
+      await mockGovernor.getAddress()
+    );
     
     // Mint some COMP tokens for the delegate
     await compToken.mint(delegate.address, ethers.parseEther("1000000"));
@@ -197,7 +205,7 @@ describe("CompensatorFactory Operations", function () {
       const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
       
       await expect(
-        CompensatorFactory.deploy(ethers.ZeroAddress)
+        CompensatorFactory.deploy(ethers.ZeroAddress, ethers.ZeroAddress)
       ).to.be.revertedWithCustomError(CompensatorFactory, "InvalidCompTokenAddress");
     });
   });

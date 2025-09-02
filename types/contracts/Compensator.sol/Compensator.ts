@@ -30,17 +30,24 @@ export interface CompensatorInterface extends Interface {
       | "COMP_TOKEN"
       | "DELEGATION_CAP_PERCENT"
       | "FACTORY"
+      | "GOVERNOR"
       | "MAX_REWARD_RATE"
       | "REWARD_PRECISION"
       | "allowance"
       | "approve"
       | "availableRewards"
       | "balanceOf"
+      | "castVote(uint256,uint8,string)"
+      | "castVote(uint256,uint8)"
       | "claimRewards"
+      | "contractVoteDirection"
+      | "contractVoted"
       | "decimals"
       | "delegationCap"
       | "getContractVotingPower"
       | "getPendingRewards"
+      | "getVotingPowerAt"
+      | "hasVoted"
       | "lastRewarded"
       | "name"
       | "owner"
@@ -79,6 +86,7 @@ export interface CompensatorInterface extends Interface {
       | "UserDeposit"
       | "UserRewardsUpdated"
       | "UserWithdraw"
+      | "VoteCast"
   ): EventFragment;
 
   encodeFunctionData(
@@ -94,6 +102,7 @@ export interface CompensatorInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "FACTORY", values?: undefined): string;
+  encodeFunctionData(functionFragment: "GOVERNOR", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "MAX_REWARD_RATE",
     values?: undefined
@@ -119,8 +128,24 @@ export interface CompensatorInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "castVote(uint256,uint8,string)",
+    values: [BigNumberish, BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "castVote(uint256,uint8)",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "claimRewards",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractVoteDirection",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractVoted",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
@@ -134,6 +159,14 @@ export interface CompensatorInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getPendingRewards",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getVotingPowerAt",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasVoted",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "lastRewarded",
@@ -221,6 +254,7 @@ export interface CompensatorInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "FACTORY", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "GOVERNOR", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MAX_REWARD_RATE",
     data: BytesLike
@@ -237,7 +271,23 @@ export interface CompensatorInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "castVote(uint256,uint8,string)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "castVote(uint256,uint8)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "claimRewards",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractVoteDirection",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractVoted",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
@@ -253,6 +303,11 @@ export interface CompensatorInterface extends Interface {
     functionFragment: "getPendingRewards",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getVotingPowerAt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "hasVoted", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "lastRewarded",
     data: BytesLike
@@ -533,6 +588,28 @@ export namespace UserWithdrawEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace VoteCastEvent {
+  export type InputTuple = [
+    proposalId: BigNumberish,
+    support: BigNumberish,
+    reason: string
+  ];
+  export type OutputTuple = [
+    proposalId: bigint,
+    support: bigint,
+    reason: string
+  ];
+  export interface OutputObject {
+    proposalId: bigint;
+    support: bigint;
+    reason: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export interface Compensator extends BaseContract {
   connect(runner?: ContractRunner | null): Compensator;
   waitForDeployment(): Promise<this>;
@@ -584,6 +661,8 @@ export interface Compensator extends BaseContract {
 
   FACTORY: TypedContractMethod<[], [string], "view">;
 
+  GOVERNOR: TypedContractMethod<[], [string], "view">;
+
   MAX_REWARD_RATE: TypedContractMethod<[], [bigint], "view">;
 
   REWARD_PRECISION: TypedContractMethod<[], [bigint], "view">;
@@ -604,7 +683,27 @@ export interface Compensator extends BaseContract {
 
   balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
 
+  "castVote(uint256,uint8,string)": TypedContractMethod<
+    [proposalId: BigNumberish, support: BigNumberish, reason: string],
+    [void],
+    "nonpayable"
+  >;
+
+  "castVote(uint256,uint8)": TypedContractMethod<
+    [proposalId: BigNumberish, support: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   claimRewards: TypedContractMethod<[], [void], "nonpayable">;
+
+  contractVoteDirection: TypedContractMethod<
+    [arg0: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  contractVoted: TypedContractMethod<[arg0: BigNumberish], [boolean], "view">;
 
   decimals: TypedContractMethod<[], [bigint], "view">;
 
@@ -617,6 +716,14 @@ export interface Compensator extends BaseContract {
     [bigint],
     "view"
   >;
+
+  getVotingPowerAt: TypedContractMethod<
+    [blockNumber: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  hasVoted: TypedContractMethod<[proposalId: BigNumberish], [boolean], "view">;
 
   lastRewarded: TypedContractMethod<[], [bigint], "view">;
 
@@ -717,6 +824,9 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "FACTORY"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "GOVERNOR"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "MAX_REWARD_RATE"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -743,8 +853,28 @@ export interface Compensator extends BaseContract {
     nameOrSignature: "balanceOf"
   ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "castVote(uint256,uint8,string)"
+  ): TypedContractMethod<
+    [proposalId: BigNumberish, support: BigNumberish, reason: string],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "castVote(uint256,uint8)"
+  ): TypedContractMethod<
+    [proposalId: BigNumberish, support: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "claimRewards"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "contractVoteDirection"
+  ): TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "contractVoted"
+  ): TypedContractMethod<[arg0: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "decimals"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -757,6 +887,12 @@ export interface Compensator extends BaseContract {
   getFunction(
     nameOrSignature: "getPendingRewards"
   ): TypedContractMethod<[delegator: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getVotingPowerAt"
+  ): TypedContractMethod<[blockNumber: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "hasVoted"
+  ): TypedContractMethod<[proposalId: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "lastRewarded"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -920,6 +1056,13 @@ export interface Compensator extends BaseContract {
     UserWithdrawEvent.OutputTuple,
     UserWithdrawEvent.OutputObject
   >;
+  getEvent(
+    key: "VoteCast"
+  ): TypedContractEvent<
+    VoteCastEvent.InputTuple,
+    VoteCastEvent.OutputTuple,
+    VoteCastEvent.OutputObject
+  >;
 
   filters: {
     "Approval(address,address,uint256)": TypedContractEvent<
@@ -1063,6 +1206,17 @@ export interface Compensator extends BaseContract {
       UserWithdrawEvent.InputTuple,
       UserWithdrawEvent.OutputTuple,
       UserWithdrawEvent.OutputObject
+    >;
+
+    "VoteCast(uint256,uint8,string)": TypedContractEvent<
+      VoteCastEvent.InputTuple,
+      VoteCastEvent.OutputTuple,
+      VoteCastEvent.OutputObject
+    >;
+    VoteCast: TypedContractEvent<
+      VoteCastEvent.InputTuple,
+      VoteCastEvent.OutputTuple,
+      VoteCastEvent.OutputObject
     >;
   };
 }

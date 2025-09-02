@@ -18,10 +18,16 @@ describe("CompensatorFactory Operations", function () {
     // Mint initial supply to ensure totalSupply > 0 for Compensator constructor
     await compToken.mint(owner.address, ethers.parseEther("1000000")); // 1M COMP initial supply
     
+    // Deploy MockGovernor
+    const MockGovernor = await ethers.getContractFactory("contracts/mocks/MockGovernor.sol:MockGovernor");
+    const mockGovernor = await MockGovernor.deploy();
+    await mockGovernor.waitForDeployment();
+    
     // Deploy factory
     const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
     compensatorFactory = await CompensatorFactory.deploy(
-      await compToken.getAddress()
+      await compToken.getAddress(),
+      await mockGovernor.getAddress()
     );
     await compensatorFactory.waitForDeployment();
     

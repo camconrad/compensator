@@ -27,6 +27,7 @@ export interface CompensatorFactoryInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "COMP_TOKEN"
+      | "GOVERNOR"
       | "compensatorToOriginalOwner"
       | "compensators"
       | "createCompensator"
@@ -49,6 +50,7 @@ export interface CompensatorFactoryInterface extends Interface {
     functionFragment: "COMP_TOKEN",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "GOVERNOR", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "compensatorToOriginalOwner",
     values: [AddressLike]
@@ -91,6 +93,7 @@ export interface CompensatorFactoryInterface extends Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "COMP_TOKEN", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "GOVERNOR", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "compensatorToOriginalOwner",
     data: BytesLike
@@ -213,6 +216,8 @@ export interface CompensatorFactory extends BaseContract {
 
   COMP_TOKEN: TypedContractMethod<[], [string], "view">;
 
+  GOVERNOR: TypedContractMethod<[], [string], "view">;
+
   compensatorToOriginalOwner: TypedContractMethod<
     [compensator: AddressLike],
     [string],
@@ -263,6 +268,9 @@ export interface CompensatorFactory extends BaseContract {
 
   getFunction(
     nameOrSignature: "COMP_TOKEN"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "GOVERNOR"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "compensatorToOriginalOwner"

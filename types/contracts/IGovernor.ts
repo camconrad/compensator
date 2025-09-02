@@ -25,6 +25,8 @@ export interface IGovernorInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "castVote"
+      | "castVoteWithReason"
+      | "getVotes"
       | "hasVoted"
       | "proposalSnapshot"
       | "proposalVotes"
@@ -34,6 +36,14 @@ export interface IGovernorInterface extends Interface {
   encodeFunctionData(
     functionFragment: "castVote",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "castVoteWithReason",
+    values: [BigNumberish, BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getVotes",
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "hasVoted",
@@ -50,6 +60,11 @@ export interface IGovernorInterface extends Interface {
   encodeFunctionData(functionFragment: "state", values: [BigNumberish]): string;
 
   decodeFunctionResult(functionFragment: "castVote", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "castVoteWithReason",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasVoted", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposalSnapshot",
@@ -111,6 +126,18 @@ export interface IGovernor extends BaseContract {
     "nonpayable"
   >;
 
+  castVoteWithReason: TypedContractMethod<
+    [proposalId: BigNumberish, support: BigNumberish, reason: string],
+    [void],
+    "nonpayable"
+  >;
+
+  getVotes: TypedContractMethod<
+    [account: AddressLike, blockNumber: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
   hasVoted: TypedContractMethod<
     [proposalId: BigNumberish, account: AddressLike],
     [boolean],
@@ -147,6 +174,20 @@ export interface IGovernor extends BaseContract {
     [proposalId: BigNumberish, support: BigNumberish],
     [void],
     "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "castVoteWithReason"
+  ): TypedContractMethod<
+    [proposalId: BigNumberish, support: BigNumberish, reason: string],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "getVotes"
+  ): TypedContractMethod<
+    [account: AddressLike, blockNumber: BigNumberish],
+    [bigint],
+    "view"
   >;
   getFunction(
     nameOrSignature: "hasVoted"

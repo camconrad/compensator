@@ -13,6 +13,7 @@
 - **Factory-Based Deployment**: Each delegate gets their own isolated Compensator instance
 - **Advanced Reward System**: Index-based reward distribution with time-based accrual
 - **Delegation Management**: Efficient COMP token delegation with proportional reward distribution
+- **Governance Participation**: Full voting capabilities with accumulated voting power
 - **Enhanced Security**: ReentrancyGuard, custom errors, and comprehensive access control
 - **Ownership Management**: Sophisticated ownership transfer system with factory synchronization
 
@@ -25,6 +26,7 @@ address[] public compensators                    // All deployed Compensator con
 mapping(address => address) public ownerToCompensator  // Owner to Compensator mapping
 mapping(address => address) public compensatorToOriginalOwner  // Reverse mapping for ownership tracking
 address public immutable COMP_TOKEN              // COMP governance token
+address public immutable GOVERNOR                // Compound Governor contract
 ```
 
 ### Core Functions
@@ -73,6 +75,13 @@ mapping(address => uint256) public unclaimedRewards          // Individual uncla
 mapping(address => uint256) public startRewardIndex          // Starting reward index per delegator
 ```
 
+#### Governance Integration
+```solidity
+IGovernor public immutable GOVERNOR                          // Compound Governor contract
+mapping(uint256 => bool) public contractVoted                // Tracks votes cast by contract
+mapping(uint256 => uint8) public contractVoteDirection       // Vote direction for each proposal
+```
+
 ### Core Functions
 
 #### Delegation Management
@@ -107,6 +116,26 @@ mapping(address => uint256) public startRewardIndex          // Starting reward 
 - Notifies factory of ownership changes
 - Maintains factory mapping consistency
 - Includes comprehensive validation
+
+#### Governance Functions
+
+##### `castVote(uint256 proposalId, uint8 support)`
+- Allows owner to cast votes using contract's voting power
+- Validates support value (0=Against, 1=For, 2=Abstain)
+- Prevents duplicate voting on same proposal
+- Verifies proposal state before voting
+
+##### `castVote(uint256 proposalId, uint8 support, string memory reason)`
+- Same as above but includes voting reason
+- Provides transparency for governance decisions
+
+##### `hasVoted(uint256 proposalId)`
+- Checks if contract has voted on specific proposal
+- Returns boolean indicating vote status
+
+##### `getVotingPowerAt(uint256 blockNumber)`
+- Returns contract's voting power at specific block
+- Useful for historical voting power queries
 
 ### Security Features
 
@@ -146,12 +175,16 @@ error InsufficientBalance()
 error NoRewardsToClaim()
 error DelegationCapExceeded()
 error CompensatorTokensNotTransferable()
+error InvalidSupportValue()
+error AlreadyVotedOnProposal()
+error InvalidProposalState()
 ```
 
 ## Integration Points
 
 ### Compound Protocol
 - **COMP Token**: Standard ERC20 integration for delegation and rewards
+- **Compound Governor**: Full integration for governance participation and voting
 
 ### External Systems
 - **Factory Contract**: Contract deployment and ownership management
@@ -187,13 +220,39 @@ error CompensatorTokensNotTransferable()
 
 ### Prerequisites
 - COMP token address: `0xc00e94cb662c3520282e6f5717214004a7f26888`
-- Factory deployment with proper constructor parameters
+- Compound Governor address: `0x309a862bbC1A00e45506cB8A802D1ff10004c8C0`
+- Factory deployment with proper constructor parameters (COMP token + Governor)
 
 ### Post-Deployment
 - Factory address update in frontend configuration
 - Contract verification on Etherscan
 - Test delegate creation and basic functionality
+- Test governance voting functionality
 - Monitor gas usage and performance metrics
+
+## Governance Integration
+
+### Voting Mechanism
+The Compensator contract integrates with Compound's governance system to allow delegates to vote using the accumulated voting power from all delegators.
+
+### Key Features
+- **Full Vote Support**: Against (0), For (1), and Abstain (2) votes
+- **Vote Validation**: Ensures votes are only cast on valid, active proposals
+- **Duplicate Prevention**: Prevents voting multiple times on the same proposal
+- **Transparency**: All votes are tracked and events are emitted
+- **Owner Control**: Only the contract owner (delegate) can cast votes
+
+### Voting Flow
+1. Delegators deposit COMP → Voting power accumulates in the contract
+2. Compound proposal goes live → Delegate decides how to vote
+3. Delegate calls `castVote()` → Contract votes with full accumulated power
+4. Vote is recorded and transparent to all participants
+
+### Security Considerations
+- **Access Control**: Only contract owner can vote
+- **Proposal Validation**: Votes only accepted on valid proposals
+- **State Verification**: Proposal must be in Active or Pending state
+- **Vote Tracking**: Prevents duplicate voting and provides transparency
 
 ## Security Contact
 

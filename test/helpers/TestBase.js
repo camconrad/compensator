@@ -28,10 +28,16 @@ class TestBase {
     // Mint initial supply to ensure totalSupply > 0 for Compensator constructor
     await this.compToken.mint(this.delegate.address, ethers.parseEther("1000000")); // 1M COMP initial supply
     
+    // Deploy MockGovernor
+    const MockGovernor = await ethers.getContractFactory("contracts/mocks/MockGovernor.sol:MockGovernor");
+    this.mockGovernor = await MockGovernor.deploy();
+    await this.mockGovernor.waitForDeployment();
+    
     // Deploy CompensatorFactory
     const CompensatorFactory = await ethers.getContractFactory("contracts/CompensatorFactory.sol:CompensatorFactory");
     this.compensatorFactory = await CompensatorFactory.deploy(
-      await this.compToken.getAddress()
+      await this.compToken.getAddress(),
+      await this.mockGovernor.getAddress()
     );
     await this.compensatorFactory.waitForDeployment();
     

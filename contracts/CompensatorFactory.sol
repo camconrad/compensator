@@ -40,7 +40,8 @@ contract CompensatorFactory {
     /// @notice The COMP governance token contract
     address public immutable COMP_TOKEN;
 
-
+    /// @notice The Compound Governor contract
+    address public immutable GOVERNOR;
 
     //////////////////////////
     // Events
@@ -69,15 +70,19 @@ contract CompensatorFactory {
     //////////////////////////
 
     /**
-     * @notice Constructor that initializes the factory with the COMP token address
+     * @notice Constructor that initializes the factory with the COMP token and Governor addresses
      * @param _compToken The address of the COMP token contract
+     * @param _governor The address of the Compound Governor contract
      */
     constructor(
-        address _compToken
+        address _compToken,
+        address _governor
     ) {
         if (_compToken == address(0)) revert InvalidCompTokenAddress();
+        if (_governor == address(0)) revert InvalidOwnerAddress();
         
         COMP_TOKEN = _compToken;
+        GOVERNOR = _governor;
     }
 
     //////////////////////////
@@ -98,6 +103,7 @@ contract CompensatorFactory {
         // Deploy a new Compensator contract with correct parameters
         Compensator compensator = new Compensator(
             COMP_TOKEN,         // COMP token address
+            GOVERNOR,           // Governor address
             owner              // Owner address
         );
 
